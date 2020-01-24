@@ -8,5 +8,5 @@ script:
 env:
   - CODECOV_TOKEN="152934f4-bf87-4e13-9132-3303aed1646d"
 after_success:
-  - codecov
+  - bash <(curl -s https://codecov.io/bash)
 
