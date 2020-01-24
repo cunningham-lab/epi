@@ -12,6 +12,7 @@ def format_type_err_msg(obj, arg_name: str, arg, correct_type) -> str:
         arg_type.__name__,
     )
 
+
 def format_arch_type_err_msg(arch_type: str) -> str:
     if arch_type == "ar":
         arch_class = "AutoregressiveArch"
