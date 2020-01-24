@@ -74,7 +74,7 @@ pathspec==0.7.0
 patsy==0.4.1
 pexpect==4.7.0
 pickleshare==0.7.5
-Pillow==4.2.1
+Pillow==6.2.0
 pluggy==0.12.0
 prompt-toolkit==3.0.2
 protobuf==3.11.2
