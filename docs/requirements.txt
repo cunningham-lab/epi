@@ -25,8 +25,6 @@ cycler==0.10.0
 dataclasses==0.7
 decorator==4.0.11
 docutils==0.16
-dsn==1.0
-efn==0.1
 entrypoints==0.3
 -e git+https://github.com/cunningham-lab/epi.git@ac2a17645ec1bf13e5fd939f4d2d87d41925d77f#egg=epi
 gast==0.2.2
