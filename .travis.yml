@@ -4,7 +4,7 @@ python:
 install:
   - python setup.py -q install
 script:
-  - pytest --cov-report=xml --cov=epi tests
+  - pytest tests
 env:
   - CODECOV_TOKEN="152934f4-bf87-4e13-9132-3303aed1646d"
 after_success:
