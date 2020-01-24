@@ -7,6 +7,6 @@ setup(name='epi',
       description='Emergent property inference.',
       author='Sean Bittner',
       author_email='srb2201@columbia.edu',
-      install_requires=[],
+      install_requires=['pytest-cov'],
       packages=['epi'],
      )
