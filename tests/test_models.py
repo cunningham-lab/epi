@@ -51,6 +51,9 @@ def test_Model_init():
     for i, p in enumerate(M.parameters):
         assert(p == params[i])
 
+    with raises(TypeError):
+        Model(1, params)
+
     params = [p1, 'bar']
     with raises(TypeError):
         Model('foo', params)
@@ -96,3 +99,6 @@ def test_load_epi_dist():
 if __name__ == "__main__":
     test_Parameter_init()
     test_Model_init()
+    test_set_eps()
+    test_epi()
+    test_load_epi_dist()
