@@ -48,33 +48,37 @@ class Parameter:
 
         self.bounds = bounds
 
-"""
 class Model:
     def __init__(self, name, parameters):
-        self.name = name
-        self.parameters = parameters
-        if not self.parameter_check(verbose=True):
-            raise ValueError("Invalid parameter list.")
+        self._set_name(name)
+        self._set_parameters(parameters)
         self.eps = lambda: None
 
-    def set_name(self, name):
+    def _set_name(self, name):
+        if type(name) is not str:
+            raise TypeError(format_type_err_msg(self, "name", name, str))
         self.name = name
 
-    def set_parameters(self, parameters):
+    def _set_parameters(self, parameters):
+        for parameter in parameters:
+            if (type(parameter) is not Parameter):
+                raise TypeError(format_type_err_msg(self, "parameter", parameter, Parameter))
+        if not self.parameter_check(parameters, verbose=True):
+            raise ValueError("Invalid parameter list.")
         self.parameters = parameters
 
-    def set_eps():
+    def _set_eps(self,):
         raise NotImplementedError()
 
-    def epi():
+    def epi(self,):
         raise NotImplementedError()
 
-    def load_epi_dist():
+    def load_epi_dist(self,):
         raise NotImplementedError()
 
-    def parameter_check(self, verbose=False):
+    def parameter_check(self, parameters, verbose=False):
         d = dict()
-        for param in self.parameters:
+        for param in parameters:
             name = param.name
             if name in d:
                 if verbose:
@@ -100,4 +104,3 @@ class Model:
                 return False
 
         return True
-"""
