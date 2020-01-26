@@ -10,10 +10,13 @@ tfb = tfp.bijectors
 tfd = tfp.distributions
 
 from epi.error_formatters import format_type_err_msg
-from epi.util import gaussian_backward_mapping, save_tf_model, load_tf_model, init_path
+from epi.util import gaussian_backward_mapping, save_tf_model, load_tf_model, init_path, get_array_str
+
+DTYPE = tf.float32
+EPS = 1e-6
 
 
-class Architecture():
+class Architecture:
     def __init__(
         self,
         arch_type,
@@ -23,6 +26,8 @@ class Architecture():
         num_units,
         batch_norm=True,
         post_affine=True,
+        bounds=None,
+        random_seed=1,
     ):
         self._set_arch_type(arch_type)
         self._set_D(D)
@@ -31,7 +36,9 @@ class Architecture():
         self._set_num_units(num_units)
         self._set_batch_norm(batch_norm)
         self._set_post_affine(post_affine)
-        self.bn_momentum = 0.0
+        self._set_bounds(bounds)
+        self._set_random_seed(random_seed)
+        self.bn_momentum = 0.99
         self.trainable_variables = []
 
         self.stages = []
@@ -39,7 +46,11 @@ class Architecture():
         if self.batch_norm:
             self.batch_norms = []
 
-        np.random.seed(0)
+        tf.keras.backend.clear_session()
+
+        self.q0 = tfd.MultivariateNormalDiag(loc=self.D * [0.0])
+
+        np.random.seed(self.random_seed)
         for i in range(num_stages):
             if arch_type == "coupling":
                 shift_and_log_scale_fn = tfb.real_nvp_default_template(
@@ -66,14 +77,41 @@ class Architecture():
                     bn = tf.keras.layers.BatchNormalization(momentum=self.bn_momentum)
                     self.batch_norms.append(tfb.BatchNormalization(batchnorm_layer=bn))
 
-        self.q0 = tfd.MultivariateNormalDiag(loc=self.D * [0.0])
-
         if self.post_affine:
             self.a = tf.Variable(initial_value=tf.ones((D,)), name="a")
             self.b = tf.Variable(initial_value=tf.zeros((D,)), name="b")
 
+        if self.lb is not None and self.ub is not None:
+            tanh_flg, softplus_flg = self.D * [0], self.D * [0]
+            tanh_m, tanh_c = self.D * [1.0], self.D * [0.0]
+            softplus_m, softplus_c = self.D * [1.0], self.D * [0.0]
+            for i in range(self.D):
+                lb_i, ub_i = self.lb[i], self.ub[i]
+                has_lb = not np.isneginf(lb_i)
+                has_ub = not np.isposinf(ub_i)
+                if has_lb and has_ub:
+                    tanh_flg[i] = 1
+                    tanh_m[i] = (ub_i - lb_i) / 2.0
+                    tanh_c[i] = (ub_i + lb_i) / 2.0
+                elif has_lb:
+                    softplus_flg[i] = 1
+                    softplus_m[i] = 1.0
+                    softplus_c[i] = lb_i
+                elif has_ub:
+                    softplus_flg[i] = 1
+                    softplus_m[i] = -1.0
+                    softplus_c[i] = ub_i
+
+            self.tanh_flg = tf.constant(tanh_flg, dtype=DTYPE)
+            self.softplus_flg = tf.constant(softplus_flg, dtype=DTYPE)
+            self.tanh_m = tf.constant(tanh_m, dtype=DTYPE)
+            self.tanh_c = tf.constant(tanh_c, dtype=DTYPE)
+            self.softplus_m = tf.constant(softplus_m, dtype=DTYPE)
+            self.softplus_c = tf.constant(softplus_c, dtype=DTYPE)
+
     @tf.function
     def __call__(self, N):
+        tf.random.set_seed(self.random_seed)
 
         x = self.q0.sample(N)
         log_q0 = self.q0.log_prob(x)
@@ -99,6 +137,38 @@ class Architecture():
             sum_ldj += self.PA.forward_log_det_jacobian(x, event_ndims=1)
             x = self.PA(x)
             self.trainable_variables += self.PA.trainable_variables
+
+        if self.lb is not None and self.ub is not None:
+            # Tanh stage
+            tanh_x = tf.tanh(x)
+            out = tf.math.multiply(self.tanh_m, tanh_x) + self.tanh_c
+            tanh_ldj = tf.reduce_sum(
+                tf.multiply(
+                    self.tanh_flg,
+                    tf.math.log(self.tanh_m + EPS)
+                    + tf.math.log(1.0 - tf.square(tanh_x) + EPS),
+                ),
+                1,
+            )
+            sum_ldj += tanh_ldj
+            x = tf.multiply(self.tanh_flg, out) + tf.multiply(1 - self.tanh_flg, x)
+
+            out = (
+                tf.math.multiply(
+                    self.softplus_m, tf.math.log(1.0 + tf.math.exp(x) + EPS)
+                )
+                + self.softplus_c
+            )
+            softplus_ldj = tf.reduce_sum(
+                tf.math.multiply(
+                    self.softplus_flg, 
+                    tf.math.log(
+                        tf.math.divide(1.0, 1.0 + tf.math.exp(-x)) + EPS)), 1)
+            sum_ldj += softplus_ldj
+        
+            x = tf.multiply(self.softplus_flg, out) + tf.multiply(
+                1 - self.softplus_flg, x
+            )
 
         log_q_x = log_q0 - sum_ldj
         return x, log_q_x
@@ -153,11 +223,36 @@ class Architecture():
             raise TypeError(format_type_err_msg(self, "post_affine", post_affine, bool))
         self.post_affine = post_affine
 
-    def to_string(self,):
-        arch_string = "%d_%s" % (self.num_layers, self.arch_type)
-        if self.post_affine:
-            arch_string += "_PA"
-        return arch_string
+    def _set_random_seed(self, random_seed):
+        if type(random_seed) is not int:
+            raise TypeError(format_type_err_msg(self, "random_seed", random_seed, int))
+        self.random_seed = random_seed
+
+    def _set_bounds(self, bounds):
+        if bounds is not None:
+            _type = type(bounds)
+            if _type in [list, tuple]:
+                len_bounds = len(bounds)
+                if _type is list:
+                    bounds = tuple(bounds)
+            else:
+                raise TypeError(
+                    "Architecture argument bounds must be tuple or list not %s."
+                    % _type.__name__
+                )
+
+            if len_bounds != 2:
+                raise ValueError("Architecture bounds arg must be length 2.")
+
+            for i, bound in enumerate(bounds):
+                if type(bound) is not np.ndarray:
+                    raise TypeError(
+                        format_type_err_msg(self, "bounds[%d]" % i, bound, np.ndarray)
+                    )
+
+            self.lb, self.ub = bounds[0], bounds[1]
+        else:
+            self.lb, self.ub = None, None
 
     def initialize(
         self,
@@ -171,7 +266,8 @@ class Architecture():
     ):
 
         _init_path = init_path(self.to_string(), init_type, init_params)
-        if (os.path.exists(_init_path + '.p')):
+        if os.path.exists(_init_path + ".p"):
+            print("Loading variables from cached initialization.")
             _, _ = self(N)
             load_tf_model(_init_path, self.trainable_variables)
             return None
@@ -210,6 +306,7 @@ class Architecture():
             optimizer.apply_gradients(zip(gradients, params))
             return loss
 
+        print('start', self.trainable_variables)
         for i in range(num_iters):
             loss = train_step()
             if i % 100 == 0:
@@ -217,15 +314,19 @@ class Architecture():
                 KL = np.mean(log_q_x) - np.mean(p_target.logpdf(x))
                 if verbose:
                     print(i, "loss", loss, "KL", KL)
+
+                if np.isnan(loss):
+                    print("Error. Loss is nan. Quitting.")
+                    return None
+                if not np.isfinite(loss):
+                    print("Error. Loss is inf. Quitting.")
+                    return None
                 if KL < KL_th:
                     print("Finished initializing")
-                    save_tf_model(
-                        _init_path, 
-                        self.trainable_variables)
+                    save_tf_model(_init_path, self.trainable_variables)
                     return None
 
-                    
-
+        save_tf_model(_init_path, self.trainable_variables)
         print("Final KL to target after initialization optimization: %.2E." % KL)
         return None
 
@@ -234,12 +335,20 @@ class Architecture():
             arch_type_str = "C"
         elif self.arch_type == "autoregressive":
             arch_type_str = "AR"
-        arch_string = "%d%s_%dL_%dU" % (
-            self.num_stages,
+
+        arch_string = "D%d_%s%d_L%d_U%d" % (
+            self.D,
             arch_type_str,
+            self.num_stages,
             self.num_layers,
             self.num_units,
         )
         if self.post_affine:
             arch_string += "_PA"
+
+        if (self.lb is not None and self.ub is not None):
+            arch_string += '_lb=%s_ub=%s' % (get_array_str(self.lb), get_array_str(self.ub))
+
+
+        arch_string += "_rs%d" % self.random_seed
         return arch_string
