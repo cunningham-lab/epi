@@ -306,7 +306,6 @@ class Architecture:
             optimizer.apply_gradients(zip(gradients, params))
             return loss
 
-        print('start', self.trainable_variables)
         for i in range(num_iters):
             loss = train_step()
             if i % 100 == 0:

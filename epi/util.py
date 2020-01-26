@@ -46,20 +46,20 @@ def get_array_str(a):
     d = a.shape[0]
     mults = []
     nums = []
-    last_num = a[0]
+    prev_num = a[0]
     mult = 1
     for i in range(1, d):
-        if a[i] == last_num:
+        if a[i] == prev_num:
             mult += 1
-            if (i == d-1):
-                nums.append(last_num)
-                mults.append(mult)
         else:
-            nums.append(last_num)
-            last_num = a[i]
+            nums.append(prev_num)
+            prev_num = a[i]
             mults.append(mult)
             mult = 1
 
+        if (i == d-1):
+            nums.append(prev_num)
+            mults.append(mult)
   
     array_str = repeats_str(nums[0], mults[0])
     for i in range(1, len(nums)):
