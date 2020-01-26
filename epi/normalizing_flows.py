@@ -2,6 +2,7 @@
 
 import numpy as np
 import scipy.stats
+import os
 import tensorflow as tf
 import tensorflow_probability as tfp
 
@@ -9,10 +10,10 @@ tfb = tfp.bijectors
 tfd = tfp.distributions
 
 from epi.error_formatters import format_type_err_msg
-from epi.util import gaussian_backward_mapping
+from epi.util import gaussian_backward_mapping, save_tf_model, load_tf_model, init_path
 
 
-class Architecture(tf.keras.Model):
+class Architecture():
     def __init__(
         self,
         arch_type,
@@ -23,7 +24,6 @@ class Architecture(tf.keras.Model):
         batch_norm=True,
         post_affine=True,
     ):
-        super().__init__()
         self._set_arch_type(arch_type)
         self._set_D(D)
         self._set_num_stages(num_stages)
@@ -32,6 +32,7 @@ class Architecture(tf.keras.Model):
         self._set_batch_norm(batch_norm)
         self._set_post_affine(post_affine)
         self.bn_momentum = 0.0
+        self.trainable_variables = []
 
         self.stages = []
         self.permutations = []
@@ -72,21 +73,18 @@ class Architecture(tf.keras.Model):
             self.b = tf.Variable(initial_value=tf.zeros((D,)), name="b")
 
     @tf.function
-    def call(self, x, log_q0):
+    def __call__(self, N):
 
-        #x = self.q0.sample(N)
-        #log_q0 = self.q0.log_prob(x)
+        x = self.q0.sample(N)
+        log_q0 = self.q0.log_prob(x)
 
         sum_ldj = 0.0
         for i in range(self.num_stages):
             stage_i = self.stages[i]
             sum_ldj += stage_i.forward_log_det_jacobian(x, event_ndims=1)
             x = stage_i(x)
-            print(i, stage_i.trainable_variables)
             for var in stage_i.trainable_variables:
-                print(var)
                 self.trainable_variables.append(var)
-                print(self.trainable_variables)
             if i < self.num_stages - 1:
                 if self.batch_norm:
                     batch_norm_i = self.batch_norms[i]
@@ -100,7 +98,7 @@ class Architecture(tf.keras.Model):
             self.PA = tfb.Chain([self.shift, self.scale])
             sum_ldj += self.PA.forward_log_det_jacobian(x, event_ndims=1)
             x = self.PA(x)
-            #self.trainable_variables += self.PA.trainable_variables
+            self.trainable_variables += self.PA.trainable_variables
 
         log_q_x = log_q0 - sum_ldj
         return x, log_q_x
@@ -172,6 +170,12 @@ class Architecture(tf.keras.Model):
         verbose=False,
     ):
 
+        _init_path = init_path(self.to_string(), init_type, init_params)
+        if (os.path.exists(_init_path + '.p')):
+            _, _ = self(N)
+            load_tf_model(_init_path, self.trainable_variables)
+            return None
+
         if KL_th is None:
             KL_th = self.D * 0.001
 
@@ -185,8 +189,6 @@ class Architecture(tf.keras.Model):
         eta = gaussian_backward_mapping(mu, Sigma)
 
         optimizer = tf.keras.optimizers.Adam(lr)
-        ckpt = tf.train.Checkpoint(step=tf.Variable(1), optimizer=optimizer, net=self)
-        manager = tf.train.CheckpointManager(ckpt, './tf_ckpts', max_to_keep=None)
 
         @tf.function
         def train_step():
@@ -203,7 +205,6 @@ class Architecture(tf.keras.Model):
                 loss = E_log_q_x + -tf.reduce_sum(eta * E_T_x)
 
             params = self.trainable_variables
-            print('params', params)
             gradients = tape.gradient(loss, params)
 
             optimizer.apply_gradients(zip(gradients, params))
@@ -218,12 +219,15 @@ class Architecture(tf.keras.Model):
                     print(i, "loss", loss, "KL", KL)
                 if KL < KL_th:
                     print("Finished initializing")
-                    return manager.save()
+                    save_tf_model(
+                        _init_path, 
+                        self.trainable_variables)
+                    return None
 
                     
 
         print("Final KL to target after initialization optimization: %.2E." % KL)
-        return manager.save()
+        return None
 
     def to_string(self,):
         if self.arch_type == "coupling":
