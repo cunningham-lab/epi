@@ -1,14 +1,14 @@
 \BOOKMARK [1][-]{section.1}{Introduction}{}% 1
 \BOOKMARK [1][-]{section.2}{Requirements}{}% 2
-\BOOKMARK [1][-]{section.3}{Dependency\040selection}{}% 3
-\BOOKMARK [2][-]{subsection.3.1}{Normalizing\040flows\040support}{section.3}% 4
-\BOOKMARK [2][-]{subsection.3.2}{Model\040implementation\040requirement}{section.3}% 5
-\BOOKMARK [2][-]{subsection.3.3}{Tensorflow\040implementation\040rationale}{section.3}% 6
-\BOOKMARK [1][-]{section.4}{EPI\040package\040design}{}% 7
-\BOOKMARK [2][-]{subsection.4.1}{EPI\040class\040diagram}{section.4}% 8
-\BOOKMARK [2][-]{subsection.4.2}{Key\040functions}{section.4}% 9
+\BOOKMARK [1][-]{section.3}{Dependency selection}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{Normalizing flows support}{section.3}% 4
+\BOOKMARK [2][-]{subsection.3.2}{Model implementation requirement}{section.3}% 5
+\BOOKMARK [2][-]{subsection.3.3}{Tensorflow implementation rationale}{section.3}% 6
+\BOOKMARK [1][-]{section.4}{EPI package design}{}% 7
+\BOOKMARK [2][-]{subsection.4.1}{EPI class diagram}{section.4}% 8
+\BOOKMARK [2][-]{subsection.4.2}{Key functions}{section.4}% 9
 \BOOKMARK [1][-]{section.5}{Testing}{}% 10
-\BOOKMARK [2][-]{subsection.5.1}{Unit\040testing}{section.5}% 11
+\BOOKMARK [2][-]{subsection.5.1}{Unit testing}{section.5}% 11
 \BOOKMARK [2][-]{subsection.5.2}{Validation}{section.5}% 12
 \BOOKMARK [1][-]{section.6}{Documentation}{}% 13
 \BOOKMARK [1][-]{section.7}{Style}{}% 14
