@@ -39,6 +39,7 @@ templates_path = ['_templates']
 # mock imports; torch is too heavy
 autodoc_mock_imports = [
     'tensorflow',
+    'tensorflow_probability',
 ]
 
 # List of patterns, relative to source directory, that match files and
