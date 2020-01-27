@@ -13,7 +13,6 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../../'))
-sys.path.insert(0, os.path.abspath('../../epi'))
 
 
 # -- Project information -----------------------------------------------------
@@ -36,6 +35,11 @@ extensions = ['sphinx.ext.autodoc'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
+
+# mock imports; torch is too heavy
+autodoc_mock_imports = [
+    'tensorflow',
+]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
