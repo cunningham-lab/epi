@@ -26,7 +26,6 @@ dataclasses==0.7
 decorator==4.0.11
 docutils==0.16
 entrypoints==0.3
--e git+https://github.com/cunningham-lab/epi.git@ac2a17645ec1bf13e5fd939f4d2d87d41925d77f#egg=epi
 gast==0.2.2
 google-auth==1.10.1
 google-auth-oauthlib==0.4.1
@@ -44,11 +43,6 @@ jedi==0.15.2
 Jinja2==2.10.3
 jmespath==0.9.4
 joblib==0.11
-jupyter-client==5.3.4
-jupyter-core==4.6.1
-Keras==2.1.3
-Keras-Applications==1.0.8
-Keras-Preprocessing==1.1.0
 kiwisolver==1.0.1
 librosa==0.5.1
 llvmlite==0.20.0
@@ -111,12 +105,6 @@ sphinxcontrib-htmlhelp==1.0.2
 sphinxcontrib-jsmath==1.0.1
 sphinxcontrib-qthelp==1.0.2
 sphinxcontrib-serializinghtml==1.1.3
-tb-nightly==2.1.0a20191206
-tensorboard==2.1.0
-tensorflow==2.1.0
-tensorflow-estimator==2.1.0
-tensorflow-estimator-2.0-preview==2.0.0
-tensorflow-probability==0.9.0
 termcolor==1.1.0
 toml==0.10.0
 tornado==6.0.3
