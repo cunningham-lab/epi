@@ -28,5 +28,6 @@ def test_format_type_err_msg():
 
     return None
 
+
 if __name__ == "__main__":
     test_format_type_err_msg()

@@ -1,55 +1,87 @@
 """ Test normalizing flow architectures. """
 
-from epi.normalizing_flows import Arch, CouplingArch
+import numpy as np
+from epi.normalizing_flows import Architecture
 from pytest import raises
 
 
-def test_Arch_init():
+def test_Architecture_init():
     """Test architecture initialization."""
-    arch_type = "planar"
+    arch_type = "coupling"
+    D = 4
+    num_stages = 1
     num_layers = 2
-    post_affine = True
+    num_units = 15
 
     # Check setters.
-    A = Arch(arch_type, num_layers, post_affine)
-    assert A.arch_type == "planar"
-    assert A.num_layers == 2
+    A = Architecture(arch_type, D, num_stages, num_layers, num_units)
+    assert A.arch_type == "coupling"
+    assert A.D == D
+    assert A.num_stages == num_stages
+    assert A.num_layers == num_layers
+    assert A.num_units == num_units
+    assert A.batch_norm
     assert A.post_affine
+    assert A.lb is None
+    assert A.ub is None
+    assert A.random_seed == 1
 
-    # Check type checking.
-    with raises(TypeError):
-        A = Arch(0, num_layers, post_affine)
-    with raises(TypeError):
-        A = Arch({}, num_layers, post_affine)
+    # Test autoregressive
+    A = Architecture('autoregressive', D, num_stages, num_layers, num_units)
+    assert A.arch_type == "autoregressive"
+
+    lb = -2.*np.ones((D,))
+    ub = 2.*np.ones((D,))
+    bounds = (lb, ub)
+    A = Architecture(arch_type, D, num_stages, num_layers, num_units, False, False, bounds, 5)
+    assert not A.batch_norm
+    assert not A.post_affine
+    assert np.equal(A.lb, lb).all()
+    assert np.equal(A.ub, ub).all()
+    assert A.random_seed == 5
 
     with raises(TypeError):
-        A = Arch(arch_type, 2.0, post_affine)
-    with raises(TypeError):
-        A = Arch(arch_type, "foo", post_affine)
-    with raises(TypeError):
-        A = Arch(arch_type, {}, post_affine)
+        A = Architecture(0, D, num_stages, num_layers, num_units)
+    with raises(ValueError):
+        A = Architecture('foo', D, num_stages, num_layers, num_units)
 
     with raises(TypeError):
-        A = Arch(arch_type, num_layers, 0)
+        A = Architecture(arch_type, 2., num_stages, num_layers, num_units)
+    with raises(ValueError):
+        A = Architecture(arch_type, 1, num_stages, num_layers, num_units)
+
     with raises(TypeError):
-        A = Arch(arch_type, num_layers, "False")
+        A = Architecture(arch_type, D, 2., num_layers, num_units)
+    with raises(ValueError):
+        A = Architecture(arch_type, D, 0, num_layers, num_units)
 
-    # Check value checking
+    with raises(TypeError):
+        A = Architecture(arch_type, D, num_stages, 2., num_units)
     with raises(ValueError):
-        A = Arch("ar", num_layers, post_affine)
-    with raises(ValueError):
-        A = Arch("coupling", num_layers, post_affine)
-    with raises(ValueError):
-        A = Arch("foo", num_layers, post_affine)
+        A = Architecture(arch_type, D, num_stages, 0, num_units)
 
+    with raises(TypeError):
+        A = Architecture(arch_type, D, num_stages, num_layers, 2.)
     with raises(ValueError):
-        A = Arch(arch_type, 0, post_affine)
+        A = Architecture(arch_type, D, num_stages, num_layers, 0)
+
+    with raises(TypeError):
+        A = Architecture(arch_type, D, num_stages, num_layers, 2.)
     with raises(ValueError):
-        A = Arch(arch_type, -100, post_affine)
+        A = Architecture(arch_type, D, num_stages, num_layers, 0)
+
+    with raises(TypeError):
+        A = Architecture(arch_type, D, num_stages, num_layers, num_units, batch_norm=1.)
+
+    with raises(TypeError):
+        A = Architecture(arch_type, D, num_stages, num_layers, num_units, post_affine=1.)
+
+    with raises(TypeError):
+        A = Architecture(arch_type, D, num_stages, num_layers, num_units, randon_seed=1.)
 
     return None
 
-
+"""
 def test_CouplingArch_init():
     CA = CouplingArch(4, 1, 2, 10)
     assert CA.D == 4
@@ -83,7 +115,6 @@ def test_CouplingArch_init():
 
 
 def test_to_string():
-    """Test string construction from architecture parameters."""
     A = Arch("planar", 2, True)
     assert A.to_string() == "2_planar_PA"
 
@@ -100,18 +131,7 @@ def test_to_string():
     assert CA.to_string() == "NVP_1C_2L_10U"
 
     return None
-
-
-def test_to_model():
-    """Test tensorflow model construction from architecture parameters."""
-    A = Arch("planar", 2, False)
-    with raises(NotImplementedError):
-        A.to_model()
-    return None
-
+"""
 
 if __name__ == "__main__":
     test_Arch_init()
-    test_CouplingArch_init()
-    test_to_string()
-    test_to_string()
