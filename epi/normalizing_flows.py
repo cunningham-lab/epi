@@ -10,7 +10,13 @@ tfb = tfp.bijectors
 tfd = tfp.distributions
 
 from epi.error_formatters import format_type_err_msg
-from epi.util import gaussian_backward_mapping, save_tf_model, load_tf_model, init_path, get_array_str
+from epi.util import (
+    gaussian_backward_mapping,
+    save_tf_model,
+    load_tf_model,
+    init_path,
+    array_str,
+)
 
 DTYPE = tf.float32
 EPS = 1e-6
@@ -161,11 +167,13 @@ class Architecture:
             )
             softplus_ldj = tf.reduce_sum(
                 tf.math.multiply(
-                    self.softplus_flg, 
-                    tf.math.log(
-                        tf.math.divide(1.0, 1.0 + tf.math.exp(-x)) + EPS)), 1)
+                    self.softplus_flg,
+                    tf.math.log(tf.math.divide(1.0, 1.0 + tf.math.exp(-x)) + EPS),
+                ),
+                1,
+            )
             sum_ldj += softplus_ldj
-        
+
             x = tf.multiply(self.softplus_flg, out) + tf.multiply(
                 1 - self.softplus_flg, x
             )
@@ -345,9 +353,8 @@ class Architecture:
         if self.post_affine:
             arch_string += "_PA"
 
-        if (self.lb is not None and self.ub is not None):
-            arch_string += '_lb=%s_ub=%s' % (get_array_str(self.lb), get_array_str(self.ub))
-
+        if self.lb is not None and self.ub is not None:
+            arch_string += "_lb=%s_ub=%s" % (array_str(self.lb), array_str(self.ub))
 
         arch_string += "_rs%d" % self.random_seed
         return arch_string
