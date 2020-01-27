@@ -59,13 +59,12 @@ def np_column_vec(x):
 
 
 def array_str(a):
-    """Derive string from numpy 1-D array using scientific encoding.
+    """Returns a compressed string from a 1-D numpy array.
 
-    # Arguments
-        a (np.array) String is derived from this array.
-
-    # Returns
-        array_str (string) Array string
+    :param a: A 1-D numpy array.
+    :type a: class`numpy.ndarray`
+    :return: A string compressed via scientific notation and repeated elements.
+    :rtype: str
     """
     if type(a) is not np.ndarray:
         raise TypeError(format_type_err_msg("epi.util.array_str", "a", a, np.ndarray))
