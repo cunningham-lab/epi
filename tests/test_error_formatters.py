@@ -28,16 +28,5 @@ def test_format_type_err_msg():
 
     return None
 
-
-def test_format_arch_type_err_msg():
-    """Test that arch_type ValueError formatted strings are correct."""
-    d = {"coupling": "CouplingArch", "ar": "AutoregressiveArch"}
-    for arch_type, class_name in d.items():
-        assert format_arch_type_err_msg(
-            arch_type
-        ) == 'Use %s class for arch_type "%s."' % (class_name, arch_type)
-
-
 if __name__ == "__main__":
     test_format_type_err_msg()
-    test_format_arch_type_err_msg()
