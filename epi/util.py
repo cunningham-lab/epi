@@ -266,11 +266,3 @@ class SimpleBleDevice(Peripheral):
         :rtype: bool
         """
         return self._connected
-
-    def printInfo(self):
-        """Print info about device
-        """
-        print("Device %s (%s), RSSI=%d dB" %
-            (self.addr, self.addrType, self.rssi))
-        for (adtype, desc, value) in self.data:
-            print("  %s = %s" % (desc, value)
