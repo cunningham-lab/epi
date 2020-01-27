@@ -62,7 +62,7 @@ def array_str(a):
     """Returns a compressed string from a 1-D numpy array.
 
     :param a: A 1-D numpy array.
-    :type a: class`numpy.ndarray`
+    :type a: str
     :return: A string compressed via scientific notation and repeated elements.
     :rtype: str
     """
