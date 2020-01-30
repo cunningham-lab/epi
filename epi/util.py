@@ -1,6 +1,7 @@
 """ General util functions for EPI. """
 
 import numpy as np
+import tensorflow as tf
 import pickle
 import os
 from epi.error_formatters import format_type_err_msg
@@ -132,6 +133,13 @@ def init_path(arch_string, init_type, init_param):
 
 
 def save_tf_model(path, variables):
+    if (type(path) is not str):
+        raise TypeError(format_type_err_msg("epi.util.save_tf_model", "path", path, str))
+    if (type(variables) is not list):
+        raise TypeError(format_type_err_msg("epi.util.save_tf_model", "variables", variables, list))
+    if (len(variables) == 0):
+        raise ValueError("epi.util.save_tf_model must receive nonempty list of variables.")
+
     d = {}
     for variable in variables:
         d[variable.name] = variable.numpy()
@@ -139,7 +147,20 @@ def save_tf_model(path, variables):
 
 
 def load_tf_model(path, variables):
-    d = pickle.load(open(path + ".p", "rb"))
+    if (type(path) is not str):
+        raise TypeError(format_type_err_msg("epi.util.save_tf_model", "path", path, str))
+    if (type(variables) is not list):
+        raise TypeError(format_type_err_msg("epi.util.save_tf_model", "variables", variables, list))
+    if (len(variables) == 0):
+        raise ValueError("epi.util.save_tf_model must receive nonempty list of variables.")
+
+    filename = path + ".p"
+    if (not os.path.exists(filename)):
+        raise ValueError("Filename %s does not exist." % filename)
+
+    d = pickle.load(open(filename, "rb"))
     for variable in variables:
+        if (variable.name not in d):
+            raise ValueError("Variable %s not in file %s." % (variable.name, filename))
         variable.assign(d[variable.name])
     return None
