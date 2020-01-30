@@ -41,6 +41,13 @@ def gaussian_backward_mapping(mu, Sigma):
 
 
 def np_column_vec(x):
+    """ Takes numpy vector and orients it as a n x 1 column vec. 
+
+    :param x: Vector of length n
+    :type x: class:`np.ndarray`
+    :return: n x 1 numpy column vector
+    :rtype: class:`numpy.ndarray`
+    """
     if type(x) is not np.ndarray:
         raise (
             TypeError(format_type_err_msg("epi.util.np_column_vec", "x", x, np.ndarray))
@@ -113,6 +120,9 @@ def init_path(arch_string, init_type, init_param):
     :type init_type: str
     :param init_param: init_type dependent parameters for initialization (more deets)
     :type dict: 
+
+    :return: Initialization save path.
+    :rtype: str
     """
     if type(arch_string) is not str:
         raise TypeError(
