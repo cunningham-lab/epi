@@ -105,6 +105,15 @@ def array_str(a):
 
 
 def init_path(arch_string, init_type, init_param):
+    """Deduces initialization file path from initialization type and parameters.
+
+    :param arch_string: Architecture string of normalizing flow.
+    :type arch_string: str
+    :param init_type: Initialization type \in ['iso_gauss']
+    :type init_type: str
+    :param init_param: init_type dependent parameters for initialization (more deets)
+    :type dict: 
+    """
     if type(arch_string) is not str:
         raise TypeError(
             format_type_err_msg("epi.util.init_path", "arch_string", arch_string, str)
@@ -133,6 +142,13 @@ def init_path(arch_string, init_type, init_param):
 
 
 def save_tf_model(path, variables):
+    """Saves tensorflow model variables via pickle to file at path.
+
+    :param path: Path to file for saving model variables.
+    :type path: str
+    :param variables: List of tensorflow model variables to be saved.
+    :type variables: list
+    """
     if (type(path) is not str):
         raise TypeError(format_type_err_msg("epi.util.save_tf_model", "path", path, str))
     if (type(variables) is not list):
@@ -143,10 +159,18 @@ def save_tf_model(path, variables):
     d = {}
     for variable in variables:
         d[variable.name] = variable.numpy()
-    return pickle.dump(d, open(path + ".p", "wb"))
+    pickle.dump(d, open(path + ".p", "wb"))
+    return None
 
 
 def load_tf_model(path, variables):
+    """Loads tensorflow model variables via pickle from file at path.
+
+    :param path: Path to file with saved model variables.
+    :type path: str
+    :param variables: List of tensorflow model variables to assign values.
+    :type variables: list
+    """
     if (type(path) is not str):
         raise TypeError(format_type_err_msg("epi.util.save_tf_model", "path", path, str))
     if (type(variables) is not list):
