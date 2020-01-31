@@ -26,20 +26,22 @@ class Architecture:
     """Normalizing flow network for approximating parameter distributions.
 
     The normalizing flow is constructed via stage(s) of either coupling or
-    autoregressive transforms of q0.  Coupling transforms are RealNVP bijectors
+    autoregressive transforms of :math:`q_0`.  Coupling transforms are real NVP bijectors
     where each conditional distribution has the same number of neural network
     layers and units.  One stage is one coupling (second half of elements are
-    conditioned on the first half (see tfp.bijectors.RealNVP)). Similarly, 
-    autoregressive transforms are MaskedAutoregressiveFlow bijectors. One stage
-    is one full autoregressive factorization.
+    conditioned on the first half (see `tfp.bijectors.RealNVP`)). Similarly, 
+    autoregressive transforms are masked autoregressive flow (MAF) bijectors. One stage
+    is one full autoregressive factorization (see `tfp.bijectors.MAF').
 
     After each stage, which is succeeded by another coupling or autoregressive 
-    transform, the dimensions are permuted followed by a BatchNormalization
-    bijector.  This facilitates randomized conditioning (RealNVP) and
+    transform, the dimensions are permuted via a `tfp.bijectors.Permute` bijector 
+    followed by a `tfp.bijectors.BatchNormalization`
+    bijector.  This facilitates randomized conditioning (real NVP) and
     factorization orderings (MAF) at each stage.
 
-    E.g. arch_type='autoregressive', num_stages=2, 
-    q0 -> MAF -> permute -> batch norm -> MAF -> ...
+    E.g. `arch_type='autoregressive', num_stages=2`
+
+    :math:`q_0` -> MAF -> permute -> batch norm -> MAF -> ...
 
     We parameterize the final processing stages of the normalizing flow (a deep 
     generative model) via post_affine and bounds.
@@ -47,28 +49,29 @@ class Architecture:
     To facilitate scaling and shifting of the normalizing flow up to this point,
     one can set post_affine to True.
 
-    E.g. arch_type='autoregressive', num_stages=2, post_affine=True
-    q0 -> MAF -> permute -> batch norm -> MAF -> PA -> ...
+    E.g. `arch_type='autoregressive', num_stages=2, post_affine=True`
+
+    :math:`q_0` -> MAF -> permute -> batch norm -> MAF -> PA -> ...
 
     By setting bounds to a tuple (lower_bound, upper_bound), the final step
     in the normalizing flow maps to the support of the distribution using an
     epi.normalizing_flows.IntervalFlow.
 
-    E.g. arch_type='autoregressive', num_stages=2, post_affine=True, bounds=(lb,ub)
-    q0 -> MAF -> permute -> batch norm -> MAF -> post affine -> interval flow
+    E.g. `arch_type='autoregressive', num_stages=2, post_affine=True, bounds=(lb,ub)`
 
-    The base distribution q0 is chosen to be a standard isotoropic gaussian.
+    :math:`q_0` -> MAF -> permute -> batch norm -> MAF -> post affine -> interval flow
 
-    :param arch_type: :math:`\\in` ['autoregressive', 'coupling']
+    The base distribution :math:`q_0` is chosen to be a standard isotoropic gaussian.
+
+    :param arch_type: :math:`\\in` `['autoregressive', 'coupling']`
     :type arch_type: str
     :param D: Dimensionality of the normalizing flow.
     :type D: int
     :param num_stages: Number of coupling or autoregressive stages.
     :type num_stages: int
 
-
-    
     """
+
     def __init__(
         self,
         arch_type,
@@ -131,8 +134,12 @@ class Architecture:
                     self.batch_norms.append(tfb.BatchNormalization(batchnorm_layer=bn))
 
         if self.post_affine:
-            self.scale = tfb.Scale(scale=tf.Variable(initial_value=tf.ones((D,)), name="a"))
-            self.shift = tfb.Shift(shift=tf.Variable(initial_value=tf.zeros((D,)), name="b"))
+            self.scale = tfb.Scale(
+                scale=tf.Variable(initial_value=tf.ones((D,)), name="a")
+            )
+            self.shift = tfb.Shift(
+                shift=tf.Variable(initial_value=tf.zeros((D,)), name="b")
+            )
             self.PA = tfb.Chain([self.shift, self.scale])
 
         if self.lb is not None and self.ub is not None:
@@ -144,7 +151,7 @@ class Architecture:
 
         x = self.q0.sample(N)
         log_q0 = self.q0.log_prob(x)
-        
+
         self.all_transforms = []
         sum_ldj = 0.0
         for i in range(self.num_stages):
@@ -366,6 +373,7 @@ class Architecture:
         arch_string += "_rs%d" % self.random_seed
         return arch_string
 
+
 class IntervalFlow(tfp.bijectors.Bijector):
     """Bijector maps from :math:`\\mathcal{R}^N` to an interval.
 
@@ -374,30 +382,31 @@ class IntervalFlow(tfp.bijectors.Bijector):
     :param ub: Upper bound. N values are numeric including float('inf').
     :type ub: np.ndarray
     """
+
     def __init__(self, lb, ub):
         """Constructor method."""
         super(self).__init__(**kwargs)
         # Check types.
-        if (type(lb) not in [list, np.ndarray]):
+        if type(lb) not in [list, np.ndarray]:
             raise TypeError(format_type_err_msg(self, "lb", lb, np.ndarray))
-        if (type(ub) not in [list, np.ndarray]):
+        if type(ub) not in [list, np.ndarray]:
             raise TypeError(format_type_err_msg(self, "ub", ub, np.ndarray))
 
         # Handle list input.
-        if (type(lb) is list):
+        if type(lb) is list:
             lb = np.ndarray(lb)
-        if (type(ub) is list):
+        if type(ub) is list:
             ub = np.ndarray(lb)
 
         # Make sure we have 1-D np vec
-        lb = np_column_vec(lb)[:,0]
-        ub = np_column_vec(ub)[:,0]
+        lb = np_column_vec(lb)[:, 0]
+        ub = np_column_vec(ub)[:, 0]
 
-        if (lb.shape[0] != ub.shape[0]):
+        if lb.shape[0] != ub.shape[0]:
             raise ValueError("lb and ub have different lengths.")
 
         for lb_i, ub_i in zip(lb, ub):
-            if (lb_i >= ub_i):
+            if lb_i >= ub_i:
                 raise ValueError("Lower bound %.2E > upper bound %.2E." % (lb_i, ub_i))
         tanh_flg, softplus_flg = self.D * [0], self.D * [0]
         tanh_m, tanh_c = self.D * [1.0], self.D * [0.0]
@@ -425,7 +434,7 @@ class IntervalFlow(tfp.bijectors.Bijector):
         self.tanh_c = tf.constant(tanh_c, dtype=DTYPE)
         self.softplus_m = tf.constant(softplus_m, dtype=DTYPE)
         self.softplus_c = tf.constant(softplus_c, dtype=DTYPE)
-    
+
     def _forward_log_det_jacobian(self, x):
         """Runs bijector forward and calculates log det jac of the function.
 
@@ -435,7 +444,7 @@ class IntervalFlow(tfp.bijectors.Bijector):
         :returns: The forward pass and log determinant of the jacobian.
         :rtype: (tf.Tensor, tf.Tensor)
         """
-        ldj = 0.
+        ldj = 0.0
         # Tanh stage
         tanh_x = tf.tanh(x)
         out = tf.math.multiply(self.tanh_m, tanh_x) + self.tanh_c
@@ -451,9 +460,7 @@ class IntervalFlow(tfp.bijectors.Bijector):
         x = tf.multiply(self.tanh_flg, out) + tf.multiply(1 - self.tanh_flg, x)
 
         out = (
-            tf.math.multiply(
-                self.softplus_m, tf.math.log(1.0 + tf.math.exp(x) + EPS)
-            )
+            tf.math.multiply(self.softplus_m, tf.math.log(1.0 + tf.math.exp(x) + EPS))
             + self.softplus_c
         )
         softplus_ldj = tf.reduce_sum(
@@ -465,11 +472,5 @@ class IntervalFlow(tfp.bijectors.Bijector):
         )
         ldj += softplus_ldj
 
-        x = tf.multiply(self.softplus_flg, out) + tf.multiply(
-            1 - self.softplus_flg, x
-        )
+        x = tf.multiply(self.softplus_flg, out) + tf.multiply(1 - self.softplus_flg, x)
         return x, ldj
-        
-
-
-
