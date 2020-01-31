@@ -12,6 +12,7 @@ tfd = tfp.distributions
 from epi.error_formatters import format_type_err_msg
 from epi.util import (
     gaussian_backward_mapping,
+    np_column_vec,
     save_tf_model,
     load_tf_model,
     init_path,
@@ -75,7 +76,8 @@ class Architecture:
     :type num_units: int
     :param batch_norm: Use batch normalization between stages, defaults to True.
     :type batch_norm: bool, optional
-    :param post_affine: Use shift and scaling layer, defaults to True.
+    :param bn_momentum: Batch normalization momentum parameter, defaults to 0.99.
+    :type bn_momentrum: float
     :type post_affine: bool, optional
     :param bounds: Bounds of distribution support, defaults to None.
     :type bounds: (np.ndarray, np.ndarray), optional
@@ -91,6 +93,7 @@ class Architecture:
         num_layers,
         num_units,
         batch_norm=True,
+        bn_momentum=0.99,
         post_affine=True,
         bounds=None,
         random_seed=1,
@@ -102,10 +105,13 @@ class Architecture:
         self._set_num_layers(num_layers)
         self._set_num_units(num_units)
         self._set_batch_norm(batch_norm)
+        if (self.batch_norm):
+            self._set_bn_momentum(bn_momentum)
+        else:
+            self.bn_momentum=None
         self._set_post_affine(post_affine)
         self._set_bounds(bounds)
         self._set_random_seed(random_seed)
-        self.bn_momentum = 0.99
         self.trainable_variables = []
 
         self.stages = []
@@ -250,6 +256,11 @@ class Architecture:
             raise TypeError(format_type_err_msg(self, "batch_norm", batch_norm, bool))
         self.batch_norm = batch_norm
 
+    def _set_bn_momentum(self, bn_momentum):
+        if type(bn_momentum) is not float:
+            raise TypeError(format_type_err_msg(self, "bn_momentum", bn_momentum, float))
+        self.bn_momentum = bn_momentum
+
     def _set_post_affine(self, post_affine):
         if type(post_affine) is not bool:
             raise TypeError(format_type_err_msg(self, "post_affine", post_affine, bool))
@@ -307,6 +318,7 @@ class Architecture:
         :math:`T(z) = \\begin{bmatrix} z \\\\ \\mathrm{vec} \\left( zz^\\top \\right) \\end{bmatrix}`
 
         (Only implemented isotropic gaussian at the moment.)
+
         :obj:`init_type` should be
 
         'iso_gauss' with parameters
@@ -415,6 +427,10 @@ class Architecture:
             self.num_layers,
             self.num_units,
         )
+
+        if self.batch_norm:
+            arch_string += "_bnmom=%.2E" % self.bn_momentum
+
         if self.post_affine:
             arch_string += "_PA"
 
@@ -436,7 +452,7 @@ class IntervalFlow(tfp.bijectors.Bijector):
 
     def __init__(self, lb, ub):
         """Constructor method."""
-        super(self).__init__(**kwargs)
+        super().__init__(forward_min_event_ndims=1, inverse_min_event_ndims=1)
         # Check types.
         if type(lb) not in [list, np.ndarray]:
             raise TypeError(format_type_err_msg(self, "lb", lb, np.ndarray))
@@ -445,18 +461,19 @@ class IntervalFlow(tfp.bijectors.Bijector):
 
         # Handle list input.
         if type(lb) is list:
-            lb = np.ndarray(lb)
+            lb = np.array(lb)
         if type(ub) is list:
-            ub = np.ndarray(lb)
+            ub = np.array(ub)
 
         # Make sure we have 1-D np vec
-        lb = np_column_vec(lb)[:, 0]
-        ub = np_column_vec(ub)[:, 0]
+        self.lb = np_column_vec(lb)[:, 0]
+        self.ub = np_column_vec(ub)[:, 0]
 
-        if lb.shape[0] != ub.shape[0]:
+        if self.lb.shape[0] != self.ub.shape[0]:
             raise ValueError("lb and ub have different lengths.")
+        self.D = self.lb.shape[0]
 
-        for lb_i, ub_i in zip(lb, ub):
+        for lb_i, ub_i in zip(self.lb, self.ub):
             if lb_i >= ub_i:
                 raise ValueError("Lower bound %.2E > upper bound %.2E." % (lb_i, ub_i))
         tanh_flg, softplus_flg = self.D * [0], self.D * [0]
@@ -511,13 +528,13 @@ class IntervalFlow(tfp.bijectors.Bijector):
         x = tf.multiply(self.tanh_flg, out) + tf.multiply(1 - self.tanh_flg, x)
 
         out = (
-            tf.math.multiply(self.softplus_m, tf.math.log(1.0 + tf.math.exp(x) + EPS))
+            tf.math.multiply(self.softplus_m, tf.math.softplus(x))
             + self.softplus_c
         )
         softplus_ldj = tf.reduce_sum(
             tf.math.multiply(
                 self.softplus_flg,
-                tf.math.log(tf.math.divide(1.0, 1.0 + tf.math.exp(-x)) + EPS),
+                tf.math.log_sigmoid(x),
             ),
             1,
         )
