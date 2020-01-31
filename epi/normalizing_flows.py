@@ -297,14 +297,14 @@ class Architecture:
         load_if_cached=True,
         verbose=False,
     ):
-        """Initialize to produce a particular initialization distrbution.
-
-        Initializes architecture via variational inference for a multivariate 
-        gaussian:
+        """Initializes architecture to gaussian distribution via variational inference.
 
         :math:`argmax_{q_\\theta \\in Q} H(q_\\theta) + \\eta^\\top \\mathbb{E}_{z \\sim q_\\theta}[T(z)]`
-        where
-        :math:`eta = \\mu, \\Sigma`
+
+        where :math:`\\eta` and :math:`T(z)` for a multivariate gaussian are:
+
+        :math:`\\eta = \\begin{bmatrix} \\Sigma^{-1}\\mu \\\\ -\\frac{1}{2}\\Sigma \\end{bmatrix}`
+        :math:`T(z) = \\begin{bmatrix} z \\\\ zz^\\top \\end{bmatrix}`
 
         (Only implemented isotropic gaussian at the moment.)
         :obj:`init_type` should be
@@ -398,6 +398,11 @@ class Architecture:
         return None
 
     def to_string(self,):
+        """Converts architecture to string for file saving.
+
+        :return: A unique string for the architecture parameterization.
+        :rtype: str
+        """
         if self.arch_type == "coupling":
             arch_type_str = "C"
         elif self.arch_type == "autoregressive":
