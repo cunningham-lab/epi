@@ -44,6 +44,11 @@ def test_Architecture_init():
     assert np.equal(A.lb, lb).all()
     assert np.equal(A.ub, ub).all()
     assert A.random_seed == 5
+    A = Architecture(
+        arch_type, D, num_stages, num_layers, num_units, False, None, False, [lb, ub], 5
+    )
+    assert np.equal(A.lb, lb).all()
+    assert np.equal(A.ub, ub).all()
 
     # Test error handling.
     with raises(TypeError):
@@ -91,15 +96,24 @@ def test_Architecture_init():
             batch_norm=True,
             bn_momentum="foo",
         )
+    with raises(ValueError):
+        A = Architecture(
+            arch_type, D, num_stages, num_layers, num_units, bounds=(lb, ub, ub),
+        )
+    with raises(TypeError):
+        A = Architecture(
+            arch_type, D, num_stages, num_layers, num_units, bounds=('foo', 'bar')
+        )
+
 
     with raises(TypeError):
         A = Architecture(
-            arch_type, D, num_stages, num_layers, num_units, post_affine=1.0
+            arch_type, D, num_stages, num_layers, num_units, bounds='foo',
         )
 
     with raises(TypeError):
         A = Architecture(
-            arch_type, D, num_stages, num_layers, num_units, randon_seed=1.0
+            arch_type, D, num_stages, num_layers, num_units, random_seed=1.0
         )
 
     # Check that q0 has correct statistics
@@ -278,9 +292,22 @@ def test_interval_flow():
 
     return None
 
+def test_initialization():
+    D = 4
+    A = Architecture("autoregressive", D, 2, 2, 15, batch_norm=True, post_affine=True)
+    init_type = 'iso_gauss'
+    loc = -.5
+    scale = 2.
+    init_params = {'loc':loc, 'scale':scale}
+    A.initialize(init_type, init_params)
 
-if __name__ == "__main__":
-    #test_Architecture_init()
-    #test_Architecture_call()
-    test_interval_flow()
-    #test_to_string()
+    z, ldjs = A.sample(int(1e5))
+    z = z.numpy()
+    mean_z = np.mean(z, 0)
+    Sigma_z = np.cov(z.T)
+    assert np.isclose(mean_z, loc*np.ones((D,)), atol=1e-1).all()
+    assert np.isclose(Sigma_z, scale*np.eye(D), atol=1e-1).all()
+
+    return None
+
+  

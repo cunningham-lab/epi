@@ -209,7 +209,7 @@ class Architecture:
         :return: N samples and log determinant of the jacobians.
         :rtype: (tf.Tensor, tf.Tensor)
         """
-        self.__call__(N)
+        return self.__call__(N)
 
     def _set_arch_type(self, arch_type):  # Make this noninherited?
         arch_types = ["coupling", "autoregressive"]
@@ -266,11 +266,6 @@ class Architecture:
             raise TypeError(format_type_err_msg(self, "post_affine", post_affine, bool))
         self.post_affine = post_affine
 
-    def _set_random_seed(self, random_seed):
-        if type(random_seed) is not int:
-            raise TypeError(format_type_err_msg(self, "random_seed", random_seed, int))
-        self.random_seed = random_seed
-
     def _set_bounds(self, bounds):
         if bounds is not None:
             _type = type(bounds)
@@ -297,6 +292,11 @@ class Architecture:
         else:
             self.lb, self.ub = None, None
 
+    def _set_random_seed(self, random_seed):
+        if type(random_seed) is not int:
+            raise TypeError(format_type_err_msg(self, "random_seed", random_seed, int))
+        self.random_seed = random_seed
+
     def initialize(
         self,
         init_type,
@@ -304,7 +304,6 @@ class Architecture:
         N=500,
         num_iters=int(1e4),
         lr=1e-3,
-        KL_th=None,
         load_if_cached=True,
         verbose=False,
     ):
@@ -335,8 +334,6 @@ class Architecture:
         :type num_iters: int, optional
         :param lr: Adam optimizer learning rate, defaults to 1e-3.
         :type lr: float, optional
-        :param KL_th: Quit early if KL below this threshold, defaults to None.
-        :type KL_th: float, optional
         :param load_if_cached: If initialization has been optimized before, load it, defaults to True.
         :type load_if_cached: bool, optional
         :param verbose: Print verbose output, defaults to False.
@@ -351,9 +348,6 @@ class Architecture:
             _, _ = self(N)
             load_tf_model(_init_path, self.trainable_variables)
             return None
-
-        if KL_th is None:
-            KL_th = self.D * 0.001
 
         if init_type == "iso_gauss":
             loc = init_params["loc"]
@@ -400,13 +394,8 @@ class Architecture:
                 if not np.isfinite(loss):
                     print("Error. Loss is inf. Quitting.")
                     return None
-                if KL < KL_th:
-                    print("Finished initializing")
-                    save_tf_model(_init_path, self.trainable_variables)
-                    return None
 
         save_tf_model(_init_path, self.trainable_variables)
-        print("Final KL to target after initialization optimization: %.2E." % KL)
         return None
 
     def to_string(self,):
