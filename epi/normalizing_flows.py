@@ -84,36 +84,12 @@ class Architecture:
                     self.batch_norms.append(tfb.BatchNormalization(batchnorm_layer=bn))
 
         if self.post_affine:
-            self.a = tf.Variable(initial_value=tf.ones((D,)), name="a")
-            self.b = tf.Variable(initial_value=tf.zeros((D,)), name="b")
+            self.scale = tfb.Scale(scale=tf.Variable(initial_value=tf.ones((D,)), name="a"))
+            self.shift = tfb.Shift(shift=tf.Variable(initial_value=tf.zeros((D,)), name="b"))
+            self.PA = tfb.Chain([self.shift, self.scale])
 
         if self.lb is not None and self.ub is not None:
-            tanh_flg, softplus_flg = self.D * [0], self.D * [0]
-            tanh_m, tanh_c = self.D * [1.0], self.D * [0.0]
-            softplus_m, softplus_c = self.D * [1.0], self.D * [0.0]
-            for i in range(self.D):
-                lb_i, ub_i = self.lb[i], self.ub[i]
-                has_lb = not np.isneginf(lb_i)
-                has_ub = not np.isposinf(ub_i)
-                if has_lb and has_ub:
-                    tanh_flg[i] = 1
-                    tanh_m[i] = (ub_i - lb_i) / 2.0
-                    tanh_c[i] = (ub_i + lb_i) / 2.0
-                elif has_lb:
-                    softplus_flg[i] = 1
-                    softplus_m[i] = 1.0
-                    softplus_c[i] = lb_i
-                elif has_ub:
-                    softplus_flg[i] = 1
-                    softplus_m[i] = -1.0
-                    softplus_c[i] = ub_i
-
-            self.tanh_flg = tf.constant(tanh_flg, dtype=DTYPE)
-            self.softplus_flg = tf.constant(softplus_flg, dtype=DTYPE)
-            self.tanh_m = tf.constant(tanh_m, dtype=DTYPE)
-            self.tanh_c = tf.constant(tanh_c, dtype=DTYPE)
-            self.softplus_m = tf.constant(softplus_m, dtype=DTYPE)
-            self.softplus_c = tf.constant(softplus_c, dtype=DTYPE)
+            self.support_mapping = IntervalFlow(self.lb, self.ub)
 
     @tf.function
     def __call__(self, N):
@@ -121,12 +97,14 @@ class Architecture:
 
         x = self.q0.sample(N)
         log_q0 = self.q0.log_prob(x)
-
+        
+        self.all_transforms = []
         sum_ldj = 0.0
         for i in range(self.num_stages):
             stage_i = self.stages[i]
             sum_ldj += stage_i.forward_log_det_jacobian(x, event_ndims=1)
             x = stage_i(x)
+            self.all_transforms.append(stage_i)
             for var in stage_i.trainable_variables:
                 self.trainable_variables.append(var)
             if i < self.num_stages - 1:
@@ -134,49 +112,20 @@ class Architecture:
                     batch_norm_i = self.batch_norms[i]
                     sum_ldj += batch_norm_i.forward_log_det_jacobian(x, event_ndims=1)
                     x = batch_norm_i(x)
-                x = self.permutations[i](x)
+                    self.all_transforms.append(batch_norm_i)
+                permutation_i = self.permutations[i]
+                x = permutation_i(x)
+                self.all_transforms.append(permutation_i)
 
         if self.post_affine:
-            self.scale = tfb.Scale(scale=self.a)
-            self.shift = tfb.Shift(shift=self.b)
-            self.PA = tfb.Chain([self.shift, self.scale])
             sum_ldj += self.PA.forward_log_det_jacobian(x, event_ndims=1)
             x = self.PA(x)
+            self.all_transforms.append(self.PA)
             self.trainable_variables += self.PA.trainable_variables
 
         if self.lb is not None and self.ub is not None:
-            # Tanh stage
-            tanh_x = tf.tanh(x)
-            out = tf.math.multiply(self.tanh_m, tanh_x) + self.tanh_c
-            tanh_ldj = tf.reduce_sum(
-                tf.multiply(
-                    self.tanh_flg,
-                    tf.math.log(self.tanh_m + EPS)
-                    + tf.math.log(1.0 - tf.square(tanh_x) + EPS),
-                ),
-                1,
-            )
-            sum_ldj += tanh_ldj
-            x = tf.multiply(self.tanh_flg, out) + tf.multiply(1 - self.tanh_flg, x)
-
-            out = (
-                tf.math.multiply(
-                    self.softplus_m, tf.math.log(1.0 + tf.math.exp(x) + EPS)
-                )
-                + self.softplus_c
-            )
-            softplus_ldj = tf.reduce_sum(
-                tf.math.multiply(
-                    self.softplus_flg,
-                    tf.math.log(tf.math.divide(1.0, 1.0 + tf.math.exp(-x)) + EPS),
-                ),
-                1,
-            )
-            sum_ldj += softplus_ldj
-
-            x = tf.multiply(self.softplus_flg, out) + tf.multiply(
-                1 - self.softplus_flg, x
-            )
+            _ldj, x = self.support_mapping.forward_log_det_jacobian(x)
+            sum_ldj += _ldj
 
         log_q_x = log_q0 - sum_ldj
         return x, log_q_x
@@ -270,11 +219,12 @@ class Architecture:
         num_iters=int(1e4),
         lr=1e-3,
         KL_th=None,
+        load_if_cached=True,
         verbose=False,
     ):
 
         _init_path = init_path(self.to_string(), init_type, init_params)
-        if os.path.exists(_init_path + ".p"):
+        if load_if_cached and os.path.exists(_init_path + ".p"):
             print("Loading variables from cached initialization.")
             _, _ = self(N)
             load_tf_model(_init_path, self.trainable_variables)
@@ -358,3 +308,111 @@ class Architecture:
 
         arch_string += "_rs%d" % self.random_seed
         return arch_string
+
+class IntervalFlow(tfp.bijectors.Bijector):
+    """Bijector maps from $R^N$ to an interval.
+
+    :param lb: Lower bound. Elements are numeric values including float('-inf').
+    :type lb: np.ndarray
+    :param ub: Upper bound. Elements are numeric values including float('inf').
+    :type ub: np.ndarray
+    """
+    def __init__(self, lb, ub):
+        """Constructor method."""
+        super(self).__init__(**kwargs)
+        # Check types.
+        if (type(lb) not in [list, np.ndarray]):
+            raise TypeError(format_type_err_msg(self, "lb", lb, np.ndarray))
+        if (type(ub) not in [list, np.ndarray]):
+            raise TypeError(format_type_err_msg(self, "ub", ub, np.ndarray))
+
+        # Handle list input.
+        if (type(lb) is list):
+            lb = np.ndarray(lb)
+        if (type(ub) is list):
+            ub = np.ndarray(lb)
+
+        # Make sure we have 1-D np vec
+        lb = np_column_vec(lb)[:,0]
+        ub = np_column_vec(ub)[:,0]
+
+        if (lb.shape[0] != ub.shape[0]):
+            raise ValueError("lb and ub have different lengths.")
+
+        for lb_i, ub_i in zip(lb, ub):
+            if (lb_i >= ub_i):
+                raise ValueError("Lower bound %.2E > upper bound %.2E." % (lb_i, ub_i))
+        tanh_flg, softplus_flg = self.D * [0], self.D * [0]
+        tanh_m, tanh_c = self.D * [1.0], self.D * [0.0]
+        softplus_m, softplus_c = self.D * [1.0], self.D * [0.0]
+        for i in range(self.D):
+            lb_i, ub_i = self.lb[i], self.ub[i]
+            has_lb = not np.isneginf(lb_i)
+            has_ub = not np.isposinf(ub_i)
+            if has_lb and has_ub:
+                tanh_flg[i] = 1
+                tanh_m[i] = (ub_i - lb_i) / 2.0
+                tanh_c[i] = (ub_i + lb_i) / 2.0
+            elif has_lb:
+                softplus_flg[i] = 1
+                softplus_m[i] = 1.0
+                softplus_c[i] = lb_i
+            elif has_ub:
+                softplus_flg[i] = 1
+                softplus_m[i] = -1.0
+                softplus_c[i] = ub_i
+
+        self.tanh_flg = tf.constant(tanh_flg, dtype=DTYPE)
+        self.softplus_flg = tf.constant(softplus_flg, dtype=DTYPE)
+        self.tanh_m = tf.constant(tanh_m, dtype=DTYPE)
+        self.tanh_c = tf.constant(tanh_c, dtype=DTYPE)
+        self.softplus_m = tf.constant(softplus_m, dtype=DTYPE)
+        self.softplus_c = tf.constant(softplus_c, dtype=DTYPE)
+    
+    def _forward_log_det_jacobian(self, x):
+        """Runs bijector forward and calculates log det jac of the function.
+
+        :param x: Input tensor.
+        :type x: tf.Tensor
+
+        :returns: The forward pass and log determinant of the jacobian.
+        :rtype: (tf.Tensor, tf.Tensor)
+        """
+        ldj = 0.
+        # Tanh stage
+        tanh_x = tf.tanh(x)
+        out = tf.math.multiply(self.tanh_m, tanh_x) + self.tanh_c
+        tanh_ldj = tf.reduce_sum(
+            tf.multiply(
+                self.tanh_flg,
+                tf.math.log(self.tanh_m + EPS)
+                + tf.math.log(1.0 - tf.square(tanh_x) + EPS),
+            ),
+            1,
+        )
+        ldj += tanh_ldj
+        x = tf.multiply(self.tanh_flg, out) + tf.multiply(1 - self.tanh_flg, x)
+
+        out = (
+            tf.math.multiply(
+                self.softplus_m, tf.math.log(1.0 + tf.math.exp(x) + EPS)
+            )
+            + self.softplus_c
+        )
+        softplus_ldj = tf.reduce_sum(
+            tf.math.multiply(
+                self.softplus_flg,
+                tf.math.log(tf.math.divide(1.0, 1.0 + tf.math.exp(-x)) + EPS),
+            ),
+            1,
+        )
+        ldj += softplus_ldj
+
+        x = tf.multiply(self.softplus_flg, out) + tf.multiply(
+            1 - self.softplus_flg, x
+        )
+        return x, ldj
+        
+
+
+
