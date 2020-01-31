@@ -310,7 +310,7 @@ class Architecture:
         return arch_string
 
 class IntervalFlow(tfp.bijectors.Bijector):
-    """Bijector maps from $R^N$ to an interval.
+    """Bijector maps from :math:`R^N` :math:`\\alpha` :math:`\\mathcal{N}` to an interval.
 
     :param lb: Lower bound. Elements are numeric values including float('-inf').
     :type lb: np.ndarray
