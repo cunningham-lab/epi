@@ -8,6 +8,15 @@ from epi.error_formatters import format_type_err_msg
 
 
 def gaussian_backward_mapping(mu, Sigma):
+    """Calculates natural parameter of multivaraite gaussian from mean and cov.
+
+    :param mu: Mean of gaussian
+    :type mu: np.ndarray
+    :param Sigma: Covariance of gaussian.
+    :type Sigma: np.ndarray
+    :return: Natural parameter of gaussian.
+    :rtype: np.ndarray
+    """
     if type(mu) is not np.ndarray:
         raise TypeError(
             format_type_err_msg(
@@ -44,9 +53,9 @@ def np_column_vec(x):
     """ Takes numpy vector and orients it as a n x 1 column vec. 
 
     :param x: Vector of length n
-    :type x: class:`np.ndarray`
+    :type x: np.ndarray
     :return: n x 1 numpy column vector
-    :rtype: class:`numpy.ndarray`
+    :rtype: np.ndarray
     """
     if type(x) is not np.ndarray:
         raise (
