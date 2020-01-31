@@ -23,6 +23,52 @@ EPS = 1e-6
 
 
 class Architecture:
+    """Normalizing flow network for approximating parameter distributions.
+
+    The normalizing flow is constructed via stage(s) of either coupling or
+    autoregressive transforms of q0.  Coupling transforms are RealNVP bijectors
+    where each conditional distribution has the same number of neural network
+    layers and units.  One stage is one coupling (second half of elements are
+    conditioned on the first half (see tfp.bijectors.RealNVP)). Similarly, 
+    autoregressive transforms are MaskedAutoregressiveFlow bijectors. One stage
+    is one full autoregressive factorization.
+
+    After each stage, which is succeeded by another coupling or autoregressive 
+    transform, the dimensions are permuted followed by a BatchNormalization
+    bijector.  This facilitates randomized conditioning (RealNVP) and
+    factorization orderings (MAF) at each stage.
+
+    E.g. arch_type='autoregressive', num_stages=2, 
+    q0 -> MAF -> permute -> batch norm -> MAF -> ...
+
+    We parameterize the final processing stages of the normalizing flow (a deep 
+    generative model) via post_affine and bounds.
+
+    To facilitate scaling and shifting of the normalizing flow up to this point,
+    one can set post_affine to True.
+
+    E.g. arch_type='autoregressive', num_stages=2, post_affine=True
+    q0 -> MAF -> permute -> batch norm -> MAF -> PA -> ...
+
+    By setting bounds to a tuple (lower_bound, upper_bound), the final step
+    in the normalizing flow maps to the support of the distribution using an
+    epi.normalizing_flows.IntervalFlow.
+
+    E.g. arch_type='autoregressive', num_stages=2, post_affine=True, bounds=(lb,ub)
+    q0 -> MAF -> permute -> batch norm -> MAF -> post affine -> interval flow
+
+    The base distribution q0 is chosen to be a standard isotoropic gaussian.
+
+    :param arch_type: :math:`\\in` ['autoregressive', 'coupling']
+    :type arch_type: str
+    :param D: Dimensionality of the normalizing flow.
+    :type D: int
+    :param num_stages: Number of coupling or autoregressive stages.
+    :type num_stages: int
+
+
+    
+    """
     def __init__(
         self,
         arch_type,
@@ -35,6 +81,7 @@ class Architecture:
         bounds=None,
         random_seed=1,
     ):
+        """Constructor method."""
         self._set_arch_type(arch_type)
         self._set_D(D)
         self._set_num_stages(num_stages)
@@ -129,6 +176,16 @@ class Architecture:
 
         log_q_x = log_q0 - sum_ldj
         return x, log_q_x
+
+    def sample(self, N):
+        """Generate N samples from the network.
+
+        :param N: Number of samples.
+        :type N: int
+        :return: N samples and log determinant of the jacobians.
+        :rtype: (tf.Tensor, tf.Tensor)
+        """
+        self.__call__(N)
 
     def _set_arch_type(self, arch_type):  # Make this noninherited?
         arch_types = ["coupling", "autoregressive"]
@@ -310,11 +367,11 @@ class Architecture:
         return arch_string
 
 class IntervalFlow(tfp.bijectors.Bijector):
-    """Bijector maps from :math:`R^N` :math:`\\alpha` :math:`\\mathcal{N}` to an interval.
+    """Bijector maps from :math:`\\mathcal{R}^N` to an interval.
 
-    :param lb: Lower bound. Elements are numeric values including float('-inf').
+    :param lb: Lower bound. N values are numeric including float('-inf').
     :type lb: np.ndarray
-    :param ub: Upper bound. Elements are numeric values including float('inf').
+    :param ub: Upper bound. N values are numeric including float('inf').
     :type ub: np.ndarray
     """
     def __init__(self, lb, ub):
