@@ -31,7 +31,7 @@ class Architecture:
     layers and units.  One stage is one coupling (second half of elements are
     conditioned on the first half (see :obj:`tfp.bijectors.RealNVP`)). Similarly, 
     autoregressive transforms are masked autoregressive flow (MAF) bijectors. One stage
-    is one full autoregressive factorization (see `tfp.bijectors.MAF`).
+    is one full autoregressive factorization (see :obj:`tfp.bijectors.MAF`).
 
     After each stage, which is succeeded by another coupling or autoregressive 
     transform, the dimensions are permuted via a :obj:`tfp.bijectors.Permute` bijector 
@@ -297,6 +297,41 @@ class Architecture:
         load_if_cached=True,
         verbose=False,
     ):
+        """Initialize to produce a particular initialization distrbution.
+
+        Initializes architecture via variational inference for a multivariate 
+        gaussian:
+
+        :math:`argmax_{q_\\theta \\in Q} H(q_\\theta) + \\eta^\\top \\mathbb{E}_{z \\sim q_\\theta}[T(z)]`
+        where
+        :math:`eta = \\mu, \\Sigma`
+
+        (Only implemented isotropic gaussian at the moment.)
+        :obj:`init_type` should be
+
+        'iso_gauss' with parameters
+        * :obj:`init_params.loc` set to scalar mean of each variable.
+        * :obj:`init_params.scale` set to scale of each variable.
+
+        :param init_type: :math:`\\in` `['iso_gauss']`
+        :type init_type: str
+        :param init_params: Parameters according to :obj:`init_type`.
+        :type init_params: dict
+        :param N: Number of batch samples per iteration.
+        :type N: int
+        :param num_iters: Number of optimization iterations, Defaults to 500.
+        :type num_iters: int, optional
+        :param lr: Adam optimizer learning rate, defaults to 1e-3.
+        :type lr: float, optional
+        :param KL_th: Quit early if KL below this threshold, defaults to None.
+        :type KL_th: float, optional
+        :param load_if_cached: If initialization has been optimized before, load it, defaults to True.
+        :type load_if_cached: bool, optional
+        :param verbose: Print verbose output, defaults to False.
+        :type verbose: bool, optional
+
+
+        """
 
         _init_path = init_path(self.to_string(), init_type, init_params)
         if load_if_cached and os.path.exists(_init_path + ".p"):
@@ -446,7 +481,7 @@ class IntervalFlow(tfp.bijectors.Bijector):
         self.softplus_m = tf.constant(softplus_m, dtype=DTYPE)
         self.softplus_c = tf.constant(softplus_c, dtype=DTYPE)
 
-    def _forward_log_det_jacobian(self, x):
+    def forward_log_det_jacobian(self, x):
         """Runs bijector forward and calculates log det jac of the function.
 
         :param x: Input tensor.
