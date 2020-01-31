@@ -29,17 +29,17 @@ class Architecture:
     autoregressive transforms of :math:`q_0`.  Coupling transforms are real NVP bijectors
     where each conditional distribution has the same number of neural network
     layers and units.  One stage is one coupling (second half of elements are
-    conditioned on the first half (see `tfp.bijectors.RealNVP`)). Similarly, 
+    conditioned on the first half (see :obj:`tfp.bijectors.RealNVP`)). Similarly, 
     autoregressive transforms are masked autoregressive flow (MAF) bijectors. One stage
-    is one full autoregressive factorization (see `tfp.bijectors.MAF').
+    is one full autoregressive factorization (see `tfp.bijectors.MAF`).
 
     After each stage, which is succeeded by another coupling or autoregressive 
-    transform, the dimensions are permuted via a `tfp.bijectors.Permute` bijector 
-    followed by a `tfp.bijectors.BatchNormalization`
+    transform, the dimensions are permuted via a :obj:`tfp.bijectors.Permute` bijector 
+    followed by a :obj:`tfp.bijectors.BatchNormalization`
     bijector.  This facilitates randomized conditioning (real NVP) and
     factorization orderings (MAF) at each stage.
 
-    E.g. `arch_type='autoregressive', num_stages=2`
+    E.g. :obj:`arch_type='autoregressive', num_stages=2`
 
     :math:`q_0` -> MAF -> permute -> batch norm -> MAF -> ...
 
@@ -49,15 +49,15 @@ class Architecture:
     To facilitate scaling and shifting of the normalizing flow up to this point,
     one can set post_affine to True.
 
-    E.g. `arch_type='autoregressive', num_stages=2, post_affine=True`
+    E.g. :obj:`arch_type='autoregressive', num_stages=2, post_affine=True`
 
     :math:`q_0` -> MAF -> permute -> batch norm -> MAF -> PA -> ...
 
     By setting bounds to a tuple (lower_bound, upper_bound), the final step
     in the normalizing flow maps to the support of the distribution using an
-    epi.normalizing_flows.IntervalFlow.
+    :obj:`epi.normalizing_flows.IntervalFlow`.
 
-    E.g. `arch_type='autoregressive', num_stages=2, post_affine=True, bounds=(lb,ub)`
+    E.g. :obj:`arch_type='autoregressive', num_stages=2, post_affine=True, bounds=(lb,ub)`
 
     :math:`q_0` -> MAF -> permute -> batch norm -> MAF -> post affine -> interval flow
 
@@ -69,7 +69,18 @@ class Architecture:
     :type D: int
     :param num_stages: Number of coupling or autoregressive stages.
     :type num_stages: int
-
+    :param num_layers: Number of neural network layer per conditional.
+    :type num_layers: int
+    :param num_units: Number of units per layer.
+    :type num_units: int
+    :param batch_norm: Use batch normalization between stages, defaults to True.
+    :type batch_norm: bool, optional
+    :param post_affine: Use shift and scaling layer, defaults to True.
+    :type post_affine: bool, optional
+    :param bounds: Bounds of distribution support, defaults to None.
+    :type bounds: (np.ndarray, np.ndarray), optional
+    :param random_seed: Random seed of architecture parameters, defaults to 1.
+    :type random_seed: int, optional
     """
 
     def __init__(
