@@ -299,12 +299,12 @@ class Architecture:
     ):
         """Initializes architecture to gaussian distribution via variational inference.
 
-        :math:`argmax_{q_\\theta \\in Q} H(q_\\theta) + \\eta^\\top \\mathbb{E}_{z \\sim q_\\theta}[T(z)]`
+        :math:`\\underset{q_\\theta \\in Q}{\mathrm{arg max}} H(q_\\theta) + \\eta^\\top \\mathbb{E}_{z \\sim q_\\theta}[T(z)]`
 
         where :math:`\\eta` and :math:`T(z)` for a multivariate gaussian are:
 
-        :math:`\\eta = \\begin{bmatrix} \\Sigma^{-1}\\mu \\\\ -\\frac{1}{2}\\Sigma \\end{bmatrix}`
-        :math:`T(z) = \\begin{bmatrix} z \\\\ zz^\\top \\end{bmatrix}`
+        :math:`\\eta = \\begin{bmatrix} \\Sigma^{-1}\\mu \\\\ \\mathrm{vec} \\left( -\\frac{1}{2}\\Sigma^{-1} \\right) \\end{bmatrix}`
+        :math:`T(z) = \\begin{bmatrix} z \\\\ \\mathrm{vec} \\left( zz^\\top \\right) \\end{bmatrix}`
 
         (Only implemented isotropic gaussian at the moment.)
         :obj:`init_type` should be
