@@ -264,7 +264,9 @@ def unbiased_aug_grad(R1s, R2, params, tape):
     where :math:`\\theta` are params and :math:`z_1`, :math:`z_2` are the two 
     halves of the batch samples.
 
-    TODO: math for gradient calc
+    The augmented gradient is computed as
+
+    :math:`\\nabla_\\theta ||R(\\theta)||^2 = 2 \\nabla_\\theta R_1(\\theta) \\cdot R_2(\\theta)`
 
     :param R1s: Mean constraint violation over first half of samples.
     :type R1s: list
@@ -287,4 +289,6 @@ def unbiased_aug_grad(R1s, R2, params, tape):
             jacR1[j].append(g)
 
     jacR1 = [tf.stack(grad_list, axis=-1) for grad_list in jacR1]
+    # We don't multiply by 2, since its cancels with the denominator
+    # of the leading c/2 factor in the cost function.
     return [tf.linalg.matvec(jacR1i, R2) for jacR1i in jacR1]
