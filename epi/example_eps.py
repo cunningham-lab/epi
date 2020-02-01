@@ -17,11 +17,7 @@ def linear2D_freq(a11, a12, a21, a22):
     or secondarily the greatest imaginary component if the two eigenvalues are equal, 
     where :math:`C = A / \\tau`.
 
-    :math:`T(x) = \\begin{bmatrix} \\text{real}(\\lambda_1) \\\\\\\\
-                                   \\text{real}(\\lambda_1 - E[\\text{real}(\\lambda_1)])^2 \\\\\\\\
-                                   2\\pi\\text{imag}(\\lambda_1) \\\\\\\\
-                                   (2\\pi\\text{imag}(\\lambda_1) - \\mathbb{E}[2\\pi\\text{imag}(\\lambda_1)])^2 
-                  \\end{bmatrix}`
+    :math:`T(x) = \\begin{bmatrix} \\text{real}(\\lambda_1) \\\\ \\text{real}(\\lambda_1 - E[\\text{real}(\\lambda_1)])^2 \\\\ 2\\pi\\text{imag}(\\lambda_1) \\\\ (2\\pi\\text{imag}(\\lambda_1) - \\mathbb{E}[2\\pi\\text{imag}(\\lambda_1)])^2 \\end{bmatrix}`
 
     :param a11: Dynamics coefficient.
     :type a11: tf.Tensor
