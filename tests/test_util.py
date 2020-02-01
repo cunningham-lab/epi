@@ -331,12 +331,8 @@ def test_unbiased_aug_grad():
     M.set_eps(linear2D_freq, 4)
 
     q_theta = Architecture(
-            arch_type='autoregressive',
-            D=4,
-            num_stages=1,
-            num_layers=2,
-            num_units=15,
-        )
+        arch_type="autoregressive", D=4, num_stages=1, num_layers=2, num_units=15,
+    )
 
     with tf.GradientTape(persistent=True) as tape:
         z, log_q_z = q_theta(N)
@@ -346,29 +342,28 @@ def test_unbiased_aug_grad():
         _, _, R1s, R2 = aug_lag_vars(z, log_q_z, M.eps, mu, N)
         aug_grad = unbiased_aug_grad(R1s, R2, params, tape)
 
-        T_x_grads = [[[None for i in range(N//2)] for i in range(4)] for i in range(nparams)]
+        T_x_grads = [
+            [[None for i in range(N // 2)] for i in range(4)] for i in range(nparams)
+        ]
         T_x = M.eps(z)
-        for i in range(N//2):
+        for i in range(N // 2):
             T_x_i_grads = []
             for j in range(4):
-                _grads = tape.gradient(T_x[i,j]-mu[j], params)
+                _grads = tape.gradient(T_x[i, j] - mu[j], params)
                 for k in range(nparams):
                     T_x_grads[k][j][i] = _grads[k]
-    #del tape
+    del tape
 
     # Average across the first half of samples
     for k in range(nparams):
         T_x_grads[k] = np.mean(np.array(T_x_grads[k]), axis=1)
 
-    R2_np = np.mean(T_x[N//2:,:], 0)-mu
+    R2_np = np.mean(T_x[N // 2 :, :], 0) - mu
     aug_grad_np = []
     for k in range(nparams):
-        aug_grad_np.append(np.tensordot(T_x_grads[k], R2_np, axes=(0,0)))
+        aug_grad_np.append(np.tensordot(T_x_grads[k], R2_np, axes=(0, 0)))
 
     for i in range(nparams):
-        print(i, 'np', aug_grad_np[i])
-        print(i, 'tf', aug_grad[i].numpy())
-        assert(np.isclose(aug_grad_np[i], aug_grad[i], rtol=1e-3).all())
+        assert np.isclose(aug_grad_np[i], aug_grad[i], rtol=1e-3).all()
 
     return None
-

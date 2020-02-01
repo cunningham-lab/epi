@@ -50,3 +50,25 @@ def linear2D_freq(a11, a12, a21, a22):
     )
 
     return T_x
+
+
+def linear2D_freq_np(a11, a12, a21, a22):
+    tau = 1.0
+    C = np.array([[a11, a12], [a21, a22]]) / tau
+    eigs = np.linalg.eigvals(C)
+    eig1, eig2 = eigs[0], eigs[1]
+    eig1_r = np.real(eig1)
+    eig1_i = np.imag(eig1)
+    eig2_r = np.real(eig2)
+    eig2_i = np.imag(eig2)
+    if eig1_r >= eig2_r:
+        alpha = eig1_r
+    else:
+        alpha = eig2_r
+
+    if eig1_i >= eig2_i:
+        omega = 2 * np.pi * eig1_i
+    else:
+        omega = 2 * np.pi * eig2_i
+
+    return alpha, omega
