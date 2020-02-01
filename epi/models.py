@@ -192,7 +192,6 @@ class Model:
         :param lr: Adam optimizer learning rate, defaults to 1e-3.
         :type lr: float, optional
         """
-
         if num_units is None:
             num_units = max(2 * self.D, 15)
 
@@ -262,15 +261,15 @@ class Model:
         raise NotImplementedError()
 
     def parameter_check(self, parameters, verbose=False):
-    """Check that model parameter list has no duplicates and valid bounds.
+        """Check that model parameter list has no duplicates and valid bounds.
 
-    :param parameters: List of :obj:`epi.models.Parameter`s.
-    :type parameters: list
-    :param verbose: Print rationale for check failure if True, defaults to False.
-    :type verbose: bool, optional
-    :return: True if parameter list is valid.
-    :rtype: bool
-    """
+        :param parameters: List of :obj:`epi.models.Parameter`s.
+        :type parameters: list
+        :param verbose: Print rationale for check failure if True, defaults to False.
+        :type verbose: bool, optional
+        :return: True if parameter list is valid.
+        :rtype: bool
+        """
         d = dict()
         for param in parameters:
             name = param.name
