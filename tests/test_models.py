@@ -103,12 +103,12 @@ def test_epi():
     q_theta = M.epi(mu, num_iters=100)
 
     z, log_q_z = q_theta(1000)
-    assert np.sum(z[:,0] <= 0.) == 0
-    assert np.sum(z[:,1] <= lb_a12) == 0
-    assert np.sum(z[:,1] >= ub_a12) == 0
-    assert np.sum(z[:,2] <= lb_a21) == 0
-    assert np.sum(z[:,2] >= ub_a21) == 0
-    assert np.sum(z[:,3] >= 0.) == 0
+    assert np.sum(z[:,0] < 0.) == 0
+    assert np.sum(z[:,1] < lb_a12) == 0
+    assert np.sum(z[:,1] > ub_a12) == 0
+    assert np.sum(z[:,2] < lb_a21) == 0
+    assert np.sum(z[:,2] > ub_a21) == 0
+    assert np.sum(z[:,3] > 0.) == 0
     assert np.sum(1 - np.isfinite(z)) == 0
     assert np.sum(1 - np.isfinite(log_q_z)) == 0
 
@@ -120,12 +120,12 @@ def test_epi():
     q_theta = M.epi(mu, num_iters=100)
 
     z, log_q_z = q_theta(1000)
-    assert np.sum(z[:,0] <= 0.) == 0
+    assert np.sum(z[:,0] < 0.) == 0
     assert np.sum(z[:,1] < lb_a12) == 0
     assert np.sum(z[:,1] > ub_a12) == 0
     assert np.sum(z[:,2] < lb_a21) == 0
     assert np.sum(z[:,2] > ub_a21) == 0
-    assert np.sum(z[:,3] >= 0.) == 0
+    assert np.sum(z[:,3] > 0.) == 0
     assert np.sum(1 - np.isfinite(z)) == 0
     assert np.sum(1 - np.isfinite(log_q_z)) == 0
 

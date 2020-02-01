@@ -5,7 +5,7 @@ import inspect
 import tensorflow as tf
 from epi.error_formatters import format_type_err_msg
 from epi.normalizing_flows import Architecture 
-from epi.util import gaussian_backward_mapping
+from epi.util import gaussian_backward_mapping, aug_lag_vars, unbiased_aug_grad
 
 REAL_NUMERIC_TYPES = (int, float)
 
@@ -219,33 +219,18 @@ class Model:
         @tf.function
         def train_step():
             with tf.GradientTape(persistent=True) as tape:
-                x, log_q_x = q_theta(N)
+                z, log_q_z = q_theta(N)
                 params = q_theta.trainable_variables
                 tape.watch(params)
-                T_x = self.eps(x)
-                E_T_x = tf.reduce_mean(T_x, axis=0)
-                R = E_T_x - mu
-                E_log_q_x = tf.reduce_mean(log_q_x)
-                cost_term1 = E_log_q_x + tf.reduce_sum(tf.multiply(eta, R))
-                cost = cost_term1 + c / 2.0 * tf.reduce_sum(tf.square(R))
-
-                R1 = tf.reduce_mean(T_x[: N // 2, :], 0) - mu
-                R1s = tf.unstack(R1, axis=0)
-                R2 = tf.reduce_mean(T_x[N // 2 :, :], 0) - mu
-
-            grad1 = tape.gradient(cost_term1, params)
-            gradR1s = tape.gradient(R1s[0], params)
-            jacR1 = [[g] for g in gradR1s]
-            for i in range(1, self.m):
-                gradR1i = tape.gradient(R1s[i], params)
-                for i, g in enumerate(gradR1i):
-                    jacR1[i].append(g)
-
-            jacR1 = [tf.stack(grad_list, axis=-1) for grad_list in jacR1]
-            print(jacR1[0])
-            grad2 = [tf.linalg.matvec(jacR1i, R2) for jacR1i in jacR1]
-
-            gradients = [g1 + c * g2 for g1, g2 in zip(grad1, grad2)]
+                H, R, R1s, R2 = aug_lag_vars(z, log_q_z, self.eps, mu, N)
+                neg_H = -H
+                lagrange_dot = tf.reduce_sum(tf.multiply(eta, R))
+            aug_l2 = c / 2.0 * tf.reduce_sum(tf.square(R)) 
+            cost = neg_H + lagrange_dot + aug_l2
+            H_grad = tape.gradient(H, params)
+            lagrange_grad = tape.gradient(lagrange_dot, params)
+            aug_grad = unbiased_aug_grad(R1s, R2, params, tape)
+            gradients = [g1 + g2 +  c * g3 for g1, g2, g3 in zip(H_grad, lagrange_grad, aug_grad)]
             optimizer.apply_gradients(zip(gradients, params))
             return cost
 
