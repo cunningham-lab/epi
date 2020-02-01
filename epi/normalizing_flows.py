@@ -162,7 +162,6 @@ class Architecture:
         if self.lb is not None and self.ub is not None:
             self.support_mapping = IntervalFlow(self.lb, self.ub)
 
-    @tf.function
     def __call__(self, N):
         tf.random.set_seed(self.random_seed)
 
@@ -195,7 +194,7 @@ class Architecture:
             self.trainable_variables += self.PA.trainable_variables
 
         if self.lb is not None and self.ub is not None:
-            _ldj, x = self.support_mapping.forward_log_det_jacobian(x)
+            x, _ldj = self.support_mapping.forward_log_det_jacobian(x)
             sum_ldj += _ldj
 
         log_q_x = log_q0 - sum_ldj
@@ -355,7 +354,6 @@ class Architecture:
             mu = np.array(self.D * [loc])
             Sigma = scale * np.eye(self.D)
 
-        p_target = scipy.stats.multivariate_normal(mu, Sigma)
         eta = gaussian_backward_mapping(mu, Sigma)
 
         optimizer = tf.keras.optimizers.Adam(lr)
@@ -382,21 +380,16 @@ class Architecture:
 
         for i in range(num_iters):
             loss = train_step()
-            if i % 100 == 0:
-                x, log_q_x = self(N)
-                KL = np.mean(log_q_x) - np.mean(p_target.logpdf(x))
-                if verbose:
-                    print(i, "loss", loss, "KL", KL)
+            if np.isnan(loss):
+                raise ValueError("Initialization loss is nan.")
+            if not np.isfinite(loss):
+                raise ValueError("Initialization loss is inf.")
 
-                if np.isnan(loss):
-                    print("Error. Loss is nan. Quitting.")
-                    return None
-                if not np.isfinite(loss):
-                    print("Error. Loss is inf. Quitting.")
-                    return None
+            if i % 100 == 0:
+                print(i, "loss", loss)
 
         save_tf_model(_init_path, self.trainable_variables)
-        return None
+        return loss
 
     def to_string(self,):
         """Converts architecture to string for file saving.

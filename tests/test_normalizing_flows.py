@@ -278,7 +278,7 @@ def test_interval_flow():
     ub[2] = lb[2]
     lb[2] = tmp
     with raises(ValueError):
-        IF = IntervalFlow(lb, ub[:3])
+        IF = IntervalFlow(lb, ub)
 
     D = 2
     lb = [0., -1.]
@@ -307,6 +307,15 @@ def test_initialization():
     Sigma_z = np.cov(z.T)
     assert np.isclose(mean_z, loc*np.ones((D,)), atol=1e-1).all()
     assert np.isclose(Sigma_z, scale*np.eye(D), atol=1e-1).all()
+
+    # For init load
+    A.initialize(init_type, init_params)
+    
+    # Bounds
+    lb = np.zeros((D,))
+    ub = np.ones((D,))
+    A = Architecture("autoregressive", D, 2, 2, 15, batch_norm=True, bounds=(lb,ub))
+    A.initialize(init_type, init_params)
 
     return None
 
