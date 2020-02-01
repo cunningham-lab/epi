@@ -2,6 +2,7 @@
 
 import numpy as np
 import tensorflow as tf
+from epi.models import Parameter, Model
 from epi.util import (
     gaussian_backward_mapping,
     np_column_vec,
@@ -9,10 +10,15 @@ from epi.util import (
     init_path,
     save_tf_model,
     load_tf_model,
+    aug_lag_vars,
+    unbiased_aug_grad,
 )
+from epi.example_eps import linear2D_freq, linear2D_freq_np
 import pytest
 from pytest import raises
 import os
+
+DTYPE = np.float32
 
 
 def test_gaussian_backward_mapping():
@@ -253,4 +259,59 @@ def test_save_and_load_tf_model(tf_image_classifier1, tf_image_classifier2):
     with raises(ValueError):
         load_tf_model(path1, [x])
 
+    return None
+
+
+def test_aug_lag_vars():
+    # Test using linear 2D system eps
+    N = 100
+    z = np.random.normal(0.0, 1.0, (N, 4)).astype(DTYPE)
+    log_q_z = np.random.normal(2.0, 3.0, (N,)).astype(DTYPE)
+    mu = np.array([0.0, 0.1, 2 * np.pi, 0.1 * np.pi]).astype(DTYPE)
+
+    bounds = [np.NINF, np.PINF]
+    a11 = Parameter("a11", bounds)
+    a12 = Parameter("a12", bounds)
+    a21 = Parameter("a21", bounds)
+    a22 = Parameter("a22", bounds)
+    params = [a11, a12, a21, a22]
+    M = Model("lds", params)
+    M.set_eps(linear2D_freq, 4)
+
+    H, R, R1s, R2 = aug_lag_vars(z, log_q_z, M.eps, mu, N)
+
+    alphas = np.zeros((N,))
+    omegas = np.zeros((N,))
+    for i in range(N):
+        alphas[i], omegas[i] = linear2D_freq_np(z[i, 0], z[i, 1], z[i, 2], z[i, 3])
+
+    mean_alphas = np.mean(alphas)
+    mean_omegas = np.mean(omegas)
+
+    T_x_np = np.stack(
+        (
+            alphas,
+            np.square(alphas - mean_alphas),
+            omegas,
+            np.square(omegas - mean_omegas),
+        ),
+        axis=1,
+    )
+
+    H_np = np.mean(-log_q_z)
+    R_np = np.mean(T_x_np, 0) - mu
+    R1_np = np.mean(T_x_np[: N // 2, :], 0) - mu
+    R2_np = np.mean(T_x_np[N // 2 :, :], 0) - mu
+    R1s_np = list(R1_np)
+
+    rtol = 1e-3
+    assert np.isclose(H, H_np, rtol=rtol)
+    assert np.isclose(R, R_np, rtol=rtol).all()
+    assert np.isclose(R1s, R1s_np, rtol=rtol).all()
+    assert np.isclose(R2, R2_np, rtol=rtol).all()
+
+    return None
+
+
+def test_unbiased_aug_grad():
     return None
