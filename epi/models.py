@@ -68,13 +68,13 @@ class Parameter:
 class Model:
     """Model to run emergent property inference on.  To run EPI on a model:
 
-    #. Initialize an :obj:epi.models.Model with a list of :obj:`epi.models.Parameters`s
+    #. Initialize an :obj:epi.models.Model with a list of :obj:`epi.models.Parameter`.
     #. Use :obj:`epi.models.Model.set_eps` to set the emergent property statistics of the model.
     #. Run emergent property inference for mean parameter :math:`\\mu` using :obj:`epi.models.Model.epi`.
 
     :param name: Name of model.
     :type name: str
-    :param parameters: List of :obj:`epi.models.Parameter`s.
+    :param parameters: List of :obj:`epi.models.Parameter`.
     :type parameters: list
     """
     def __init__(self, name, parameters):
@@ -181,7 +181,7 @@ class Model:
         :type bounds: (np.ndarray, np.ndarray), optional
         :param random_seed: Random seed of architecture parameters, defaults to 1.
         :type random_seed: int, optional
-        :param init_type: :math:`\\in` `['iso_gauss']`
+        :param init_type: :math:`\\in` :obj:`['iso_gauss']`.
         :type init_type: str
         :param init_params: Parameters according to :obj:`init_type`.
         :type init_params: dict
