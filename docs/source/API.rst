@@ -36,4 +36,12 @@ epi.error_formatters
    :undoc-members:
    :show-inheritance:
 
+epi.example_eps
+--------------------------
+
+.. automodule:: epi.example_eps
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
