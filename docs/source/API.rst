@@ -3,6 +3,23 @@
 API
 ===
 
+epi.models
+--------------------------
+
+.. automodule:: epi.models
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+epi.normalizing_flows
+--------------------------
+
+.. autoclass:: epi.normalizing_flows.Architecture
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 epi.util
 --------------------------
 
@@ -11,10 +28,10 @@ epi.util
    :undoc-members:
    :show-inheritance:
 
-epi.normalizing_flows
+epi.error_formatters
 --------------------------
 
-.. automodule:: epi.normalizing_flows
+.. automodule:: epi.error_formatters
    :members:
    :undoc-members:
    :show-inheritance:
