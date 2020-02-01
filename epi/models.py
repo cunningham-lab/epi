@@ -160,12 +160,6 @@ class Model:
     ):
         """Runs emergent property inference for this model with mean parameter :math:`\\mu`.
 
-        :math:`\\underset{q_\\theta \\in Q}{\mathrm{arg max}} H(q_\\theta) + \\eta^\\top R(\\theta) +
-        \\frac{1}{2}||R(\\theta))||^2`
-
-        where the constraint violations
-
-        :math:`R(\\theta) = \\mathbb{E}_{z \\sim q_\\theta}[T(z)] - \\mu`.
 
         :param mu: Mean parameter of the emergent property.
         :type mu: np.ndarray
