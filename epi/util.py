@@ -225,8 +225,11 @@ def aug_lag_vars(z, log_q_z, eps, mu, N):
     """Calculate augmented lagrangian variables requiring gradient tape.
 
     :math:`H(\\theta) = \\mathbb{E}_{z \\sim q_\\theta}[-\\log(q_\\theta(z)]`
+
     :math:`R(\\theta) = \\mathbb{E}_{z \\sim q_\\theta, x \\sim p(x \mid z)}[T(x) - \\mu]`
+
     :math:`R_1(\\theta) = \\mathbb{E}_{z_1 \\sim q_\\theta, x \\sim p(x \mid z_1)}[T(x) - \\mu]`
+
     :math:`R_2(\\theta) = \\mathbb{E}_{z_2 \\sim q_\\theta, x \\sim p(x \mid z_2)}[T(x) - \\mu]`
 
     where :math:`\\theta` are params and :math:`z_1`, :math:`z_2` are the two 
@@ -259,6 +262,7 @@ def unbiased_aug_grad(R1s, R2, params, tape):
     """Unbiased gradient of the l-2 norm of stochastic constraint violations.
 
     :math:`R_1(\\theta) = \\mathbb{E}_{z_1 \\sim q_\\theta, x \\sim p(x \mid z_1)}[T(x) - \\mu]`
+
     :math:`R_2(\\theta) = \\mathbb{E}_{z_2 \\sim q_\\theta, x \\sim p(x \mid z_2)}[T(x) - \\mu]`
 
     where :math:`\\theta` are params and :math:`z_1`, :math:`z_2` are the two 
