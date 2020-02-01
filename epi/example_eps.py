@@ -8,16 +8,20 @@ def linear2D_freq(a11, a12, a21, a22):
 
     For a two-dimensional linear system:
 
-    :math:`\\tau \\dot{x} = Ax`    :math:`A = \\begin{bmatrix} a_{11} & a_{12} \\\\ a_{21} & a{22} \\end{bmatrix}`
+    :math:`\\tau \\dot{x} = Ax`    
+    
+    :math:`A = \\begin{bmatrix} a_{11} & a_{12} \\\\ a_{21} & a_{22} \\end{bmatrix}`
 
     We can characterize the dynamics using the real and imaginary components of the
     primary eigenvalue :math:`\\lambda_1`, of C that which has the greates real component
     or secondarily the greatest imaginary component if the two eigenvalues are equal, 
     where :math:`C = A / \\tau`.
 
-    :math:`E_{x\\sim p(x \\mid z)}\\left[T(x)\\right] = f_{p,T}(z) = E \\begin{bmatrix} \\text{real}(\\lambda_1) \\\\\\\\
-    \\frac{\\text{imag}(\\lambda_1)}{2\pi} \\\\\\\\ \\text{real}(\\lambda_1)^2 \\\\\\\\
-    (\\frac{\\text{imag}(\\lambda_1)}{2\pi}^2 \end{bmatrix}`
+    :math:`T(x) = \\begin{bmatrix} \\text{real}(\\lambda_1) \\\\
+                                   \\text{real}(\\lambda_1 - E[\\text{real}(\\lambda_1)])^2 \\\\
+                                   \\2\\pi\\text{imag}(\\lambda_1) \\\\
+                                   (2\\pi\\text{imag}(\\lambda_1) - \\mathbb{E}[2\\pi\\text{imag}(\\lambda_1)])^2 
+                  \\end{bmatrix}`
 
     :param a11: Dynamics coefficient.
     :type a11: tf.Tensor
