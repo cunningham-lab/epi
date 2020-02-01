@@ -120,7 +120,7 @@ class Model:
         self.parameters = _parameters
 
         def _eps(z):
-            zs = tf.unstack(z[:, tf.newaxis, :], axis=2)
+            zs = tf.unstack(z[:, :], axis=1)
             return eps(*zs)
 
         self.eps = _eps
@@ -214,7 +214,7 @@ class Model:
         optimizer = tf.keras.optimizers.Adam(lr)
 
         eta = np.zeros((self.m,), np.float32)
-        c = 1e-3
+        c = 10.
 
         @tf.function
         def train_step():
@@ -255,7 +255,7 @@ class Model:
                 x, log_q_x = q_theta(N)
                 print(i, "epi loss", loss)
 
-        return q_theta, train_step
+        return q_theta
 
     def load_epi_dist(self,):
         raise NotImplementedError()
