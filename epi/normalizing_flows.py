@@ -77,7 +77,8 @@ class Architecture:
     :param batch_norm: Use batch normalization between stages, defaults to True.
     :type batch_norm: bool, optional
     :param bn_momentum: Batch normalization momentum parameter, defaults to 0.99.
-    :type bn_momentrum: float
+    :type bn_momentrum: float, optional
+    :param post_affine: Shift and scale following main transform.
     :type post_affine: bool, optional
     :param bounds: Bounds of distribution support, defaults to None.
     :type bounds: (np.ndarray, np.ndarray), optional
@@ -308,7 +309,7 @@ class Architecture:
     ):
         """Initializes architecture to gaussian distribution via variational inference.
 
-        :math:`\\underset{q_\\theta \\in Q}{\mathrm{arg max}} H(q_\\theta) + \\eta^\\top \\mathbb{E}_{z \\sim q_\\theta}[T(z)]`
+        :math:`\\underset{q_\\theta \\in Q}{\\mathrm{arg max}} H(q_\\theta) + \\eta^\\top \\mathbb{E}_{z \\sim q_\\theta}[T(z)]`
 
         where :math:`\\eta` and :math:`T(z)` for a multivariate gaussian are:
 

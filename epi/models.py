@@ -66,9 +66,7 @@ class Parameter:
 
 
 class Model:
-    """Model to run emergent property inference on.
-
-    To run EPI on a model
+    """Model to run emergent property inference on.  To run EPI on a model:
 
     #. Initialize an :obj:epi.models.Model with a list of :obj:`epi.models.Parameters`s
     #. Use :obj:`epi.models.Model.set_eps` to set the emergent property statistics of the model.
@@ -101,6 +99,16 @@ class Model:
         self.D = len(parameters)
 
     def set_eps(self, eps, m):
+        """Set the emergent property statistic calculation for this model.
+
+        The arguments of eps should be batch vectors of univariate parameter
+        tensors following the naming convention in :obj:`self.Parameters`.
+
+        :param eps: Emergent property statistics function.
+        :type eps: function
+        :param m: Dimensionality of emergent property statistics.
+        :type m: int
+        """
         fullargspec = inspect.getfullargspec(eps)
         args = fullargspec.args
         _parameters = []
@@ -141,14 +149,55 @@ class Model:
         num_layers=2,
         num_units=None,
         batch_norm=True,
+        bn_momentum=0.99,
         post_affine=True,
         random_seed=1,
         init_type="iso_gauss",
         init_params={"loc": 0.0, "scale": 1.0},
         N=500,
-        lr=1e-3,
         num_iters=10000,
+        lr=1e-3,
     ):
+        """Runs emergent property inference for this model with mean parameter :math:`\\mu`.
+
+        :math:`\\underset{q_\\theta \\in Q}{\mathrm{arg max}} H(q_\\theta) + \\eta^\\top R(\\theta) +
+        \\frac{1}{2}||R(\\theta))||^2`
+
+        where the constraint violations
+
+        :math:`R(\\theta) = \\mathbb{E}_{z \\sim q_\\theta}[T(z)] - \\mu`.
+
+        :param mu: Mean parameter of the emergent property.
+        :type mu: np.ndarray
+        :param arch_type: :math:`\\in` :obj:`['autoregressive', 'coupling']`, defaults to :obj:`'autoregressive'`.
+        :type arch_type: str, optional
+        :param num_stages: Number of coupling or autoregressive stages.
+        :type num_stages: int, optional
+        :param num_layers: Number of neural network layer per conditional.
+        :type num_layers: int, optional
+        :param num_units: Number of units per layer.
+        :type num_units: int, optional
+        :param batch_norm: Use batch normalization between stages, defaults to True.
+        :type batch_norm: bool, optional
+        :param bn_momentum: Batch normalization momentum parameter, defaults to 0.99.
+        :type bn_momentrum: float, optional
+        :param post_affine: Shift and scale following main transform.
+        :type post_affine: bool, optional
+        :param bounds: Bounds of distribution support, defaults to None.
+        :type bounds: (np.ndarray, np.ndarray), optional
+        :param random_seed: Random seed of architecture parameters, defaults to 1.
+        :type random_seed: int, optional
+        :param init_type: :math:`\\in` `['iso_gauss']`
+        :type init_type: str
+        :param init_params: Parameters according to :obj:`init_type`.
+        :type init_params: dict
+        :param N: Number of batch samples per iteration.
+        :type N: int
+        :param num_iters: Number of optimization iterations, Defaults to 500.
+        :type num_iters: int, optional
+        :param lr: Adam optimizer learning rate, defaults to 1e-3.
+        :type lr: float, optional
+        """
 
         if num_units is None:
             num_units = max(2 * self.D, 15)
@@ -160,6 +209,7 @@ class Model:
             num_layers=num_layers,
             num_units=num_units,
             batch_norm=batch_norm,
+            bn_momentum=bn_momentum,
             post_affine=post_affine,
             bounds=self._get_bounds(),
             random_seed=random_seed,
@@ -218,6 +268,15 @@ class Model:
         raise NotImplementedError()
 
     def parameter_check(self, parameters, verbose=False):
+    """Check that model parameter list has no duplicates and valid bounds.
+
+    :param parameters: List of :obj:`epi.models.Parameter`s.
+    :type parameters: list
+    :param verbose: Print rationale for check failure if True, defaults to False.
+    :type verbose: bool, optional
+    :return: True if parameter list is valid.
+    :rtype: bool
+    """
         d = dict()
         for param in parameters:
             name = param.name
