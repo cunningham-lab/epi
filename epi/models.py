@@ -66,6 +66,19 @@ class Parameter:
 
 
 class Model:
+    """Model to run emergent property inference on.
+
+    To run EPI on a model
+
+    #. Initialize an :obj:epi.models.Model with a list of :obj:`epi.models.Parameters`s
+    #. Use :obj:`epi.models.Model.set_eps` to set the emergent property statistics of the model.
+    #. Run emergent property inference for mean parameter :math:`\\mu` using :obj:`epi.models.Model.epi`.
+
+    :param name: Name of model.
+    :type name: str
+    :param parameters: List of :obj:`epi.models.Parameter`s.
+    :type parameters: list
+    """
     def __init__(self, name, parameters):
         self._set_name(name)
         self._set_parameters(parameters)
