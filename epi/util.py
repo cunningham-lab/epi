@@ -207,3 +207,31 @@ def load_tf_model(path, variables):
             raise ValueError("Variable %s not in file %s." % (variable.name, filename))
         variable.assign(d[variable.name])
     return None
+
+def aug_lag_vars(z, log_q_z, eps, mu, N):
+    """Calculate augmented lagrangian variables requiring gradient tape.
+
+    :param x:
+
+    """
+    H = -tf.reduce_mean(log_q_z)
+    T_x = eps(z)
+    R = tf.reduce_mean(T_x, axis=0) - mu
+    R1s = tf.unstack(tf.reduce_mean(T_x[: N // 2, :], 0) - mu, axis=0)
+    R2 = tf.reduce_mean(T_x[N // 2 :, :], 0) - mu
+
+    return H, R, R1s, R2
+
+def unbiased_aug_grad(R1s, R2, params, tape):
+    m = len(R1s)
+    R1_grads = tape.gradient(R1s[0], params)
+    jacR1 = [[g] for g in R1_grads]
+    for i in range(1, m):
+        R1_gradi = tape.gradient(R1s[i], params)
+        for j, g in enumerate(R1_gradi):
+            jacR1[j].append(g)
+
+    jacR1 = [tf.stack(grad_list, axis=-1) for grad_list in jacR1]
+    return  [tf.linalg.matvec(jacR1i, R2) for jacR1i in jacR1]
+
+
