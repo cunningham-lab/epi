@@ -211,7 +211,20 @@ def load_tf_model(path, variables):
 def aug_lag_vars(z, log_q_z, eps, mu, N):
     """Calculate augmented lagrangian variables requiring gradient tape.
 
-    :param x:
+    :math:`H(\\theta) = \\mathbb{E}_{z \\sim q_\\theta}[-\\log(q_\\theta(z)]`
+
+    :param z: Parameter samples.
+    :type z: tf.Tensor
+    :param log_q_z: Parameter sample log density.
+    :type log_q_z: tf.Tensor
+    :param eps: Emergent property statistics function.
+    :type eps: function
+    :param mu: Mean parameter of the emergent property.
+    :type mu: np.ndarray
+    :param N: Number of batch samples.
+    :type N: int
+    :return: :math:`H(\\theta)`, :math:`R(\\theta)`, list :math:`R_1(\\theta)` by dimension, and :math:`R_2(\\theta)`.
+    :rtype: list
 
     """
     H = -tf.reduce_mean(log_q_z)
@@ -223,6 +236,20 @@ def aug_lag_vars(z, log_q_z, eps, mu, N):
     return H, R, R1s, R2
 
 def unbiased_aug_grad(R1s, R2, params, tape):
+    """Unbiased gradient of the l-2 norm of stochastic constraint violations.
+
+    :param R1s: Mean constraint violation over first half of samples.
+    :type R1s: list
+    :param R2: Mean constraint violation over the second half of samples.
+    :type R2: tf.Tensor
+    :param params: Trainable variables of :math:`q_\\theta`
+    :type params: list
+    :param tape: Persistent gradient tape watching params.
+    :type tape: tf.GradientTape
+    :return: Unbiased gradient of augmented term.
+    :rtype: list
+    """
+
     m = len(R1s)
     R1_grads = tape.gradient(R1s[0], params)
     jacR1 = [[g] for g in R1_grads]
