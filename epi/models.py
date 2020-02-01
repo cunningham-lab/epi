@@ -4,14 +4,22 @@ import numpy as np
 import inspect
 import tensorflow as tf
 from epi.error_formatters import format_type_err_msg
-from epi.normalizing_flows import Architecture
+from epi.normalizing_flows import Architecture 
 from epi.util import gaussian_backward_mapping
 
 REAL_NUMERIC_TYPES = (int, float)
 
 
 class Parameter:
+    """Univariate parameter of a model.
+
+    :param name: Parameter name.
+    :type name: str
+    :param bounds: Lower and upper bound of variable, defaults to (np.NINF, np.PINF).
+    :type bounds: (np.float, np.float), optional
+    """
     def __init__(self, name, bounds=(np.NINF, np.PINF)):
+        """Constructor method."""
         self._set_name(name)
         self._set_bounds(bounds)
 
@@ -79,7 +87,7 @@ class Model:
         self.parameters = parameters
         self.D = len(parameters)
 
-    def _set_eps(self, eps, m):
+    def set_eps(self, eps, m):
         fullargspec = inspect.getfullargspec(eps)
         args = fullargspec.args
         _parameters = []
@@ -98,6 +106,8 @@ class Model:
 
         z = tf.keras.Input(shape=(self.D))
         T_z = self.eps(z)
+        if (len(T_z.shape) > 2):
+            raise ValueError("Method eps must return tf.Tensor of dimension (N, D).")
         self.m = m
         return None
 
@@ -147,10 +157,10 @@ class Model:
 
         optimizer = tf.keras.optimizers.Adam(lr)
 
-        eta = np.zeros((self.m,), np.float64)
-        print("here", type(mu), type(eta))
+        eta = np.zeros((self.m,), np.float32)
         c = 1e-3
 
+        @tf.function
         def train_step():
             with tf.GradientTape(persistent=True) as tape:
                 x, log_q_x = q_theta(N)
@@ -176,13 +186,14 @@ class Model:
                     jacR1[i].append(g)
 
             jacR1 = [tf.stack(grad_list, axis=-1) for grad_list in jacR1]
+            print(jacR1[0])
             grad2 = [tf.linalg.matvec(jacR1i, R2) for jacR1i in jacR1]
 
             gradients = [g1 + c * g2 for g1, g2 in zip(grad1, grad2)]
             optimizer.apply_gradients(zip(gradients, params))
             return cost
 
-        for i in range(1):  # num_iters):
+        for i in range(num_iters):
             loss = train_step()
             if i % 100 == 0:
                 x, log_q_x = q_theta(N)
