@@ -236,7 +236,7 @@ def test_save_and_load_tf_model(tf_image_classifier1, tf_image_classifier2):
 
     with raises(ValueError):
         save_tf_model(path1, [])
-        
+
     with raises(TypeError):
         load_tf_model(1, tfic1_vars)
 
@@ -247,9 +247,9 @@ def test_save_and_load_tf_model(tf_image_classifier1, tf_image_classifier2):
         load_tf_model(path1, [])
 
     with raises(ValueError):
-        load_tf_model('foo', tfic1_vars)
+        load_tf_model("foo", tfic1_vars)
 
-    x = tf.Variable(initial_value=np.random.normal(0,1,(2,2)), name='x')
+    x = tf.Variable(initial_value=np.random.normal(0, 1, (2, 2)), name="x")
     with raises(ValueError):
         load_tf_model(path1, [x])
 

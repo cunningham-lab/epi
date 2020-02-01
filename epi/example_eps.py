@@ -3,6 +3,7 @@
 import numpy as np
 import tensorflow as tf
 
+
 def linear2D_freq(a11, a12, a21, a22):
     """Linear 2D system frequency response characterisitcs.
 
@@ -28,19 +29,24 @@ def linear2D_freq(a11, a12, a21, a22):
     :param a22: Dynamics coefficient.
     :type a22: tf.Tensor
     """
-    tau = 1.
+    tau = 1.0
     c11 = a11 / tau
     c12 = a12 / tau
     c21 = a21 / tau
     c22 = a22 / tau
 
     real_term = 0.5 * (c11 + c22)
-    complex_term = 0.5*tf.sqrt(tf.complex(tf.square(c11 + c22) - 4.*(c11*c22 - c12*c21), 0.))
+    complex_term = 0.5 * tf.sqrt(
+        tf.complex(tf.square(c11 + c22) - 4.0 * (c11 * c22 - c12 * c21), 0.0)
+    )
     alpha = real_term + tf.math.real(complex_term)
-    omega = 2.*np.pi*tf.math.imag(complex_term)
+    omega = 2.0 * np.pi * tf.math.imag(complex_term)
 
     mean_alpha = tf.reduce_mean(alpha)
     mean_omega = tf.reduce_mean(omega)
-    T_x = tf.stack((alpha, tf.square(alpha-mean_alpha), omega, tf.square(omega-mean_omega)), axis=1)
+    T_x = tf.stack(
+        (alpha, tf.square(alpha - mean_alpha), omega, tf.square(omega - mean_omega)),
+        axis=1,
+    )
 
     return T_x

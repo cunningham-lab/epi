@@ -4,7 +4,7 @@ import numpy as np
 import inspect
 import tensorflow as tf
 from epi.error_formatters import format_type_err_msg
-from epi.normalizing_flows import Architecture 
+from epi.normalizing_flows import Architecture
 from epi.util import gaussian_backward_mapping, aug_lag_vars, unbiased_aug_grad
 
 REAL_NUMERIC_TYPES = (int, float)
@@ -18,6 +18,7 @@ class Parameter:
     :param bounds: Lower and upper bound of variable, defaults to (np.NINF, np.PINF).
     :type bounds: (np.float, np.float), optional
     """
+
     def __init__(self, name, bounds=(np.NINF, np.PINF)):
         """Constructor method."""
         self._set_name(name)
@@ -77,6 +78,7 @@ class Model:
     :param parameters: List of :obj:`epi.models.Parameter`.
     :type parameters: list
     """
+
     def __init__(self, name, parameters):
         self._set_name(name)
         self._set_parameters(parameters)
@@ -127,7 +129,7 @@ class Model:
 
         z = tf.keras.Input(shape=(self.D))
         T_z = self.eps(z)
-        if (len(T_z.shape) > 2):
+        if len(T_z.shape) > 2:
             raise ValueError("Method eps must return tf.Tensor of dimension (N, D).")
         self.m = m
         return None
@@ -214,7 +216,7 @@ class Model:
         optimizer = tf.keras.optimizers.Adam(lr)
 
         eta = np.zeros((self.m,), np.float32)
-        c = 10.
+        c = 10.0
 
         @tf.function
         def train_step():
@@ -225,12 +227,14 @@ class Model:
                 H, R, R1s, R2 = aug_lag_vars(z, log_q_z, self.eps, mu, N)
                 neg_H = -H
                 lagrange_dot = tf.reduce_sum(tf.multiply(eta, R))
-            aug_l2 = c / 2.0 * tf.reduce_sum(tf.square(R)) 
+            aug_l2 = c / 2.0 * tf.reduce_sum(tf.square(R))
             cost = neg_H + lagrange_dot + aug_l2
             H_grad = tape.gradient(H, params)
             lagrange_grad = tape.gradient(lagrange_dot, params)
             aug_grad = unbiased_aug_grad(R1s, R2, params, tape)
-            gradients = [g1 + g2 +  c * g3 for g1, g2, g3 in zip(H_grad, lagrange_grad, aug_grad)]
+            gradients = [
+                g1 + g2 + c * g3 for g1, g2, g3 in zip(H_grad, lagrange_grad, aug_grad)
+            ]
             optimizer.apply_gradients(zip(gradients, params))
             return cost
 

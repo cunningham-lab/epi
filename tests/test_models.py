@@ -86,16 +86,16 @@ def test_Model_init():
 
 
 def test_epi():
-    mu = np.array([0., 0.1, 2*np.pi, 0.1*np.pi])
+    mu = np.array([0.0, 0.1, 2 * np.pi, 0.1 * np.pi])
 
-    lb_a12 = 0.
-    ub_a12 = 10.
-    lb_a21 = -10.
-    ub_a21 = 0.
-    a11 = Parameter("a11", [0., np.PINF])
+    lb_a12 = 0.0
+    ub_a12 = 10.0
+    lb_a21 = -10.0
+    ub_a21 = 0.0
+    a11 = Parameter("a11", [0.0, np.PINF])
     a12 = Parameter("a12", [lb_a12, ub_a12])
     a21 = Parameter("a21", [lb_a21, ub_a21])
-    a22 = Parameter("a22", [np.NINF, 0.])
+    a22 = Parameter("a22", [np.NINF, 0.0])
     params = [a11, a12, a21, a22]
 
     M = Model("lds", params)
@@ -103,15 +103,14 @@ def test_epi():
     q_theta = M.epi(mu, num_iters=100)
 
     z, log_q_z = q_theta(1000)
-    assert np.sum(z[:,0] < 0.) == 0
-    assert np.sum(z[:,1] < lb_a12) == 0
-    assert np.sum(z[:,1] > ub_a12) == 0
-    assert np.sum(z[:,2] < lb_a21) == 0
-    assert np.sum(z[:,2] > ub_a21) == 0
-    assert np.sum(z[:,3] > 0.) == 0
+    assert np.sum(z[:, 0] < 0.0) == 0
+    assert np.sum(z[:, 1] < lb_a12) == 0
+    assert np.sum(z[:, 1] > ub_a12) == 0
+    assert np.sum(z[:, 2] < lb_a21) == 0
+    assert np.sum(z[:, 2] > ub_a21) == 0
+    assert np.sum(z[:, 3] > 0.0) == 0
     assert np.sum(1 - np.isfinite(z)) == 0
     assert np.sum(1 - np.isfinite(log_q_z)) == 0
-
 
     # Intentionally swap order in list to insure proper handling.
     params = [a22, a21, a12, a11]
@@ -120,15 +119,13 @@ def test_epi():
     q_theta = M.epi(mu, num_iters=100)
 
     z, log_q_z = q_theta(1000)
-    assert np.sum(z[:,0] < 0.) == 0
-    assert np.sum(z[:,1] < lb_a12) == 0
-    assert np.sum(z[:,1] > ub_a12) == 0
-    assert np.sum(z[:,2] < lb_a21) == 0
-    assert np.sum(z[:,2] > ub_a21) == 0
-    assert np.sum(z[:,3] > 0.) == 0
+    assert np.sum(z[:, 0] < 0.0) == 0
+    assert np.sum(z[:, 1] < lb_a12) == 0
+    assert np.sum(z[:, 1] > ub_a12) == 0
+    assert np.sum(z[:, 2] < lb_a21) == 0
+    assert np.sum(z[:, 2] > ub_a21) == 0
+    assert np.sum(z[:, 3] > 0.0) == 0
     assert np.sum(1 - np.isfinite(z)) == 0
     assert np.sum(1 - np.isfinite(log_q_z)) == 0
 
     return None
-
-

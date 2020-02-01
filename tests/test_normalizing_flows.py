@@ -8,6 +8,7 @@ from pytest import raises
 
 EPS = 1e-6
 
+
 def test_Architecture_init():
     """Test architecture initialization."""
     arch_type = "coupling"
@@ -98,18 +99,15 @@ def test_Architecture_init():
         )
     with raises(ValueError):
         A = Architecture(
-            arch_type, D, num_stages, num_layers, num_units, bounds=(lb, ub, ub),
+            arch_type, D, num_stages, num_layers, num_units, bounds=(lb, ub, ub)
         )
     with raises(TypeError):
         A = Architecture(
-            arch_type, D, num_stages, num_layers, num_units, bounds=('foo', 'bar')
+            arch_type, D, num_stages, num_layers, num_units, bounds=("foo", "bar")
         )
-
 
     with raises(TypeError):
-        A = Architecture(
-            arch_type, D, num_stages, num_layers, num_units, bounds='foo',
-        )
+        A = Architecture(arch_type, D, num_stages, num_layers, num_units, bounds="foo")
 
     with raises(TypeError):
         A = Architecture(
@@ -175,29 +173,29 @@ def test_to_string():
     A = Architecture("autoregressive", 4, 4, 2, 15, batch_norm=False, post_affine=False)
     assert A.to_string() == "D4_AR4_L2_U15_rs1"
 
-def interval_flow_np(x, lb, ub):
 
+def interval_flow_np(x, lb, ub):
     def softplus(x):
-        return np.log(1 + np.exp(-np.abs(x))) + max(0., x)
+        return np.log(1 + np.exp(-np.abs(x))) + max(0.0, x)
 
     D = x.shape[0]
     y = np.zeros((D,))
-    ldj = 0.
+    ldj = 0.0
     for i in range(D):
         x_i = x[i]
         lb_i = lb[i]
         ub_i = ub[i]
         has_lb = not np.isneginf(lb_i)
         has_ub = not np.isposinf(ub_i)
-        if (has_lb and has_ub):
+        if has_lb and has_ub:
             m = (ub_i - lb_i) / 2
             c = (ub_i + lb_i) / 2
-            y[i] = m*np.tanh(x_i) + c
-            ldj += np.log(m) + np.log(1. - np.square(np.tanh(x_i)) + EPS)
-        elif (has_lb):
+            y[i] = m * np.tanh(x_i) + c
+            ldj += np.log(m) + np.log(1.0 - np.square(np.tanh(x_i)) + EPS)
+        elif has_lb:
             y[i] = softplus(x_i) + lb_i
-            ldj += np.log(1. / (1. + np.exp(-x_i)) + EPS)
-        elif (has_ub):
+            ldj += np.log(1.0 / (1.0 + np.exp(-x_i)) + EPS)
+        elif has_ub:
             y[i] = -softplus(x_i) + ub_i
             ldj += x_i - softplus(x_i)
         else:
@@ -208,68 +206,67 @@ def interval_flow_np(x, lb, ub):
 
 def test_interval_flow():
     N = 100
-    Ds = [2,4,10,20]
+    Ds = [2, 4, 10, 20]
     rtol = 1e-1
 
     np.random.seed(0)
     tf.random.set_seed(0)
 
-    lb = np.array([float('-inf'), float('-inf'), -100., 20.])
-    ub = np.array([float('inf'), 100., 30., float('inf')])
+    lb = np.array([float("-inf"), float("-inf"), -100.0, 20.0])
+    ub = np.array([float("inf"), 100.0, 30.0, float("inf")])
     IF = IntervalFlow(lb, ub)
-    x = np.random.normal(0., 2., (N, 4)).astype(np.float32)
+    x = np.random.normal(0.0, 2.0, (N, 4)).astype(np.float32)
     y, ldj = IF.forward_log_det_jacobian(tf.constant(x))
     for i in range(N):
         y_np, ldj_np = interval_flow_np(x[i], lb, ub)
-        assert(np.isclose(y[i], y_np, rtol=rtol).all())
-        assert(np.isclose(ldj[i], ldj_np, rtol=rtol))
+        assert np.isclose(y[i], y_np, rtol=rtol).all()
+        assert np.isclose(ldj[i], ldj_np, rtol=rtol)
 
     for D in Ds:
-        lb = np.array(D*[float('-inf')])
-        ub = np.array(D*[float('inf')])
+        lb = np.array(D * [float("-inf")])
+        ub = np.array(D * [float("inf")])
         IF = IntervalFlow(lb, ub)
-        x = np.random.normal(0., 10., (N, D)).astype(np.float32)
+        x = np.random.normal(0.0, 10.0, (N, D)).astype(np.float32)
         y, ldj = IF.forward_log_det_jacobian(tf.constant(x))
         for i in range(N):
             y_np, ldj_np = interval_flow_np(x[i], lb, ub)
-            assert(np.isclose(y[i], y_np, rtol=rtol).all())
-            assert(np.isclose(ldj[i], ldj_np, rtol=rtol))
+            assert np.isclose(y[i], y_np, rtol=rtol).all()
+            assert np.isclose(ldj[i], ldj_np, rtol=rtol)
 
         lb = np.random.uniform(-1000, 1000, (D,))
-        ub = np.array(D*[float('inf')])
+        ub = np.array(D * [float("inf")])
         IF = IntervalFlow(lb, ub)
-        x = np.random.normal(0., 3., (N, D)).astype(np.float32)
+        x = np.random.normal(0.0, 3.0, (N, D)).astype(np.float32)
         y, ldj = IF.forward_log_det_jacobian(tf.constant(x))
         for i in range(N):
             y_np, ldj_np = interval_flow_np(x[i], lb, ub)
-            assert(np.isclose(y[i], y_np, rtol=rtol).all())
-            assert(np.isclose(ldj[i], ldj_np, rtol=rtol))
+            assert np.isclose(y[i], y_np, rtol=rtol).all()
+            assert np.isclose(ldj[i], ldj_np, rtol=rtol)
 
-        lb = np.array(D*[float('-inf')])
+        lb = np.array(D * [float("-inf")])
         ub = np.random.uniform(-1000, 1000, (D,))
         IF = IntervalFlow(lb, ub)
-        x = np.random.normal(0., 3., (N, D)).astype(np.float32)
+        x = np.random.normal(0.0, 3.0, (N, D)).astype(np.float32)
         y, ldj = IF.forward_log_det_jacobian(tf.constant(x))
         for i in range(N):
             y_np, ldj_np = interval_flow_np(x[i], lb, ub)
-            assert(np.isclose(y[i], y_np, rtol=rtol).all())
-            assert(np.isclose(ldj[i], ldj_np, rtol=rtol))
-
+            assert np.isclose(y[i], y_np, rtol=rtol).all()
+            assert np.isclose(ldj[i], ldj_np, rtol=rtol)
 
         lb = np.random.uniform(-1000, 0, (D,))
         ub = np.random.uniform(0, 1000, (D,))
         IF = IntervalFlow(lb, ub)
-        x = np.random.normal(0., 100., (N, D)).astype(np.float32)
+        x = np.random.normal(0.0, 100.0, (N, D)).astype(np.float32)
         y, ldj = IF.forward_log_det_jacobian(tf.constant(x))
         for i in range(N):
             y_np, ldj_np = interval_flow_np(x[i], lb, ub)
-            assert(np.isclose(y[i], y_np, rtol=rtol).all())
-            assert(np.isclose(ldj[i], ldj_np, rtol=rtol))
+            assert np.isclose(y[i], y_np, rtol=rtol).all()
+            assert np.isclose(ldj[i], ldj_np, rtol=rtol)
 
     with raises(TypeError):
-        IF = IntervalFlow('foo', ub)
+        IF = IntervalFlow("foo", ub)
     with raises(TypeError):
-        IF = IntervalFlow(lb, 'foo')
+        IF = IntervalFlow(lb, "foo")
 
     with raises(ValueError):
         IF = IntervalFlow(lb, ub[:3])
@@ -281,42 +278,41 @@ def test_interval_flow():
         IF = IntervalFlow(lb, ub)
 
     D = 2
-    lb = [0., -1.]
-    ub = [1., 0.]
+    lb = [0.0, -1.0]
+    ub = [1.0, 0.0]
     IF = IntervalFlow(lb, ub)
-    x = np.random.normal(0., 100., (N, D)).astype(np.float32)
+    x = np.random.normal(0.0, 100.0, (N, D)).astype(np.float32)
     y, ldj = IF.forward_log_det_jacobian(tf.constant(x))
     for i in range(N):
         y_np, ldj_np = interval_flow_np(x[i], lb, ub)
-        assert(np.isclose(y[i], y_np, rtol=rtol).all())
+        assert np.isclose(y[i], y_np, rtol=rtol).all()
 
     return None
+
 
 def test_initialization():
     D = 4
     A = Architecture("autoregressive", D, 2, 2, 15, batch_norm=True, post_affine=True)
-    init_type = 'iso_gauss'
-    loc = -.5
-    scale = 2.
-    init_params = {'loc':loc, 'scale':scale}
+    init_type = "iso_gauss"
+    loc = -0.5
+    scale = 2.0
+    init_params = {"loc": loc, "scale": scale}
     A.initialize(init_type, init_params)
 
     z, ldjs = A.sample(int(1e4))
     z = z.numpy()
     mean_z = np.mean(z, 0)
     Sigma_z = np.cov(z.T)
-    assert np.isclose(mean_z, loc*np.ones((D,)), atol=1e-1).all()
-    assert np.isclose(Sigma_z, scale*np.eye(D), atol=1e-1).all()
+    assert np.isclose(mean_z, loc * np.ones((D,)), atol=1e-1).all()
+    assert np.isclose(Sigma_z, scale * np.eye(D), atol=1e-1).all()
 
     # For init load
     A.initialize(init_type, init_params)
-    
+
     # Bounds
     lb = np.zeros((D,))
     ub = np.ones((D,))
-    A = Architecture("autoregressive", D, 2, 2, 15, batch_norm=True, bounds=(lb,ub))
+    A = Architecture("autoregressive", D, 2, 2, 15, batch_norm=True, bounds=(lb, ub))
     A.initialize(init_type, init_params)
 
     return None
-
-  

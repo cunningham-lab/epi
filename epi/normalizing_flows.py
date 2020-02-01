@@ -106,10 +106,10 @@ class Architecture:
         self._set_num_layers(num_layers)
         self._set_num_units(num_units)
         self._set_batch_norm(batch_norm)
-        if (self.batch_norm):
+        if self.batch_norm:
             self._set_bn_momentum(bn_momentum)
         else:
-            self.bn_momentum=None
+            self.bn_momentum = None
         self._set_post_affine(post_affine)
         self._set_bounds(bounds)
         self._set_random_seed(random_seed)
@@ -258,7 +258,9 @@ class Architecture:
 
     def _set_bn_momentum(self, bn_momentum):
         if type(bn_momentum) is not float:
-            raise TypeError(format_type_err_msg(self, "bn_momentum", bn_momentum, float))
+            raise TypeError(
+                format_type_err_msg(self, "bn_momentum", bn_momentum, float)
+            )
         self.bn_momentum = bn_momentum
 
     def _set_post_affine(self, post_affine):
@@ -510,16 +512,9 @@ class IntervalFlow(tfp.bijectors.Bijector):
         ldj += tanh_ldj
         x = tf.multiply(self.tanh_flg, out) + tf.multiply(1 - self.tanh_flg, x)
 
-        out = (
-            tf.math.multiply(self.softplus_m, tf.math.softplus(x))
-            + self.softplus_c
-        )
+        out = tf.math.multiply(self.softplus_m, tf.math.softplus(x)) + self.softplus_c
         softplus_ldj = tf.reduce_sum(
-            tf.math.multiply(
-                self.softplus_flg,
-                tf.math.log_sigmoid(x),
-            ),
-            1,
+            tf.math.multiply(self.softplus_flg, tf.math.log_sigmoid(x)), 1
         )
         ldj += softplus_ldj
 

@@ -168,12 +168,18 @@ def save_tf_model(path, variables):
     :param variables: List of tensorflow model variables to be saved.
     :type variables: list
     """
-    if (type(path) is not str):
-        raise TypeError(format_type_err_msg("epi.util.save_tf_model", "path", path, str))
-    if (type(variables) is not list):
-        raise TypeError(format_type_err_msg("epi.util.save_tf_model", "variables", variables, list))
-    if (len(variables) == 0):
-        raise ValueError("epi.util.save_tf_model must receive nonempty list of variables.")
+    if type(path) is not str:
+        raise TypeError(
+            format_type_err_msg("epi.util.save_tf_model", "path", path, str)
+        )
+    if type(variables) is not list:
+        raise TypeError(
+            format_type_err_msg("epi.util.save_tf_model", "variables", variables, list)
+        )
+    if len(variables) == 0:
+        raise ValueError(
+            "epi.util.save_tf_model must receive nonempty list of variables."
+        )
 
     d = {}
     for variable in variables:
@@ -190,23 +196,30 @@ def load_tf_model(path, variables):
     :param variables: List of tensorflow model variables to assign values.
     :type variables: list
     """
-    if (type(path) is not str):
-        raise TypeError(format_type_err_msg("epi.util.save_tf_model", "path", path, str))
-    if (type(variables) is not list):
-        raise TypeError(format_type_err_msg("epi.util.save_tf_model", "variables", variables, list))
-    if (len(variables) == 0):
-        raise ValueError("epi.util.save_tf_model must receive nonempty list of variables.")
+    if type(path) is not str:
+        raise TypeError(
+            format_type_err_msg("epi.util.save_tf_model", "path", path, str)
+        )
+    if type(variables) is not list:
+        raise TypeError(
+            format_type_err_msg("epi.util.save_tf_model", "variables", variables, list)
+        )
+    if len(variables) == 0:
+        raise ValueError(
+            "epi.util.save_tf_model must receive nonempty list of variables."
+        )
 
     filename = path + ".p"
-    if (not os.path.exists(filename)):
+    if not os.path.exists(filename):
         raise ValueError("Filename %s does not exist." % filename)
 
     d = pickle.load(open(filename, "rb"))
     for variable in variables:
-        if (variable.name not in d):
+        if variable.name not in d:
             raise ValueError("Variable %s not in file %s." % (variable.name, filename))
         variable.assign(d[variable.name])
     return None
+
 
 def aug_lag_vars(z, log_q_z, eps, mu, N):
     """Calculate augmented lagrangian variables requiring gradient tape.
@@ -235,6 +248,7 @@ def aug_lag_vars(z, log_q_z, eps, mu, N):
 
     return H, R, R1s, R2
 
+
 def unbiased_aug_grad(R1s, R2, params, tape):
     """Unbiased gradient of the l-2 norm of stochastic constraint violations.
 
@@ -259,6 +273,4 @@ def unbiased_aug_grad(R1s, R2, params, tape):
             jacR1[j].append(g)
 
     jacR1 = [tf.stack(grad_list, axis=-1) for grad_list in jacR1]
-    return  [tf.linalg.matvec(jacR1i, R2) for jacR1i in jacR1]
-
-
+    return [tf.linalg.matvec(jacR1i, R2) for jacR1i in jacR1]
