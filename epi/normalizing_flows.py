@@ -23,7 +23,7 @@ DTYPE = tf.float32
 EPS = 1e-6
 
 
-class Architecture:
+class Architecture(tf.keras.Model):
     """Normalizing flow network for approximating parameter distributions.
 
     The normalizing flow is constructed via stage(s) of either coupling or
@@ -100,6 +100,7 @@ class Architecture:
         random_seed=1,
     ):
         """Constructor method."""
+        super(Architecture, self).__init__()
         self._set_arch_type(arch_type)
         self._set_D(D)
         self._set_num_stages(num_stages)
@@ -113,14 +114,14 @@ class Architecture:
         self._set_post_affine(post_affine)
         self._set_bounds(bounds)
         self._set_random_seed(random_seed)
-        self.trainable_variables = []
 
         self.stages = []
+        self.shift_and_log_scale_fns = []
         self.permutations = []
         if self.batch_norm:
             self.batch_norms = []
 
-        tf.keras.backend.clear_session()
+        #tf.keras.backend.clear_session()
 
         self.q0 = tfd.MultivariateNormalDiag(loc=self.D * [0.0])
 
@@ -144,6 +145,7 @@ class Architecture:
                 )
 
             self.stages.append(stage)
+            self.shift_and_log_scale_fns.append(shift_and_log_scale_fn)
 
             if i < self.num_stages - 1:
                 self.permutations.append(tfb.Permute(np.random.permutation(self.D)))
@@ -176,8 +178,6 @@ class Architecture:
             sum_ldj += stage_i.forward_log_det_jacobian(x, event_ndims=1)
             x = stage_i(x)
             self.all_transforms.append(stage_i)
-            for var in stage_i.trainable_variables:
-                self.trainable_variables.append(var)
             if i < self.num_stages - 1:
                 if self.batch_norm:
                     batch_norm_i = self.batch_norms[i]
@@ -192,7 +192,6 @@ class Architecture:
             sum_ldj += self.PA.forward_log_det_jacobian(x, event_ndims=1)
             x = self.PA(x)
             self.all_transforms.append(self.PA)
-            self.trainable_variables += self.PA.trainable_variables
 
         if self.lb is not None and self.ub is not None:
             x, _ldj = self.support_mapping.forward_log_det_jacobian(x)
@@ -343,12 +342,16 @@ class Architecture:
 
 
         """
+        optimizer = tf.keras.optimizers.Adam(lr)
 
         _init_path = init_path(self.to_string(), init_type, init_params)
-        if load_if_cached and os.path.exists(_init_path + ".p"):
+        init_file = _init_path + 'ckpt'
+        checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=self)
+        ckpt = tf.train.latest_checkpoint(_init_path)
+        if load_if_cached and (ckpt is not None):
             print("Loading variables from cached initialization.")
-            _, _ = self(N)
-            load_tf_model(_init_path, self.trainable_variables)
+            status = checkpoint.restore(ckpt)
+            status.expect_partial() # Won't use optimizer momentum parameters
             return None
 
         if init_type == "iso_gauss":
@@ -358,8 +361,6 @@ class Architecture:
             Sigma = scale * np.eye(self.D)
 
         eta = gaussian_backward_mapping(mu, Sigma)
-
-        optimizer = tf.keras.optimizers.Adam(lr)
 
         @tf.function
         def train_step():
@@ -388,11 +389,11 @@ class Architecture:
             if not np.isfinite(loss):
                 raise ValueError("Initialization loss is inf.")
 
-            if i % 100 == 0:
+            if verbose and i % 100 == 0:
                 print(i, "loss", loss)
 
-        save_tf_model(_init_path, self.trainable_variables)
-        return loss
+        checkpoint.save(file_prefix=init_file)
+        return None
 
     def to_string(self,):
         """Converts architecture to string for file saving.

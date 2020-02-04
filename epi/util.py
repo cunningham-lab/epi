@@ -143,8 +143,6 @@ def init_path(arch_string, init_type, init_param):
         )
 
     path = "./data/" + arch_string + "/"
-    if not os.path.exists(path):
-        os.makedirs(path)
 
     if init_type == "iso_gauss":
         if "loc" in init_param:
@@ -155,10 +153,12 @@ def init_path(arch_string, init_type, init_param):
             scale = init_param["scale"]
         else:
             raise ValueError("'scale' field not in init_param for %s." % init_type)
-        path += init_type + "_loc=%.2E_scale=%.2E" % (loc, scale)
+        path += init_type + "_loc=%.2E_scale=%.2E/" % (loc, scale)
+
+    if not os.path.exists(path):
+        os.makedirs(path)
 
     return path
-
 
 def save_tf_model(path, variables):
     """Saves tensorflow model variables via pickle to file at path.
@@ -296,3 +296,55 @@ def unbiased_aug_grad(R1s, R2, params, tape):
     # We don't multiply by 2, since its cancels with the denominator
     # of the leading c/2 factor in the cost function.
     return [tf.linalg.matvec(jacR1i, R2) for jacR1i in jacR1]
+
+class AugLagHPs:
+    def __init__(self, N=1000, lr=1e-3, c0=1., gamma=0.25, beta=4.):
+        self._set_N(N)
+        self._set_lr(lr)
+        self._set_c0(c0)
+        self._set_gamma(gamma)
+        self._set_beta(beta)
+
+    def _set_N(self, N):
+        if type(N) is not int:
+            raise TypeError(format_type_err_msg(self, "N", N, int))
+        elif N < 2:
+            raise ValueError("N %d must be greater than 1." % N)
+        self.N = N
+
+    def _set_lr(self, lr):
+        if type(lr) is not float:
+            raise TypeError(format_type_err_msg(self, "lr", lr, float))
+        elif lr < 0.:
+            raise ValueError("lr %.2E must be greater than 0." % lr)
+        self.lr = lr
+
+    def _set_c0(self, c0):
+        if type(c0) is not float:
+            raise TypeError(format_type_err_msg(self, "c0", c0, float))
+        elif c0 < 0.:
+            raise ValueError("c0 %.2E must be greater than 0." % c0)
+        self.c0 = c0
+
+    def _set_gamma(self, gamma):
+        if type(gamma) is not float:
+            raise TypeError(format_type_err_msg(self, "gamma", gamma, float))
+        elif gamma < 0.:
+            raise ValueError("gamma %.2E must be greater than 0." % gamma)
+        self.gamma = gamma
+
+    def _set_beta(self, beta):
+        if type(beta) is not float:
+            raise TypeError(format_type_err_msg(self, "beta", beta, float))
+        elif beta < 0.:
+            raise ValueError("beta %.2E must be greater than 0." % beta)
+        self.beta = beta
+
+    def to_string(self,):
+        return 'N%d_lr%.2E_c0=%.2E_gamma%.2E_beta%.2E' % (
+            self.N,
+            self.lr,
+            self.c0,
+            self.gamma,
+            self.beta
+        )
