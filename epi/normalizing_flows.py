@@ -121,9 +121,8 @@ class Architecture(tf.keras.Model):
         if self.batch_norm:
             self.batch_norms = []
 
-        #tf.keras.backend.clear_session()
-
         self.q0 = tfd.MultivariateNormalDiag(loc=self.D * [0.0])
+        bijectors = []
 
         np.random.seed(self.random_seed)
         for i in range(num_stages):
@@ -145,25 +144,36 @@ class Architecture(tf.keras.Model):
                 )
 
             self.stages.append(stage)
+            bijectors.append(stage)
             self.shift_and_log_scale_fns.append(shift_and_log_scale_fn)
 
             if i < self.num_stages - 1:
-                self.permutations.append(tfb.Permute(np.random.permutation(self.D)))
+                perm_i = tfb.Permute(np.random.permutation(self.D))
+                self.permutations.append(perm_i)
+                bijectors.append(perm_i)
                 if self.batch_norm:
                     bn = tf.keras.layers.BatchNormalization(momentum=self.bn_momentum)
-                    self.batch_norms.append(tfb.BatchNormalization(batchnorm_layer=bn))
+                    batch_norm_i = tfb.BatchNormalization(batchnorm_layer=bn)
+                    self.batch_norms.append(batch_norm_i)
+                    bijectors.append(batch_norm_i)
 
         if self.post_affine:
-            self.scale = tfb.Scale(
-                scale=tf.Variable(initial_value=tf.ones((D,)), name="a")
-            )
-            self.shift = tfb.Shift(
-                shift=tf.Variable(initial_value=tf.zeros((D,)), name="b")
-            )
+            self.a = tf.Variable(initial_value=tf.ones((D,)), name="a")
+            self.b = tf.Variable(initial_value=tf.zeros((D,)), name="b")
+            self.scale = tfb.Scale(scale=self.a)
+            self.shift = tfb.Shift(shift=self.b)
             self.PA = tfb.Chain([self.shift, self.scale])
+            bijectors.append(self.PA)
 
         if self.lb is not None and self.ub is not None:
             self.support_mapping = IntervalFlow(self.lb, self.ub)
+            #bijectors.append(self.support_mapping)
+
+        bijectors.reverse()
+        self.trans_dist = tfd.TransformedDistribution(
+            distribution=self.q0,
+            bijector=tfb.Chain(bijectors)
+        )
 
     def __call__(self, N):
         tf.random.set_seed(self.random_seed)
@@ -171,27 +181,22 @@ class Architecture(tf.keras.Model):
         x = self.q0.sample(N)
         log_q0 = self.q0.log_prob(x)
 
-        self.all_transforms = []
         sum_ldj = 0.0
         for i in range(self.num_stages):
             stage_i = self.stages[i]
             sum_ldj += stage_i.forward_log_det_jacobian(x, event_ndims=1)
             x = stage_i(x)
-            self.all_transforms.append(stage_i)
             if i < self.num_stages - 1:
+                permutation_i = self.permutations[i]
+                x = permutation_i(x)
                 if self.batch_norm:
                     batch_norm_i = self.batch_norms[i]
                     sum_ldj += batch_norm_i.forward_log_det_jacobian(x, event_ndims=1)
                     x = batch_norm_i(x)
-                    self.all_transforms.append(batch_norm_i)
-                permutation_i = self.permutations[i]
-                x = permutation_i(x)
-                self.all_transforms.append(permutation_i)
 
         if self.post_affine:
             sum_ldj += self.PA.forward_log_det_jacobian(x, event_ndims=1)
             x = self.PA(x)
-            self.all_transforms.append(self.PA)
 
         if self.lb is not None and self.ub is not None:
             x, _ldj = self.support_mapping.forward_log_det_jacobian(x)
@@ -521,3 +526,53 @@ class IntervalFlow(tfp.bijectors.Bijector):
 
         x = tf.multiply(self.softplus_flg, out) + tf.multiply(1 - self.softplus_flg, x)
         return x, ldj
+
+class Distribution(object):
+    def __init__(self, parameters, q_theta):
+        self.D = len(parameters)
+        self.parameters = parameters
+        self.q_theta = q_theta
+
+    def __call__(self, N):
+        return self.q_theta(N)
+
+    def sample(self, N):
+        return self.__call__(N)
+
+    def log_prob(self, z):
+        return self.q_theta.trans_dist.log_prob(z)
+
+    def gradient(self, z):
+        raise NotImplementedError()
+
+    def hessian(self, z):
+        raise NotImplementedError()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

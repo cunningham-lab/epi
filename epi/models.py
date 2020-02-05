@@ -5,7 +5,7 @@ import inspect
 import tensorflow as tf
 from scipy.stats import ttest_ind
 from epi.error_formatters import format_type_err_msg
-from epi.normalizing_flows import Architecture
+from epi.normalizing_flows import Architecture, Distribution
 from epi.util import (
     gaussian_backward_mapping,
     aug_lag_vars,
@@ -247,9 +247,10 @@ class Model(object):
 
         # Checkpoint the initialization.
         optimizer = tf.keras.optimizers.Adam(lr)
-        ckpt = tf.train.Checkpoint(step=tf.Variable(0), optimizer=optimizer, model=q_theta)
-        ckpt_file = self.get_save_path(mu, q_theta, aug_lag_hps) + 'ckpt'
-        ckpt.save(ckpt_file)
+        ckpt = tf.train.Checkpoint(optimizer=optimizer, model=q_theta)
+        ckpt_dir = self.get_save_path(mu, q_theta, aug_lag_hps)
+        manager = tf.train.CheckpointManager(ckpt, directory=ckpt_dir, max_to_keep=None)
+        manager.save(checkpoint_number=0)
 
     
         @tf.function
@@ -328,7 +329,7 @@ class Model(object):
             # Save epi optimization data following aug lag iteration k.
             opt_it_dfs = [pd.concat(opt_it_dfs, ignore_index=True)]
             self.save_epi_opt(mu, q_theta, aug_lag_hps, opt_it_dfs[0], cs, etas)
-            ckpt.save(ckpt_file)
+            manager.save(checkpoint_number=k)
 
             if k < K:
                 # Check for convergence if early stopping.
@@ -345,7 +346,8 @@ class Model(object):
                     c = beta * c
                 norms = norms_k
 
-        return q_theta, opt_it_dfs[0]
+        dist = Distribution(self.parameters, q_theta)
+        return dist, opt_it_dfs[0]
     
     def test_convergence(self, R_means, alpha):
         M, m = R_means.shape
@@ -404,8 +406,65 @@ class Model(object):
         g = g.map_lower(sns.kdeplot)
         plt.show()
 
-    def load_epi_dist(self,):
-        raise NotImplementedError()
+    def load_epi_dist(
+        self,
+        mu,
+        k=None,
+        alpha=None,
+        nu=0.1,
+        arch_type="autoregressive",
+        num_stages=1,
+        num_layers=2,
+        num_units=None,
+        batch_norm=True,
+        bn_momentum=0.99,
+        post_affine=True,
+        random_seed=1,
+        init_type="iso_gauss",
+        init_params={"loc": 0.0, "scale": 1.0},
+        N=500,
+        lr=1e-3,
+        c0=1.0,
+        gamma=0.25,
+        beta=4.0,
+    ):
+
+        if (k is not None):
+            if (type(k) is not int):
+                raise TypeError(format_type_err_msg("Model.load_epi_dist", 'k', k, int))
+            if (k < 0):
+                raise ValueError("k must be augmented Lagrangian iteration index.")
+
+        q_theta = Architecture(
+            arch_type=arch_type,
+            D=self.D,
+            num_stages=num_stages,
+            num_layers=num_layers,
+            num_units=num_units,
+            batch_norm=batch_norm,
+            bn_momentum=bn_momentum,
+            post_affine=post_affine,
+            bounds=self._get_bounds(),
+            random_seed=random_seed,
+        )
+
+        aug_lag_hps = AugLagHPs(N, lr, c0, gamma, beta)
+        optimizer = tf.keras.optimizers.Adam(lr)
+        checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=q_theta)
+        ckpt_dir = self.get_save_path(mu, q_theta, aug_lag_hps)
+        ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
+        if (ckpt_state is not None): 
+            ckpts = ckpt_state.all_model_checkpoint_paths
+        else:
+            raise ValueError("No checkpoints found.")
+
+        if (k is not None):
+            if (k >= len(ckpts)):
+                raise ValueError("Index of checkpoint 'k' too large.")
+            status = checkpoint.restore(ckpts[k])
+            status.expect_partial()
+            return Distribution(self.parameters, q_theta)
+
 
     def parameter_check(self, parameters, verbose=False):
         """Check that model parameter list has no duplicates and valid bounds.
