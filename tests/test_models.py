@@ -77,11 +77,6 @@ def test_Model_init():
     with raises(ValueError):
         Model("foo", params)
 
-    params = [p1, p2]
-    M = Model("foo", params)
-    with raises(NotImplementedError):
-        M.load_epi_dist()
-
     return None
 
 
@@ -99,10 +94,12 @@ def test_epi():
     params = [a11, a12, a21, a22]
 
     M = Model("lds", params)
-    M.set_eps(linear2D_freq, 4)
-    q_theta = M.epi(mu, num_iters=100)
+    m = 4
+    M.set_eps(linear2D_freq, m)
+    q_theta, opt_data = M.epi(mu, num_iters=100)
 
-    z, log_q_z = q_theta(1000)
+    z = q_theta(1000)
+    log_q_z = q_theta.log_prob(z)
     assert np.sum(z[:, 0] < 0.0) == 0
     assert np.sum(z[:, 1] < lb_a12) == 0
     assert np.sum(z[:, 1] > ub_a12) == 0
@@ -111,14 +108,19 @@ def test_epi():
     assert np.sum(z[:, 3] > 0.0) == 0
     assert np.sum(1 - np.isfinite(z)) == 0
     assert np.sum(1 - np.isfinite(log_q_z)) == 0
+
+    opt_data_cols = ["k", "iteration", "H"] + ["R%d" % i for i in range(1, m + 1)]
+    for x, y in zip(opt_data.columns, opt_data_cols):
+        assert x == y
 
     # Intentionally swap order in list to insure proper handling.
     params = [a22, a21, a12, a11]
     M = Model("lds2", params)
-    M.set_eps(linear2D_freq, 4)
-    q_theta = M.epi(mu, num_iters=100)
+    M.set_eps(linear2D_freq, m)
+    q_theta, opt_data = M.epi(mu, num_iters=100)
 
-    z, log_q_z = q_theta(1000)
+    z = q_theta(1000)
+    log_q_z = q_theta.log_prob(z)
     assert np.sum(z[:, 0] < 0.0) == 0
     assert np.sum(z[:, 1] < lb_a12) == 0
     assert np.sum(z[:, 1] > ub_a12) == 0
@@ -127,5 +129,8 @@ def test_epi():
     assert np.sum(z[:, 3] > 0.0) == 0
     assert np.sum(1 - np.isfinite(z)) == 0
     assert np.sum(1 - np.isfinite(log_q_z)) == 0
+
+    for x, y in zip(opt_data.columns, opt_data_cols):
+        assert x == y
 
     return None

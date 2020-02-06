@@ -23,7 +23,7 @@ DTYPE = tf.float32
 EPS = 1e-6
 
 
-class Architecture(tf.keras.Model):
+class NormalizingFlow(tf.keras.Model):
     """Normalizing flow network for approximating parameter distributions.
 
     The normalizing flow is constructed via stage(s) of either coupling or
@@ -100,7 +100,7 @@ class Architecture(tf.keras.Model):
         random_seed=1,
     ):
         """Constructor method."""
-        super(Architecture, self).__init__()
+        super(NormalizingFlow, self).__init__()
         self._set_arch_type(arch_type)
         self._set_D(D)
         self._set_num_stages(num_stages)
@@ -167,12 +167,11 @@ class Architecture(tf.keras.Model):
 
         if self.lb is not None and self.ub is not None:
             self.support_mapping = IntervalFlow(self.lb, self.ub)
-            #bijectors.append(self.support_mapping)
+            # bijectors.append(self.support_mapping)
 
         bijectors.reverse()
         self.trans_dist = tfd.TransformedDistribution(
-            distribution=self.q0,
-            bijector=tfb.Chain(bijectors)
+            distribution=self.q0, bijector=tfb.Chain(bijectors)
         )
 
     def __call__(self, N):
@@ -221,7 +220,7 @@ class Architecture(tf.keras.Model):
             raise TypeError(format_type_err_msg(self, "arch_type", arch_type, str))
         if arch_type not in arch_types:
             raise ValueError(
-                'Architecture arch_type must be "coupling" or "autoregressive"'
+                'NormalizingFlow arch_type must be "coupling" or "autoregressive"'
             )
         self.arch_type = arch_type
 
@@ -229,14 +228,16 @@ class Architecture(tf.keras.Model):
         if type(D) is not int:
             raise TypeError(format_type_err_msg(self, "D", D, int))
         elif D < 2:
-            raise ValueError("CouplingArch D %d must be greater than 0." % D)
+            raise ValueError("NormalizingFlow D %d must be greater than 0." % D)
         self.D = D
 
     def _set_num_stages(self, num_stages):
         if type(num_stages) is not int:
             raise TypeError(format_type_err_msg(self, "num_stages", num_stages, int))
         elif num_stages < 1:
-            raise ValueError("Arch stages %d must be greater than 0." % num_stages)
+            raise ValueError(
+                "NormalizingFlowstages %d must be greater than 0." % num_stages
+            )
         self.num_stages = num_stages
 
     def _set_num_layers(self, num_layers):
@@ -244,7 +245,7 @@ class Architecture(tf.keras.Model):
             raise TypeError(format_type_err_msg(self, "num_layers", num_layers, int))
         elif num_layers < 1:
             raise ValueError(
-                "Arch num_layers arg %d must be greater than 0." % num_layers
+                "NormalizingFlow num_layers arg %d must be greater than 0." % num_layers
             )
         self.num_layers = num_layers
 
@@ -252,7 +253,9 @@ class Architecture(tf.keras.Model):
         if type(num_units) is not int:
             raise TypeError(format_type_err_msg(self, "num_units", num_units, int))
         elif num_units < 1:
-            raise ValueError("Arch num_units %d must be greater than 0." % num_units)
+            raise ValueError(
+                "NormalizingFlow num_units %d must be greater than 0." % num_units
+            )
         self.num_units = num_units
 
     def _set_batch_norm(self, batch_norm):
@@ -281,12 +284,12 @@ class Architecture(tf.keras.Model):
                     bounds = tuple(bounds)
             else:
                 raise TypeError(
-                    "Architecture argument bounds must be tuple or list not %s."
+                    "NormalizingFlow argument bounds must be tuple or list not %s."
                     % _type.__name__
                 )
 
             if len_bounds != 2:
-                raise ValueError("Architecture bounds arg must be length 2.")
+                raise ValueError("NormalizingFlow bounds arg must be length 2.")
 
             for i, bound in enumerate(bounds):
                 if type(bound) is not np.ndarray:
@@ -350,13 +353,13 @@ class Architecture(tf.keras.Model):
         optimizer = tf.keras.optimizers.Adam(lr)
 
         _init_path = init_path(self.to_string(), init_type, init_params)
-        init_file = _init_path + 'ckpt'
+        init_file = _init_path + "ckpt"
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=self)
         ckpt = tf.train.latest_checkpoint(_init_path)
         if load_if_cached and (ckpt is not None):
             print("Loading variables from cached initialization.")
             status = checkpoint.restore(ckpt)
-            status.expect_partial() # Won't use optimizer momentum parameters
+            status.expect_partial()  # Won't use optimizer momentum parameters
             return None
 
         if init_type == "iso_gauss":
@@ -527,6 +530,7 @@ class IntervalFlow(tfp.bijectors.Bijector):
         x = tf.multiply(self.softplus_flg, out) + tf.multiply(1 - self.softplus_flg, x)
         return x, ldj
 
+
 class Distribution(object):
     def __init__(self, parameters, q_theta):
         self.D = len(parameters)
@@ -534,7 +538,8 @@ class Distribution(object):
         self.q_theta = q_theta
 
     def __call__(self, N):
-        return self.q_theta(N)
+        z, _ = self.q_theta(N)
+        return z
 
     def sample(self, N):
         return self.__call__(N)
@@ -547,32 +552,3 @@ class Distribution(object):
 
     def hessian(self, z):
         raise NotImplementedError()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

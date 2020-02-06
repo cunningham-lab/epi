@@ -3,7 +3,7 @@
 import numpy as np
 import tensorflow as tf
 from epi.models import Parameter, Model
-from epi.normalizing_flows import Architecture
+from epi.normalizing_flows import NormalizingFlow
 from epi.util import (
     gaussian_backward_mapping,
     np_column_vec,
@@ -118,7 +118,7 @@ def test_init_path():
     init_param = {"loc": 0.0, "scale": 1.0}
 
     s = init_path(arch_string, init_type, init_param)
-    s_true = "./data/foo/iso_gauss_loc=0.00E+00_scale=1.00E+00"
+    s_true = "./data/foo/iso_gauss_loc=0.00E+00_scale=1.00E+00/"
     assert s == s_true
 
     with raises(TypeError):
@@ -286,8 +286,10 @@ def test_aug_lag_vars():
     for i in range(N):
         alphas[i], omegas[i] = linear2D_freq_np(z[i, 0], z[i, 1], z[i, 2], z[i, 3])
 
-    mean_alphas = np.mean(alphas)
-    mean_omegas = np.mean(omegas)
+    # mean_alphas = np.mean(alphas)
+    # mean_omegas = np.mean(omegas)
+    mean_alphas = 0.0
+    mean_omegas = 2.0 * np.pi
 
     T_x_np = np.stack(
         (
@@ -330,13 +332,13 @@ def test_unbiased_aug_grad():
     M = Model("lds", params)
     M.set_eps(linear2D_freq, 4)
 
-    q_theta = Architecture(
+    nf = NormalizingFlow(
         arch_type="autoregressive", D=4, num_stages=1, num_layers=2, num_units=15,
     )
 
     with tf.GradientTape(persistent=True) as tape:
-        z, log_q_z = q_theta(N)
-        params = q_theta.trainable_variables
+        z, log_q_z = nf(N)
+        params = nf.trainable_variables
         nparams = len(params)
         tape.watch(params)
         _, _, R1s, R2 = aug_lag_vars(z, log_q_z, M.eps, mu, N)

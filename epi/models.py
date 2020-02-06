@@ -5,7 +5,7 @@ import inspect
 import tensorflow as tf
 from scipy.stats import ttest_ind
 from epi.error_formatters import format_type_err_msg
-from epi.normalizing_flows import Architecture, Distribution
+from epi.normalizing_flows import NormalizingFlow, Distribution
 from epi.util import (
     gaussian_backward_mapping,
     aug_lag_vars,
@@ -224,7 +224,7 @@ class Model(object):
         if num_units is None:
             num_units = max(2 * self.D, 15)
 
-        q_theta = Architecture(
+        nf = NormalizingFlow(
             arch_type=arch_type,
             D=self.D,
             num_stages=num_stages,
@@ -242,22 +242,21 @@ class Model(object):
 
         # Initialize architecture to gaussian.
         print("Initializing architecture..")
-        q_theta.initialize(init_type, init_params)
+        nf.initialize(init_type, init_params)
         print("done")
 
         # Checkpoint the initialization.
         optimizer = tf.keras.optimizers.Adam(lr)
-        ckpt = tf.train.Checkpoint(optimizer=optimizer, model=q_theta)
-        ckpt_dir = self.get_save_path(mu, q_theta, aug_lag_hps)
+        ckpt = tf.train.Checkpoint(optimizer=optimizer, model=nf)
+        ckpt_dir = self.get_save_path(mu, nf, aug_lag_hps)
         manager = tf.train.CheckpointManager(ckpt, directory=ckpt_dir, max_to_keep=None)
         manager.save(checkpoint_number=0)
 
-    
         @tf.function
         def train_step(eta, c):
             with tf.GradientTape(persistent=True) as tape:
-                z, log_q_z = q_theta(N)
-                params = q_theta.trainable_variables
+                z, log_q_z = nf(N)
+                params = nf.trainable_variables
                 tape.watch(params)
                 H, R, R1s, R2 = aug_lag_vars(z, log_q_z, self.eps, mu, N)
                 neg_H = -H
@@ -273,35 +272,34 @@ class Model(object):
             optimizer.apply_gradients(zip(gradients, params))
             return cost, H, R
 
-       
         @tf.function
-        def two_dim_T_x_batch(q_theta, eps, M, N, m):
-            z, _ = q_theta(M*N)
+        def two_dim_T_x_batch(nf, eps, M, N, m):
+            z, _ = nf(M * N)
             T_x = eps(z)
-            T_x = tf.reshape(T_x, (M,N,m))
+            T_x = tf.reshape(T_x, (M, N, m))
             return T_x
 
         @tf.function
-        def get_R_norm_dist(q_theta, eps, mu, M, N):
+        def get_R_norm_dist(nf, eps, mu, M, N):
             m = mu.shape[1]
-            T_x = two_dim_T_x_batch(q_theta, eps, M, N, m)
+            T_x = two_dim_T_x_batch(nf, eps, M, N, m)
             return tf.reduce_sum(tf.square(tf.reduce_mean(T_x, axis=1) - mu), axis=1)
-            
+
         @tf.function
-        def get_R_mean_dist(q_theta, eps, mu, M, N):
+        def get_R_mean_dist(nf, eps, mu, M, N):
             m = mu.shape[1]
-            T_x = two_dim_T_x_batch(q_theta, eps, M, N, m)
+            T_x = two_dim_T_x_batch(nf, eps, M, N, m)
             return tf.reduce_mean(T_x, axis=1) - mu
 
         M_test = 200
-        N_test = int(nu*N)
+        N_test = int(nu * N)
         M_norm = 200
         # Initialize augmented Lagrangian parameters eta and c.
         eta, c = np.zeros((self.m,), np.float32), c0
         etas, cs = np.zeros((K, self.m)), np.zeros((K,))
 
         # Initialize optimization data frame.
-        z, log_q_z = q_theta(N)
+        z, log_q_z = nf(N)
         H_0, R_0, _, _ = aug_lag_vars(z, log_q_z, self.eps, mu, N)
         R_keys = ["R%d" % (i + 1) for i in range(self.m)]
         opt_it_dfs = [self.opt_it_df(0, 0, H_0.numpy(), R_0.numpy(), R_keys)]
@@ -310,7 +308,7 @@ class Model(object):
 
         # Measure initial R norm distribution.
         mu_colvec = np_column_vec(mu).astype(np.float32).T
-        norms = get_R_norm_dist(q_theta, self.eps, mu_colvec, M_norm, N)
+        norms = get_R_norm_dist(nf, self.eps, mu_colvec, M_norm, N)
 
         # EPI optimization
         for k in range(1, K + 1):
@@ -324,35 +322,37 @@ class Model(object):
                         self.opt_it_df(k, iter, H.numpy(), R.numpy(), R_keys)
                     )
                     if verbose:
-                        self.plot_dist(q_theta)
+                        self.plot_dist(nf)
 
             # Save epi optimization data following aug lag iteration k.
             opt_it_dfs = [pd.concat(opt_it_dfs, ignore_index=True)]
-            self.save_epi_opt(mu, q_theta, aug_lag_hps, opt_it_dfs[0], cs, etas)
+            self.save_epi_opt(mu, nf, aug_lag_hps, opt_it_dfs[0], cs, etas)
             manager.save(checkpoint_number=k)
 
             if k < K:
                 # Check for convergence if early stopping.
-                R_means = get_R_mean_dist(q_theta, self.eps, mu_colvec, M_test, N_test)
+                R_means = get_R_mean_dist(nf, self.eps, mu_colvec, M_test, N_test)
                 if self.test_convergence(R_means.numpy(), alpha):
                     break
 
                 # Update eta and c
                 eta = eta + c * R
-                norms_k = get_R_norm_dist(q_theta, self.eps, mu_colvec, M_norm, N)
-                t, p = ttest_ind(norms_k.numpy(), gamma * norms.numpy(), equal_var=False)
+                norms_k = get_R_norm_dist(nf, self.eps, mu_colvec, M_norm, N)
+                t, p = ttest_ind(
+                    norms_k.numpy(), gamma * norms.numpy(), equal_var=False
+                )
                 u = np.random.rand(1)
                 if u < 1 - p / 2.0 and t > 0.0:
                     c = beta * c
                 norms = norms_k
 
-        dist = Distribution(self.parameters, q_theta)
-        return dist, opt_it_dfs[0]
-    
+        q_theta = Distribution(self.parameters, nf)
+        return q_theta, opt_it_dfs[0]
+
     def test_convergence(self, R_means, alpha):
         M, m = R_means.shape
-        gt = np.sum(R_means > 0., axis=0).astype(np.float32)
-        lt = np.sum(R_means < 0., axis=0).astype(np.float32)
+        gt = np.sum(R_means > 0.0, axis=0).astype(np.float32)
+        lt = np.sum(R_means < 0.0, axis=0).astype(np.float32)
         p_vals = 2 * np.minimum(gt / M, lt / M)
         return np.prod(p_vals > (alpha / m))
 
@@ -388,7 +388,8 @@ class Model(object):
         )
 
     def plot_dist(self, q_theta):
-        x, log_q_x = q_theta(200)
+        x = q_theta(200)
+        log_q_x = q_theta.log_prob(x)
         x = x.numpy()
         log_q_x = log_q_x.numpy()
         df = pd.DataFrame(x)
@@ -429,13 +430,13 @@ class Model(object):
         beta=4.0,
     ):
 
-        if (k is not None):
-            if (type(k) is not int):
-                raise TypeError(format_type_err_msg("Model.load_epi_dist", 'k', k, int))
-            if (k < 0):
+        if k is not None:
+            if type(k) is not int:
+                raise TypeError(format_type_err_msg("Model.load_epi_dist", "k", k, int))
+            if k < 0:
                 raise ValueError("k must be augmented Lagrangian iteration index.")
 
-        q_theta = Architecture(
+        nf = NormalizingFlow(
             arch_type=arch_type,
             D=self.D,
             num_stages=num_stages,
@@ -450,21 +451,21 @@ class Model(object):
 
         aug_lag_hps = AugLagHPs(N, lr, c0, gamma, beta)
         optimizer = tf.keras.optimizers.Adam(lr)
-        checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=q_theta)
-        ckpt_dir = self.get_save_path(mu, q_theta, aug_lag_hps)
+        checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
+        ckpt_dir = self.get_save_path(mu, nf, aug_lag_hps)
         ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
-        if (ckpt_state is not None): 
+        if ckpt_state is not None:
             ckpts = ckpt_state.all_model_checkpoint_paths
         else:
             raise ValueError("No checkpoints found.")
 
-        if (k is not None):
-            if (k >= len(ckpts)):
+        if k is not None:
+            if k >= len(ckpts):
                 raise ValueError("Index of checkpoint 'k' too large.")
             status = checkpoint.restore(ckpts[k])
             status.expect_partial()
-            return Distribution(self.parameters, q_theta)
-
+            q_theta = Distribution(self.params, nf)
+            return q_theta
 
     def parameter_check(self, parameters, verbose=False):
         """Check that model parameter list has no duplicates and valid bounds.

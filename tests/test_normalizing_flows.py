@@ -3,13 +3,13 @@
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
-from epi.normalizing_flows import Architecture, IntervalFlow
+from epi.normalizing_flows import NormalizingFlow, IntervalFlow
 from pytest import raises
 
 EPS = 1e-6
 
 
-def test_Architecture_init():
+def test_NormalizingFlow_init():
     """Test architecture initialization."""
     arch_type = "coupling"
     D = 4
@@ -18,77 +18,77 @@ def test_Architecture_init():
     num_units = 15
 
     # Check setters.
-    A = Architecture(arch_type, D, num_stages, num_layers, num_units)
-    assert A.arch_type == "coupling"
-    assert A.D == D
-    assert A.num_stages == num_stages
-    assert A.num_layers == num_layers
-    assert A.num_units == num_units
-    assert A.batch_norm
-    assert A.post_affine
-    assert A.lb is None
-    assert A.ub is None
-    assert A.random_seed == 1
+    nf = NormalizingFlow(arch_type, D, num_stages, num_layers, num_units)
+    assert nf.arch_type == "coupling"
+    assert nf.D == D
+    assert nf.num_stages == num_stages
+    assert nf.num_layers == num_layers
+    assert nf.num_units == num_units
+    assert nf.batch_norm
+    assert nf.post_affine
+    assert nf.lb is None
+    assert nf.ub is None
+    assert nf.random_seed == 1
 
     # Test autoregressive
-    A = Architecture("autoregressive", D, num_stages, num_layers, num_units)
-    assert A.arch_type == "autoregressive"
+    nf = NormalizingFlow("autoregressive", D, num_stages, num_layers, num_units)
+    assert nf.arch_type == "autoregressive"
 
     lb = -2.0 * np.ones((D,))
     ub = 2.0 * np.ones((D,))
     bounds = (lb, ub)
-    A = Architecture(
+    nf = NormalizingFlow(
         arch_type, D, num_stages, num_layers, num_units, False, None, False, bounds, 5
     )
-    assert not A.batch_norm
-    assert not A.post_affine
-    assert np.equal(A.lb, lb).all()
-    assert np.equal(A.ub, ub).all()
-    assert A.random_seed == 5
-    A = Architecture(
+    assert not nf.batch_norm
+    assert not nf.post_affine
+    assert np.equal(nf.lb, lb).all()
+    assert np.equal(nf.ub, ub).all()
+    assert nf.random_seed == 5
+    nf = NormalizingFlow(
         arch_type, D, num_stages, num_layers, num_units, False, None, False, [lb, ub], 5
     )
-    assert np.equal(A.lb, lb).all()
-    assert np.equal(A.ub, ub).all()
+    assert np.equal(nf.lb, lb).all()
+    assert np.equal(nf.ub, ub).all()
 
     # Test error handling.
     with raises(TypeError):
-        A = Architecture(0, D, num_stages, num_layers, num_units)
+        nf = NormalizingFlow(0, D, num_stages, num_layers, num_units)
     with raises(ValueError):
-        A = Architecture("foo", D, num_stages, num_layers, num_units)
+        nf = NormalizingFlow("foo", D, num_stages, num_layers, num_units)
 
     with raises(TypeError):
-        A = Architecture(arch_type, 2.0, num_stages, num_layers, num_units)
+        nf = NormalizingFlow(arch_type, 2.0, num_stages, num_layers, num_units)
     with raises(ValueError):
-        A = Architecture(arch_type, 1, num_stages, num_layers, num_units)
+        nf = NormalizingFlow(arch_type, 1, num_stages, num_layers, num_units)
 
     with raises(TypeError):
-        A = Architecture(arch_type, D, 2.0, num_layers, num_units)
+        nf = NormalizingFlow(arch_type, D, 2.0, num_layers, num_units)
     with raises(ValueError):
-        A = Architecture(arch_type, D, 0, num_layers, num_units)
+        nf = NormalizingFlow(arch_type, D, 0, num_layers, num_units)
 
     with raises(TypeError):
-        A = Architecture(arch_type, D, num_stages, 2.0, num_units)
+        nf = NormalizingFlow(arch_type, D, num_stages, 2.0, num_units)
     with raises(ValueError):
-        A = Architecture(arch_type, D, num_stages, 0, num_units)
+        nf = NormalizingFlow(arch_type, D, num_stages, 0, num_units)
 
     with raises(TypeError):
-        A = Architecture(arch_type, D, num_stages, num_layers, 2.0)
+        nf = NormalizingFlow(arch_type, D, num_stages, num_layers, 2.0)
     with raises(ValueError):
-        A = Architecture(arch_type, D, num_stages, num_layers, 0)
+        nf = NormalizingFlow(arch_type, D, num_stages, num_layers, 0)
 
     with raises(TypeError):
-        A = Architecture(arch_type, D, num_stages, num_layers, 2.0)
+        nf = NormalizingFlow(arch_type, D, num_stages, num_layers, 2.0)
     with raises(ValueError):
-        A = Architecture(arch_type, D, num_stages, num_layers, 0)
+        nf = NormalizingFlow(arch_type, D, num_stages, num_layers, 0)
 
     with raises(TypeError):
-        A = Architecture(
+        nf = NormalizingFlow(
             arch_type, D, num_stages, num_layers, num_units, batch_norm=1.0
         )
 
     with raises(TypeError):
-        A = Architecture(
+        nf = NormalizingFlow(
             arch_type,
             D,
             num_stages,
@@ -98,25 +98,27 @@ def test_Architecture_init():
             bn_momentum="foo",
         )
     with raises(ValueError):
-        A = Architecture(
+        nf = NormalizingFlow(
             arch_type, D, num_stages, num_layers, num_units, bounds=(lb, ub, ub)
         )
     with raises(TypeError):
-        A = Architecture(
+        nf = NormalizingFlow(
             arch_type, D, num_stages, num_layers, num_units, bounds=("foo", "bar")
         )
 
     with raises(TypeError):
-        A = Architecture(arch_type, D, num_stages, num_layers, num_units, bounds="foo")
+        nf = NormalizingFlow(
+            arch_type, D, num_stages, num_layers, num_units, bounds="foo"
+        )
 
     with raises(TypeError):
-        A = Architecture(
+        nf = NormalizingFlow(
             arch_type, D, num_stages, num_layers, num_units, random_seed=1.0
         )
 
     # Check that q0 has correct statistics
-    A = Architecture(arch_type, D, num_stages, num_layers, num_units)
-    z = A.q0.sample(100000).numpy()
+    nf = NormalizingFlow(arch_type, D, num_stages, num_layers, num_units)
+    z = nf.q0.sample(100000).numpy()
     print(np.mean(z, 0))
     assert np.isclose(np.mean(z, 0), np.zeros((D,)), atol=1e-2).all()
     assert np.isclose(np.cov(z.T), np.eye(D), atol=1e-1).all()
@@ -124,7 +126,7 @@ def test_Architecture_init():
     return None
 
 
-def test_Architecture_call():
+def test_NormalizingFlow_call():
     D = 4
     num_stages = 1
     num_layers = 2
@@ -134,44 +136,51 @@ def test_Architecture_call():
     arch_types = ["autoregressive", "coupling"]
     stage_bijectors = [tfp.bijectors.MaskedAutoregressiveFlow, tfp.bijectors.RealNVP]
     for arch_type, stage_bijector in zip(arch_types, stage_bijectors):
-        A = Architecture(arch_type, D, num_stages, num_layers, num_units)
-        z = A(N)
-        assert type(A.all_transforms[0]) is stage_bijector
-        assert type(A.all_transforms[1]) is tfp.bijectors.Chain
+        nf = NormalizingFlow(arch_type, D, num_stages, num_layers, num_units)
+        z = nf(N)
+        bijectors = nf.trans_dist.bijector.bijectors
+        assert type(bijectors[1]) is stage_bijector
+        assert type(bijectors[0]) is tfp.bijectors.Chain
 
-        A = Architecture(arch_type, D, 2, num_layers, num_units)
-        z = A(N)
-        assert type(A.all_transforms[0]) is stage_bijector
-        assert type(A.all_transforms[1]) is tfp.bijectors.BatchNormalization
-        assert type(A.all_transforms[2]) is tfp.bijectors.Permute
-        assert type(A.all_transforms[3]) is stage_bijector
-        assert type(A.all_transforms[4]) is tfp.bijectors.Chain
+        nf = NormalizingFlow(arch_type, D, 2, num_layers, num_units)
+        z = nf(N)
+        bijectors = nf.trans_dist.bijector.bijectors
+        assert type(bijectors[4]) is stage_bijector
+        assert type(bijectors[3]) is tfp.bijectors.Permute
+        assert type(bijectors[2]) is tfp.bijectors.BatchNormalization
+        assert type(bijectors[1]) is stage_bijector
+        assert type(bijectors[0]) is tfp.bijectors.Chain
 
-        A = Architecture(arch_type, D, 3, num_layers, num_units)
-        z = A(N)
-        assert type(A.all_transforms[0]) is stage_bijector
-        assert type(A.all_transforms[1]) is tfp.bijectors.BatchNormalization
-        assert type(A.all_transforms[2]) is tfp.bijectors.Permute
-        assert type(A.all_transforms[3]) is stage_bijector
-        assert type(A.all_transforms[4]) is tfp.bijectors.BatchNormalization
-        assert type(A.all_transforms[5]) is tfp.bijectors.Permute
-        assert type(A.all_transforms[6]) is stage_bijector
-        assert type(A.all_transforms[7]) is tfp.bijectors.Chain
+        nf = NormalizingFlow(arch_type, D, 3, num_layers, num_units)
+        z = nf(N)
+        bijectors = nf.trans_dist.bijector.bijectors
+        assert type(bijectors[7]) is stage_bijector
+        assert type(bijectors[6]) is tfp.bijectors.Permute
+        assert type(bijectors[5]) is tfp.bijectors.BatchNormalization
+        assert type(bijectors[4]) is stage_bijector
+        assert type(bijectors[3]) is tfp.bijectors.Permute
+        assert type(bijectors[2]) is tfp.bijectors.BatchNormalization
+        assert type(bijectors[1]) is stage_bijector
+        assert type(bijectors[0]) is tfp.bijectors.Chain
 
     return None
 
 
 def test_to_string():
-    A = Architecture("coupling", 4, 1, 2, 15)
-    assert A.to_string() == "D4_C1_L2_U15_bnmom=9.90E-01_PA_rs1"
-    A = Architecture("coupling", 100, 2, 4, 200, random_seed=20)
-    assert A.to_string() == "D100_C2_L4_U200_bnmom=9.90E-01_PA_rs20"
-    A = Architecture("coupling", 4, 1, 2, 15, bn_momentum=0.999, post_affine=False)
-    assert A.to_string() == "D4_C1_L2_U15_bnmom=9.99E-01_rs1"
-    A = Architecture("autoregressive", 4, 1, 2, 15, batch_norm=False, post_affine=False)
-    assert A.to_string() == "D4_AR1_L2_U15_rs1"
-    A = Architecture("autoregressive", 4, 4, 2, 15, batch_norm=False, post_affine=False)
-    assert A.to_string() == "D4_AR4_L2_U15_rs1"
+    nf = NormalizingFlow("coupling", 4, 1, 2, 15)
+    assert nf.to_string() == "D4_C1_L2_U15_bnmom=9.90E-01_PA_rs1"
+    nf = NormalizingFlow("coupling", 100, 2, 4, 200, random_seed=20)
+    assert nf.to_string() == "D100_C2_L4_U200_bnmom=9.90E-01_PA_rs20"
+    nf = NormalizingFlow("coupling", 4, 1, 2, 15, bn_momentum=0.999, post_affine=False)
+    assert nf.to_string() == "D4_C1_L2_U15_bnmom=9.99E-01_rs1"
+    nf = NormalizingFlow(
+        "autoregressive", 4, 1, 2, 15, batch_norm=False, post_affine=False
+    )
+    assert nf.to_string() == "D4_AR1_L2_U15_rs1"
+    nf = NormalizingFlow(
+        "autoregressive", 4, 4, 2, 15, batch_norm=False, post_affine=False
+    )
+    assert nf.to_string() == "D4_AR4_L2_U15_rs1"
 
 
 def interval_flow_np(x, lb, ub):
@@ -292,14 +301,16 @@ def test_interval_flow():
 
 def test_initialization():
     D = 4
-    A = Architecture("autoregressive", D, 2, 2, 15, batch_norm=True, post_affine=True)
+    nf = NormalizingFlow(
+        "autoregressive", D, 2, 2, 15, batch_norm=True, post_affine=True
+    )
     init_type = "iso_gauss"
     loc = -0.5
     scale = 2.0
     init_params = {"loc": loc, "scale": scale}
-    A.initialize(init_type, init_params)
+    nf.initialize(init_type, init_params)
 
-    z, ldjs = A.sample(int(1e4))
+    z, ldjs = nf.sample(int(1e4))
     z = z.numpy()
     mean_z = np.mean(z, 0)
     Sigma_z = np.cov(z.T)
@@ -307,12 +318,14 @@ def test_initialization():
     assert np.isclose(Sigma_z, scale * np.eye(D), atol=1e-1).all()
 
     # For init load
-    A.initialize(init_type, init_params)
+    nf.initialize(init_type, init_params)
 
     # Bounds
     lb = np.zeros((D,))
     ub = np.ones((D,))
-    A = Architecture("autoregressive", D, 2, 2, 15, batch_norm=True, bounds=(lb, ub))
-    A.initialize(init_type, init_params)
+    nf = NormalizingFlow(
+        "autoregressive", D, 2, 2, 15, batch_norm=True, bounds=(lb, ub)
+    )
+    nf.initialize(init_type, init_params)
 
     return None

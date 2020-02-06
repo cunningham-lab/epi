@@ -23,8 +23,8 @@ def test_linear2D_freq():
     for i in range(N):
         alphas[i], omegas[i] = linear2D_freq_np(a11s[i], a12s[i], a21s[i], a22s[i])
 
-    mean_alphas = np.mean(alphas)
-    mean_omegas = np.mean(omegas)
+    mean_alphas = 0.0  # np.mean(alphas)
+    mean_omegas = 2 * np.pi  # np.mean(omegas)
 
     T_x_np = np.stack(
         (

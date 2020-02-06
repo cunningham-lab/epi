@@ -160,6 +160,7 @@ def init_path(arch_string, init_type, init_param):
 
     return path
 
+
 def save_tf_model(path, variables):
     """Saves tensorflow model variables via pickle to file at path.
 
@@ -297,8 +298,9 @@ def unbiased_aug_grad(R1s, R2, params, tape):
     # of the leading c/2 factor in the cost function.
     return [tf.linalg.matvec(jacR1i, R2) for jacR1i in jacR1]
 
+
 class AugLagHPs:
-    def __init__(self, N=1000, lr=1e-3, c0=1., gamma=0.25, beta=4.):
+    def __init__(self, N=1000, lr=1e-3, c0=1.0, gamma=0.25, beta=4.0):
         self._set_N(N)
         self._set_lr(lr)
         self._set_c0(c0)
@@ -315,36 +317,36 @@ class AugLagHPs:
     def _set_lr(self, lr):
         if type(lr) is not float:
             raise TypeError(format_type_err_msg(self, "lr", lr, float))
-        elif lr < 0.:
+        elif lr < 0.0:
             raise ValueError("lr %.2E must be greater than 0." % lr)
         self.lr = lr
 
     def _set_c0(self, c0):
         if type(c0) is not float:
             raise TypeError(format_type_err_msg(self, "c0", c0, float))
-        elif c0 < 0.:
+        elif c0 < 0.0:
             raise ValueError("c0 %.2E must be greater than 0." % c0)
         self.c0 = c0
 
     def _set_gamma(self, gamma):
         if type(gamma) is not float:
             raise TypeError(format_type_err_msg(self, "gamma", gamma, float))
-        elif gamma < 0.:
+        elif gamma < 0.0:
             raise ValueError("gamma %.2E must be greater than 0." % gamma)
         self.gamma = gamma
 
     def _set_beta(self, beta):
         if type(beta) is not float:
             raise TypeError(format_type_err_msg(self, "beta", beta, float))
-        elif beta < 0.:
+        elif beta < 0.0:
             raise ValueError("beta %.2E must be greater than 0." % beta)
         self.beta = beta
 
     def to_string(self,):
-        return 'N%d_lr%.2E_c0=%.2E_gamma%.2E_beta%.2E' % (
+        return "N%d_lr%.2E_c0=%.2E_gamma%.2E_beta%.2E" % (
             self.N,
             self.lr,
             self.c0,
             self.gamma,
-            self.beta
+            self.beta,
         )
