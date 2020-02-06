@@ -543,14 +543,14 @@ class Distribution(object):
     :type nf: :obj:`epi.normalizing_flows.NormalizingFlow`.
     """
 
-    def __init__(self, parameters, q_theta):
+    def __init__(self, parameters, nf):
         self.D = len(parameters)
         self.parameters = parameters
         self.nf = nf
 
     def __call__(self, N):
         z, _ = self.nf(N)
-        return z
+        return z.numpy()
 
     def sample(self, N):
         """Sample N times.
@@ -570,7 +570,7 @@ class Distribution(object):
         :returns: Log probability of samples.
         :rtype: np.ndarray
         """
-        return self.nf.trans_dist.log_prob(z)
+        return self.nf.trans_dist.log_prob(z).numpy()
 
     def gradient(self, z):
         """Calculates the gradient :math:`\\nabla_z \\log p(z))`.
@@ -580,7 +580,18 @@ class Distribution(object):
         :returns: Gradient of log probability with respect to z.
         :rtype: np.ndarray
         """
-        raise NotImplementedError()
+        z = tf.Variable(initial_value=z, trainable=True)
+        grad_z = self._gradient(z)
+        del z # Get rid of dummy variable.
+        return grad_z.numpy()
+
+    @tf.function
+    def _gradient(self, z):
+        with tf.GradientTape() as tape:
+            log_q_z = self.nf.trans_dist.log_prob(z)
+        return tape.gradient(log_q_z, z)
+        
+
 
     def hessian(self, z):
         """Calculates the Hessian :math:`\\frac{\\partial^2 \\log p(z)}{\\partial z \\partial z^\\top}`.
@@ -590,4 +601,15 @@ class Distribution(object):
         :returns: Hessian of log probability with respect to z.
         :rtype: np.ndarray
         """
-        raise NotImplementedError()
+        z = tf.Variable(initial_value=z, trainable=True)
+        hess_z = self._hessian(z)
+        del z # Get rid of dummy variable.
+        return hess_z.numpy()
+
+    @tf.function
+    def _hessian(self, z):
+        with tf.GradientTape(persistent=True) as tape:
+            log_q_z = self.nf.trans_dist.log_prob(z)
+            dldz = tape.gradient(log_q_z, z)
+        return tape.batch_jacobian(dldz, z)
+
