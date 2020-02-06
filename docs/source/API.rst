@@ -15,7 +15,7 @@ epi.models
 epi.normalizing_flows
 --------------------------
 
-.. autoclass:: epi.normalizing_flows
+.. automodule:: epi.normalizing_flows
    :members:
    :undoc-members:
    :show-inheritance:
