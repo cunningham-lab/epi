@@ -532,23 +532,62 @@ class IntervalFlow(tfp.bijectors.Bijector):
 
 
 class Distribution(object):
+    """Distribution class with numpy UI, and tensorflow-enabled methods.
+
+    Obtain samples, log densities, gradients and Hessians of a distribution
+    defined by a normalizing flow optimized via tensorflow.
+
+    :param parameters: List of :obj:`epi.models.Parameter`.
+    :type parameters: list
+    :param nf: Normalizing flow trained via tensorflow.
+    :type nf: :obj:`epi.normalizing_flows.NormalizingFlow`.
+    """
+
     def __init__(self, parameters, q_theta):
         self.D = len(parameters)
         self.parameters = parameters
-        self.q_theta = q_theta
+        self.nf = nf
 
     def __call__(self, N):
-        z, _ = self.q_theta(N)
+        z, _ = self.nf(N)
         return z
 
     def sample(self, N):
+        """Sample N times.
+
+        :param N: Number of samples.
+        :type N: int:
+        :returns: N samples.
+        :rtype: np.ndarray
+        """
         return self.__call__(N)
 
     def log_prob(self, z):
-        return self.q_theta.trans_dist.log_prob(z)
+        """Calculates log probability of samples from distribution.
+
+        :param z: Samples from distribution.
+        :type z: np.ndarray
+        :returns: Log probability of samples.
+        :rtype: np.ndarray
+        """
+        return self.nf.trans_dist.log_prob(z)
 
     def gradient(self, z):
+        """Calculates the gradient :math:`\\nabla_z \\log p(z))`.
+
+        :param z: Samples from distribution.
+        :type z: np.ndarray
+        :returns: Gradient of log probability with respect to z.
+        :rtype: np.ndarray
+        """
         raise NotImplementedError()
 
     def hessian(self, z):
+        """Calculates the Hessian :math:`\\frac{\\partial^2 \\log p(z)}{\\partial z \\partial z^\\top}`.
+
+        :param z: Samples from distribution.
+        :type z: np.ndarray
+        :returns: Hessian of log probability with respect to z.
+        :rtype: np.ndarray
+        """
         raise NotImplementedError()
