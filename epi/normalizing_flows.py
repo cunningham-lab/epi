@@ -316,6 +316,7 @@ class NormalizingFlow(tf.keras.Model):
         N=500,
         num_iters=int(1e4),
         lr=1e-3,
+        log_rate=100,
         load_if_cached=True,
         save=True,
         verbose=False,
@@ -329,24 +330,30 @@ class NormalizingFlow(tf.keras.Model):
         :math:`\\eta = \\begin{bmatrix} \\Sigma^{-1}\\mu \\\\ \\mathrm{vec} \\left( -\\frac{1}{2}\\Sigma^{-1} \\right) \\end{bmatrix}`
         :math:`T(z) = \\begin{bmatrix} z \\\\ \\mathrm{vec} \\left( zz^\\top \\right) \\end{bmatrix}`
 
-        (Only implemented isotropic gaussian at the moment.)
+        Parameter `init_type` may be:
 
-        :obj:`init_type` should be
+        :obj:`'iso_gauss'` with parameters
 
-        'iso_gauss' with parameters
         * :obj:`init_params.loc` set to scalar mean of each variable.
         * :obj:`init_params.scale` set to scale of each variable.
+        
+        :obj:`'gaussian'` with parameters
 
-        :param init_type: :math:`\\in` `['iso_gauss']`
+        * :obj:`init_params.mu` set to the mean.
+        * :obj:`init_params.Sigma` set to the covariance.
+
+        :param init_type: :math:`\\in` `['iso_gauss', 'gaussian']`
         :type init_type: str
         :param init_params: Parameters according to :obj:`init_type`.
         :type init_params: dict
         :param N: Number of batch samples per iteration.
         :type N: int
-        :param num_iters: Number of optimization iterations, Defaults to 500.
+        :param num_iters: Number of optimization iterations, defaults to 500.
         :type num_iters: int, optional
         :param lr: Adam optimizer learning rate, defaults to 1e-3.
         :type lr: float, optional
+        :param log_rate: Record optimization data every so iterations, defaults to 100.
+        :type log_rate: int, optional
         :param load_if_cached: If initialization has been optimized before, load it, defaults to True.
         :type load_if_cached: bool, optional
         :param save: Save initialization if true, defaults to True.
@@ -421,7 +428,7 @@ class NormalizingFlow(tf.keras.Model):
             if not np.isfinite(loss):
                 raise ValueError("Initialization loss is inf.")
 
-            if i % 100 == 0:
+            if i % log_rate == 0:
                 z, log_q_z = self(N)
                 loss = gauss_init_loss(z, log_q_z, eta).numpy()
                 H = -np.mean(log_q_z.numpy())
@@ -497,9 +504,16 @@ class NormalizingFlow(tf.keras.Model):
 class IntervalFlow(tfp.bijectors.Bijector):
     """Bijector maps from :math:`\\mathcal{R}^N` to an interval.
 
-    :param lb: Lower bound. N values are numeric including float('-inf').
+    Each dimension is handled independently according to the type of bound.
+
+    * no bound: :math:`y_i = x_i`
+    * only lower bound: :math:`y_i = \\log(1 + \\exp(x_i)) + lb_i`
+    * only upper bound: :math:`y_i = -\\log(1 + \\exp(x_i)) + ub_i`
+    * upper and lower bound: :math:`y_i = \\frac{ub_i - lb_i}{2} \\tanh(x_i) + \\frac{ub_i + lb_i}{2}`
+
+    :param lb: Lower bound. N values are numeric including :obj:`float('-inf')`.
     :type lb: np.ndarray
-    :param ub: Upper bound. N values are numeric including float('inf').
+    :param ub: Upper bound. N values are numeric including :obj:`float('inf')`.
     :type ub: np.ndarray
     """
 
@@ -566,7 +580,6 @@ class IntervalFlow(tfp.bijectors.Bijector):
         :rtype: (tf.Tensor, tf.Tensor)
         """
         ldj = 0.0
-        # Tanh stage
         tanh_x = tf.tanh(x)
         out = tf.math.multiply(self.tanh_m, tanh_x) + self.tanh_c
         tanh_ldj = tf.reduce_sum(
@@ -589,7 +602,7 @@ class IntervalFlow(tfp.bijectors.Bijector):
         x = tf.multiply(self.softplus_flg, out) + tf.multiply(1 - self.softplus_flg, x)
         return x, ldj
 
-    def _forward(self, x):
+    def forward(self, x):
         """Runs bijector forward and calculates log det jac of the function.
 
         :param x: Input tensor.
@@ -598,7 +611,6 @@ class IntervalFlow(tfp.bijectors.Bijector):
         :returns: The forward pass of hte interval flow
         :rtype: (tf.Tensor, tf.Tensor)
         """
-        # Tanh stage
         tanh_x = tf.tanh(x)
         out = tf.math.multiply(self.tanh_m, tanh_x) + self.tanh_c
         x = tf.multiply(self.tanh_flg, out) + tf.multiply(1 - self.tanh_flg, x)
@@ -607,7 +619,7 @@ class IntervalFlow(tfp.bijectors.Bijector):
         x = tf.multiply(self.softplus_flg, out) + tf.multiply(1 - self.softplus_flg, x)
         return x
 
-    def _inverse(self, x):
+    def inverse(self, x):
         """Inverts bijector at value x.
 
         :param x: Input tensor.
@@ -636,20 +648,9 @@ class IntervalFlow(tfp.bijectors.Bijector):
         x = tf.multiply(self.tanh_flg, tanh_inv) + tf.multiply(1 - self.tanh_flg, x)
         return x
 
-    def _inverse_log_det_jacobian(self, x, event_ndims=1):
-        """Log determinant jacobian of inverse pass.
 
-        :param x: Input tensor.
-        :type x: tf.Tensor
-
-        :returns: The inverse log determinant jacobian.
-        :rtype: (tf.Tensor, tf.Tensor)
-        """
-
-        return -self._forward_log_det_jacobian(self._inverse(x))
-
-    def _forward_log_det_jacobian(self, x):
-        """Calculates forward log det jac of the function.
+    def forward_log_det_jacobian(self, x):
+        """Calculates forward log det jac of the interval flow.
 
         :param x: Input tensor.
         :type x: tf.Tensor
@@ -678,3 +679,16 @@ class IntervalFlow(tfp.bijectors.Bijector):
         ldj += softplus_ldj
 
         return ldj
+
+    def inverse_log_det_jacobian(self, x, event_ndims=1):
+        """Log determinant jacobian of inverse pass.
+
+        :param x: Input tensor.
+        :type x: tf.Tensor
+
+        :returns: The inverse log determinant jacobian.
+        :rtype: (tf.Tensor, tf.Tensor)
+        """
+
+        return -self.forward_log_det_jacobian(self.inverse(x))
+
