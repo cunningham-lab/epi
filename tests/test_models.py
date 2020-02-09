@@ -8,6 +8,7 @@ from epi.example_eps import linear2D_freq
 from epi.normalizing_flows import NormalizingFlow
 from pytest import raises
 
+
 def test_Parameter_init():
     """Test Parameter initialization."""
     b1 = (-0.1, 1.2)
@@ -144,20 +145,30 @@ def test_Distribution():
     N1 = 1000
     N2 = 10
     for D in Ds:
-        df = 2*D
-        inv_wishart = scipy.stats.invwishart(df=df, scale=df*np.eye(D))
+        df = 2 * D
+        inv_wishart = scipy.stats.invwishart(df=df, scale=df * np.eye(D))
         for i in range(num_dists):
-            nf = NormalizingFlow('autoregressive', D, 1, 2, max(10, D), batch_norm=False, post_affine=True)
-            mu = np.random.normal(0., 1., (D,1))
+            nf = NormalizingFlow(
+                "autoregressive",
+                D,
+                1,
+                2,
+                max(10, D),
+                batch_norm=False,
+                post_affine=True,
+            )
+            mu = np.random.normal(0.0, 1.0, (D, 1))
             Sigma = inv_wishart.rvs(1)
-            mvn = scipy.stats.multivariate_normal(mu[:,0], Sigma)
-            init_type = 'gaussian'
-            init_params = {'mu':mu, 'Sigma':Sigma}
-            opt_df = nf.initialize(init_type, init_params, num_iters=5000, load_if_cached=False, save=False)
+            mvn = scipy.stats.multivariate_normal(mu[:, 0], Sigma)
+            init_type = "gaussian"
+            init_params = {"mu": mu, "Sigma": Sigma}
+            opt_df = nf.initialize(
+                init_type, init_params, num_iters=5000, load_if_cached=False, save=False
+            )
             q_theta = Distribution(nf)
 
             z = q_theta.sample(N1)
-            assert np.isclose(np.mean(z, axis=0), mu[:,0], rtol=0.1).all()
+            assert np.isclose(np.mean(z, axis=0), mu[:, 0], rtol=0.1).all()
             cov = np.cov(z.T)
             assert np.sum(np.square(cov - Sigma)) / np.sum(np.square(Sigma)) < 0.1
 
@@ -169,9 +180,15 @@ def test_Distribution():
             # Test gradient
             grad_true = np.dot(Sigma_inv, mu - z.T).T
             grad_z = q_theta.gradient(z)
-            assert np.sum(np.square(grad_true - grad_z)) / np.sum(np.square(grad_true)) < 0.1
+            assert (
+                np.sum(np.square(grad_true - grad_z)) / np.sum(np.square(grad_true))
+                < 0.1
+            )
 
             # Test hessian
-            hess_true = np.array(N2*[-Sigma_inv])
+            hess_true = np.array(N2 * [-Sigma_inv])
             hess_z = q_theta.hessian(z)
-            assert np.sum(np.square(hess_true - hess_z)) / np.sum(np.square(hess_true)) < 0.1
+            assert (
+                np.sum(np.square(hess_true - hess_z)) / np.sum(np.square(hess_true))
+                < 0.1
+            )

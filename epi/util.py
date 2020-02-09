@@ -154,13 +154,13 @@ def init_path(arch_string, init_type, init_params):
         else:
             raise ValueError("'scale' field not in init_param for %s." % init_type)
         path += init_type + "_loc=%.2E_scale=%.2E/" % (loc, scale)
-    elif init_type == 'gaussian':
+    elif init_type == "gaussian":
         if "mu" in init_params:
-            mu = np_column_vec(init_params["mu"])[:,0]
+            mu = np_column_vec(init_params["mu"])[:, 0]
         else:
             raise ValueError("'mu' field not in init_param for %s." % init_type)
         if "Sigma" in init_params:
-            Sigma = init_params['Sigma']
+            Sigma = init_params["Sigma"]
         else:
             raise ValueError("'Sigma' field not in init_param for %s." % init_type)
         D = mu.shape[0]

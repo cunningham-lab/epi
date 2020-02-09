@@ -15,6 +15,7 @@ from epi.util import (
     np_column_vec,
 )
 import matplotlib.pyplot as plt
+from matplotlib import animation
 import pandas as pd
 import seaborn as sns
 import time
@@ -181,7 +182,9 @@ class Model(object):
         beta=4.0,
         alpha=0.05,
         nu=0.1,
+        log_rate=100,
         verbose=False,
+        save_movie_data=False,
     ):
         """Runs emergent property inference for this model with mean parameter :math:`\\mu`.
 
@@ -272,7 +275,7 @@ class Model(object):
                 g1 + g2 + c * g3 for g1, g2, g3 in zip(H_grad, lagrange_grad, aug_grad)
             ]
             optimizer.apply_gradients(zip(gradients, params))
-            return cost, H, R
+            return cost, H, R, z
 
         @tf.function
         def two_dim_T_x_batch(nf, eps, M, N, m):
@@ -307,7 +310,9 @@ class Model(object):
         R_keys = ["R%d" % (i + 1) for i in range(self.m)]
         opt_it_dfs = [self.opt_it_df(0, 0, H_0.numpy(), R_0.numpy(), R_keys)]
 
-        # Checkpoint the initialization
+        # Record samples for movie.
+        if save_movie_data:
+            zs = [z.numpy()]
 
         # Measure initial R norm distribution.
         mu_colvec = np_column_vec(mu).astype(np.float32).T
@@ -318,17 +323,17 @@ class Model(object):
         for k in range(1, K + 1):
             etas[k - 1], cs[k - 1], eta, c
             for i in range(1, num_iters + 1):
-                cost, H, R = train_step(eta, c)
-                if i % 100 == 0:
-                    if (verbose):
+                cost, H, R, z = train_step(eta, c)
+                if i % log_rate == 0:
+                    if verbose:
                         print(format_opt_msg(k, i, cost, H, R))
                     iter = (k - 1) * num_iters + i
                     opt_it_dfs.append(
                         self.opt_it_df(k, iter, H.numpy(), R.numpy(), R_keys)
                     )
-                    if verbose:
-                        self.plot_dist(nf)
-            if (not verbose):
+                    if save_movie_data:
+                        zs.append(z.numpy())
+            if not verbose:
                 print(format_opt_msg(k, i, cost, H, R))
 
             # Save epi optimization data following aug lag iteration k.
@@ -353,6 +358,12 @@ class Model(object):
                     c = beta * c
                 norms = norms_k
 
+        if save_movie_data:
+            np.savez(
+                ckpt_dir + "zs.npz",
+                zs=np.array(zs),
+                iters=np.arange(0, k * num_iters + 1, log_rate),
+            )
         q_theta = Distribution(nf, self.parameters)
         return q_theta, opt_it_dfs[0]
 
@@ -394,6 +405,10 @@ class Model(object):
             hp_string,
         )
 
+    def epi_opt_movie(self, path):
+        Writer = animation.writers["ffmpeg"]
+        writer = Writer(fps=30, metadata=dict(artist="Me"), bitrate=1800)
+        return None
 
     def load_epi_dist(
         self,
@@ -493,6 +508,7 @@ class Model(object):
 
         return True
 
+
 class Distribution(object):
     """Distribution class with numpy UI, and tensorflow-enabled methods.
 
@@ -515,17 +531,13 @@ class Distribution(object):
         return z.numpy()
 
     def _set_nf(self, nf):
-        if (type(nf) is not NormalizingFlow):
-            raise TypeError(format_type_err_msg(
-                self,
-                nf,
-                "nf",
-                NormalizingFlow))
+        if type(nf) is not NormalizingFlow:
+            raise TypeError(format_type_err_msg(self, nf, "nf", NormalizingFlow))
         self.nf = nf
 
     def _set_parameters(self, parameters):
-        if  parameters is None:
-            parameters = [Parameter("z%d" % (i+1)) for i in range(self.D)]
+        if parameters is None:
+            parameters = [Parameter("z%d" % (i + 1)) for i in range(self.D)]
             self.parameters = parameters
         elif type(parameters) is not list:
             raise TypeError(format_type_err_msg(self, parameters, "parameters", list))
@@ -545,10 +557,12 @@ class Distribution(object):
         :returns: N samples.
         :rtype: np.ndarray
         """
-        if (type(N) is not int):
+        if type(N) is not int:
             raise TypeError(self, "N", N, int)
-        elif (N < 1):
-            raise ValueError("Distribution.sample must be called with positive int not %d." % N)
+        elif N < 1:
+            raise ValueError(
+                "Distribution.sample must be called with positive int not %d." % N
+            )
         return self.__call__(N)
 
     def log_prob(self, z):
@@ -573,7 +587,7 @@ class Distribution(object):
         z = self._set_z_type(z)
         z = tf.Variable(initial_value=z, trainable=True)
         grad_z = self._gradient(z)
-        del z # Get rid of dummy variable.
+        del z  # Get rid of dummy variable.
         return grad_z.numpy()
 
     @tf.function
@@ -593,7 +607,7 @@ class Distribution(object):
         z = self._set_z_type(z)
         z = tf.Variable(initial_value=z, trainable=True)
         hess_z = self._hessian(z)
-        del z # Get rid of dummy variable.
+        del z  # Get rid of dummy variable.
         return hess_z.numpy()
 
     @tf.function
@@ -606,7 +620,7 @@ class Distribution(object):
     def _set_z_type(self, z):
         if type(z) is list:
             z = np.ndarray(z)
-        if (type(z) is not np.ndarray):
+        if type(z) is not np.ndarray:
             raise TypeError(self, z, "z", np.ndarray)
         z = z.astype(np.float32)
         return z
