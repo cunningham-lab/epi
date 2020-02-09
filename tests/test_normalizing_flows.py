@@ -17,6 +17,9 @@ def test_NormalizingFlow_init():
     num_layers = 2
     num_units = 15
 
+    tf.random.set_seed(0)
+    np.random.seed(0)
+
     # Check setters.
     nf = NormalizingFlow(arch_type, D, num_stages, num_layers, num_units)
     assert nf.arch_type == "coupling"
@@ -214,8 +217,8 @@ def interval_flow_np(x, lb, ub):
 
 
 def test_interval_flow():
-    N = 100
-    Ds = [2, 4, 10, 20]
+    N = 10
+    Ds = [2, 4, 10, 15]
     rtol = 1e-1
 
     np.random.seed(0)
@@ -225,7 +228,11 @@ def test_interval_flow():
     ub = np.array([float("inf"), 100.0, 30.0, float("inf")])
     IF = IntervalFlow(lb, ub)
     x = np.random.normal(0.0, 2.0, (N, 4)).astype(np.float32)
-    y, ldj = IF.forward_log_det_jacobian(tf.constant(x))
+    y, ldj = IF.forward_and_log_det_jacobian(tf.constant(x))
+    x_inv = IF.inverse(y)
+    ildj = IF.inverse_log_det_jacobian(y, 1)
+    assert np.isclose(x_inv, x, rtol=rtol).all()
+    assert np.isclose(ldj, -ildj, rtol=rtol).all()
     for i in range(N):
         y_np, ldj_np = interval_flow_np(x[i], lb, ub)
         assert np.isclose(y[i], y_np, rtol=rtol).all()
@@ -236,7 +243,11 @@ def test_interval_flow():
         ub = np.array(D * [float("inf")])
         IF = IntervalFlow(lb, ub)
         x = np.random.normal(0.0, 10.0, (N, D)).astype(np.float32)
-        y, ldj = IF.forward_log_det_jacobian(tf.constant(x))
+        y, ldj = IF.forward_and_log_det_jacobian(tf.constant(x))
+        x_inv = IF.inverse(y)
+        ildj = IF.inverse_log_det_jacobian(y, 1)
+        assert np.isclose(x_inv, x, rtol=rtol).all()
+        assert np.isclose(ldj, -ildj, rtol=rtol).all()
         for i in range(N):
             y_np, ldj_np = interval_flow_np(x[i], lb, ub)
             assert np.isclose(y[i], y_np, rtol=rtol).all()
@@ -246,7 +257,11 @@ def test_interval_flow():
         ub = np.array(D * [float("inf")])
         IF = IntervalFlow(lb, ub)
         x = np.random.normal(0.0, 3.0, (N, D)).astype(np.float32)
-        y, ldj = IF.forward_log_det_jacobian(tf.constant(x))
+        y, ldj = IF.forward_and_log_det_jacobian(tf.constant(x))
+        x_inv = IF.inverse(y)
+        ildj = IF.inverse_log_det_jacobian(y, 1)
+        assert np.isclose(x_inv, x, rtol=rtol).all()
+        assert np.isclose(ldj, -ildj, rtol=rtol).all()
         for i in range(N):
             y_np, ldj_np = interval_flow_np(x[i], lb, ub)
             assert np.isclose(y[i], y_np, rtol=rtol).all()
@@ -256,17 +271,25 @@ def test_interval_flow():
         ub = np.random.uniform(-1000, 1000, (D,))
         IF = IntervalFlow(lb, ub)
         x = np.random.normal(0.0, 3.0, (N, D)).astype(np.float32)
-        y, ldj = IF.forward_log_det_jacobian(tf.constant(x))
+        y, ldj = IF.forward_and_log_det_jacobian(tf.constant(x))
+        x_inv = IF.inverse(y)
+        ildj = IF.inverse_log_det_jacobian(y, 1)
+        assert np.isclose(x_inv, x, rtol=rtol).all()
+        assert np.isclose(ldj, -ildj, rtol=rtol).all()
         for i in range(N):
             y_np, ldj_np = interval_flow_np(x[i], lb, ub)
             assert np.isclose(y[i], y_np, rtol=rtol).all()
             assert np.isclose(ldj[i], ldj_np, rtol=rtol)
 
-        lb = np.random.uniform(-1000, 0, (D,))
-        ub = np.random.uniform(0, 1000, (D,))
+        lb = np.random.uniform(-10, -1, (D,))
+        ub = np.random.uniform(1, 10, (D,))
         IF = IntervalFlow(lb, ub)
-        x = np.random.normal(0.0, 100.0, (N, D)).astype(np.float32)
-        y, ldj = IF.forward_log_det_jacobian(tf.constant(x))
+        x = np.random.normal(0.0, 2.0, (N, D)).astype(np.float32)
+        y, ldj = IF.forward_and_log_det_jacobian(tf.constant(x))
+        x_inv = IF.inverse(y)
+        ildj = IF.inverse_log_det_jacobian(y, 1)
+        assert np.isclose(x_inv, x, rtol=rtol).all()
+        assert np.isclose(ldj, -ildj, rtol=rtol).all()
         for i in range(N):
             y_np, ldj_np = interval_flow_np(x[i], lb, ub)
             assert np.isclose(y[i], y_np, rtol=rtol).all()
@@ -290,8 +313,12 @@ def test_interval_flow():
     lb = [0.0, -1.0]
     ub = [1.0, 0.0]
     IF = IntervalFlow(lb, ub)
-    x = np.random.normal(0.0, 100.0, (N, D)).astype(np.float32)
-    y, ldj = IF.forward_log_det_jacobian(tf.constant(x))
+    x = np.random.normal(0.0, 1.0, (N, D)).astype(np.float32)
+    y, ldj = IF.forward_and_log_det_jacobian(tf.constant(x))
+    x_inv = IF.inverse(y)
+    ildj = IF.inverse_log_det_jacobian(y, 1)
+    assert np.isclose(x_inv, x, rtol=rtol).all()
+    assert np.isclose(ldj, -ildj, rtol=rtol).all()
     for i in range(N):
         y_np, ldj_np = interval_flow_np(x[i], lb, ub)
         assert np.isclose(y[i], y_np, rtol=rtol).all()
@@ -329,3 +356,7 @@ def test_initialization():
     nf.initialize(init_type, init_params)
 
     return None
+
+
+if __name__ == "__main__":
+    test_interval_flow()

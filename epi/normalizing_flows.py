@@ -169,7 +169,7 @@ class NormalizingFlow(tf.keras.Model):
 
         if self.lb is not None and self.ub is not None:
             self.support_mapping = IntervalFlow(self.lb, self.ub)
-            # bijectors.append(self.support_mapping)
+            bijectors.append(self.support_mapping)
 
         bijectors.reverse()
         self.trans_dist = tfd.TransformedDistribution(
@@ -200,7 +200,7 @@ class NormalizingFlow(tf.keras.Model):
             x = self.PA(x)
 
         if self.lb is not None and self.ub is not None:
-            x, _ldj = self.support_mapping.forward_log_det_jacobian(x)
+            x, _ldj = self.support_mapping.forward_and_log_det_jacobian(x)
             sum_ldj += _ldj
 
         log_q_x = log_q0 - sum_ldj
@@ -556,7 +556,7 @@ class IntervalFlow(tfp.bijectors.Bijector):
         self.softplus_m = tf.constant(softplus_m, dtype=DTYPE)
         self.softplus_c = tf.constant(softplus_c, dtype=DTYPE)
 
-    def forward_log_det_jacobian(self, x):
+    def forward_and_log_det_jacobian(self, x):
         """Runs bijector forward and calculates log det jac of the function.
 
         :param x: Input tensor.
@@ -588,3 +588,93 @@ class IntervalFlow(tfp.bijectors.Bijector):
 
         x = tf.multiply(self.softplus_flg, out) + tf.multiply(1 - self.softplus_flg, x)
         return x, ldj
+
+    def _forward(self, x):
+        """Runs bijector forward and calculates log det jac of the function.
+
+        :param x: Input tensor.
+        :type x: tf.Tensor
+
+        :returns: The forward pass of hte interval flow
+        :rtype: (tf.Tensor, tf.Tensor)
+        """
+        # Tanh stage
+        tanh_x = tf.tanh(x)
+        out = tf.math.multiply(self.tanh_m, tanh_x) + self.tanh_c
+        x = tf.multiply(self.tanh_flg, out) + tf.multiply(1 - self.tanh_flg, x)
+
+        out = tf.math.multiply(self.softplus_m, tf.math.softplus(x)) + self.softplus_c
+        x = tf.multiply(self.softplus_flg, out) + tf.multiply(1 - self.softplus_flg, x)
+        return x
+
+    def _inverse(self, x):
+        """Inverts bijector at value x.
+
+        :param x: Input tensor.
+        :type x: tf.Tensor
+
+        :returns: The backward pass of the interval flow
+        :rtype: (tf.Tensor, tf.Tensor)
+        """
+
+        softplus_inv = tf.math.log(
+            tf.math.exp(
+                tf.multiply(
+                    self.softplus_flg, tf.divide(x - self.softplus_c, self.softplus_m)
+                )
+            )
+            - 1
+            + EPS
+        )
+        x = tf.multiply(self.softplus_flg, softplus_inv) + tf.multiply(
+            1 - self.softplus_flg, x
+        )
+
+        tanh_inv = tf.math.atanh(
+            tf.multiply(self.tanh_flg, tf.divide(x - self.tanh_c, self.tanh_m))
+        )
+        x = tf.multiply(self.tanh_flg, tanh_inv) + tf.multiply(1 - self.tanh_flg, x)
+        return x
+
+    def _inverse_log_det_jacobian(self, x, event_ndims=1):
+        """Log determinant jacobian of inverse pass.
+
+        :param x: Input tensor.
+        :type x: tf.Tensor
+
+        :returns: The inverse log determinant jacobian.
+        :rtype: (tf.Tensor, tf.Tensor)
+        """
+
+        return -self._forward_log_det_jacobian(self._inverse(x))
+
+    def _forward_log_det_jacobian(self, x):
+        """Calculates forward log det jac of the function.
+
+        :param x: Input tensor.
+        :type x: tf.Tensor
+
+        :returns: Log determinant of the jacobian of interval flow.
+        :rtype: (tf.Tensor, tf.Tensor)
+        """
+        ldj = 0.0
+        # Tanh stage
+        tanh_x = tf.tanh(x)
+        out = tf.math.multiply(self.tanh_m, tanh_x) + self.tanh_c
+        tanh_ldj = tf.reduce_sum(
+            tf.multiply(
+                self.tanh_flg,
+                tf.math.log(self.tanh_m + EPS)
+                + tf.math.log(1.0 - tf.square(tanh_x) + EPS),
+            ),
+            1,
+        )
+        ldj += tanh_ldj
+        x = tf.multiply(self.tanh_flg, out) + tf.multiply(1 - self.tanh_flg, x)
+
+        softplus_ldj = tf.reduce_sum(
+            tf.math.multiply(self.softplus_flg, tf.math.log_sigmoid(x)), 1
+        )
+        ldj += softplus_ldj
+
+        return ldj
