@@ -49,7 +49,6 @@ def linear2D_freq(a11, a12, a21, a22):
         (alpha, tf.square(alpha - 0.0), omega, tf.square(omega - 2.0 * np.pi)),
         axis=1,
     )
-
     return T_x
 
 

@@ -120,7 +120,7 @@ def array_str(a):
     return array_str
 
 
-def init_path(arch_string, init_type, init_param):
+def init_path(arch_string, init_type, init_params):
     """Deduces initialization file path from initialization type and parameters.
 
     :param arch_string: Architecture string of normalizing flow.
@@ -145,15 +145,28 @@ def init_path(arch_string, init_type, init_param):
     path = "./data/" + arch_string + "/"
 
     if init_type == "iso_gauss":
-        if "loc" in init_param:
-            loc = init_param["loc"]
+        if "loc" in init_params:
+            loc = init_params["loc"]
         else:
             raise ValueError("'loc' field not in init_param for %s." % init_type)
-        if "scale" in init_param:
-            scale = init_param["scale"]
+        if "scale" in init_params:
+            scale = init_params["scale"]
         else:
             raise ValueError("'scale' field not in init_param for %s." % init_type)
         path += init_type + "_loc=%.2E_scale=%.2E/" % (loc, scale)
+    elif init_type == 'gaussian':
+        if "mu" in init_params:
+            mu = np_column_vec(init_params["mu"])[:,0]
+        else:
+            raise ValueError("'mu' field not in init_param for %s." % init_type)
+        if "Sigma" in init_params:
+            Sigma = init_params['Sigma']
+        else:
+            raise ValueError("'Sigma' field not in init_param for %s." % init_type)
+        D = mu.shape[0]
+        mu_str = array_str(mu)
+        Sigma_str = array_str(Sigma[np.triu_indices(D, 0)])
+        path += init_type + "_mu=%s_Sigma=%s/" % (mu_str, Sigma_str)
 
     if not os.path.exists(path):
         os.makedirs(path)

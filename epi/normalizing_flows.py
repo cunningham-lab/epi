@@ -2,9 +2,11 @@
 
 import numpy as np
 import scipy.stats
+import matplotlib.pyplot as plt
 import os
 import tensorflow as tf
 import tensorflow_probability as tfp
+import pandas as pd
 
 tfb = tfp.bijectors
 tfd = tfp.distributions
@@ -236,7 +238,7 @@ class NormalizingFlow(tf.keras.Model):
             raise TypeError(format_type_err_msg(self, "num_stages", num_stages, int))
         elif num_stages < 1:
             raise ValueError(
-                "NormalizingFlowstages %d must be greater than 0." % num_stages
+                "NormalizingFlow num_stages %d must be greater than 0." % num_stages
             )
         self.num_stages = num_stages
 
@@ -314,6 +316,7 @@ class NormalizingFlow(tf.keras.Model):
         num_iters=int(1e4),
         lr=1e-3,
         load_if_cached=True,
+        save=True,
         verbose=False,
     ):
         """Initializes architecture to gaussian distribution via variational inference.
@@ -345,44 +348,58 @@ class NormalizingFlow(tf.keras.Model):
         :type lr: float, optional
         :param load_if_cached: If initialization has been optimized before, load it, defaults to True.
         :type load_if_cached: bool, optional
+        :param save: Save initialization if true, defaults to True.
+        :type save: bool, optional
         :param verbose: Print verbose output, defaults to False.
         :type verbose: bool, optional
-
 
         """
         optimizer = tf.keras.optimizers.Adam(lr)
 
-        _init_path = init_path(self.to_string(), init_type, init_params)
-        init_file = _init_path + "ckpt"
-        checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=self)
-        ckpt = tf.train.latest_checkpoint(_init_path)
+        if (load_if_cached or save):
+            _init_path = init_path(self.to_string(), init_type, init_params)
+            init_file = _init_path + "ckpt"
+            checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=self)
+            ckpt = tf.train.latest_checkpoint(_init_path)
         if load_if_cached and (ckpt is not None):
             print("Loading variables from cached initialization.")
             status = checkpoint.restore(ckpt)
             status.expect_partial()  # Won't use optimizer momentum parameters
-            return None
+            opt_data_file = _init_path + 'opt_data.csv'
+            if (os.path.exists(opt_data_file)):
+                return pd.read_csv(opt_data_file)
+            else:
+                return None
 
         if init_type == "iso_gauss":
             loc = init_params["loc"]
             scale = init_params["scale"]
             mu = np.array(self.D * [loc])
             Sigma = scale * np.eye(self.D)
+        elif init_type == 'gaussian':
+            mu = np_column_vec(init_params["mu"])[:,0]
+            Sigma = init_params['Sigma']
 
         eta = gaussian_backward_mapping(mu, Sigma)
+
+       
+        def gauss_init_loss(z, log_q_z, eta):
+            zl = z[:, :, tf.newaxis]
+            zr = z[:, tf.newaxis, :]
+            zzT = tf.matmul(zl, zr)
+            zzT_vec = tf.reshape(zzT, (N, self.D ** 2))
+            T_z = tf.concat((z, zzT_vec), axis=1)
+            E_T_z = tf.reduce_mean(T_z, axis=0)
+
+            E_log_q_z = tf.reduce_mean(log_q_z)
+            loss = E_log_q_z - tf.reduce_sum(eta * E_T_z)
+            return loss
 
         @tf.function
         def train_step():
             with tf.GradientTape() as tape:
-                x, log_q_x = self(N)
-                xl = x[:, :, tf.newaxis]
-                xr = x[:, tf.newaxis, :]
-                xxT = tf.matmul(xl, xr)
-                xxT_vec = tf.reshape(xxT, (N, self.D ** 2))
-                T_x = tf.concat((x, xxT_vec), axis=1)
-                E_T_x = tf.reduce_mean(T_x, axis=0)
-
-                E_log_q_x = tf.reduce_mean(log_q_x)  # negative entropy
-                loss = E_log_q_x + -tf.reduce_sum(eta * E_T_x)
+                z, log_q_z = self(N)
+                loss = gauss_init_loss(z, log_q_z, eta)
 
             params = self.trainable_variables
             gradients = tape.gradient(loss, params)
@@ -390,18 +407,61 @@ class NormalizingFlow(tf.keras.Model):
             optimizer.apply_gradients(zip(gradients, params))
             return loss
 
-        for i in range(num_iters):
+        z, log_q_z = self(N)
+        loss0 = gauss_init_loss(z, log_q_z, eta).numpy()
+        H0 = -np.mean(log_q_z.numpy())
+        KL0 = self.gauss_KL(z, log_q_z, mu, Sigma)
+        d = {'iteration':0, 'loss':loss0, 'H':H0, 'KL':KL0}
+        opt_it_dfs = [pd.DataFrame(d, index=[0])]
+
+        for i in range(1, num_iters+1):
             loss = train_step()
             if np.isnan(loss):
                 raise ValueError("Initialization loss is nan.")
             if not np.isfinite(loss):
                 raise ValueError("Initialization loss is inf.")
 
-            if verbose and i % 100 == 0:
-                print(i, "loss", loss)
+            if i % 100 == 0:
+                z, log_q_z = self(N)
+                loss = gauss_init_loss(z, log_q_z, eta).numpy()
+                H = -np.mean(log_q_z.numpy())
+                KL = self.gauss_KL(z, log_q_z, mu, Sigma)
+                d = {'iteration':i, 'loss':loss, 'H':H, 'KL':KL}
+                opt_it_dfs.append(pd.DataFrame(d, index=[0]))
+                if verbose:
+                    if (not np.isnan(KL)):
+                        print(i, "H", H, "KL", KL, "loss", loss)
+                    else:
+                        print(i, "H", H, "loss", loss)
 
-        checkpoint.save(file_prefix=init_file)
-        return None
+        opt_df = pd.concat(opt_it_dfs, ignore_index=True)
+        if (save):
+            opt_df.to_csv(_init_path + 'opt_data.csv')
+            checkpoint.save(file_prefix=init_file)
+        return opt_df
+
+    def plot_init_opt(self, init_type, init_params):
+        _init_path = init_path(self.to_string(), init_type, init_params)
+        opt_data_file = _init_path + 'opt_data.csv'
+        if (os.path.exists(opt_data_file)):
+            df = pd.read_csv(opt_data_file)
+        else:
+            Print('Error: Initialization not found.')
+            return None
+        fig, axs = plt.subplots(1, 3, figsize=(12, 5))
+        has_KL = not np.isnan(df['KL'][0])
+        ys = ['loss', 'H', 'KL'] if has_KL else ['loss', 'H']
+        num_ys = len(ys)
+        for i in range(num_ys):
+            df.plot('iteration', ys[i], ax=axs[i])
+        return df
+
+    def gauss_KL(self, z, log_q_z, mu, Sigma):
+        if (self.lb is not None or self.ub is not None):
+            return np.nan
+        q_true = scipy.stats.multivariate_normal(mean=mu, cov=Sigma)
+        return np.mean(log_q_z) - np.mean(q_true.logpdf(z))
+
 
     def to_string(self,):
         """Converts architecture to string for file saving.
@@ -507,7 +567,7 @@ class IntervalFlow(tfp.bijectors.Bijector):
         :rtype: (tf.Tensor, tf.Tensor)
         """
         ldj = 0.0
-        # Tanh stage
+        # Tanh stage 
         tanh_x = tf.tanh(x)
         out = tf.math.multiply(self.tanh_m, tanh_x) + self.tanh_c
         tanh_ldj = tf.reduce_sum(
@@ -529,87 +589,4 @@ class IntervalFlow(tfp.bijectors.Bijector):
 
         x = tf.multiply(self.softplus_flg, out) + tf.multiply(1 - self.softplus_flg, x)
         return x, ldj
-
-
-class Distribution(object):
-    """Distribution class with numpy UI, and tensorflow-enabled methods.
-
-    Obtain samples, log densities, gradients and Hessians of a distribution
-    defined by a normalizing flow optimized via tensorflow.
-
-    :param parameters: List of :obj:`epi.models.Parameter`.
-    :type parameters: list
-    :param nf: Normalizing flow trained via tensorflow.
-    :type nf: :obj:`epi.normalizing_flows.NormalizingFlow`.
-    """
-
-    def __init__(self, parameters, nf):
-        self.D = len(parameters)
-        self.parameters = parameters
-        self.nf = nf
-
-    def __call__(self, N):
-        z, _ = self.nf(N)
-        return z.numpy()
-
-    def sample(self, N):
-        """Sample N times.
-
-        :param N: Number of samples.
-        :type N: int:
-        :returns: N samples.
-        :rtype: np.ndarray
-        """
-        return self.__call__(N)
-
-    def log_prob(self, z):
-        """Calculates log probability of samples from distribution.
-
-        :param z: Samples from distribution.
-        :type z: np.ndarray
-        :returns: Log probability of samples.
-        :rtype: np.ndarray
-        """
-        return self.nf.trans_dist.log_prob(z).numpy()
-
-    def gradient(self, z):
-        """Calculates the gradient :math:`\\nabla_z \\log p(z))`.
-
-        :param z: Samples from distribution.
-        :type z: np.ndarray
-        :returns: Gradient of log probability with respect to z.
-        :rtype: np.ndarray
-        """
-        z = tf.Variable(initial_value=z, trainable=True)
-        grad_z = self._gradient(z)
-        del z # Get rid of dummy variable.
-        return grad_z.numpy()
-
-    @tf.function
-    def _gradient(self, z):
-        with tf.GradientTape() as tape:
-            log_q_z = self.nf.trans_dist.log_prob(z)
-        return tape.gradient(log_q_z, z)
-        
-
-
-    def hessian(self, z):
-        """Calculates the Hessian :math:`\\frac{\\partial^2 \\log p(z)}{\\partial z \\partial z^\\top}`.
-
-        :param z: Samples from distribution.
-        :type z: np.ndarray
-        :returns: Hessian of log probability with respect to z.
-        :rtype: np.ndarray
-        """
-        z = tf.Variable(initial_value=z, trainable=True)
-        hess_z = self._hessian(z)
-        del z # Get rid of dummy variable.
-        return hess_z.numpy()
-
-    @tf.function
-    def _hessian(self, z):
-        with tf.GradientTape(persistent=True) as tape:
-            log_q_z = self.nf.trans_dist.log_prob(z)
-            dldz = tape.gradient(log_q_z, z)
-        return tape.batch_jacobian(dldz, z)
 

@@ -2,10 +2,11 @@
 
 import numpy as np
 import tensorflow as tf
-from epi.models import Parameter, Model
+import scipy.stats
+from epi.models import Parameter, Model, Distribution
 from epi.example_eps import linear2D_freq
+from epi.normalizing_flows import NormalizingFlow
 from pytest import raises
-
 
 def test_Parameter_init():
     """Test Parameter initialization."""
@@ -134,3 +135,43 @@ def test_epi():
         assert x == y
 
     return None
+
+
+def test_Distribution():
+    """ Test Distribution class."""
+    Ds = [2, 4]
+    num_dists = 3
+    N1 = 1000
+    N2 = 10
+    for D in Ds:
+        df = 2*D
+        inv_wishart = scipy.stats.invwishart(df=df, scale=df*np.eye(D))
+        for i in range(num_dists):
+            nf = NormalizingFlow('autoregressive', D, 1, 2, max(10, D), batch_norm=False, post_affine=True)
+            mu = np.random.normal(0., 1., (D,1))
+            Sigma = inv_wishart.rvs(1)
+            mvn = scipy.stats.multivariate_normal(mu[:,0], Sigma)
+            init_type = 'gaussian'
+            init_params = {'mu':mu, 'Sigma':Sigma}
+            opt_df = nf.initialize(init_type, init_params, num_iters=5000, load_if_cached=False, save=False)
+            q_theta = Distribution(nf)
+
+            z = q_theta.sample(N1)
+            assert np.isclose(np.mean(z, axis=0), mu[:,0], rtol=0.1).all()
+            cov = np.cov(z.T)
+            assert np.sum(np.square(cov - Sigma)) / np.sum(np.square(Sigma)) < 0.1
+
+            z = q_theta.sample(N2)
+            assert np.isclose(mvn.logpdf(z), q_theta.log_prob(z), rtol=0.1).all()
+
+            Sigma_inv = np.linalg.inv(Sigma)
+
+            # Test gradient
+            grad_true = np.dot(Sigma_inv, mu - z.T).T
+            grad_z = q_theta.gradient(z)
+            assert np.sum(np.square(grad_true - grad_z)) / np.sum(np.square(grad_true)) < 0.1
+
+            # Test hessian
+            hess_true = np.array(N2*[-Sigma_inv])
+            hess_z = q_theta.hessian(z)
+            assert np.sum(np.square(hess_true - hess_z)) / np.sum(np.square(hess_true)) < 0.1

@@ -329,3 +329,4 @@ def test_initialization():
     nf.initialize(init_type, init_params)
 
     return None
+

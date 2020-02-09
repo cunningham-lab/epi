@@ -5,7 +5,7 @@ import inspect
 import tensorflow as tf
 from scipy.stats import ttest_ind
 from epi.error_formatters import format_type_err_msg
-from epi.normalizing_flows import NormalizingFlow, Distribution
+from epi.normalizing_flows import NormalizingFlow
 from epi.util import (
     gaussian_backward_mapping,
     aug_lag_vars,
@@ -103,6 +103,8 @@ class Model(object):
         self.name = name
 
     def _set_parameters(self, parameters):
+        if type(parameters) is not list:
+            raise TypeError(format_type_err_msg(self, parameters, "parameters", list))
         for parameter in parameters:
             if not parameter.__class__.__name__ == "Parameter":
                 raise TypeError(
@@ -301,6 +303,7 @@ class Model(object):
         # Initialize optimization data frame.
         z, log_q_z = nf(N)
         H_0, R_0, _, _ = aug_lag_vars(z, log_q_z, self.eps, mu, N)
+        cost_0 = -H_0 + np.dot(eta, R_0) + np.sum(np.square(R_0))
         R_keys = ["R%d" % (i + 1) for i in range(self.m)]
         opt_it_dfs = [self.opt_it_df(0, 0, H_0.numpy(), R_0.numpy(), R_keys)]
 
@@ -311,18 +314,22 @@ class Model(object):
         norms = get_R_norm_dist(nf, self.eps, mu_colvec, M_norm, N)
 
         # EPI optimization
+        print(format_opt_msg(0, 0, cost_0, H_0, R_0))
         for k in range(1, K + 1):
             etas[k - 1], cs[k - 1], eta, c
             for i in range(1, num_iters + 1):
                 cost, H, R = train_step(eta, c)
                 if i % 100 == 0:
-                    print(format_opt_msg(k, i, cost, H, R))
+                    if (verbose):
+                        print(format_opt_msg(k, i, cost, H, R))
                     iter = (k - 1) * num_iters + i
                     opt_it_dfs.append(
                         self.opt_it_df(k, iter, H.numpy(), R.numpy(), R_keys)
                     )
                     if verbose:
                         self.plot_dist(nf)
+            if (not verbose):
+                print(format_opt_msg(k, i, cost, H, R))
 
             # Save epi optimization data following aug lag iteration k.
             opt_it_dfs = [pd.concat(opt_it_dfs, ignore_index=True)]
@@ -346,7 +353,7 @@ class Model(object):
                     c = beta * c
                 norms = norms_k
 
-        q_theta = Distribution(self.parameters, nf)
+        q_theta = Distribution(nf, self.parameters)
         return q_theta, opt_it_dfs[0]
 
     def test_convergence(self, R_means, alpha):
@@ -387,25 +394,6 @@ class Model(object):
             hp_string,
         )
 
-    def plot_dist(self, q_theta):
-        x = q_theta(200)
-        log_q_x = q_theta.log_prob(x)
-        x = x.numpy()
-        log_q_x = log_q_x.numpy()
-        df = pd.DataFrame(x)
-        x_labels = ["x%d" % i for i in range(1, q_theta.D + 1)]
-        df.columns = x_labels
-        df["log_q_x"] = log_q_x
-
-        log_q_x_std = log_q_x - np.min(log_q_x)
-        log_q_x_std = log_q_x_std / np.max(log_q_x_std)
-        cmap = plt.get_cmap("viridis")
-        g = sns.PairGrid(df, vars=x_labels)
-        g = g.map_diag(sns.kdeplot)
-        g = g.map_upper(plt.scatter, color=cmap(log_q_x_std))
-
-        g = g.map_lower(sns.kdeplot)
-        plt.show()
 
     def load_epi_dist(
         self,
@@ -504,6 +492,142 @@ class Model(object):
                 return False
 
         return True
+
+class Distribution(object):
+    """Distribution class with numpy UI, and tensorflow-enabled methods.
+
+    Obtain samples, log densities, gradients and Hessians of a distribution
+    defined by a normalizing flow optimized via tensorflow.
+
+    :param parameters: List of :obj:`epi.models.Parameter`.
+    :type parameters: list
+    :param nf: Normalizing flow trained via tensorflow.
+    :type nf: :obj:`epi.normalizing_flows.NormalizingFlow`.
+    """
+
+    def __init__(self, nf, parameters=None):
+        self._set_nf(nf)
+        self.D = self.nf.D
+        self._set_parameters(parameters)
+
+    def __call__(self, N):
+        z, _ = self.nf(N)
+        return z.numpy()
+
+    def _set_nf(self, nf):
+        if (type(nf) is not NormalizingFlow):
+            raise TypeError(format_type_err_msg(
+                self,
+                nf,
+                "nf",
+                NormalizingFlow))
+        self.nf = nf
+
+    def _set_parameters(self, parameters):
+        if  parameters is None:
+            parameters = [Parameter("z%d" % (i+1)) for i in range(self.D)]
+            self.parameters = parameters
+        elif type(parameters) is not list:
+            raise TypeError(format_type_err_msg(self, parameters, "parameters", list))
+        else:
+            for parameter in parameters:
+                if not parameter.__class__.__name__ == "Parameter":
+                    raise TypeError(
+                        format_type_err_msg(self, "parameter", parameter, Parameter)
+                    )
+            self.parameters = parameters
+
+    def sample(self, N):
+        """Sample N times.
+
+        :param N: Number of samples.
+        :type N: int:
+        :returns: N samples.
+        :rtype: np.ndarray
+        """
+        if (type(N) is not int):
+            raise TypeError(self, "N", N, int)
+        elif (N < 1):
+            raise ValueError("Distribution.sample must be called with positive int not %d." % N)
+        return self.__call__(N)
+
+    def log_prob(self, z):
+        """Calculates log probability of samples from distribution.
+
+        :param z: Samples from distribution.
+        :type z: np.ndarray
+        :returns: Log probability of samples.
+        :rtype: np.ndarray
+        """
+        z = self._set_z_type(z)
+        return self.nf.trans_dist.log_prob(z).numpy()
+
+    def gradient(self, z):
+        """Calculates the gradient :math:`\\nabla_z \\log p(z))`.
+
+        :param z: Samples from distribution.
+        :type z: np.ndarray
+        :returns: Gradient of log probability with respect to z.
+        :rtype: np.ndarray
+        """
+        z = self._set_z_type(z)
+        z = tf.Variable(initial_value=z, trainable=True)
+        grad_z = self._gradient(z)
+        del z # Get rid of dummy variable.
+        return grad_z.numpy()
+
+    @tf.function
+    def _gradient(self, z):
+        with tf.GradientTape() as tape:
+            log_q_z = self.nf.trans_dist.log_prob(z)
+        return tape.gradient(log_q_z, z)
+
+    def hessian(self, z):
+        """Calculates the Hessian :math:`\\frac{\\partial^2 \\log p(z)}{\\partial z \\partial z^\\top}`.
+
+        :param z: Samples from distribution.
+        :type z: np.ndarray
+        :returns: Hessian of log probability with respect to z.
+        :rtype: np.ndarray
+        """
+        z = self._set_z_type(z)
+        z = tf.Variable(initial_value=z, trainable=True)
+        hess_z = self._hessian(z)
+        del z # Get rid of dummy variable.
+        return hess_z.numpy()
+
+    @tf.function
+    def _hessian(self, z):
+        with tf.GradientTape(persistent=True) as tape:
+            log_q_z = self.nf.trans_dist.log_prob(z)
+            dldz = tape.gradient(log_q_z, z)
+        return tape.batch_jacobian(dldz, z)
+
+    def _set_z_type(self, z):
+        if type(z) is list:
+            z = np.ndarray(z)
+        if (type(z) is not np.ndarray):
+            raise TypeError(self, z, "z", np.ndarray)
+        z = z.astype(np.float32)
+        return z
+
+    def plot_dist(self, N=200):
+        z = self.sample(N)
+        log_q_z = self.log_prob(z)
+        df = pd.DataFrame(z)
+        z_labels = [param.name for param in self.parameters]
+        df.columns = z_labels
+        df["log_q_z"] = log_q_z
+
+        log_q_z_std = log_q_z - np.min(log_q_z)
+        log_q_z_std = log_q_z_std / np.max(log_q_z_std)
+        cmap = plt.get_cmap("viridis")
+        g = sns.PairGrid(df, vars=z_labels)
+        g = g.map_diag(sns.kdeplot)
+        g = g.map_upper(plt.scatter, color=cmap(log_q_z_std))
+
+        g = g.map_lower(sns.kdeplot)
+        plt.show()
 
 
 def format_opt_msg(k, i, cost, H, R):
