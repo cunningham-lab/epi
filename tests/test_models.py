@@ -98,7 +98,7 @@ def test_epi():
     M = Model("lds", params)
     m = 4
     M.set_eps(linear2D_freq, m)
-    q_theta, opt_data = M.epi(mu, num_iters=100)
+    q_theta, opt_data, save_dir = M.epi(mu, num_iters=100)
 
     z = q_theta(1000)
     log_q_z = q_theta.log_prob(z)
@@ -119,7 +119,7 @@ def test_epi():
     params = [a22, a21, a12, a11]
     M = Model("lds2", params)
     M.set_eps(linear2D_freq, m)
-    q_theta, opt_data = M.epi(mu, num_iters=100)
+    q_theta, opt_data, savedir = M.epi(mu, num_iters=100)
 
     z = q_theta(1000)
     log_q_z = q_theta.log_prob(z)

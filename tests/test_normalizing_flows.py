@@ -310,7 +310,7 @@ def test_initialization():
     init_params = {"loc": loc, "scale": scale}
     nf.initialize(init_type, init_params)
 
-    z, ldjs = nf.sample(int(1e4))
+    z = nf.sample(int(1e4))
     z = z.numpy()
     mean_z = np.mean(z, 0)
     Sigma_z = np.cov(z.T)

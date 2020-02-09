@@ -4,6 +4,7 @@ import numpy as np
 import inspect
 import tensorflow as tf
 from scipy.stats import ttest_ind
+from sklearn.neighbors import KernelDensity
 from epi.error_formatters import format_type_err_msg
 from epi.normalizing_flows import NormalizingFlow
 from epi.util import (
@@ -275,7 +276,7 @@ class Model(object):
                 g1 + g2 + c * g3 for g1, g2, g3 in zip(H_grad, lagrange_grad, aug_grad)
             ]
             optimizer.apply_gradients(zip(gradients, params))
-            return cost, H, R, z
+            return cost, H, R, z, log_q_z
 
         @tf.function
         def two_dim_T_x_batch(nf, eps, M, N, m):
@@ -312,7 +313,9 @@ class Model(object):
 
         # Record samples for movie.
         if save_movie_data:
-            zs = [z.numpy()]
+            N_save = 200
+            zs = [z.numpy()[:N_save, :]]
+            log_q_zs = [log_q_z.numpy()[:N_save]]
 
         # Measure initial R norm distribution.
         mu_colvec = np_column_vec(mu).astype(np.float32).T
@@ -323,7 +326,7 @@ class Model(object):
         for k in range(1, K + 1):
             etas[k - 1], cs[k - 1], eta, c
             for i in range(1, num_iters + 1):
-                cost, H, R, z = train_step(eta, c)
+                cost, H, R, z, log_q_z = train_step(eta, c)
                 if i % log_rate == 0:
                     if verbose:
                         print(format_opt_msg(k, i, cost, H, R))
@@ -332,7 +335,8 @@ class Model(object):
                         self.opt_it_df(k, iter, H.numpy(), R.numpy(), R_keys)
                     )
                     if save_movie_data:
-                        zs.append(z.numpy())
+                        zs.append(z.numpy()[:N_save, :])
+                        log_q_zs.append(log_q_z.numpy()[:N_save])
             if not verbose:
                 print(format_opt_msg(k, i, cost, H, R))
 
@@ -362,10 +366,196 @@ class Model(object):
             np.savez(
                 ckpt_dir + "zs.npz",
                 zs=np.array(zs),
-                iters=np.arange(0, k * num_iters + 1, log_rate),
+                log_q_zs=np.array(log_q_zs),
+                iterations=np.arange(0, k * num_iters + 1, log_rate),
             )
         q_theta = Distribution(nf, self.parameters)
-        return q_theta, opt_it_dfs[0]
+        return q_theta, opt_it_dfs[0], ckpt_dir
+
+    def epi_opt_movie(self, path):
+        D = len(self.parameters)
+        palette = sns.color_palette()
+
+        z_filename = path + "zs.npz"
+        opt_data_filename = path + "opt_data.csv"
+        # Load zs for optimization.
+        if os.path.exists(z_filename):
+            z_file = np.load(z_filename)
+        else:
+            raise IOError("File %s does not exist." % z_filename)
+        if os.path.exists(opt_data_filename):
+            opt_data_df = pd.read_csv(opt_data_filename)
+        else:
+            raise IOError("File %s does not exist." % opt_data_filename)
+
+        zs = z_file["zs"]
+        log_q_zs = z_file["log_q_zs"]
+        iters = z_file["iterations"]
+        if not np.isclose(iters, opt_data_df["iteration"]).all():
+            raise IOError(
+                "Sample logging and optimization diagnostic files are not synced by iteration."
+            )
+        Hs = opt_data_df["H"]
+        R_keys = []
+        for key in opt_data_df.columns:
+            if "R" in key:
+                R_keys.append(key)
+        m = len(R_keys)
+        R = opt_data_df[R_keys].to_numpy()
+
+        _iters = [iters[0]]
+        _Hs = [Hs[0]]
+        z = zs[0]
+        N_frames = len(iters)
+        ylab_x = -0.1
+        ylab_y = 0.6
+
+        iter_rows = 3
+        # Entropy lines
+        fig, axs = plt.subplots(D + iter_rows, D, figsize=(9, 12))
+        H_ax = plt.subplot(D + iter_rows, 1, 1)
+        H_ax.set_xlim(0, iters[-1])
+        min_H, max_H = np.min(Hs), np.max(Hs)
+        H_ax.set_ylim(min_H, max_H)
+        H_line, = H_ax.plot(_iters, _Hs, c=palette[0])
+        H_ax.set_ylabel(r"$H(q_\theta)$", rotation="horizontal")
+        H_ax.yaxis.set_label_coords(ylab_x, ylab_y)
+
+        # Constraint lines
+        R_ax = plt.subplot(D + iter_rows, 1, 2)
+        R_ax.set_xlim(0, iters[-1])
+        min_R, max_R = np.min(R), np.max(R)
+
+        R_ax.set_ylim(min_R, max_R)
+        R_ax.set_ylabel(r"$R(q_\theta)$", rotation="horizontal")
+        R_ax.yaxis.set_label_coords(ylab_x, ylab_y)
+        R_ax.set_xlabel("iterations")
+
+        for j in range(D):
+            axs[2, j].axis("off")
+
+        R_lines = []
+        _Rs = []
+        for i in range(m):
+            _Rs.append([R[0, i]])
+            R_line, = R_ax.plot(_iters, _Rs[i], label=R_keys[i], c=palette[i + 1])
+            R_lines.append(R_line)
+        R_ax.legend()
+
+        lines = [H_line] + R_lines
+
+        # Get axis limits
+        ax_mins = []
+        ax_maxs = []
+        for i in range(D):
+            bounds = self.parameters[i].bounds
+            if np.isneginf(bounds[0]):
+                ax_mins.append(np.min(zs[:, :, i]))
+            else:
+                ax_mins.append(bounds[0])
+
+            if np.isposinf(bounds[1]):
+                ax_maxs.append(np.max(zs[:, :, i]))
+            else:
+                ax_maxs.append(bounds[1])
+
+        # Collect scatters
+        cmap = plt.get_cmap("viridis")
+        scats = []
+        for i in range(D - 1):
+            for j in range(i + 1, D):
+                ax = axs[i + iter_rows][j]
+                scats.append(ax.scatter(z[:, j], z[:, i], c=log_q_zs[0], cmap=cmap))
+                ax.set_xlim(ax_mins[j], ax_maxs[j])
+                ax.set_ylim(ax_mins[i], ax_maxs[i])
+
+        kdes = []
+        conts = []
+        kde_scale_fac = 0.1
+        for i in range(1, D):
+            ax_len_i = ax_maxs[i] - ax_mins[i]
+            for j in range(i):
+                ax_len_j = ax_maxs[i] - ax_mins[i]
+                kde = KernelDensity(
+                    kernel="gaussian",
+                    bandwidth=kde_scale_fac * (ax_len_i + ax_len_j) / 2.0,
+                )
+                _z = z[:, [i, j]]
+                kde.fit(_z)
+                scores_ij = kde.score_samples(_z)
+                ax = axs[i + iter_rows][j]
+                cont = ax.tricontour(z[:, i], z[:, j], scores_ij)
+                conts.append(cont)
+                ax.set_xlim(ax_mins[i], ax_maxs[i])
+                ax.set_ylim(ax_mins[j], ax_maxs[j])
+                kdes.append(kde)
+        # Diagonal KDEs
+        # for i in range(D):
+        #    ax = axs[i+iter_rows][i]
+        #    diag_kdes.append(ax
+
+        for i in range(D):
+            axs[i + iter_rows][0].set_ylabel(
+                self.parameters[i].name, rotation="horizontal"
+            )
+            axs[i + iter_rows][0].yaxis.set_label_coords(D * ylab_x, ylab_y)
+            axs[-1][i].set_xlabel(self.parameters[i].name)
+
+        for i in range(D):
+            for j in range(1, D):
+                axs[i + iter_rows, j].set_yticklabels([])
+        for i in range(D - 1):
+            for j in range(D):
+                axs[i + iter_rows, j].set_xticklabels([])
+
+        def update(frame):
+            _iters.append(iters[frame])
+            _Hs.append(Hs[frame])
+            for i in range(m):
+                _Rs[i].append(R[frame, i])
+            z = zs[frame]
+            log_q_z = log_q_zs[frame]
+            cvals = log_q_z - np.min(log_q_z)
+            cvals = cvals / np.max(cvals)
+
+            # Update entropy plot
+            lines[0].set_data(_iters, _Hs)
+            for i in range(m):
+                lines[i + 1].set_data(_iters, _Rs[i])
+
+            # Update scatters
+            _ind = 0
+            for i in range(D - 1):
+                for j in range(i + 1, D):
+                    scats[_ind].set_offsets(np.stack((z[:, j], z[:, i]), axis=1))
+                    scats[_ind].set_color(cmap(cvals))
+                    _ind += 1
+
+            while conts:
+                cont = conts.pop(0)
+                for coll in cont.collections:
+                    coll.remove()
+
+            _ind = 0
+            for i in range(1, D):
+                for j in range(i):
+                    kde = kdes[_ind]
+                    _z = z[:, [i, j]]
+                    kde.fit(_z)
+                    scores_ij = kde.score_samples(_z)
+                    ax = axs[i + iter_rows][j]
+                    cont = ax.tricontour(z[:, i], z[:, j], scores_ij)
+                    conts.append(cont)
+
+            return lines + scats
+
+        ani = animation.FuncAnimation(fig, update, frames=range(1, N_frames), blit=True)
+
+        Writer = animation.writers["ffmpeg"]
+        writer = Writer(fps=30, metadata=dict(artist="Me"), bitrate=1800)
+
+        ani.save(path + "epi_opt.mp4", writer=writer)
+        return None
 
     def test_convergence(self, R_means, alpha):
         M, m = R_means.shape
@@ -404,11 +594,6 @@ class Model(object):
             arch_string,
             hp_string,
         )
-
-    def epi_opt_movie(self, path):
-        Writer = animation.writers["ffmpeg"]
-        writer = Writer(fps=30, metadata=dict(artist="Me"), bitrate=1800)
-        return None
 
     def load_epi_dist(
         self,
