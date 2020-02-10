@@ -573,6 +573,8 @@ class IntervalFlow(tfp.bijectors.Bijector):
     def forward_and_log_det_jacobian(self, x):
         """Runs bijector forward and calculates log det jac of the function.
 
+        It's more efficient to run samples and ldjs forward together for EPI.
+
         :param x: Input tensor.
         :type x: tf.Tensor
 

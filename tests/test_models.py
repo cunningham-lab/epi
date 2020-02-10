@@ -146,9 +146,11 @@ def test_epi():
 
 def test_Distribution():
     """ Test Distribution class."""
+    tf.random.set_seed(1)
+    np.random.seed(1)
     Ds = [2, 4]
-    num_dists = 2
-    N1 = 500
+    num_dists = 1
+    N1 = 1000
     N2 = 10
     for D in Ds:
         df = 2 * D
@@ -200,4 +202,4 @@ def test_Distribution():
             )
 
 if __name__ == '__main__':
-    test_epi()
+    test_Distribution()
