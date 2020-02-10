@@ -237,11 +237,6 @@ def test_Distribution():
                 np.sum(np.square(hess_true - hess_z)) / np.sum(np.square(hess_true))
                 < 0.1
             )
-            hess_z = q_theta.hessian(list(z))
-            assert (
-                np.sum(np.square(hess_true - hess_z)) / np.sum(np.square(hess_true))
-                < 0.1
-            )
             with raises(TypeError):
                 hess_z = q_theta.hessian('foo')
             

@@ -13,6 +13,7 @@ from epi.util import (
     load_tf_model,
     aug_lag_vars,
     unbiased_aug_grad,
+    AugLagHPs,
 )
 from epi.example_eps import linear2D_freq, linear2D_freq_np
 import pytest
@@ -134,6 +135,21 @@ def test_init_path():
     init_param = {"loc": 0.0}
     with raises(ValueError):
         init_path(arch_string, init_type, init_param)
+
+    init_type = "gaussian"
+    mu = np.zeros(2)
+    Sigma = np.eye(2)
+    init_param = {"mu": mu, "Sigma": Sigma}
+    s = init_path(arch_string, init_type, init_param)
+    s_true = "./data/foo/gaussian_mu=2x0.00E+00_Sigma=1.00E+00_0.00E+00_1.00E+00/"
+    assert(s == s_true)
+    init_param = {"mu": mu}
+    with raises(ValueError):
+        s = init_path(arch_string, init_type, init_param)
+    init_param = {"Sigma": Sigma}
+    with raises(ValueError):
+        s = init_path(arch_string, init_type, init_param)
+
     return None
 
 
@@ -369,3 +385,34 @@ def test_unbiased_aug_grad():
         assert np.isclose(aug_grad_np[i], aug_grad[i], rtol=1e-3).all()
 
     return None
+
+def test_AugLagHPs():
+    with raises(TypeError):
+        AugLagHPs(N='foo')
+    with raises(ValueError):
+        AugLagHPs(N=0)
+
+    with raises(TypeError):
+        AugLagHPs(lr='foo')
+    with raises(ValueError):
+        AugLagHPs(lr=-1.)
+
+    with raises(TypeError):
+        AugLagHPs(c0='foo')
+    with raises(ValueError):
+        AugLagHPs(c0=-1.)
+
+    with raises(TypeError):
+        AugLagHPs(gamma='foo')
+    with raises(ValueError):
+        AugLagHPs(gamma=-.1)
+
+    with raises(TypeError):
+        AugLagHPs(beta='foo')
+    with raises(ValueError):
+        AugLagHPs(beta=-1.)
+
+
+
+
+
