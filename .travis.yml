@@ -2,6 +2,8 @@ language: python
 python:
   - "3.6"
 install:
+  - sudo apt update
+  - sudo apt install ffmpeg
   - pip install -e .
 script:
   - pytest --cov-report=xml --cov=epi tests -W ignore::DeprecationWarning
