@@ -98,7 +98,11 @@ def test_epi():
     M = Model("lds", params)
     m = 4
     M.set_eps(linear2D_freq, m)
-    q_theta, opt_data, save_dir = M.epi(mu, num_iters=100)
+    q_theta, opt_data, save_path = M.epi(mu, num_iters=100, K=1, save_movie_data=True)
+    g = q_theta.plot_dist()
+    M.epi_opt_movie(save_path)
+    q_theta = M.load_epi_dist(mu, k=1)
+    assert q_theta is not None
 
     z = q_theta(1000)
     log_q_z = q_theta.log_prob(z)
@@ -119,7 +123,9 @@ def test_epi():
     params = [a22, a21, a12, a11]
     M = Model("lds2", params)
     M.set_eps(linear2D_freq, m)
-    q_theta, opt_data, savedir = M.epi(mu, num_iters=100)
+    q_theta, opt_data, save_path = M.epi(mu, K=1, num_iters=100)
+    with raises(IOError):
+        M.epi_opt_movie(save_path)
 
     z = q_theta(1000)
     log_q_z = q_theta.log_prob(z)
@@ -141,8 +147,8 @@ def test_epi():
 def test_Distribution():
     """ Test Distribution class."""
     Ds = [2, 4]
-    num_dists = 3
-    N1 = 1000
+    num_dists = 2
+    N1 = 500
     N2 = 10
     for D in Ds:
         df = 2 * D
@@ -163,7 +169,7 @@ def test_Distribution():
             init_type = "gaussian"
             init_params = {"mu": mu, "Sigma": Sigma}
             opt_df = nf.initialize(
-                init_type, init_params, num_iters=5000, load_if_cached=False, save=False
+                init_type, init_params, num_iters=2500, load_if_cached=False, save=False
             )
             q_theta = Distribution(nf)
 
@@ -192,3 +198,6 @@ def test_Distribution():
                 np.sum(np.square(hess_true - hess_z)) / np.sum(np.square(hess_true))
                 < 0.1
             )
+
+if __name__ == '__main__':
+    test_epi()

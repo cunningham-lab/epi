@@ -183,6 +183,7 @@ class Model(object):
         beta=4.0,
         alpha=0.05,
         nu=0.1,
+        stop_early=False,
         log_rate=100,
         verbose=False,
         save_movie_data=False,
@@ -347,9 +348,10 @@ class Model(object):
 
             if k < K:
                 # Check for convergence if early stopping.
-                R_means = get_R_mean_dist(nf, self.eps, mu_colvec, M_test, N_test)
-                if self.test_convergence(R_means.numpy(), alpha):
-                    break
+                if (stop_early):
+                    R_means = get_R_mean_dist(nf, self.eps, mu_colvec, M_test, N_test)
+                    if self.test_convergence(R_means.numpy(), alpha):
+                        break
 
                 # Update eta and c
                 eta = eta + c * R
@@ -489,10 +491,6 @@ class Model(object):
                 ax.set_xlim(ax_mins[i], ax_maxs[i])
                 ax.set_ylim(ax_mins[j], ax_maxs[j])
                 kdes.append(kde)
-        # Diagonal KDEs
-        # for i in range(D):
-        #    ax = axs[i+iter_rows][i]
-        #    diag_kdes.append(ax
 
         for i in range(D):
             axs[i + iter_rows][0].set_ylabel(
@@ -624,6 +622,9 @@ class Model(object):
             if k < 0:
                 raise ValueError("k must be augmented Lagrangian iteration index.")
 
+        if num_units is None:
+            num_units = max(2 * self.D, 15)
+
         nf = NormalizingFlow(
             arch_type=arch_type,
             D=self.D,
@@ -652,7 +653,7 @@ class Model(object):
                 raise ValueError("Index of checkpoint 'k' too large.")
             status = checkpoint.restore(ckpts[k])
             status.expect_partial()
-            q_theta = Distribution(self.params, nf)
+            q_theta = Distribution(nf, self.parameters)
             return q_theta
 
     def parameter_check(self, parameters, verbose=False):
@@ -716,8 +717,8 @@ class Distribution(object):
         return z.numpy()
 
     def _set_nf(self, nf):
-        if type(nf) is not NormalizingFlow:
-            raise TypeError(format_type_err_msg(self, nf, "nf", NormalizingFlow))
+        #if type(nf) is not NormalizingFlow:
+        #    raise TypeError(format_type_err_msg(self, nf, "nf", NormalizingFlow))
         self.nf = nf
 
     def _set_parameters(self, parameters):
@@ -826,7 +827,8 @@ class Distribution(object):
         g = g.map_upper(plt.scatter, color=cmap(log_q_z_std))
 
         g = g.map_lower(sns.kdeplot)
-        plt.show()
+        plt.show(False)
+        return g
 
 
 def format_opt_msg(k, i, cost, H, R):
