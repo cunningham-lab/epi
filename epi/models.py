@@ -175,7 +175,7 @@ class Model(object):
         init_type="iso_gauss",
         init_params={"loc": 0.0, "scale": 1.0},
         K=10,
-        num_iters=5000,
+        num_iters=2000,
         N=500,
         lr=1e-3,
         c0=1.0,
@@ -205,28 +205,42 @@ class Model(object):
         :type batch_norm: bool, optional
         :param bn_momentum: Batch normalization momentum parameter, defaults to 0.99.
         :type bn_momentrum: float, optional
-        :param post_affine: Shift and scale following main transform.
+        :param post_affine: Shift and scale following main transform, defaults to True.
         :type post_affine: bool, optional
-        :param bounds: Bounds of distribution support, defaults to None.
-        :type bounds: (np.ndarray, np.ndarray), optional
         :param random_seed: Random seed of architecture parameters, defaults to 1.
         :type random_seed: int, optional
-        :param init_type: :math:`\\in` :obj:`['iso_gauss']`.
-        :type init_type: str
+        :param init_type: :math:`\\in` :obj:`['iso_gauss', 'gaussian']`.
+        :type init_type: str, optional
         :param init_params: Parameters according to :obj:`init_type`.
-        :type init_params: dict
-        :param K: Number of augmented Lagrangian iterations
-        :type K: int
-        :param num_iters: Number of optimization iterations, Defaults to 500.
+        :type init_params: dict, optional
+        :param K: Number of augmented Lagrangian iterations, defaults to 10.
+        :type K: int, float, optional
+        :param num_iters: Number of optimization iterations, defaults to 2000.
         :type num_iters: int, optional
-        :param N: Number of batch samples per iteration.
-        :type N: int
+        :param N: Number of batch samples per iteration, defaults to 500.
+        :type N: int, optional
         :param lr: Adam optimizer learning rate, defaults to 1e-3.
         :type lr: float, optional
+        :param c0: Initial augmented Lagrangian coefficient, defaults to 1.0.
+        :type c0: float, optional
+        :param gamma: Augmented lagrangian hyperparameter, defaults to 0.25.
+        :type gamma: float, optional
+        :param gamma: Augmented lagrangian hyperparameter, defaults to 4.0.
+        :type gamma: float, optional
         :param alpha: P-value threshold for convergence testing, defaults to 0.05.
         :type alpha: float, optional
         :param nu: Fraction of N for convergence testing, defaults to 0.1.
         :type nu: float, optional
+        :param stop_early: Exit if converged, defaults to False.
+        :type stop_early: bool, optional
+        :param log_rate: Record optimization data every so iterations, defaults to 100.
+        :type log_rate: int, optional
+        :param verbose: Print optimization information, defaults to False.
+        :type verbose: bool, optional
+        :param save_movie_data: Save data for making optimization movie, defaults to False.
+        :type save_movie_data: bool, optional
+        :returns: q_theta, opt_df, save_path
+        :rtype: epi.models.Distribution, pandas.DataFrame, str
         """
         if num_units is None:
             num_units = max(2 * self.D, 15)
@@ -375,6 +389,11 @@ class Model(object):
         return q_theta, opt_it_dfs[0], ckpt_dir
 
     def epi_opt_movie(self, path):
+        """Generate video of EPI optimization.
+
+        :param path: Path to folder with optimization data.
+        :type param: str
+        """
         D = len(self.parameters)
         palette = sns.color_palette()
 
