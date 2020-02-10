@@ -313,6 +313,19 @@ def unbiased_aug_grad(R1s, R2, params, tape):
 
 
 class AugLagHPs:
+    """Augmented Lagrangian optimization hyperparamters.
+
+    :param N: Batch size, defaults to 1000.
+    :type N: int, optional
+    :param lr: Learning rate, defaults to 1e-3.
+    :type lr: float, optional
+    :param c0: L-2 norm on R coefficient, defaults to 1.0.
+    :type c0: float, optional
+    :param gamma: Epoch reduction factor for epoch, defaults to 1/4.
+    :type gamma: float, optional
+    :param beta: L-2 norm magnitude increase factor.
+    :type beta: float, optional
+    """
     def __init__(self, N=1000, lr=1e-3, c0=1.0, gamma=0.25, beta=4.0):
         self._set_N(N)
         self._set_lr(lr)
@@ -356,6 +369,11 @@ class AugLagHPs:
         self.beta = beta
 
     def to_string(self,):
+    """String for filename involving hyperparameter setting.
+
+    :returns: Hyperparameters as a string.
+    :rtype: str
+    """
         return "N%d_lr%.2E_c0=%.2E_gamma%.2E_beta%.2E" % (
             self.N,
             self.lr,
