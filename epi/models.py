@@ -147,7 +147,7 @@ class Model(object):
 
         z = tf.keras.Input(shape=(self.D))
         T_z = self.eps(z)
-        if len(T_z.shape) > 2:
+        if len(T_z.shape) != 2:
             raise ValueError("Method eps must return tf.Tensor of dimension (N, D).")
         self.m = m
         return None
@@ -324,7 +324,7 @@ class Model(object):
         H_0, R_0, _, _ = aug_lag_vars(z, log_q_z, self.eps, mu, N)
         cost_0 = -H_0 + np.dot(eta, R_0) + np.sum(np.square(R_0))
         R_keys = ["R%d" % (i + 1) for i in range(self.m)]
-        opt_it_dfs = [self.opt_it_df(0, 0, H_0.numpy(), R_0.numpy(), R_keys)]
+        opt_it_dfs = [self._opt_it_df(0, 0, H_0.numpy(), R_0.numpy(), R_keys)]
 
         # Record samples for movie.
         if save_movie_data:
@@ -347,7 +347,7 @@ class Model(object):
                         print(format_opt_msg(k, i, cost, H, R))
                     iter = (k - 1) * num_iters + i
                     opt_it_dfs.append(
-                        self.opt_it_df(k, iter, H.numpy(), R.numpy(), R_keys)
+                        self._opt_it_df(k, iter, H.numpy(), R.numpy(), R_keys)
                     )
                     if save_movie_data:
                         zs.append(z.numpy()[:N_save, :])
@@ -357,7 +357,7 @@ class Model(object):
 
             # Save epi optimization data following aug lag iteration k.
             opt_it_dfs = [pd.concat(opt_it_dfs, ignore_index=True)]
-            self.save_epi_opt(mu, nf, aug_lag_hps, opt_it_dfs[0], cs, etas)
+            self._save_epi_opt(ckpt_dir, opt_it_dfs[0], cs, etas)
             manager.save(checkpoint_number=k)
 
             if k < K:
@@ -575,21 +575,25 @@ class Model(object):
         return None
 
     def test_convergence(self, R_means, alpha):
+        """Tests convergence of EPI constraints.
+
+        :param R_means: blah
+        :type R_means: np.ndarray
+        :param alpha: blah
+        :type alpha: float
+        """
         M, m = R_means.shape
         gt = np.sum(R_means > 0.0, axis=0).astype(np.float32)
         lt = np.sum(R_means < 0.0, axis=0).astype(np.float32)
         p_vals = 2 * np.minimum(gt / M, lt / M)
         return np.prod(p_vals > (alpha / m))
 
-    def opt_it_df(self, k, iter, H, R, R_keys):
+    def _opt_it_df(self, k, iter, H, R, R_keys):
         d = {"k": k, "iteration": iter, "H": H}
         d.update(zip(R_keys, list(R)))
         return pd.DataFrame(d, index=[0])
 
-    def save_epi_opt(self, mu, arch, aug_lag_hps, opt_df, etas, cs):
-        save_path = self.get_save_path(mu, arch, aug_lag_hps)
-        if not os.path.exists(save_path):
-            os.makedirs(save_path)
+    def _save_epi_opt(self, save_path, opt_df, etas, cs):
         np.savez(save_path + "opt_data.npz", etas=etas, cs=cs)
         opt_df.to_csv(save_path + "opt_data.csv")
 
@@ -745,7 +749,7 @@ class Distribution(object):
             parameters = [Parameter("z%d" % (i + 1)) for i in range(self.D)]
             self.parameters = parameters
         elif type(parameters) is not list:
-            raise TypeError(format_type_err_msg(self, parameters, "parameters", list))
+            raise TypeError(format_type_err_msg(self, "parameters", parameters, list))
         else:
             for parameter in parameters:
                 if not parameter.__class__.__name__ == "Parameter":

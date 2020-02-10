@@ -3,9 +3,12 @@
 import numpy as np
 import tensorflow as tf
 import scipy.stats
+import pandas as pd
+import os
 from epi.models import Parameter, Model, Distribution
-from epi.example_eps import linear2D_freq
 from epi.normalizing_flows import NormalizingFlow
+from epi.util import AugLagHPs
+from epi.example_eps import linear2D_freq
 from pytest import raises
 
 
@@ -64,6 +67,9 @@ def test_Model_init():
     with raises(TypeError):
         Model("foo", params)
 
+    with raises(TypeError):
+        Model("foo", "bar")
+
     p3 = Parameter("c", [1, 4])
     p3.bounds = (1, -1)
     params = [p1, p2, p3]
@@ -101,8 +107,27 @@ def test_epi():
     q_theta, opt_data, save_path = M.epi(mu, num_iters=100, K=1, save_movie_data=True)
     g = q_theta.plot_dist()
     M.epi_opt_movie(save_path)
+    opt_data_filename = save_path + 'opt_data.csv'
+    opt_data_df = pd.read_csv(opt_data_filename)
+    opt_data_df['iteration'] = 2*opt_data_df['iteration']
+    opt_data_df.to_csv(opt_data_filename)
+    with raises(IOError):
+        M.epi_opt_movie(save_path)
+    os.remove(opt_data_filename)
+    with raises(IOError):
+        M.epi_opt_movie(save_path)
     q_theta = M.load_epi_dist(mu, k=1)
     assert q_theta is not None
+    with raises(ValueError):
+        q_theta = M.load_epi_dist(mu, k=20)
+    with raises(TypeError):
+        q_theta = M.load_epi_dist(mu, k='foo')
+    with raises(ValueError):
+        q_theta = M.load_epi_dist(mu, k=-1)
+
+    M = Model("foo", params)
+    with raises(ValueError):
+        q_theta = M.load_epi_dist(mu, k=-1)
 
     z = q_theta(1000)
     log_q_z = q_theta.log_prob(z)
@@ -123,7 +148,7 @@ def test_epi():
     params = [a22, a21, a12, a11]
     M = Model("lds2", params)
     M.set_eps(linear2D_freq, m)
-    q_theta, opt_data, save_path = M.epi(mu, K=1, num_iters=100)
+    q_theta, opt_data, save_path = M.epi(mu, K=2, num_iters=100, stop_early=True, verbose=True)
     with raises(IOError):
         M.epi_opt_movie(save_path)
 
@@ -141,6 +166,18 @@ def test_epi():
     for x, y in zip(opt_data.columns, opt_data_cols):
         assert x == y
 
+    with raises(ValueError):
+        def bad_f(a11, a12, a21, a22):
+            return a11 + a12 + a21 + a22
+        M.set_eps(bad_f, 1)
+
+    params = [a22, a21, a12, a11]
+    M = Model("lds2", params)
+    nf = NormalizingFlow('autoregressive', 4, 1, 2, 10)
+    al_hps = AugLagHPs()
+    with raises(AttributeError):
+        save_path = M.get_save_path(mu, nf, al_hps, None)
+    save_path = M.get_save_path(mu, nf, al_hps, eps_name='foo')
     return None
 
 
@@ -200,6 +237,14 @@ def test_Distribution():
                 np.sum(np.square(hess_true - hess_z)) / np.sum(np.square(hess_true))
                 < 0.1
             )
+            hess_z = q_theta.hessian(list(z))
+            assert (
+                np.sum(np.square(hess_true - hess_z)) / np.sum(np.square(hess_true))
+                < 0.1
+            )
+            with raises(TypeError):
+                hess_z = q_theta.hessian('foo')
+            
 
 if __name__ == '__main__':
-    test_Distribution()
+    test_epi()

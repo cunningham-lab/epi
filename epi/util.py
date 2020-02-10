@@ -369,11 +369,11 @@ class AugLagHPs:
         self.beta = beta
 
     def to_string(self,):
-    """String for filename involving hyperparameter setting.
+        """String for filename involving hyperparameter setting.
 
-    :returns: Hyperparameters as a string.
-    :rtype: str
-    """
+        :returns: Hyperparameters as a string.
+        :rtype: str
+        """
         return "N%d_lr%.2E_c0=%.2E_gamma%.2E_beta%.2E" % (
             self.N,
             self.lr,
