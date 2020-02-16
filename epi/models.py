@@ -358,14 +358,16 @@ class Model(object):
                 print(format_opt_msg(k, i, cost, H, R), flush=True)
 
             # Save epi optimization data following aug lag iteration k.
-            opt_it_dfs = [pd.concat(opt_it_dfs, ignore_index=True)]
-            self._save_epi_opt(ckpt_dir, opt_it_dfs[0], cs, etas)
+            opt_it_df = pd.concat(opt_it_dfs, ignore_index=True)
             manager.save(checkpoint_number=k)
 
             R_means = get_R_mean_dist(nf, self.eps, mu_colvec, M_test, N_test)
             converged = self.test_convergence(R_means.numpy(), alpha)
-            last_ind = (opt_it_dfs[0]['k']==k) & (opt_it_dfs[0]['iteration']==num_iters)
-            opt_it_dfs[0].loc[last_ind, 'converged'] = converged
+            last_ind = opt_it_df['iteration']==k*num_iters
+
+            opt_it_df.loc[last_ind, 'converged'] = converged
+            self._save_epi_opt(ckpt_dir, opt_it_df, cs, etas)
+            opt_it_dfs = [opt_it_df]
 
             if k < K:
                 if (np.isnan(cost)):
@@ -409,12 +411,15 @@ class Model(object):
         n = len(opt_dirs)
         if (n == 0):
             raise IOError("No optimizations in %s." % epi_dir)
-        Hs = np.zeros(n)
+        Hs = []
         hp_dfs = []
         opt_dfs = []
         for i, opt_dir in enumerate(opt_dirs):
             # Parse hp file.
             hp_filename = epi_dir + opt_dir + '/hps.p'
+            if (not os.path.exists(hp_filename)):
+                print('skipping', hp_filename)
+                continue
             hps = pickle.load(open(hp_filename, "rb"))
             hp_dfs.append(pd.DataFrame(hps, index=[i]))
 
@@ -425,14 +430,14 @@ class Model(object):
             opt_dfs.append(opt_df_i)
 
             # Calculate evaluation statistics
-            conv_its = opt_df_i['converged']
+            conv_its = opt_df_i['converged'] == True
             if (np.sum(conv_its) > 0):
-                Hs[i] = np.nan
+                Hs.append(np.nan)
             else:
-                Hs[i] = np.max(opt_df_i.loc[conv_its, 'H'])
-    
+                Hs.append(np.max(opt_df_i.loc[conv_its, 'H']))
+
         hp_df = pd.concat(hp_dfs, sort=False)
-        hp_df['H'] = Hs
+        hp_df['H'] = np.array(Hs)
         opt_df = pd.concat(opt_dfs, sort=False)
 
         # Plot optimization diagnostics.
@@ -449,6 +454,14 @@ class Model(object):
         plt.show()
 
         # Plot scatters of hyperparameters with stats.
+        arch_types = hp_df['arch_type'].unique()
+        for arch_type in arch_types:
+            hp_df_arch = hp_df[hp_df['arch_type'] == arch_type]
+            for i, col in enumerate(hp_df_arch.columns[1:]):
+                print(i, col)
+                hp_df.plot.scatter(col, 'H')
+                if (i==2):
+                    break
 
         return hp_df, opt_df
 
