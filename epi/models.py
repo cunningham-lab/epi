@@ -362,10 +362,12 @@ class Model(object):
 
             if k < K:
                 # Check for convergence if early stopping.
-                if (stop_early):
-                    R_means = get_R_mean_dist(nf, self.eps, mu_colvec, M_test, N_test)
-                    if self.test_convergence(R_means.numpy(), alpha):
-                        break
+                R_means = get_R_mean_dist(nf, self.eps, mu_colvec, M_test, N_test)
+                converged = self.test_convergence(R_means.numpy(), alpha)
+                last_ind = (opt_it_dfs[0]['k']==k) & (opt_it_dfs[0]['iteration']==num_iters)
+                opt_it_dfs[0].loc[last_ind, 'converged'] = converged
+                if stop_early and converged:
+                    break
 
                 # Update eta and c
                 eta = eta + c * R
@@ -393,6 +395,58 @@ class Model(object):
         q_theta = Distribution(nf, self.parameters)
 
         return q_theta, opt_it_dfs[0], ckpt_dir
+
+    def plot_epi_hpsearch(self, mu, alpha=0.05, nu=0.1):
+        epi_dir = self.get_epi_path(mu)
+        if (not os.path.exists(epi_dir)):
+            raise IOError("Directory %s does not exist." % epi_dir)
+        opt_dirs = os.listdir(epi_dir)
+        n = len(opt_dirs)
+        if (n == 0):
+            raise IOError("No optimizations in %s." % epi_dir)
+        Hs = np.zeros(n)
+        hp_dfs = []
+        opt_dfs = []
+        for i, opt_dir in enumerate(opt_dirs):
+            # Parse hp file.
+            hp_filename = epi_dir + opt_dir + '/hps.p'
+            hps = pickle.load(open(hp_filename, "rb"))
+            hp_dfs.append(pd.DataFrame(hps, index=[i]))
+
+            # Parse opt data file.
+            opt_filename = epi_dir + opt_dir + '/opt_data.csv'
+            opt_df_i = pd.read_csv(opt_filename)
+            opt_df_i['hp'] = opt_dir
+            opt_dfs.append(opt_df_i)
+
+            # Calculate evaluation statistics
+            print(opt_df_i.head())
+            conv_its = opt_df_i['converged']
+            if (np.sum(conv_its) > 0):
+                Hs[i] = np.nan
+            else:
+                Hs[i] = np.max(opt_df_i.loc[conv_its, 'H'])
+    
+        hp_df = pd.concat(hp_dfs, sort=False)
+        hp_df['H'] = Hs
+        opt_df = pd.concat(opt_dfs, sort=False)
+
+        # Plot optimization diagnostics.
+        m = mu.shape[0]
+        hps = opt_df['hp'].unique()
+        fig, axs = plt.subplots(m+1, 1, figsize=(10,m*3))
+        for hp in hps:
+            opt_df_hp = opt_df[opt_df['hp'] == hp]
+            axs[0].plot(opt_df_hp['iteration'], opt_df_hp['H'], label=hp)
+            axs[0].set_ylabel(r'$H(q_\theta)$')
+            for i in range(m):
+                axs[i+1].plot(opt_df_hp['iteration'], opt_df_hp['R%d' % (i+1)])
+                axs[i+1].set_ylabel(r'$R(q_\theta)_{%d}$' % (i+1))
+        plt.show()
+
+        # Plot scatters of hyperparameters with stats.
+
+        return hp_df, opt_df
 
     def _save_hps(self, ckpt_dir, nf, aug_lag_hps, init_type, init_params):
         """Save hyperparameters to save directory.
@@ -621,7 +675,7 @@ class Model(object):
         return np.prod(p_vals > (alpha / m))
 
     def _opt_it_df(self, k, iter, H, R, R_keys):
-        d = {"k": k, "iteration": iter, "H": H}
+        d = {"k": k, "iteration": iter, "H": H, "converged":None}
         d.update(zip(R_keys, list(R)))
         return pd.DataFrame(d, index=[0])
 
@@ -630,6 +684,16 @@ class Model(object):
         opt_df.to_csv(save_path + "opt_data.csv")
 
     def get_save_path(self, mu, arch, AL_hps, eps_name=None):
+        epi_path = self.get_epi_path(mu)
+        arch_string = arch.to_string()
+        hp_string = AL_hps.to_string()
+        return "data/%s/%s_%s/" % (
+            epi_path,
+            arch_string,
+            hp_string,
+        )
+
+    def get_epi_path(self, mu, eps_name=None):
         if eps_name is not None:
             _eps_name = eps_name
         else:
@@ -638,15 +702,12 @@ class Model(object):
             else:
                 raise AttributeError("Model.eps is not set.")
         mu_string = array_str(mu)
-        arch_string = arch.to_string()
-        hp_string = AL_hps.to_string()
-        return "data/%s_%s_mu=%s/%s_%s/" % (
+        return "data/%s_%s_mu=%s/" % (
             self.name,
             _eps_name,
             mu_string,
-            arch_string,
-            hp_string,
         )
+
 
     def load_epi_dist(
         self,
