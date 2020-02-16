@@ -540,10 +540,10 @@ class Model(object):
         zs = z_file["zs"]
         log_q_zs = z_file["log_q_zs"]
         iters = z_file["iterations"]
-        if not np.isclose(iters, opt_data_df["iteration"]).all():
+        """if not np.isclose(iters, opt_data_df["iteration"]).all():
             raise IOError(
                 "Sample logging and optimization diagnostic files are not synced by iteration."
-            )
+            )"""
         Hs = opt_data_df["H"]
         R_keys = []
         for key in opt_data_df.columns:
@@ -555,7 +555,7 @@ class Model(object):
         _iters = [iters[0]]
         _Hs = [Hs[0]]
         z = zs[0]
-        N_frames = len(iters)
+        N_frames = min(len(iters), opt_df.shape[0])
         ylab_x = -0.1
         ylab_y = 0.6
 
