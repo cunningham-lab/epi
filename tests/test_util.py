@@ -14,6 +14,7 @@ from epi.util import (
     aug_lag_vars,
     unbiased_aug_grad,
     AugLagHPs,
+    sample_aug_lag_hps,
 )
 from epi.example_eps import linear2D_freq, linear2D_freq_np
 import pytest
@@ -412,7 +413,55 @@ def test_AugLagHPs():
     with raises(ValueError):
         AugLagHPs(beta=-1.)
 
+def test_sample_aug_lag_hps():
+    N_bounds = [100, 500]
+    lr_bounds = [1e-3, 0.5]
+    c0_bounds = [1e-10, 1e-6]
+    gamma_bounds = [0.25, 0.4]
 
+    n = 100
+    aug_lag_hps = sample_aug_lag_hps(n)
 
+    aug_lag_hps = sample_aug_lag_hps(n, N_bounds, lr_bounds, c0_bounds, gamma_bounds)
+    for i in range(n):
+        aug_lag_hp = aug_lag_hps[i]
+        assert aug_lag_hp.N >= N_bounds[0]
+        assert aug_lag_hp.N < N_bounds[1]
+        assert aug_lag_hp.lr >= lr_bounds[0]
+        assert aug_lag_hp.lr < lr_bounds[1]
+        assert aug_lag_hp.c0 >= c0_bounds[0]
+        assert aug_lag_hp.c0 < c0_bounds[1]
+        assert aug_lag_hp.gamma >= gamma_bounds[0]
+        assert aug_lag_hp.gamma < gamma_bounds[1]
+        assert aug_lag_hp.beta == 1. / aug_lag_hp.gamma
+
+    with raises(TypeError):
+        sample_aug_lag_hps(n, N_bounds='foo')
+        
+    with raises(ValueError):
+        sample_aug_lag_hps(n, N_bounds=[1, 2, 3])
+
+    with raises(ValueError):
+        sample_aug_lag_hps(n, N_bounds=[2, 1])
+
+    with raises(ValueError):
+        sample_aug_lag_hps(n, N_bounds=[2, 100])
+
+    with raises(ValueError):
+        sample_aug_lag_hps(n, N_bounds=[2, 100])
+
+    with raises(ValueError):
+        sample_aug_lag_hps(n, lr_bounds=[-.1, .1])
+
+    with raises(ValueError):
+        sample_aug_lag_hps(n, c0_bounds=[-.1, .1])
+
+    with raises(ValueError):
+        sample_aug_lag_hps(n, gamma_bounds=[-.1, .1])
+
+    return None
+
+if __name__ == "__main__":
+    test_sample_aug_lag_hps()
 
 

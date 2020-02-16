@@ -326,6 +326,7 @@ class AugLagHPs:
     :param beta: L-2 norm magnitude increase factor.
     :type beta: float, optional
     """
+
     def __init__(self, N=1000, lr=1e-3, c0=1.0, gamma=0.25, beta=4.0):
         self._set_N(N)
         self._set_lr(lr)
@@ -341,28 +342,28 @@ class AugLagHPs:
         self.N = N
 
     def _set_lr(self, lr):
-        if type(lr) is not float:
+        if type(lr) not in [float, np.float32, np.float64]:
             raise TypeError(format_type_err_msg(self, "lr", lr, float))
         elif lr < 0.0:
             raise ValueError("lr %.2E must be greater than 0." % lr)
         self.lr = lr
 
     def _set_c0(self, c0):
-        if type(c0) is not float:
+        if type(c0) not in [float, np.float32, np.float64]:
             raise TypeError(format_type_err_msg(self, "c0", c0, float))
         elif c0 < 0.0:
             raise ValueError("c0 %.2E must be greater than 0." % c0)
         self.c0 = c0
 
     def _set_gamma(self, gamma):
-        if type(gamma) is not float:
+        if type(gamma) not in [float, np.float32, np.float64]:
             raise TypeError(format_type_err_msg(self, "gamma", gamma, float))
         elif gamma < 0.0:
             raise ValueError("gamma %.2E must be greater than 0." % gamma)
         self.gamma = gamma
 
     def _set_beta(self, beta):
-        if type(beta) is not float:
+        if type(beta) not in [float, np.float32, np.float64]:
             raise TypeError(format_type_err_msg(self, "beta", beta, float))
         elif beta < 0.0:
             raise ValueError("beta %.2E must be greater than 0." % beta)
@@ -381,3 +382,60 @@ class AugLagHPs:
             self.gamma,
             self.beta,
         )
+
+
+def sample_aug_lag_hps(
+    n,
+    N_bounds=[200, 1000],
+    lr_bounds=[1e-4, 1e-2],
+    c0_bounds=[1e-3, 1e3],
+    gamma_bounds=[0.1, 0.5],
+):
+    """Samples augmented Lagrangian parameters from uniform distribution.
+
+    :param N_bounds: Bounds on batch size.
+    """
+
+    def check_bound_param(bounds, param_name):
+        if type(bounds) not in [list, tuple]:
+            raise TypeError(
+                format_type_err_msg("sample_aug_lag_hps", param_name, bounds, list)
+            )
+        if len(bounds) != 2:
+            raise ValueError("Bound should be length 2.")
+        if bounds[1] < bounds[0]:
+            raise ValueError("Bounds are not ordered correctly: bounds[1] < bounds[0].")
+        return None
+
+    check_bound_param(N_bounds, "N_bounds")
+    check_bound_param(lr_bounds, "lr_bounds")
+    check_bound_param(c0_bounds, "c0_bounds")
+    check_bound_param(gamma_bounds, "gamma_bounds")
+
+    if N_bounds[0] < 10:
+        raise ValueError(
+            "Batch size should be greater than 10. Lower bound set to %d." % N_bounds[0]
+        )
+    if lr_bounds[0] < 0.0:
+        raise ValueError(
+            "Learning rate must be positive. Lower bound set to %.2E." % lr_bounds[0]
+        )
+    if c0_bounds[0] <= 0.0:
+        raise ValueError(
+            "Initial augmented Lagrangian coefficient c0 must be positive. Lower bound set to %.2E."
+            % c0_bounds[0]
+        )
+    if gamma_bounds[0] < 0.0 or gamma_bounds[1] > 1.0:
+        raise ValueError("gamma parameter must be from 0 to 1.")
+
+    aug_lag_hps = []
+    for i in range(n):
+        N = np.random.randint(N_bounds[0], N_bounds[1])
+        lr = np.exp(np.random.uniform(np.log(lr_bounds[0]), np.log(lr_bounds[1])))
+        c0 = np.exp(np.random.uniform(np.log(c0_bounds[0]), np.log(c0_bounds[1])))
+        gamma = np.random.uniform(gamma_bounds[0], gamma_bounds[1])
+        beta = 1.0 / gamma
+        aug_lag_hp_i = AugLagHPs(N, lr, c0, gamma, beta)
+        aug_lag_hps.append(aug_lag_hp_i)
+
+    return aug_lag_hps
