@@ -688,7 +688,6 @@ class Model(object):
         arch_string = arch.to_string()
         hp_string = AL_hps.to_string()
         return epi_path + "/%s_%s/" % (
-            epi_path,
             arch_string,
             hp_string,
         )
