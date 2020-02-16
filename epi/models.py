@@ -262,7 +262,7 @@ class Model(object):
         aug_lag_hps = AugLagHPs(N, lr, c0, gamma, beta)
 
         # Initialize architecture to gaussian.
-        print("Initializing %s architecture." % nf.to_string())
+        print("Initializing %s architecture." % nf.to_string(), flush=True)
         nf.initialize(init_type, init_params)
 
         # Checkpoint the initialization.
@@ -271,7 +271,7 @@ class Model(object):
         ckpt_dir = self.get_save_path(mu, nf, aug_lag_hps)
         manager = tf.train.CheckpointManager(ckpt, directory=ckpt_dir, max_to_keep=None)
         manager.save(checkpoint_number=0)
-        print("Saving EPI models to %s." % ckpt_dir)
+        print("Saving EPI models to %s." % ckpt_dir, flush=True)
 
         @tf.function
         def train_step(eta, c):
@@ -337,14 +337,14 @@ class Model(object):
         norms = get_R_norm_dist(nf, self.eps, mu_colvec, M_norm, N)
 
         # EPI optimization
-        print(format_opt_msg(0, 0, cost_0, H_0, R_0))
+        print(format_opt_msg(0, 0, cost_0, H_0, R_0), flush=True)
         for k in range(1, K + 1):
             etas[k - 1], cs[k - 1], eta, c
             for i in range(1, num_iters + 1):
                 cost, H, R, z, log_q_z = train_step(eta, c)
                 if i % log_rate == 0:
                     if verbose:
-                        print(format_opt_msg(k, i, cost, H, R))
+                        print(format_opt_msg(k, i, cost, H, R), flush=True)
                     iter = (k - 1) * num_iters + i
                     opt_it_dfs.append(
                         self._opt_it_df(k, iter, H.numpy(), R.numpy(), R_keys)
@@ -353,7 +353,7 @@ class Model(object):
                         zs.append(z.numpy()[:N_save, :])
                         log_q_zs.append(log_q_z.numpy()[:N_save])
             if not verbose:
-                print(format_opt_msg(k, i, cost, H, R))
+                print(format_opt_msg(k, i, cost, H, R), flush=True)
 
             # Save epi optimization data following aug lag iteration k.
             opt_it_dfs = [pd.concat(opt_it_dfs, ignore_index=True)]
