@@ -415,6 +415,7 @@ class Model(object):
         hp_dfs = []
         opt_dfs = []
         for i, opt_dir in enumerate(opt_dirs):
+            print(i, opt_dir)
             # Parse hp file.
             hp_filename = epi_dir + opt_dir + '/hps.p'
             if (not os.path.exists(hp_filename)):
@@ -448,7 +449,7 @@ class Model(object):
         opt_df = pd.concat(opt_dfs, sort=False)
 
         hps = opt_df['hp'].unique()
-        """
+        
         # Plot optimization diagnostics.
         m = mu.shape[0]
         fig, axs = plt.subplots(m+1, 1, figsize=(10,m*3))
@@ -460,7 +461,6 @@ class Model(object):
                 axs[i+1].plot(opt_df_hp['iteration'], opt_df_hp['R%d' % (i+1)])
                 axs[i+1].set_ylabel(r'$R(q_\theta)_{%d}$' % (i+1))
         plt.show()
-        """
 
         # Plot scatters of hyperparameters with stats.
         arch_types = hp_df['arch_type'].unique()
@@ -555,7 +555,7 @@ class Model(object):
         _iters = [iters[0]]
         _Hs = [Hs[0]]
         z = zs[0]
-        N_frames = min(len(iters), opt_df.shape[0])
+        N_frames = min(len(iters), opt_data_df.shape[0])
         ylab_x = -0.1
         ylab_y = 0.6
 
