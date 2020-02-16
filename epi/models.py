@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 import pandas as pd
 import seaborn as sns
+import pickle
 import time
 import os
 
@@ -224,8 +225,8 @@ class Model(object):
         :type c0: float, optional
         :param gamma: Augmented lagrangian hyperparameter, defaults to 0.25.
         :type gamma: float, optional
-        :param gamma: Augmented lagrangian hyperparameter, defaults to 4.0.
-        :type gamma: float, optional
+        :param beta: Augmented lagrangian hyperparameter, defaults to 4.0.
+        :type beta: float, optional
         :param alpha: P-value threshold for convergence testing, defaults to 0.05.
         :type alpha: float, optional
         :param nu: Fraction of N for convergence testing, defaults to 0.1.
@@ -261,9 +262,8 @@ class Model(object):
         aug_lag_hps = AugLagHPs(N, lr, c0, gamma, beta)
 
         # Initialize architecture to gaussian.
-        print("Initializing architecture..")
+        print("Initializing %s architecture." % nf.to_string())
         nf.initialize(init_type, init_params)
-        print("done")
 
         # Checkpoint the initialization.
         optimizer = tf.keras.optimizers.Adam(lr)
@@ -271,6 +271,7 @@ class Model(object):
         ckpt_dir = self.get_save_path(mu, nf, aug_lag_hps)
         manager = tf.train.CheckpointManager(ckpt, directory=ckpt_dir, max_to_keep=None)
         manager.save(checkpoint_number=0)
+        print("Saving EPI models to %s." % ckpt_dir)
 
         @tf.function
         def train_step(eta, c):
@@ -379,13 +380,45 @@ class Model(object):
 
         if save_movie_data:
             np.savez(
-                ckpt_dir + "zs.npz",
+                ckpt_dir + "movie_data.npz",
                 zs=np.array(zs),
                 log_q_zs=np.array(log_q_zs),
                 iterations=np.arange(0, k * num_iters + 1, log_rate),
             )
+
+        # Save hyperparameters.
+        self._save_hps(ckpt_dir, nf, aug_lag_hps, init_type, init_params)
+
+        # Return optimized distribution.
         q_theta = Distribution(nf, self.parameters)
+
         return q_theta, opt_it_dfs[0], ckpt_dir
+
+    def _save_hps(self, ckpt_dir, nf, aug_lag_hps, init_type, init_params):
+        """Save hyperparameters to save directory.
+
+        :param ckpt_dir: Path the save directory.
+        :type ckpt_dir: str
+        :param nf: Normalizing flow.
+        :type nf: :obj:`epi.normalizing_flows.NormalizingFlow`
+        :param aug_lag_hps: Augmented Lagrangian hyperparameters.
+        :type aug_lag_hps: :obj:`epi.util.AugLagHPs`
+        """
+
+        hps = {'arch_type':nf.arch_type,
+               'num_stages':nf.num_stages,
+               'num_layers':nf.num_layers,
+               'num_units':nf.num_units,
+               'batch_norm':nf.batch_norm,
+               'bn_momentum':nf.bn_momentum,
+               'post_affine':nf.post_affine,
+               'random_seed':nf.random_seed,
+               'init_type':init_type,
+               'init_params':init_params,
+               'aug_lag_hps':aug_lag_hps
+               }
+        pickle.dump(hps, open(ckpt_dir + 'hps.p', "wb"))
+
 
     def epi_opt_movie(self, path):
         """Generate video of EPI optimization.
@@ -396,7 +429,7 @@ class Model(object):
         D = len(self.parameters)
         palette = sns.color_palette()
 
-        z_filename = path + "zs.npz"
+        z_filename = path + "movie_data.npz"
         opt_data_filename = path + "opt_data.csv"
         # Load zs for optimization.
         if os.path.exists(z_filename):

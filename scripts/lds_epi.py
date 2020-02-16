@@ -27,19 +27,28 @@ M = Model("lds", params)
 M.set_eps(linear2D_freq)
 
 # Set the mergent property values
-mu = np.array([0.0, 0.25**2, 2 * np.pi, (0.2 * np.pi)**2])
+mu = np.array([0.0, 0.25**2, 2 * np.pi, (0.1 * 2 * np.pi)**2])
 
 np.random.seed(args.seed)
+num_stages = np.random.randint(1, 5)
+num_layers = np.random.randint(1, 4)
+num_units = np.random.randint(10, 50)
+post_affine = np.random.uniform(0., 1.) < 0.5
+batch_norm = np.random.uniform(0., 1.) < 0.5
+if (batch_norm):
+    bn_momentum = np.random.uniform(0., 1.)
+else:
+    bn_momentum = None
 aug_lag_hps = sample_aug_lag_hps(1, c0_bounds=[1e-4, 1e-1])
 
 init_params = {'loc':0., 'scale':3.}
 q_theta, opt_data, save_path = M.epi(
     mu, 
-    arch_type='autoregressive', 
-    num_stages=1, 
-    num_layers=2,
-    num_units=15,
-    post_affine=True,
+    arch_type='coupling', 
+    num_stages=num_stages,
+    num_layers=num_layers,
+    num_units=num_units,
+    post_affine=post_affine,
     init_params=init_params,
     K = 2, 
     num_iters=1000, 

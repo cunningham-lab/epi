@@ -39,14 +39,19 @@ def linear2D_freq(a11, a12, a21, a22):
     complex_term = 0.5 * tf.sqrt(
         tf.complex(tf.square(c11 + c22) - 4.0 * (c11 * c22 - c12 * c21), 0.0)
     )
-    alpha = real_term + tf.math.real(complex_term)
-    omega = 2.0 * np.pi * tf.math.imag(complex_term)
+    real_lambda = real_term + tf.math.real(complex_term)
+    imag_lambda = tf.math.imag(complex_term)
 
-    mean_alpha = tf.reduce_mean(alpha)
-    mean_omega = tf.reduce_mean(omega)
+    # mean_alpha = tf.reduce_mean(alpha)
+    # mean_omega = tf.reduce_mean(omega)
     T_x = tf.stack(
         # (alpha, tf.square(alpha - mean_alpha), omega, tf.square(omega - mean_omega)),
-        (alpha, tf.square(alpha - 0.0), omega, tf.square(omega - 2.0 * np.pi)),
+        (
+            real_lambda,
+            tf.square(real_lambda - 0.0),
+            imag_lambda,
+            tf.square(imag_lambda - (2.0 * np.pi)),
+        ),
         axis=1,
     )
     return T_x
