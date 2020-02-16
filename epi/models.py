@@ -117,7 +117,7 @@ class Model(object):
         self.parameters = parameters
         self.D = len(parameters)
 
-    def set_eps(self, eps, m):
+    def set_eps(self, eps):
         """Set the emergent property statistic calculation for this model.
 
         The arguments of eps should be batch vectors of univariate parameter
@@ -125,8 +125,6 @@ class Model(object):
 
         :param eps: Emergent property statistics function.
         :type eps: function
-        :param m: Dimensionality of emergent property statistics.
-        :type m: int
         """
         fullargspec = inspect.getfullargspec(eps)
         args = fullargspec.args
@@ -147,9 +145,10 @@ class Model(object):
 
         z = tf.keras.Input(shape=(self.D))
         T_z = self.eps(z)
-        if len(T_z.shape) != 2:
+        T_z_shape = T_z.shape
+        if len(T_z_shape) != 2:
             raise ValueError("Method eps must return tf.Tensor of dimension (N, D).")
-        self.m = m
+        self.m = T_z_shape[1]
         return None
 
     def _get_bounds(self,):

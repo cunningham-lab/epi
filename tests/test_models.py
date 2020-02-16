@@ -102,8 +102,7 @@ def test_epi():
     params = [a11, a12, a21, a22]
 
     M = Model("lds", params)
-    m = 4
-    M.set_eps(linear2D_freq, m)
+    M.set_eps(linear2D_freq)
     q_theta, opt_data, save_path = M.epi(mu, num_iters=100, K=1, save_movie_data=True)
     g = q_theta.plot_dist()
     M.epi_opt_movie(save_path)
@@ -147,7 +146,7 @@ def test_epi():
     # Intentionally swap order in list to insure proper handling.
     params = [a22, a21, a12, a11]
     M = Model("lds2", params)
-    M.set_eps(linear2D_freq, m)
+    M.set_eps(linear2D_freq)
     q_theta, opt_data, save_path = M.epi(mu, K=2, num_iters=100, stop_early=True, verbose=True)
     with raises(IOError):
         M.epi_opt_movie(save_path)
@@ -169,7 +168,7 @@ def test_epi():
     with raises(ValueError):
         def bad_f(a11, a12, a21, a22):
             return a11 + a12 + a21 + a22
-        M.set_eps(bad_f, 1)
+        M.set_eps(bad_f)
 
     params = [a22, a21, a12, a11]
     M = Model("lds2", params)
