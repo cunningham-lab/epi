@@ -384,6 +384,17 @@ class AugLagHPs:
         )
 
 
+def check_bound_param(bounds, param_name):
+    if type(bounds) not in [list, tuple]:
+        raise TypeError(
+            format_type_err_msg("sample_aug_lag_hps", param_name, bounds, list)
+        )
+    if len(bounds) != 2:
+        raise ValueError("Bound should be length 2.")
+    if bounds[1] < bounds[0]:
+        raise ValueError("Bounds are not ordered correctly: bounds[1] < bounds[0].")
+    return None
+
 def sample_aug_lag_hps(
     n,
     N_bounds=[200, 1000],
@@ -395,17 +406,6 @@ def sample_aug_lag_hps(
 
     :param N_bounds: Bounds on batch size.
     """
-
-    def check_bound_param(bounds, param_name):
-        if type(bounds) not in [list, tuple]:
-            raise TypeError(
-                format_type_err_msg("sample_aug_lag_hps", param_name, bounds, list)
-            )
-        if len(bounds) != 2:
-            raise ValueError("Bound should be length 2.")
-        if bounds[1] < bounds[0]:
-            raise ValueError("Bounds are not ordered correctly: bounds[1] < bounds[0].")
-        return None
 
     check_bound_param(N_bounds, "N_bounds")
     check_bound_param(lr_bounds, "lr_bounds")
@@ -438,4 +438,8 @@ def sample_aug_lag_hps(
         aug_lag_hp_i = AugLagHPs(N, lr, c0, gamma, beta)
         aug_lag_hps.append(aug_lag_hp_i)
 
-    return aug_lag_hps
+    if (n==1):
+        return aug_lag_hps[0]
+    else:
+        return aug_lag_hps
+
