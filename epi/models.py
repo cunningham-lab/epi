@@ -421,6 +421,13 @@ class Model(object):
                 print('skipping', hp_filename)
                 continue
             hps = pickle.load(open(hp_filename, "rb"))
+            hps['N'] = hps['aug_lag_hps'].N
+            hps['lr'] = hps['aug_lag_hps'].lr
+            hps['c0'] = hps['aug_lag_hps'].c0
+            hps['gamma'] = hps['aug_lag_hps'].gamma
+            del hps['aug_lag_hps']
+            del hps['init_type']
+            del hps['init_params']
             hp_dfs.append(pd.DataFrame(hps, index=[i]))
 
             # Parse opt data file.
@@ -431,7 +438,7 @@ class Model(object):
 
             # Calculate evaluation statistics
             conv_its = opt_df_i['converged'] == True
-            if (np.sum(conv_its) > 0):
+            if (np.sum(conv_its) == 0):
                 Hs.append(np.nan)
             else:
                 Hs.append(np.max(opt_df_i.loc[conv_its, 'H']))
@@ -440,9 +447,10 @@ class Model(object):
         hp_df['H'] = np.array(Hs)
         opt_df = pd.concat(opt_dfs, sort=False)
 
+        hps = opt_df['hp'].unique()
+        """
         # Plot optimization diagnostics.
         m = mu.shape[0]
-        hps = opt_df['hp'].unique()
         fig, axs = plt.subplots(m+1, 1, figsize=(10,m*3))
         for hp in hps:
             opt_df_hp = opt_df[opt_df['hp'] == hp]
@@ -452,16 +460,33 @@ class Model(object):
                 axs[i+1].plot(opt_df_hp['iteration'], opt_df_hp['R%d' % (i+1)])
                 axs[i+1].set_ylabel(r'$R(q_\theta)_{%d}$' % (i+1))
         plt.show()
+        """
 
         # Plot scatters of hyperparameters with stats.
         arch_types = hp_df['arch_type'].unique()
+        dtypes = hp_df.dtypes
+        Hisnan = hp_df['H'].isna()
+        minH = hp_df['H'].min()
+        numnan = Hisnan.sum()
         for arch_type in arch_types:
+            nrows = 3
+            ncols = 4
+            fig, axs = plt.subplots(3, 4, figsize=(14, 14))
             hp_df_arch = hp_df[hp_df['arch_type'] == arch_type]
-            for i, col in enumerate(hp_df_arch.columns[1:]):
-                print(i, col)
-                hp_df.plot.scatter(col, 'H')
-                if (i==2):
-                    break
+            ind = 1
+            for i in range(nrows):
+                axs[i][0].set_ylabel('H')
+                for j in range(ncols):
+                    col = hp_df.columns[ind]
+                    ind += 1
+                    #if (col in ['batch_norm', 'post_affine']):
+                    #    continue
+                    axs[i][j].scatter(hp_df_arch[col], hp_df_arch['H'])
+                    axs[i][j].scatter(hp_df_arch[col][Hisnan].to_numpy(),
+                                      (minH-1)*np.ones(numnan),
+                                      c='r', marker='x')
+                    axs[i][j].set_xlabel(col)
+        plt.show()
 
         return hp_df, opt_df
 
