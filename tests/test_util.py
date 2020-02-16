@@ -294,7 +294,7 @@ def test_aug_lag_vars():
     a22 = Parameter("a22", bounds)
     params = [a11, a12, a21, a22]
     M = Model("lds", params)
-    M.set_eps(linear2D_freq, 4)
+    M.set_eps(linear2D_freq)
 
     H, R, R1s, R2 = aug_lag_vars(z, log_q_z, M.eps, mu, N)
 
@@ -347,7 +347,7 @@ def test_unbiased_aug_grad():
     a22 = Parameter("a22", bounds)
     params = [a11, a12, a21, a22]
     M = Model("lds", params)
-    M.set_eps(linear2D_freq, 4)
+    M.set_eps(linear2D_freq)
 
     nf = NormalizingFlow(
         arch_type="autoregressive", D=4, num_stages=1, num_layers=2, num_units=15
