@@ -352,6 +352,8 @@ class Model(object):
                     if save_movie_data:
                         zs.append(z.numpy()[:N_save, :])
                         log_q_zs.append(log_q_z.numpy()[:N_save])
+                if (np.isnan(cost)):
+                    break
             if not verbose:
                 print(format_opt_msg(k, i, cost, H, R), flush=True)
 
@@ -366,6 +368,8 @@ class Model(object):
             opt_it_dfs[0].loc[last_ind, 'converged'] = converged
 
             if k < K:
+                if (np.isnan(cost)):
+                    break
                 # Check for convergence if early stopping.
                 if stop_early and converged:
                     break
