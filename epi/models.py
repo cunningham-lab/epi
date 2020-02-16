@@ -687,7 +687,7 @@ class Model(object):
         epi_path = self.get_epi_path(mu)
         arch_string = arch.to_string()
         hp_string = AL_hps.to_string()
-        return "data/%s/%s_%s/" % (
+        return epi_path + "/%s_%s/" % (
             epi_path,
             arch_string,
             hp_string,
