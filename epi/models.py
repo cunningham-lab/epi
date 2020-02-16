@@ -360,12 +360,13 @@ class Model(object):
             self._save_epi_opt(ckpt_dir, opt_it_dfs[0], cs, etas)
             manager.save(checkpoint_number=k)
 
+            R_means = get_R_mean_dist(nf, self.eps, mu_colvec, M_test, N_test)
+            converged = self.test_convergence(R_means.numpy(), alpha)
+            last_ind = (opt_it_dfs[0]['k']==k) & (opt_it_dfs[0]['iteration']==num_iters)
+            opt_it_dfs[0].loc[last_ind, 'converged'] = converged
+
             if k < K:
                 # Check for convergence if early stopping.
-                R_means = get_R_mean_dist(nf, self.eps, mu_colvec, M_test, N_test)
-                converged = self.test_convergence(R_means.numpy(), alpha)
-                last_ind = (opt_it_dfs[0]['k']==k) & (opt_it_dfs[0]['iteration']==num_iters)
-                opt_it_dfs[0].loc[last_ind, 'converged'] = converged
                 if stop_early and converged:
                     break
 
@@ -420,7 +421,6 @@ class Model(object):
             opt_dfs.append(opt_df_i)
 
             # Calculate evaluation statistics
-            print(opt_df_i.head())
             conv_its = opt_df_i['converged']
             if (np.sum(conv_its) > 0):
                 Hs[i] = np.nan
