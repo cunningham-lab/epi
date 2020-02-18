@@ -540,11 +540,11 @@ class Model(object):
         zs = z_file["zs"]
         log_q_zs = z_file["log_q_zs"]
         iters = z_file["iterations"]
-        """if not np.isclose(iters, opt_data_df["iteration"]).all():
-            raise IOError(
-                "Sample logging and optimization diagnostic files are not synced by iteration."
-            )"""
+        
+        N_frames = len(iters)
         Hs = opt_data_df["H"]
+        if (len(Hs) < N_frames) or (not np.isclose(iters, opt_data_df["iteration"][:N_frames]).all()):
+            raise IOError("opt_data.csv incompatible with movie_data.npz.")
         R_keys = []
         for key in opt_data_df.columns:
             if "R" in key:
@@ -555,7 +555,6 @@ class Model(object):
         _iters = [iters[0]]
         _Hs = [Hs[0]]
         z = zs[0]
-        N_frames = min(len(iters), opt_data_df.shape[0])
         ylab_x = -0.1
         ylab_y = 0.6
 
@@ -658,7 +657,6 @@ class Model(object):
                 axs[i + iter_rows, j].set_xticklabels([])
 
         def update(frame):
-            print(frame)
             _iters.append(iters[frame])
             _Hs.append(Hs[frame])
             for i in range(m):
@@ -734,7 +732,7 @@ class Model(object):
         opt_df.to_csv(save_path + "opt_data.csv")
 
     def get_save_path(self, mu, arch, AL_hps, eps_name=None):
-        epi_path = self.get_epi_path(mu)
+        epi_path = self.get_epi_path(mu, eps_name=eps_name)
         arch_string = arch.to_string()
         hp_string = AL_hps.to_string()
         return epi_path + "/%s_%s/" % (
