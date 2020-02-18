@@ -218,68 +218,6 @@ def tf_image_classifier2():
     return model
 
 
-def test_save_and_load_tf_model(tf_image_classifier1, tf_image_classifier2):
-    def tf_var_equal(vars1, vars2):
-        # Make sure some variables are different between the two models.
-        num_vars_diff = 0
-        for var1, var2 in zip(tfic1_vars, tfic2_vars):
-            if not np.isclose(var1.numpy(), var2.numpy()).all():
-                num_vars_diff += 1
-        return num_vars_diff == 0
-
-    tfic1_vars = tf_image_classifier1.trainable_variables
-    tfic2_vars = tf_image_classifier2.trainable_variables
-    num_vars = len(tfic1_vars)
-    assert num_vars > 0
-    assert num_vars == len(tfic2_vars)
-
-    # Parameters of two models should be different.
-    assert not tf_var_equal(tfic1_vars, tfic2_vars)
-
-    model_dir = "./test_models/"
-    if not os.path.exists(model_dir):
-        os.makedirs(model_dir)
-
-    # Save the model parameters with pickle.
-    path1 = model_dir + "tmp_model1"
-    save_tf_model(path1, tfic1_vars)
-    path2 = model_dir + "tmp_model2"
-    save_tf_model(path2, tfic2_vars)
-
-    # Load the variables of each model with each other's values.
-    load_tf_model(path1, tfic2_vars)
-    assert tf_var_equal(tfic1_vars, tfic2_vars)
-    load_tf_model(path2, tfic1_vars)
-    assert not tf_var_equal(tfic1_vars, tfic2_vars)
-
-    with raises(TypeError):
-        save_tf_model(1, tfic1_vars)
-
-    with raises(TypeError):
-        save_tf_model(path1, 1)
-
-    with raises(ValueError):
-        save_tf_model(path1, [])
-
-    with raises(TypeError):
-        load_tf_model(1, tfic1_vars)
-
-    with raises(TypeError):
-        load_tf_model(path1, 1)
-
-    with raises(ValueError):
-        load_tf_model(path1, [])
-
-    with raises(ValueError):
-        load_tf_model("foo", tfic1_vars)
-
-    x = tf.Variable(initial_value=np.random.normal(0, 1, (2, 2)), name="x")
-    with raises(ValueError):
-        load_tf_model(path1, [x])
-
-    return None
-
-
 def test_aug_lag_vars():
     # Test using linear 2D system eps
     N = 100

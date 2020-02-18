@@ -174,67 +174,6 @@ def init_path(arch_string, init_type, init_params):
     return path
 
 
-def save_tf_model(path, variables):
-    """Saves tensorflow model variables via pickle to file at path.
-
-    :param path: Path to file for saving model variables.
-    :type path: str
-    :param variables: List of tensorflow model variables to be saved.
-    :type variables: list
-    """
-    if type(path) is not str:
-        raise TypeError(
-            format_type_err_msg("epi.util.save_tf_model", "path", path, str)
-        )
-    if type(variables) is not list:
-        raise TypeError(
-            format_type_err_msg("epi.util.save_tf_model", "variables", variables, list)
-        )
-    if len(variables) == 0:
-        raise ValueError(
-            "epi.util.save_tf_model must receive nonempty list of variables."
-        )
-
-    d = {}
-    for variable in variables:
-        d[variable.name] = variable.numpy()
-    pickle.dump(d, open(path + ".p", "wb"))
-    return None
-
-
-def load_tf_model(path, variables):
-    """Loads tensorflow model variables via pickle from file at path.
-
-    :param path: Path to file with saved model variables.
-    :type path: str
-    :param variables: List of tensorflow model variables to assign values.
-    :type variables: list
-    """
-    if type(path) is not str:
-        raise TypeError(
-            format_type_err_msg("epi.util.save_tf_model", "path", path, str)
-        )
-    if type(variables) is not list:
-        raise TypeError(
-            format_type_err_msg("epi.util.save_tf_model", "variables", variables, list)
-        )
-    if len(variables) == 0:
-        raise ValueError(
-            "epi.util.save_tf_model must receive nonempty list of variables."
-        )
-
-    filename = path + ".p"
-    if not os.path.exists(filename):
-        raise ValueError("Filename %s does not exist." % filename)
-
-    d = pickle.load(open(filename, "rb"))
-    for variable in variables:
-        if variable.name not in d:
-            raise ValueError("Variable %s not in file %s." % (variable.name, filename))
-        variable.assign(d[variable.name])
-    return None
-
-
 def aug_lag_vars(z, log_q_z, eps, mu, N):
     """Calculate augmented lagrangian variables requiring gradient tape.
 
