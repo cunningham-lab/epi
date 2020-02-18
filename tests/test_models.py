@@ -107,14 +107,14 @@ def test_epi():
     g = q_theta.plot_dist()
     M.epi_opt_movie(save_path)
     opt_data_filename = save_path + 'opt_data.csv'
-    opt_data_df = pd.read_csv(opt_data_filename)
-    opt_data_df['iteration'] = 2*opt_data_df['iteration']
-    opt_data_df.to_csv(opt_data_filename)
 
-    opt_data_cols = ["k", "iteration", "H"] + ["R%d" % i for i in range(1, M.m + 1)]
+    opt_data_cols = ["k", "iteration", "H", "converged"] + ["R%d" % i for i in range(1, M.m + 1)]
     for x, y in zip(opt_data.columns, opt_data_cols):
         assert x == y
 
+    opt_data_df = pd.read_csv(opt_data_filename)
+    opt_data_df['iteration'] = 2*opt_data_df['iteration']
+    opt_data_df.to_csv(opt_data_filename)
     with raises(IOError):
         M.epi_opt_movie(save_path)
     os.remove(opt_data_filename)
@@ -241,5 +241,5 @@ def test_Distribution():
             with raises(TypeError):
                 hess_z = q_theta.hessian('foo')
             
-#if __name__ == '__main__':
-#    test_epi()
+if __name__ == '__main__':
+    test_epi()
