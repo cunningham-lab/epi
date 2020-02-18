@@ -9,8 +9,6 @@ from epi.util import (
     np_column_vec,
     array_str,
     init_path,
-    save_tf_model,
-    load_tf_model,
     aug_lag_vars,
     unbiased_aug_grad,
     AugLagHPs,

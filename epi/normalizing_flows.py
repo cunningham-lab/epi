@@ -15,8 +15,6 @@ from epi.error_formatters import format_type_err_msg
 from epi.util import (
     gaussian_backward_mapping,
     np_column_vec,
-    save_tf_model,
-    load_tf_model,
     init_path,
     array_str,
 )
