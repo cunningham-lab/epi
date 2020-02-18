@@ -42,10 +42,7 @@ def linear2D_freq(a11, a12, a21, a22):
     real_lambda = real_term + tf.math.real(complex_term)
     imag_lambda = tf.math.imag(complex_term)
 
-    # mean_alpha = tf.reduce_mean(alpha)
-    # mean_omega = tf.reduce_mean(omega)
     T_x = tf.stack(
-        # (alpha, tf.square(alpha - mean_alpha), omega, tf.square(omega - mean_omega)),
         (
             real_lambda,
             tf.square(real_lambda - 0.0),
@@ -67,13 +64,13 @@ def linear2D_freq_np(a11, a12, a21, a22):
     eig2_r = np.real(eig2)
     eig2_i = np.imag(eig2)
     if eig1_r >= eig2_r:
-        alpha = eig1_r
+        real_lambda = eig1_r
     else:
-        alpha = eig2_r
+        real_lambda = eig2_r
 
     if eig1_i >= eig2_i:
-        omega = 2 * np.pi * eig1_i
+        imag_lambda = eig1_i
     else:
-        omega = 2 * np.pi * eig2_i
+        imag_lambda = eig2_i
 
-    return alpha, omega
+    return real_lambda, imag_lambda
