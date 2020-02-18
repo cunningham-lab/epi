@@ -620,7 +620,8 @@ class Model(object):
 
         kdes = []
         conts = []
-        kde_scale_fac = 0.1
+        kde_scale_fac = 0.15
+        nlevels = 20
         for i in range(1, D):
             ax_len_i = ax_maxs[i] - ax_mins[i]
             for j in range(i):
@@ -632,8 +633,9 @@ class Model(object):
                 _z = z[:, [i, j]]
                 kde.fit(_z)
                 scores_ij = kde.score_samples(_z)
+                levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 60)[-nlevels:]
                 ax = axs[i + iter_rows][j]
-                cont = ax.tricontour(z[:, i], z[:, j], scores_ij)
+                cont = ax.tricontour(z[:, i], z[:, j], scores_ij, levels=levels)
                 conts.append(cont)
                 ax.set_xlim(ax_mins[i], ax_maxs[i])
                 ax.set_ylim(ax_mins[j], ax_maxs[j])
@@ -645,6 +647,8 @@ class Model(object):
             )
             axs[i + iter_rows][0].yaxis.set_label_coords(D * ylab_x, ylab_y)
             axs[-1][i].set_xlabel(self.parameters[i].name)
+            axs[i+iter_rows][i].set_xlim(ax_mins[i], ax_maxs[i])
+            axs[i+iter_rows][i].set_ylim(ax_mins[i], ax_maxs[i])
 
         for i in range(D):
             for j in range(1, D):
@@ -654,6 +658,7 @@ class Model(object):
                 axs[i + iter_rows, j].set_xticklabels([])
 
         def update(frame):
+            print(frame)
             _iters.append(iters[frame])
             _Hs.append(Hs[frame])
             for i in range(m):
@@ -688,13 +693,14 @@ class Model(object):
                     _z = z[:, [i, j]]
                     kde.fit(_z)
                     scores_ij = kde.score_samples(_z)
+                    levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 60)[-nlevels:]
                     ax = axs[i + iter_rows][j]
-                    cont = ax.tricontour(z[:, i], z[:, j], scores_ij)
+                    cont = ax.tricontour(z[:, i], z[:, j], scores_ij, levels=levels)
                     conts.append(cont)
 
             return lines + scats
 
-        ani = animation.FuncAnimation(fig, update, frames=range(1, N_frames), blit=True)
+        ani = animation.FuncAnimation(fig, update, frames=range(N_frames), blit=True)
 
         Writer = animation.writers["ffmpeg"]
         writer = Writer(fps=30, metadata=dict(artist="Me"), bitrate=1800)
@@ -714,6 +720,8 @@ class Model(object):
         gt = np.sum(R_means > 0.0, axis=0).astype(np.float32)
         lt = np.sum(R_means < 0.0, axis=0).astype(np.float32)
         p_vals = 2 * np.minimum(gt / M, lt / M)
+        print('test_conv', 'thresh = %.3f' % (alpha/m))
+        print('p = ', p_vals)
         return np.prod(p_vals > (alpha / m))
 
     def _opt_it_df(self, k, iter, H, R, R_keys):
