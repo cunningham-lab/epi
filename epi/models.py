@@ -341,7 +341,9 @@ class Model(object):
         for k in range(1, K + 1):
             etas[k - 1], cs[k - 1], eta, c
             for i in range(1, num_iters + 1):
+                time1 = time.time()
                 cost, H, R, z, log_q_z = train_step(eta, c)
+                time2 = time.time()
                 if i % log_rate == 0:
                     if verbose:
                         print(format_opt_msg(k, i, cost, H, R), flush=True)
@@ -718,8 +720,6 @@ class Model(object):
         gt = np.sum(R_means > 0.0, axis=0).astype(np.float32)
         lt = np.sum(R_means < 0.0, axis=0).astype(np.float32)
         p_vals = 2 * np.minimum(gt / M, lt / M)
-        print('test_conv', 'thresh = %.3f' % (alpha/m))
-        print('p = ', p_vals)
         return np.prod(p_vals > (alpha / m))
 
     def _opt_it_df(self, k, iter, H, R, R_keys):
@@ -990,7 +990,7 @@ class Distribution(object):
         g = g.map_upper(plt.scatter, color=cmap(log_q_z_std))
 
         g = g.map_lower(sns.kdeplot)
-        plt.show(False)
+        plt.show()
         return g
 
 

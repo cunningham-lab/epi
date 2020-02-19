@@ -608,7 +608,7 @@ class IntervalFlow(tfp.bijectors.Bijector):
         :param x: Input tensor.
         :type x: tf.Tensor
 
-        :returns: The forward pass of hte interval flow
+        :returns: The forward pass of the interval flow
         :rtype: (tf.Tensor, tf.Tensor)
         """
         tanh_x = tf.tanh(x)
