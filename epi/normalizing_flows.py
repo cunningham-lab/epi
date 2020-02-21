@@ -486,14 +486,14 @@ class NormalizingFlow(tf.keras.Model):
             self.num_units,
         )
 
-        if self.batch_norm:
-            arch_string += "_bnmom=%.2E" % self.bn_momentum
+        #if self.batch_norm:
+        #    arch_string += "_bnmom=%.2E" % self.bn_momentum
 
         if self.post_affine:
             arch_string += "_PA"
 
-        if self.lb is not None and self.ub is not None:
-            arch_string += "_lb=%s_ub=%s" % (array_str(self.lb), array_str(self.ub))
+        #if self.lb is not None and self.ub is not None:
+            #arch_string += "_lb=%s_ub=%s" % (array_str(self.lb), array_str(self.ub))
 
         arch_string += "_rs%d" % self.random_seed
         return arch_string

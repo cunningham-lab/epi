@@ -851,10 +851,11 @@ class Model(object):
         epi_path = self.get_epi_path(mu, eps_name=eps_name)
         arch_string = arch.to_string()
         hp_string = AL_hps.to_string()
-        return epi_path + "/%s_%s/" % (
-            arch_string,
-            hp_string,
-        )
+        return epi_path + "/%s/" % arch_string
+        #return epi_path + "/%s_%s/" % (
+        #    arch_string,
+        #    hp_string,
+        #)
 
     def get_epi_path(self, mu, eps_name=None):
         if eps_name is not None:
@@ -865,10 +866,11 @@ class Model(object):
             else:
                 raise AttributeError("Model.eps is not set.")
         mu_string = array_str(mu)
-        return "data/%s_%s_mu=%s/" % (
+        #return "data/%s_%s_mu=%s/" % (
+        return "data/%s_%s/" % (
             self.name,
             _eps_name,
-            mu_string,
+            #mu_string,
         )
 
 
