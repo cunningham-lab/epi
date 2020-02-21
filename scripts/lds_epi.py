@@ -2,7 +2,7 @@
 
 from epi.models import Model, Parameter
 from epi.example_eps import linear2D_freq
-from epi.util import sample_aug_lag_hps, lds_2D_movie
+from epi.util import sample_aug_lag_hps
 import numpy as np
 import argparse
 
