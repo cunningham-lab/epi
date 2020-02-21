@@ -21,7 +21,7 @@ a12 = Parameter("a12", bounds)
 a21 = Parameter("a21", bounds)
 a22 = Parameter("a22", bounds)
 params = [a11, a12, a21, a22]
-M = Model("lds", params)
+M = Model("lds_2D", params)
 
 # Set the emergent property statistics to frequency.
 M.set_eps(linear2D_freq)
@@ -30,8 +30,8 @@ M.set_eps(linear2D_freq)
 mu = np.array([0.0, 0.5**2, 2 * np.pi, (0.1 * 2 * np.pi)**2])
 
 np.random.seed(args.seed)
-num_stages = np.random.randint(3, 4) 
-num_layers = np.random.randint(2, 3)
+num_stages = np.random.randint(3, 5) 
+num_layers = np.random.randint(2, 4)
 num_units = np.random.randint(15, 30)
 
 init_params = {'loc':0., 'scale':3.}

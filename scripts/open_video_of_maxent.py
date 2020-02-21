@@ -13,13 +13,15 @@ max_H = np.NINF
 max_H_opt = None
 for i, opt_dir in enumerate(opt_dirs):
     opt_data = pd.read_csv(results_dir + '/' + opt_dir + '/opt_data.csv')
-    max_H_i = np.max(opt_data['H'])
+    conv_inds = opt_data['converged'] == True
+    if (sum(conv_inds) == 0):
+        continue
+    Hs = opt_data[conv_inds]['H']
+    max_H_i = Hs.max()
     if max_H_i > max_H:
         max_H = max_H_i
         max_H_opt = opt_dir
 
 print("Best opt was %s with entropy %.2E." % (max_H_opt, max_H))
-print("How do we automatically open the saved video in this folder?")
-print("Or should we just copy the video of the best hyper parameters to a separate S3 bucket or folder where John will await the results during the demo.")
     
   
