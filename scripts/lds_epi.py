@@ -2,7 +2,7 @@
 
 from epi.models import Model, Parameter
 from epi.example_eps import linear2D_freq
-from epi.util import sample_aug_lag_hps
+from epi.util import sample_aug_lag_hps, lds_2D_movie
 import numpy as np
 import argparse
 
@@ -43,9 +43,9 @@ q_theta, opt_data, save_path = M.epi(
     num_units=num_units,
     post_affine=False,
     init_params=init_params,
-    K = 10 
+    K = 10, 
     num_iters=1000, 
-    N=500 
+    N=500,
     lr=1e-3, 
     c0=1e-3, 
     verbose=True,
@@ -56,5 +56,6 @@ q_theta, opt_data, save_path = M.epi(
 print("EPI done.")
 print("Saved to %s." % save_path)
 print("Writing movie...")
-M.epi_opt_movie(save_path)
+z_labels = [r'$a_{11}$', r'$a_{12}$', r'$a_{21}$', r'$a_{22}$']
+lds_2D_movie(save_path, M.parameters, z_labels)
 print("done.")
