@@ -11,7 +11,7 @@ done
 
 # Once all these instances are done running, collect the results.
 echo "collecting results."
-export resultsdir=data/lds_linear2D_freq_mu=0.00E+00_6.25E-02_6.28E+00_3.95E-01
+export resultsdir=data/lds_linear2D_freq_mu=0.00E+00_2.50E-01_6.28E+00_3.95E-01
 python3 open_video_of_maxent.py $resultsdir
 
 

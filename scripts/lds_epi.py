@@ -27,19 +27,12 @@ M = Model("lds", params)
 M.set_eps(linear2D_freq)
 
 # Set the mergent property values
-mu = np.array([0.0, 0.25**2, 2 * np.pi, (0.1 * 2 * np.pi)**2])
+mu = np.array([0.0, 0.5**2, 2 * np.pi, (0.1 * 2 * np.pi)**2])
 
 np.random.seed(args.seed)
-num_stages = np.random.randint(1, 5)
-num_layers = np.random.randint(1, 4)
-num_units = np.random.randint(10, 50)
-post_affine = np.random.uniform(0., 1.) < 0.5
-batch_norm = np.random.uniform(0., 1.) < 0.5
-if (batch_norm):
-    bn_momentum = np.random.uniform(0., 1.)
-else:
-    bn_momentum = None
-aug_lag_hps = sample_aug_lag_hps(1, c0_bounds=[1e-4, 1e-1])
+num_stages = np.random.randint(3, 4) 
+num_layers = np.random.randint(2, 3)
+num_units = np.random.randint(15, 30)
 
 init_params = {'loc':0., 'scale':3.}
 q_theta, opt_data, save_path = M.epi(
@@ -48,18 +41,15 @@ q_theta, opt_data, save_path = M.epi(
     num_stages=num_stages,
     num_layers=num_layers,
     num_units=num_units,
-    post_affine=post_affine,
-    batch_norm=batch_norm,
-    bn_momentum=bn_momentum,
+    post_affine=False,
     init_params=init_params,
-    K = 2, 
+    K = 10 
     num_iters=1000, 
-    N=aug_lag_hps.N, 
-    lr=aug_lag_hps.lr, 
-    c0=aug_lag_hps.c0, 
-    gamma=aug_lag_hps.gamma,
-    beta=aug_lag_hps.beta,
+    N=500 
+    lr=1e-3, 
+    c0=1e-3, 
     verbose=True,
+    stop_early=True,
     log_rate=50,
     save_movie_data=True,
 )
