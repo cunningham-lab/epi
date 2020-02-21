@@ -590,6 +590,8 @@ class Model(object):
         H_ax.set_xticks(xticks)
         H_ax.set_xticklabels(xticks)
         H_ax.spines['bottom'].set_bounds(0, iters[-1])
+        H_ax.spines['right'].set_visible(False)
+        H_ax.spines['top'].set_visible(False)
 
         # Constraint lines
         if (not (self.name == "lds_2D")):
@@ -606,6 +608,8 @@ class Model(object):
         R_ax.set_xticks(xticks)
         R_ax.set_xticklabels(xticks)
         R_ax.spines['bottom'].set_bounds(0, iters[-1])
+        R_ax.spines['right'].set_visible(False)
+        R_ax.spines['top'].set_visible(False)
 
         if (not (self.name == "lds_2D")):
             for j in range(D):
@@ -679,6 +683,8 @@ class Model(object):
                 scats.append(ax.scatter(z[:, j], z[:, i], c=log_q_zs[0], cmap=cmap))
                 ax.set_xlim(ax_mins[j], ax_maxs[j])
                 ax.set_ylim(ax_mins[i], ax_maxs[i])
+                ax.spines['right'].set_visible(False)
+                ax.spines['top'].set_visible(False)
 
         kdes = []
         conts = []
@@ -719,6 +725,8 @@ class Model(object):
             axs[-1][i+scat_j].set_xlabel(z_labels[i], fontsize=fontsize)
             axs[i+scat_i][i+scat_j].set_xlim(ax_mins[i], ax_maxs[i])
             axs[i+scat_i][i+scat_j].set_ylim(ax_mins[i], ax_maxs[i])
+            axs[i+scat_i][i+scat_j].spines['right'].set_visible(False)
+            axs[i+scat_i][i+scat_j].spines['top'].set_visible(False)
 
         for i in range(D):
             for j in range(1, D):
