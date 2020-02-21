@@ -518,10 +518,13 @@ def lds_2D_movie(path, parameters, z_labels=None):
 
     # Plot the matrices
     def get_lds_2D_modes(z, log_q_z):
-        mode1_inds = np.logical_and(z[:,1] > 0., z[:,2] < 0)
-        mode2_inds = np.logical_and(z[:,1] < 0., z[:,2] > 0)
-        mode1_ind = np.argmax(log_q_z[mode1_inds])
-        mode2_ind = np.argmax(log_q_z[mode2_inds])
+        M = log_q_z.shape[0]
+        mode1 = np.logical_and(z[:,1] > 0., z[:,2] < 0)
+        mode1_inds = np.arange(M)[mode1]
+        mode2 = np.logical_and(z[:,1] < 0., z[:,2] > 0)
+        mode2_inds = np.arange(M)[mode2]
+        mode1_ind = mode1_inds[np.argmax(log_q_z[mode1])]
+        mode2_ind = mode2_inds[np.argmax(log_q_z[mode2])]
         return np.reshape(z[mode1_ind], (2,2)), np.reshape(z[mode2_ind], (2,2))
 
     mode1, mode2 = get_lds_2D_modes(z, log_q_z)
@@ -546,10 +549,11 @@ def lds_2D_movie(path, parameters, z_labels=None):
 
     kdes = []
     conts = []
-    kde_scale_fac = 0.15
-    nlevels = 20
+    kde_scale_fac = 0.1
+    num_grid = 100
     for i in range(1, D):
         ax_len_i = ax_maxs[i] - ax_mins[i]
+        grid_xs = np.linspace(ax_mins[i], ax_maxs[i], num_grid)
         for j in range(i):
             ax_len_j = ax_maxs[i] - ax_mins[i]
             kde = KernelDensity(
@@ -557,11 +561,17 @@ def lds_2D_movie(path, parameters, z_labels=None):
                 bandwidth=kde_scale_fac * (ax_len_i + ax_len_j) / 2.0,
             )
             _z = z[:, [i, j]]
-            kde.fit(_z)
-            scores_ij = kde.score_samples(_z)
-            levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 60)[-nlevels:]
+            kde.fit(_z, log_q_z)
+            grid_ys = np.linspace(ax_mins[j], ax_maxs[j], num_grid)
+            z_grid = np.meshgrid(grid_xs, grid_ys)
+            z_grid_mat = np.stack([np.reshape(z_grid[0], (num_grid**2)),
+                               np.reshape(z_grid[1], (num_grid**2))],
+                              axis=1)
+            scores_ij = kde.score_samples(z_grid_mat)
+            scores_ij = np.reshape(scores_ij, (num_grid, num_grid))
             ax = axs[i][j+4]
-            cont = ax.tricontour(z[:, i], z[:, j], scores_ij, levels=levels)
+            levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 20)
+            cont = ax.contourf(z_grid[0], z_grid[1], scores_ij, levels=levels)
             conts.append(cont)
             ax.set_xlim(ax_mins[i], ax_maxs[i])
             ax.set_ylim(ax_mins[j], ax_maxs[j])
@@ -622,14 +632,22 @@ def lds_2D_movie(path, parameters, z_labels=None):
 
         _ind = 0
         for i in range(1, D):
+            grid_x = np.linspace(ax_mins[i], ax_maxs[i], num_grid)
             for j in range(i):
+                grid_ys = np.linspace(ax_mins[j], ax_maxs[j], num_grid)
                 kde = kdes[_ind]
                 _z = z[:, [i, j]]
-                kde.fit(_z)
-                scores_ij = kde.score_samples(_z)
-                levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 60)[-nlevels:]
+                kde.fit(_z, log_q_z)
+                grid_ys = np.linspace(ax_mins[j], ax_maxs[j], num_grid)
+                z_grid = np.meshgrid(grid_xs, grid_ys)
+                z_grid_mat = np.stack([np.reshape(z_grid[0], (num_grid**2)),
+                                   np.reshape(z_grid[1], (num_grid**2))],
+                                  axis=1)
+                scores_ij = kde.score_samples(z_grid_mat)
+                scores_ij = np.reshape(scores_ij, (num_grid, num_grid))
                 ax = axs[i][j+4]
-                cont = ax.tricontour(z[:, i], z[:, j], scores_ij, levels=levels)
+                levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 20)
+                cont = ax.contourf(z_grid[0], z_grid[1], scores_ij, levels=levels)
                 conts.append(cont)
 
         return lines + scats
@@ -641,9 +659,3 @@ def lds_2D_movie(path, parameters, z_labels=None):
 
     ani.save(path + "epi_opt.mp4", writer=writer)
     return None
-
-
-
-
-
-

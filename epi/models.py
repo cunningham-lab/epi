@@ -621,10 +621,12 @@ class Model(object):
 
         kdes = []
         conts = []
-        kde_scale_fac = 0.15
+        kde_scale_fac = 0.1
         nlevels = 20
+        num_grid
         for i in range(1, D):
             ax_len_i = ax_maxs[i] - ax_mins[i]
+            grid_xs = np.linspace(ax_mins[i], ax_maxs[i], num_grid)
             for j in range(i):
                 ax_len_j = ax_maxs[i] - ax_mins[i]
                 kde = KernelDensity(
@@ -632,11 +634,16 @@ class Model(object):
                     bandwidth=kde_scale_fac * (ax_len_i + ax_len_j) / 2.0,
                 )
                 _z = z[:, [i, j]]
-                kde.fit(_z)
-                scores_ij = kde.score_samples(_z)
-                levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 60)[-nlevels:]
+                kde.fit(_z, log_q_z)
+                grid_ys = np.linspace(ax_mins[j], ax_maxs[j], num_grid)
+                z_grid = np.meshgrid(grid_xs, grid_ys)
+                z_grid = np.stack([np.reshape(z_grid[0], (num_grid**2)), 
+                                   np.reshape(z_grid[1], (num_grid**2))],
+                                  axis=1)
+                scores_ij = kde.score_samples(z_grid)
+                #levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 60)[-nlevels:]
                 ax = axs[i + iter_rows][j]
-                cont = ax.tricontour(z[:, i], z[:, j], scores_ij, levels=levels)
+                cont = ax.tricontour(z_grid[:, i], z_grid[:, j], scores_ij)
                 conts.append(cont)
                 ax.set_xlim(ax_mins[i], ax_maxs[i])
                 ax.set_ylim(ax_mins[j], ax_maxs[j])
