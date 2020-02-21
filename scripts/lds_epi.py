@@ -56,6 +56,5 @@ q_theta, opt_data, save_path = M.epi(
 print("EPI done.")
 print("Saved to %s." % save_path)
 print("Writing movie...")
-z_labels = [r'$a_{11}$', r'$a_{12}$', r'$a_{21}$', r'$a_{22}$']
-lds_2D_movie(save_path, M.parameters, z_labels)
+M.epi_opt_movie(save_path)
 print("done.")

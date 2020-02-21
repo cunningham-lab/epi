@@ -14,6 +14,7 @@ from epi.util import (
     AugLagHPs,
     array_str,
     np_column_vec,
+    plot_square_mat,
 )
 import matplotlib.pyplot as plt
 from matplotlib import animation
@@ -526,6 +527,7 @@ class Model(object):
         """
         D = len(self.parameters)
         palette = sns.color_palette()
+        fontsize = 22
 
         z_filename = path + "movie_data.npz"
         opt_data_filename = path + "opt_data.csv"
@@ -542,7 +544,6 @@ class Model(object):
         zs = z_file["zs"]
         log_q_zs = z_file["log_q_zs"]
         iters = z_file["iterations"]
-        
         N_frames = len(iters)
         Hs = opt_data_df["H"]
         if (len(Hs) < N_frames) or (not np.isclose(iters, opt_data_df["iteration"][:N_frames]).all()):
@@ -557,32 +558,85 @@ class Model(object):
         _iters = [iters[0]]
         _Hs = [Hs[0]]
         z = zs[0]
-        ylab_x = -0.1
+        log_q_z = log_q_zs[0]
+        ylab_x = -0.075
         ylab_y = 0.6
 
-        iter_rows = 3
+        if (not (self.name == "lds_2D")):
+            iter_rows = 3
+            z_labels = [param.name for param in self.parameters]
+            fig, axs = plt.subplots(D + iter_rows, D, figsize=(9, 12))
+            H_ax = plt.subplot(D + iter_rows, 1, 1)
+        else:
+            z_labels = [r'$a_{11}$', r'$a_{12}$', r'$a_{21}$', r'$a_{22}$']
+            fig, axs = plt.subplots(4, 8, figsize=(16, 8))
+            H_ax = plt.subplot(4, 2, 1)
+            mode1s = []
+            mode2s = []
+            wsize = 100
+
         # Entropy lines
-        fig, axs = plt.subplots(D + iter_rows, D, figsize=(9, 12))
-        H_ax = plt.subplot(D + iter_rows, 1, 1)
-        H_ax.set_xlim(0, iters[-1])
+        x_end = 1.25*iters[-1]
+        num_iters = opt_data_df[opt_data_df['k']==1]['iteration'].max()
+        K = opt_data_df['k'].max()
+        log_rate = opt_data_df['iteration'][1]
+        xticks = num_iters*np.arange(K+1)
+        H_ax.set_xlim(0, x_end)
         min_H, max_H = np.min(Hs), np.max(Hs)
         H_ax.set_ylim(min_H, max_H)
         H_line, = H_ax.plot(_iters, _Hs, c=palette[0])
-        H_ax.set_ylabel(r"$H(q_\theta)$", rotation="horizontal")
+        H_ax.set_ylabel(r"$H(q_\theta)$", rotation="horizontal", fontsize=fontsize)
         H_ax.yaxis.set_label_coords(ylab_x, ylab_y)
+        H_ax.set_xticks(xticks)
+        H_ax.set_xticklabels(xticks)
+        H_ax.spines['bottom'].set_bounds(0, iters[-1])
 
         # Constraint lines
-        R_ax = plt.subplot(D + iter_rows, 1, 2)
+        if (not (self.name == "lds_2D")):
+            R_ax = plt.subplot(D + iter_rows, 1, 2)
+        else:
+            R_ax = plt.subplot(4, 2, 3)
         R_ax.set_xlim(0, iters[-1])
         min_R, max_R = np.min(R), np.max(R)
-
+        R_ax.set_xlim(0, x_end)
         R_ax.set_ylim(min_R, max_R)
-        R_ax.set_ylabel(r"$R(q_\theta)$", rotation="horizontal")
+        R_ax.set_ylabel(r"$R(q_\theta)$", rotation="horizontal", fontsize=fontsize)
         R_ax.yaxis.set_label_coords(ylab_x, ylab_y)
-        R_ax.set_xlabel("iterations")
+        R_ax.set_xlabel("iterations", fontsize=(fontsize-2))
+        R_ax.set_xticks(xticks)
+        R_ax.set_xticklabels(xticks)
+        R_ax.spines['bottom'].set_bounds(0, iters[-1])
 
-        for j in range(D):
-            axs[2, j].axis("off")
+        if (not (self.name == "lds_2D")):
+            for j in range(D):
+                axs[2, j].axis("off")
+        else:
+            # Plot the matrices
+            def get_lds_2D_modes(z, log_q_z):
+                M = log_q_z.shape[0]
+                mode1 = np.logical_and(z[:,1] > 0., z[:,2] < 0)
+                mode1_inds = np.arange(M)[mode1]
+                mode2 = np.logical_and(z[:,1] < 0., z[:,2] > 0)
+                mode2_inds = np.arange(M)[mode2]
+                mode1_ind = mode1_inds[np.argmax(log_q_z[mode1])]
+                mode2_ind = mode2_inds[np.argmax(log_q_z[mode2])]
+                return np.reshape(z[mode1_ind], (2,2)), np.reshape(z[mode2_ind], (2,2))
+
+            sqmat_xlims1 = [-.2, 1.25]
+            sqmat_xlims2 = [-.05, 1.4]
+            sqmat_ylims = [-0.05, 1.4]
+            mode1, mode2 = get_lds_2D_modes(z, log_q_z)
+            mode1s.append(mode1)
+            mode2s.append(mode2)
+            lw=5
+            gray = 0.4*np.ones(3)
+            bfrac=0.05
+            mat_ax = plt.subplot(2, 4, 5)
+            texts = plot_square_mat(mat_ax, mode1, c=gray, lw=lw, fontsize=24, bfrac=bfrac, title="mode 1",
+                                    xlims=sqmat_xlims1, ylims=sqmat_ylims)
+            mat_ax = plt.subplot(2, 4, 6)
+            texts += plot_square_mat(mat_ax, mode2, c=gray, lw=lw, fontsize=24, bfrac=bfrac, title="mode 2",
+                                     xlims=sqmat_xlims2, ylims=sqmat_ylims)
 
         R_lines = []
         _Rs = []
@@ -590,7 +644,7 @@ class Model(object):
             _Rs.append([R[0, i]])
             R_line, = R_ax.plot(_iters, _Rs[i], label=R_keys[i], c=palette[i + 1])
             R_lines.append(R_line)
-        R_ax.legend()
+        R_ax.legend(loc=9)
 
         lines = [H_line] + R_lines
 
@@ -612,9 +666,16 @@ class Model(object):
         # Collect scatters
         cmap = plt.get_cmap("viridis")
         scats = []
+        if (not (self.name == "lds_2D")):
+            scat_i = iter_rows
+            scat_j = 0
+        else:
+            scat_i = 0
+            scat_j = 4
+
         for i in range(D - 1):
             for j in range(i + 1, D):
-                ax = axs[i + iter_rows][j]
+                ax = axs[i + scat_i][j + scat_j]
                 scats.append(ax.scatter(z[:, j], z[:, i], c=log_q_zs[0], cmap=cmap))
                 ax.set_xlim(ax_mins[j], ax_maxs[j])
                 ax.set_ylim(ax_mins[i], ax_maxs[i])
@@ -622,12 +683,13 @@ class Model(object):
         kdes = []
         conts = []
         kde_scale_fac = 0.1
-        nlevels = 20
-        num_grid
+        nlevels = 10
+        num_grid = 20
         for i in range(1, D):
             ax_len_i = ax_maxs[i] - ax_mins[i]
             grid_xs = np.linspace(ax_mins[i], ax_maxs[i], num_grid)
             for j in range(i):
+                ax = axs[i + scat_i][j + scat_j]
                 ax_len_j = ax_maxs[i] - ax_mins[i]
                 kde = KernelDensity(
                     kernel="gaussian",
@@ -637,33 +699,33 @@ class Model(object):
                 kde.fit(_z, log_q_z)
                 grid_ys = np.linspace(ax_mins[j], ax_maxs[j], num_grid)
                 z_grid = np.meshgrid(grid_xs, grid_ys)
-                z_grid = np.stack([np.reshape(z_grid[0], (num_grid**2)), 
+                z_grid_mat = np.stack([np.reshape(z_grid[0], (num_grid**2)),
                                    np.reshape(z_grid[1], (num_grid**2))],
                                   axis=1)
-                scores_ij = kde.score_samples(z_grid)
-                #levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 60)[-nlevels:]
-                ax = axs[i + iter_rows][j]
-                cont = ax.tricontour(z_grid[:, i], z_grid[:, j], scores_ij)
+                scores_ij = kde.score_samples(z_grid_mat)
+                scores_ij = np.reshape(scores_ij, (num_grid, num_grid))
+                levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 20)
+                cont = ax.contourf(z_grid[0], z_grid[1], scores_ij, levels=levels)
                 conts.append(cont)
                 ax.set_xlim(ax_mins[i], ax_maxs[i])
                 ax.set_ylim(ax_mins[j], ax_maxs[j])
                 kdes.append(kde)
 
         for i in range(D):
-            axs[i + iter_rows][0].set_ylabel(
-                self.parameters[i].name, rotation="horizontal"
+            axs[i + scat_i][scat_j].set_ylabel(
+                z_labels[i], rotation="horizontal", fontsize=fontsize,
             )
-            axs[i + iter_rows][0].yaxis.set_label_coords(D * ylab_x, ylab_y)
-            axs[-1][i].set_xlabel(self.parameters[i].name)
-            axs[i+iter_rows][i].set_xlim(ax_mins[i], ax_maxs[i])
-            axs[i+iter_rows][i].set_ylim(ax_mins[i], ax_maxs[i])
+            axs[i + scat_i][scat_j].yaxis.set_label_coords(D * ylab_x, ylab_y)
+            axs[-1][i+scat_j].set_xlabel(z_labels[i], fontsize=fontsize)
+            axs[i+scat_i][i+scat_j].set_xlim(ax_mins[i], ax_maxs[i])
+            axs[i+scat_i][i+scat_j].set_ylim(ax_mins[i], ax_maxs[i])
 
         for i in range(D):
             for j in range(1, D):
-                axs[i + iter_rows, j].set_yticklabels([])
+                axs[i + scat_i, j + scat_j].set_yticklabels([])
         for i in range(D - 1):
             for j in range(D):
-                axs[i + iter_rows, j].set_xticklabels([])
+                axs[i + scat_i, j + scat_j].set_xticklabels([])
 
         def update(frame):
             _iters.append(iters[frame])
@@ -688,6 +750,20 @@ class Model(object):
                     scats[_ind].set_color(cmap(cvals))
                     _ind += 1
 
+            # Update modes.
+            if (self.name == "lds_2D"):
+                mode1, mode2 = get_lds_2D_modes(z, log_q_z)
+                mode1s.append(mode1)
+                mode2s.append(mode2)
+                mode1_avg = np.mean(np.array(mode1s)[-wsize:,:], axis=0)
+                mode2_avg = np.mean(np.array(mode2s)[-wsize:,:], axis=0)
+                ind = 0
+                for i in range(2):
+                    for j in range(2):
+                        texts[ind].set_text('%.1f' % mode1_avg[i,j])
+                        texts[ind+4].set_text('%.1f' % mode2_avg[i,j])
+                        ind += 1
+
             while conts:
                 cont = conts.pop(0)
                 for coll in cont.collections:
@@ -695,19 +771,44 @@ class Model(object):
 
             _ind = 0
             for i in range(1, D):
+                grid_x = np.linspace(ax_mins[i], ax_maxs[i], num_grid)
                 for j in range(i):
+                    grid_ys = np.linspace(ax_mins[j], ax_maxs[j], num_grid)
                     kde = kdes[_ind]
                     _z = z[:, [i, j]]
-                    kde.fit(_z)
-                    scores_ij = kde.score_samples(_z)
-                    levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 60)[-nlevels:]
-                    ax = axs[i + iter_rows][j]
-                    cont = ax.tricontour(z[:, i], z[:, j], scores_ij, levels=levels)
+                    kde.fit(_z, log_q_z)
+                    grid_ys = np.linspace(ax_mins[j], ax_maxs[j], num_grid)
+                    z_grid = np.meshgrid(grid_xs, grid_ys)
+                    z_grid_mat = np.stack([np.reshape(z_grid[0], (num_grid**2)),
+                                       np.reshape(z_grid[1], (num_grid**2))],
+                                      axis=1)
+                    scores_ij = kde.score_samples(z_grid_mat)
+                    scores_ij = np.reshape(scores_ij, (num_grid, num_grid))
+                    ax = axs[i + scat_i][j + scat_j]
+                    levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 20)
+                    cont = ax.contourf(z_grid[0], z_grid[1], scores_ij, levels=levels)
                     conts.append(cont)
 
             return lines + scats
 
-        ani = animation.FuncAnimation(fig, update, frames=range(N_frames), blit=True)
+        if (self.name == "lds_2D"):
+            frames = []
+            skip = False
+            logs_per_k = num_iters // log_rate
+            for k in range(K):
+                for iter in range(0, logs_per_k):
+                    if (k==0):
+                        frames += 4*[k*logs_per_k + iter]
+                    elif (1 <= k and k <= 2):
+                        frames += 2*[k*logs_per_k + iter]
+                    else:
+                        if not skip:
+                            frames += [k*logs_per_k + iter]
+                        skip = not skip
+        else:
+            frames = range(N_frames)
+
+        ani = animation.FuncAnimation(fig, update, frames=frames, blit=True)
 
         Writer = animation.writers["ffmpeg"]
         writer = Writer(fps=30, metadata=dict(artist="Me"), bitrate=1800)

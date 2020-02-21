@@ -388,10 +388,17 @@ def sample_aug_lag_hps(
     else:
         return aug_lag_hps
 
-def plot_square_mat(ax, A, c='k', lw=4, fontsize=12, bfrac=0.05, title=None):
-    buf = .15
-    ax.set_xlim([-.05, 1+buf])
-    ax.set_ylim([-.05, 1+buf])
+def plot_square_mat(ax, A, c='k', lw=4, fontsize=12, bfrac=0.05, title=None, xlims=None, ylims=None):
+    buf = .3
+    if (xlims is None):
+        ax.set_xlim([-.05, 1+buf])
+    else:
+        ax.set_xlim(xlims)
+    if (ylims is None):
+        ax.set_ylim([-.05, 1+buf])
+    else:
+        ax.set_ylim(ylims)
+
     D = A.shape[0]
     if (len(A) != 2):
         raise ValueError("A is not 2D.")
@@ -401,7 +408,7 @@ def plot_square_mat(ax, A, c='k', lw=4, fontsize=12, bfrac=0.05, title=None):
     ys = np.linspace(1.- 1./(2.*D), 1./(2.*D), D)-.02
 
     shift_x1 = -.18/D
-    shift_x2 = -.35/D
+    shift_x2 = -.25/D
     shift_y1 = +.2/D
     shift_y2 = -.2/D
     texts = []
@@ -417,245 +424,7 @@ def plot_square_mat(ax, A, c='k', lw=4, fontsize=12, bfrac=0.05, title=None):
     ax.plot([1.-bfrac, 1], [0,0], 'k', c=c, lw=lw)
     ax.plot([1.-bfrac, 1], [1,1], 'k', c=c, lw=lw)
     if (title is not None):
-        ax.set_title(title, fontsize=(fontsize-5), pad=-26.)
+        ax.text(0.27, 1.1, title, fontsize=(fontsize-4))
     ax.axis('off')
     return texts
 
-
-def lds_2D_movie(path, parameters, z_labels=None):
-    """Generate video of EPI for 2D lds.
-
-    :param path: Path to folder with optimization data.
-    :type param: str
-    """
-    fontsize=22
-    if (z_labels is None):
-        z_labels = []
-        z_labels = [parameter.name for parameter in parameters]
-    D = len(z_labels)
-    palette = sns.color_palette()
-
-    z_filename = path + "movie_data.npz"
-    opt_data_filename = path + "opt_data.csv"
-    # Load zs for optimization.
-    if os.path.exists(z_filename):
-        z_file = np.load(z_filename)
-    else:
-        raise IOError("File %s does not exist." % z_filename)
-    if os.path.exists(opt_data_filename):
-        opt_data_df = pd.read_csv(opt_data_filename)
-    else:
-        raise IOError("File %s does not exist." % opt_data_filename)
-
-    zs = z_file["zs"]
-    log_q_zs = z_file["log_q_zs"]
-    iters = z_file["iterations"]
-
-    N_frames = len(iters)
-    Hs = opt_data_df["H"]
-    if (len(Hs) < N_frames) or (not np.isclose(iters, opt_data_df["iteration"][:N_frames]).all()):
-        raise IOError("opt_data.csv incompatible with movie_data.npz.")
-    R_keys = []
-    for key in opt_data_df.columns:
-        if "R" in key:
-            R_keys.append(key)
-    m = len(R_keys)
-    R = opt_data_df[R_keys].to_numpy()
-
-    _iters = [iters[0]]
-    _Hs = [Hs[0]]
-    z = zs[0]
-    log_q_z = log_q_zs[0]
-    ylab_x = -0.075
-    ylab_y = 0.6
-
-    iter_rows = 3
-    # Entropy lines
-    fig, axs = plt.subplots(4, 8, figsize=(16, 8))
-    H_ax = plt.subplot(4, 2, 1)
-    H_ax.set_xlim(0, iters[-1])
-    min_H, max_H = np.min(Hs), np.max(Hs)
-    H_ax.set_ylim(min_H, max_H)
-    H_line, = H_ax.plot(_iters, _Hs, c=palette[0])
-    H_ax.set_ylabel(r"$H(q_\theta)$", rotation="horizontal")
-    H_ax.yaxis.set_label_coords(ylab_x-.05, ylab_y)
-
-    # Constraint lines
-    R_ax = plt.subplot(4, 2, 3) 
-
-    R_ax.set_xlim(0, iters[-1])
-    min_R, max_R = np.min(R), np.max(R)
-
-    R_ax.set_ylim(min_R, max_R)
-    R_ax.set_ylabel(r"$R(q_\theta)$", rotation="horizontal")
-    R_ax.yaxis.set_label_coords(ylab_x-.05, ylab_y)
-    R_ax.set_xlabel("iterations")
-
-    R_lines = []
-    _Rs = []
-    for i in range(m):
-        _Rs.append([R[0, i]])
-        R_line, = R_ax.plot(_iters, _Rs[i], label=R_keys[i], c=palette[i + 1])
-        R_lines.append(R_line)
-    R_ax.legend()
-
-    lines = [H_line] + R_lines
-
-    # Get axis limits
-    ax_mins = []
-    ax_maxs = []
-    for i in range(D):
-        bounds = parameters[i].bounds
-        if np.isneginf(bounds[0]):
-            ax_mins.append(np.min(zs[:, :, i]))
-        else:
-            ax_mins.append(bounds[0])
-
-        if np.isposinf(bounds[1]):
-            ax_maxs.append(np.max(zs[:, :, i]))
-        else:
-            ax_maxs.append(bounds[1])
-
-    # Plot the matrices
-    def get_lds_2D_modes(z, log_q_z):
-        M = log_q_z.shape[0]
-        mode1 = np.logical_and(z[:,1] > 0., z[:,2] < 0)
-        mode1_inds = np.arange(M)[mode1]
-        mode2 = np.logical_and(z[:,1] < 0., z[:,2] > 0)
-        mode2_inds = np.arange(M)[mode2]
-        mode1_ind = mode1_inds[np.argmax(log_q_z[mode1])]
-        mode2_ind = mode2_inds[np.argmax(log_q_z[mode2])]
-        return np.reshape(z[mode1_ind], (2,2)), np.reshape(z[mode2_ind], (2,2))
-
-    mode1, mode2 = get_lds_2D_modes(z, log_q_z)
-    lw=5
-    gray = 0.4*np.ones(3)
-    bfrac=0.05
-    mat_ax = plt.subplot(2, 4, 5)
-    texts = plot_square_mat(mat_ax, mode1, c=gray, lw=lw, fontsize=24, bfrac=bfrac, title="mode 1")
-    mat_ax = plt.subplot(2, 4, 6)
-    texts += plot_square_mat(mat_ax, mode2, c=gray, lw=lw, fontsize=24, bfrac=bfrac, title="mode 2")
-
-
-    # Collect scatters
-    cmap = plt.get_cmap("viridis")
-    scats = []
-    for i in range(D - 1):
-        for j in range(i + 1, D):
-            ax = axs[i][j+4]
-            scats.append(ax.scatter(z[:, j], z[:, i], c=log_q_z, cmap=cmap))
-            ax.set_xlim(ax_mins[j], ax_maxs[j])
-            ax.set_ylim(ax_mins[i], ax_maxs[i])
-
-    kdes = []
-    conts = []
-    kde_scale_fac = 0.1
-    num_grid = 100
-    for i in range(1, D):
-        ax_len_i = ax_maxs[i] - ax_mins[i]
-        grid_xs = np.linspace(ax_mins[i], ax_maxs[i], num_grid)
-        for j in range(i):
-            ax_len_j = ax_maxs[i] - ax_mins[i]
-            kde = KernelDensity(
-                kernel="gaussian",
-                bandwidth=kde_scale_fac * (ax_len_i + ax_len_j) / 2.0,
-            )
-            _z = z[:, [i, j]]
-            kde.fit(_z, log_q_z)
-            grid_ys = np.linspace(ax_mins[j], ax_maxs[j], num_grid)
-            z_grid = np.meshgrid(grid_xs, grid_ys)
-            z_grid_mat = np.stack([np.reshape(z_grid[0], (num_grid**2)),
-                               np.reshape(z_grid[1], (num_grid**2))],
-                              axis=1)
-            scores_ij = kde.score_samples(z_grid_mat)
-            scores_ij = np.reshape(scores_ij, (num_grid, num_grid))
-            ax = axs[i][j+4]
-            levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 20)
-            cont = ax.contourf(z_grid[0], z_grid[1], scores_ij, levels=levels)
-            conts.append(cont)
-            ax.set_xlim(ax_mins[i], ax_maxs[i])
-            ax.set_ylim(ax_mins[j], ax_maxs[j])
-            kdes.append(kde)
-
-    for i in range(D):
-        axs[i][4].set_ylabel(
-            z_labels[i], rotation="horizontal", fontsize=fontsize
-        )
-        axs[i][4].yaxis.set_label_coords(D * ylab_x, ylab_y)
-        axs[3][i+4].set_xlabel(z_labels[i], fontsize=fontsize)
-        axs[i][i+4].set_xlim(ax_mins[i], ax_maxs[i])
-        axs[i][i+4].set_ylim(ax_mins[i], ax_maxs[i])
-
-    for i in range(D):
-        for j in range(1, D):
-            axs[i, j+4].set_yticklabels([])
-    for i in range(D - 1):
-        for j in range(D):
-            axs[i, j+4].set_xticklabels([])
-
-    def update(frame):
-        _iters.append(iters[frame])
-        _Hs.append(Hs[frame])
-        for i in range(m):
-            _Rs[i].append(R[frame, i])
-        z = zs[frame]
-        log_q_z = log_q_zs[frame]
-        cvals = log_q_z - np.min(log_q_z)
-        cvals = cvals / np.max(cvals)
-
-        # Update entropy plot
-        lines[0].set_data(_iters, _Hs)
-        for i in range(m):
-            lines[i + 1].set_data(_iters, _Rs[i])
-
-        # Update modes.
-        mode1, mode2 = get_lds_2D_modes(z, log_q_z)
-        ind = 0
-        for i in range(2):
-            for j in range(2):
-                texts[ind].set_text('%.1f' % mode1[i,j])
-                texts[ind+4].set_text('%.1f' % mode2[i,j])
-                ind += 1
-
-        # Update scatters
-        _ind = 0
-        for i in range(D - 1):
-            for j in range(i + 1, D):
-                scats[_ind].set_offsets(np.stack((z[:, j], z[:, i]), axis=1))
-                scats[_ind].set_color(cmap(cvals))
-                _ind += 1
-
-        while conts:
-            cont = conts.pop(0)
-            for coll in cont.collections:
-                coll.remove()
-
-        _ind = 0
-        for i in range(1, D):
-            grid_x = np.linspace(ax_mins[i], ax_maxs[i], num_grid)
-            for j in range(i):
-                grid_ys = np.linspace(ax_mins[j], ax_maxs[j], num_grid)
-                kde = kdes[_ind]
-                _z = z[:, [i, j]]
-                kde.fit(_z, log_q_z)
-                grid_ys = np.linspace(ax_mins[j], ax_maxs[j], num_grid)
-                z_grid = np.meshgrid(grid_xs, grid_ys)
-                z_grid_mat = np.stack([np.reshape(z_grid[0], (num_grid**2)),
-                                   np.reshape(z_grid[1], (num_grid**2))],
-                                  axis=1)
-                scores_ij = kde.score_samples(z_grid_mat)
-                scores_ij = np.reshape(scores_ij, (num_grid, num_grid))
-                ax = axs[i][j+4]
-                levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 20)
-                cont = ax.contourf(z_grid[0], z_grid[1], scores_ij, levels=levels)
-                conts.append(cont)
-
-        return lines + scats
-
-    ani = animation.FuncAnimation(fig, update, frames=range(N_frames), blit=True)
-
-    Writer = animation.writers["ffmpeg"]
-    writer = Writer(fps=30, metadata=dict(artist="Me"), bitrate=1800)
-
-    ani.save(path + "epi_opt.mp4", writer=writer)
-    return None
