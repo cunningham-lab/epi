@@ -14,46 +14,47 @@ from pytest import raises
 
 def test_Parameter_init():
     """Test Parameter initialization."""
-    b1 = (-0.1, 1.2)
-    p = Parameter("foo", b1)
+    p = Parameter("foo", 1, -0.1, 1.2)
     assert p.name == "foo"
-    assert type(p.bounds) is tuple
-    assert p.bounds[0] == -0.1
-    assert p.bounds[1] == 1.2
-    assert len(p.bounds) == 2
+    assert p.D == 1
+    assert p.lb[0] == -0.1
+    assert p.ub[0] == 1.2
+
+    p = Parameter("foo", 4, -np.random.rand(4), np.random.rand(4)+1)
+    assert p.name == "foo"
+    assert p.D == 4
 
     with raises(TypeError):
-        p = Parameter(20, b1)
-
-    p = Parameter("bar", [-0.1, 1.2])
-    assert p.bounds == (-0.1, 1.2)
-    p = Parameter("bar", np.array([-0.1, 1.2]))
-    assert p.bounds == (-0.1, 1.2)
-
+        p = Parameter(20, 1)
     with raises(TypeError):
         p = Parameter("foo", "bar")
-
-    with raises(ValueError):
-        p = Parameter("foo", [1, 2, 3])
-
     with raises(TypeError):
-        p = Parameter("foo", ["a", "b"])
+        p = Parameter("foo", 1, "bar")
     with raises(TypeError):
-        p = Parameter("foo", [1, "b"])
+        p = Parameter("foo", 1, 0.0, "bar")
 
     with raises(ValueError):
-        p = Parameter("foo", [1, -1])
-
+        p = Parameter("foo", -1)
     with raises(ValueError):
-        p = Parameter("foo", [1, 1])
+        p = Parameter("foo", 1, 1.0, 0.0)
+    with raises(ValueError):
+        p = Parameter("foo", 1, 0.0, 0.0)
+    with raises(ValueError):
+        p = Parameter("foo", 2, lb=np.random.rand(3))
+    with raises(ValueError):
+        p = Parameter("foo", 2, lb=np.random.rand(2,2))
+    with raises(ValueError):
+        p = Parameter("foo", 2, ub=np.random.rand(3))
+    with raises(ValueError):
+        p = Parameter("foo", 2, ub=np.random.rand(2,2))
 
     return None
 
 
 def test_Model_init():
     """Test Model initialization."""
-    p1 = Parameter("a", [0, 1])
-    p2 = Parameter("b")
+    p1 = Parameter("a", 1, 0, 1)
+    p2 = Parameter("b", 1)
     params = [p1, p2]
     M = Model("foo", params)
     assert M.name == "foo"
@@ -70,17 +71,19 @@ def test_Model_init():
     with raises(TypeError):
         Model("foo", "bar")
 
-    p3 = Parameter("c", [1, 4])
-    p3.bounds = (1, -1)
+    p3 = Parameter("c", 1, 1, 4)
+    p3.lb = np.array([1])
+    p3.ub = np.array([-1])
     params = [p1, p2, p3]
     with raises(ValueError):
         Model("foo", params)
 
-    p3.bounds = (1, 1)
+    p3.lb = np.array([1])
+    p3.ub = np.array([1])
     with raises(ValueError):
         Model("foo", params)
 
-    p3 = Parameter("a", [1, 4])
+    p3 = Parameter("a", 1, 1, 4)
     params = [p1, p2, p3]
     with raises(ValueError):
         Model("foo", params)
@@ -95,10 +98,10 @@ def test_epi():
     ub_a12 = 10.0
     lb_a21 = -10.0
     ub_a21 = 0.0
-    a11 = Parameter("a11", [0.0, np.PINF])
-    a12 = Parameter("a12", [lb_a12, ub_a12])
-    a21 = Parameter("a21", [lb_a21, ub_a21])
-    a22 = Parameter("a22", [np.NINF, 0.0])
+    a11 = Parameter("a11", 1, 0.0)
+    a12 = Parameter("a12", 1, lb_a12, ub_a12)
+    a21 = Parameter("a21", 1, lb_a21, ub_a21)
+    a22 = Parameter("a22", 1, ub=0.0)
     params = [a11, a12, a21, a22]
 
     M = Model("lds", params)
@@ -169,7 +172,7 @@ def test_epi():
 
     with raises(ValueError):
         def bad_f(a11, a12, a21, a22):
-            return a11 + a12 + a21 + a22
+            return tf.expand_dims(a11 + a12 + a21 + a22, 0)
         M.set_eps(bad_f)
 
     params = [a22, a21, a12, a11]
@@ -241,5 +244,5 @@ def test_Distribution():
             with raises(TypeError):
                 hess_z = q_theta.hessian('foo')
             
-if __name__ == '__main__':
-    test_epi()
+#if __name__ == '__main__':
+#test_Parameter_init()
