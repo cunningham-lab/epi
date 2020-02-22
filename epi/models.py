@@ -693,17 +693,17 @@ class Model(object):
         num_grid = 20
         for i in range(1, D):
             ax_len_i = ax_maxs[i] - ax_mins[i]
-            grid_xs = np.linspace(ax_mins[i], ax_maxs[i], num_grid)
+            grid_ys = np.linspace(ax_mins[i], ax_maxs[i], num_grid)
             for j in range(i):
+                ax_len_j = ax_maxs[j] - ax_mins[j]
+                grid_xs = np.linspace(ax_mins[j], ax_maxs[j], num_grid)
                 ax = axs[i + scat_i][j + scat_j]
-                ax_len_j = ax_maxs[i] - ax_mins[i]
                 kde = KernelDensity(
                     kernel="gaussian",
                     bandwidth=kde_scale_fac * (ax_len_i + ax_len_j) / 2.0,
                 )
-                _z = z[:, [i, j]]
+                _z = z[:, [j, i]]
                 kde.fit(_z, log_q_z)
-                grid_ys = np.linspace(ax_mins[j], ax_maxs[j], num_grid)
                 z_grid = np.meshgrid(grid_xs, grid_ys)
                 z_grid_mat = np.stack([np.reshape(z_grid[0], (num_grid**2)),
                                    np.reshape(z_grid[1], (num_grid**2))],
@@ -779,13 +779,12 @@ class Model(object):
 
             _ind = 0
             for i in range(1, D):
-                grid_x = np.linspace(ax_mins[i], ax_maxs[i], num_grid)
+                grid_ys = np.linspace(ax_mins[i], ax_maxs[i], num_grid)
                 for j in range(i):
-                    grid_ys = np.linspace(ax_mins[j], ax_maxs[j], num_grid)
+                    grid_xs = np.linspace(ax_mins[j], ax_maxs[j], num_grid)
                     kde = kdes[_ind]
-                    _z = z[:, [i, j]]
+                    _z = z[:, [j, i]]
                     kde.fit(_z, log_q_z)
-                    grid_ys = np.linspace(ax_mins[j], ax_maxs[j], num_grid)
                     z_grid = np.meshgrid(grid_xs, grid_ys)
                     z_grid_mat = np.stack([np.reshape(z_grid[0], (num_grid**2)),
                                        np.reshape(z_grid[1], (num_grid**2))],
