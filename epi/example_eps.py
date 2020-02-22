@@ -42,6 +42,31 @@ def linear2D_freq(a11, a12, a21, a22):
     real_lambda = real_term + tf.math.real(complex_term)
     imag_lambda = tf.math.imag(complex_term)
 
+    T_x = tf.concat(
+        (
+            real_lambda,
+            tf.square(real_lambda - 0.0),
+            imag_lambda,
+            tf.square(imag_lambda - (2.0 * np.pi)),
+        ),
+        axis=1,
+    )
+    return T_x
+
+def linear2D_freq_sq(A):
+    tau = 1.0
+    c11 = A[:,0] / tau
+    c12 = A[:,1] / tau
+    c21 = A[:,2] / tau
+    c22 = A[:,3] / tau
+
+    real_term = 0.5 * (c11 + c22)
+    complex_term = 0.5 * tf.sqrt(
+        tf.complex(tf.square(c11 + c22) - 4.0 * (c11 * c22 - c12 * c21), 0.0)
+    )
+    real_lambda = real_term + tf.math.real(complex_term)
+    imag_lambda = tf.math.imag(complex_term)
+
     T_x = tf.stack(
         (
             real_lambda,

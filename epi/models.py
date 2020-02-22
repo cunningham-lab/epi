@@ -32,55 +32,72 @@ class Parameter(object):
 
     :param name: Parameter name.
     :type name: str
-    :param bounds: Lower and upper bound of variable, defaults to (np.NINF, np.PINF).
-    :type bounds: (np.float, np.float), optional
+    :param D: Number of dimensions of parameter.
+    :type D: int
+    :param lb: Lower bound of variable, defaults to `np.NINF*np.ones(D)`.
+    :type lb: np.ndarray, optional
+    :param ub: Upper bound of variable, defaults to `np.PINF*np.ones(D)`.
+    :type ub: np.ndarray, optional
     """
 
-    def __init__(self, name, bounds=(np.NINF, np.PINF)):
+    def __init__(self, name, D, lb=None, ub=None):
         """Constructor method."""
         self._set_name(name)
-        self._set_bounds(bounds)
+        self._set_D(D)
+        self._set_bounds(lb, ub)
 
     def _set_name(self, name):
         if type(name) is not str:
             raise TypeError(format_type_err_msg(self, "name", name, str))
         self.name = name
 
-    def _set_bounds(self, bounds):
-        _type = type(bounds)
-        if _type in [list, tuple]:
-            len_bounds = len(bounds)
-            if _type is list:
-                bounds = tuple(bounds)
-        elif _type is np.ndarray:
-            len_bounds = bounds.shape[0]
-            bounds = (bounds[0], bounds[1])
-        else:
-            raise TypeError(
-                "Parameter argument bounds must be tuple, list, or numpy array not %s."
-                % _type.__name__
-            )
+    def _set_D(self, D):
+        if type(D) is not int:
+            raise TypeError(format_type_err_msg(self, "D", D, int))
+        if (D < 1):
+            raise ValueError("Dimension of parameter must be positive.")
+        self.D = D
 
-        if len_bounds != 2:
-            raise ValueError("Parameter bounds arg must be length 2.")
+    def _set_bounds(self, lb, ub):
+        if (lb is None):
+            lb = np.NINF*np.ones(self.D)
+        elif (isinstance(lb, REAL_NUMERIC_TYPES)):
+            lb = np.array([lb])
 
-        lb = bounds[0]
-        ub = bounds[1]
-        if not isinstance(lb, REAL_NUMERIC_TYPES):
-            raise TypeError("Lower bound has type %s, not numeric." % type(lb))
-        if not isinstance(ub, REAL_NUMERIC_TYPES):
-            raise TypeError("Upper bound has type %s, not numeric." % type(ub))
+        if (ub is None):
+            ub = np.PINF*np.ones(self.D)
+        elif (isinstance(ub, REAL_NUMERIC_TYPES)):
+            ub = np.array([ub])
 
-        if lb > ub:
-            raise ValueError(
-                "Parameter %s lower bound is greater than upper bound." % self.name
-            )
-        elif lb == ub:
-            raise ValueError(
-                "Parameter %s lower bound is equal to upper bound." % self.name
-            )
+        if type(lb) is not np.ndarray:
+            raise TypeError(format_type_err_msg(self, "lb", lb, np.ndarray))
+        if type(ub) is not np.ndarray:
+            raise TypeError(format_type_err_msg(self, "ub", ub, np.ndarray))
 
-        self.bounds = bounds
+        lb_shape = lb.shape
+        if (len(lb_shape) != 1):
+            raise ValueError("Lower bound lb must be vector.")
+        if (lb_shape[0] != self.D):
+            raise ValueError("Lower bound lb does not have dimension D = %d." % self.D)
+
+        ub_shape = ub.shape
+        if (len(ub_shape) != 1):
+            raise ValueError("Upper bound ub must be vector.")
+        if (ub_shape[0] != self.D):
+            raise ValueError("Upper bound ub does not have dimension D = %d." % self.D)
+
+        for i in range(self.D):
+            if lb[i] > ub[i]:
+                raise ValueError(
+                    "Parameter %s lower bound is greater than upper bound." % self.name
+                )
+            elif lb[i] == ub[i]:
+                raise ValueError(
+                    "Parameter %s lower bound is equal to upper bound." % self.name
+                )
+
+        self.lb = lb
+        self.ub = ub
 
 
 class Model(object):
@@ -117,7 +134,7 @@ class Model(object):
         if not self.parameter_check(parameters, verbose=True):
             raise ValueError("Invalid parameter list.")
         self.parameters = parameters
-        self.D = len(parameters)
+        self.D = sum([param.D for param in parameters])
 
     def set_eps(self, eps):
         """Set the emergent property statistic calculation for this model.
@@ -131,15 +148,27 @@ class Model(object):
         fullargspec = inspect.getfullargspec(eps)
         args = fullargspec.args
         _parameters = []
+        Ds = []
         for arg in args:
+            found = False
             for param in self.parameters:
                 if param.name == arg:
+                    found = True
                     _parameters.append(param)
+                    Ds.append(param.D)
                     self.parameters.remove(param)
+                    break
+            if not found:
+                raise ValueError("Function eps has argument %s not in model parameter list." % arg)
+
         self.parameters = _parameters
 
         def _eps(z):
-            zs = tf.unstack(z[:, :], axis=1)
+            ind = 0
+            zs = []
+            for D in Ds:
+                zs.append(z[:,ind:(ind+D)])
+                ind += D
             return eps(*zs)
 
         self.eps = _eps
@@ -154,12 +183,13 @@ class Model(object):
         return None
 
     def _get_bounds(self,):
-        D = len(self.parameters)
-        lb = np.zeros((D,))
-        ub = np.zeros((D,))
-        for i, param in enumerate(self.parameters):
-            lb[i] = param.bounds[0]
-            ub[i] = param.bounds[1]
+        lb = np.zeros((self.D,))
+        ub = np.zeros((self.D,))
+        ind = 0
+        for param in self.parameters:
+            lb[ind:(ind+param.D)] = param.lb
+            ub[ind:(ind+param.D)] = param.ub
+            ind += param.D
         return (lb, ub)
 
     def epi(
@@ -525,7 +555,7 @@ class Model(object):
         :param path: Path to folder with optimization data.
         :type param: str
         """
-        D = len(self.parameters)
+        D = self.D
         palette = sns.color_palette()
         fontsize = 22
 
@@ -564,7 +594,8 @@ class Model(object):
 
         if (not (self.name == "lds_2D")):
             iter_rows = 3
-            z_labels = [param.name for param in self.parameters]
+            #z_labels = [param.name for param in self.parameters]
+            z_labels = ["z%d" % d for d in range(1, self.D+1)]
             fig, axs = plt.subplots(D + iter_rows, D, figsize=(9, 12))
             H_ax = plt.subplot(D + iter_rows, 1, 1)
         else:
@@ -655,17 +686,17 @@ class Model(object):
         # Get axis limits
         ax_mins = []
         ax_maxs = []
+        lb, ub = self._get_bounds()
         for i in range(D):
-            bounds = self.parameters[i].bounds
-            if np.isneginf(bounds[0]):
+            if np.isneginf(lb[i]):
                 ax_mins.append(np.min(zs[:, :, i]))
             else:
-                ax_mins.append(bounds[0])
+                ax_mins.append(lb[i])
 
-            if np.isposinf(bounds[1]):
+            if np.isposinf(ub[i]):
                 ax_maxs.append(np.max(zs[:, :, i]))
             else:
-                ax_maxs.append(bounds[1])
+                ax_maxs.append(ub[i])
 
         # Collect scatters
         cmap = plt.get_cmap("viridis")
@@ -956,21 +987,25 @@ class Model(object):
             else:
                 d[name] = True
 
-            bounds = param.bounds
-            if bounds[0] == bounds[1]:
-                if verbose:
-                    print(
-                        "Warning: Left bound equal to right bound for parameter %s."
-                        % name
-                    )
-                return False
-            elif bounds[0] > bounds[1]:
-                if verbose:
-                    print(
-                        "Warning: Left bound greater than right bound for parameter %s."
-                        % name
-                    )
-                return False
+            lb = param.lb
+            ub = param.ub
+            for i in range(param.D):
+                lb_i = lb[i]
+                ub_i = ub[i]
+                if lb_i == ub_i:
+                    if verbose:
+                        print(
+                            "Warning: Left bound equal to right bound for parameter %s."
+                            % name
+                        )
+                    return False
+                elif lb_i > ub_i:
+                    if verbose:
+                        print(
+                            "Warning: Left bound greater than right bound for parameter %s."
+                            % name
+                        )
+                    return False
 
         return True
 
@@ -1003,7 +1038,7 @@ class Distribution(object):
 
     def _set_parameters(self, parameters):
         if parameters is None:
-            parameters = [Parameter("z%d" % (i + 1)) for i in range(self.D)]
+            parameters = [Parameter("z%d" % (i + 1), 1) for i in range(self.D)]
             self.parameters = parameters
         elif type(parameters) is not list:
             raise TypeError(format_type_err_msg(self, "parameters", parameters, list))
@@ -1095,7 +1130,8 @@ class Distribution(object):
         z = self.sample(N)
         log_q_z = self.log_prob(z)
         df = pd.DataFrame(z)
-        z_labels = [param.name for param in self.parameters]
+        #z_labels = [param.name for param in self.parameters]
+        z_labels = ["z%d" % d for d in range(1, self.D+1)]
         df.columns = z_labels
         df["log_q_z"] = log_q_z
 
