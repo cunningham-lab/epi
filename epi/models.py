@@ -174,7 +174,7 @@ class Model(object):
         self.eps = _eps
         self.eps.__name__ = eps.__name__
 
-        z = tf.keras.Input(shape=(self.D))
+        z = tf.zeros((100,self.D)) #tf.keras.Input(shape=(self.D))
         T_z = self.eps(z)
         T_z_shape = T_z.shape
         if len(T_z_shape) != 2:
@@ -213,7 +213,7 @@ class Model(object):
         gamma=0.25,
         beta=4.0,
         alpha=0.05,
-        nu=0.1,
+        nu=1.0,
         stop_early=False,
         log_rate=100,
         verbose=False,

@@ -102,21 +102,25 @@ def array_str(a):
             return "%dx%.2E" % (mult, num)
 
     d = a.shape[0]
-    mults = []
-    nums = []
-    prev_num = a[0]
-    mult = 1
-    for i in range(1, d):
-        if a[i] == prev_num:
-            mult += 1
-        else:
-            nums.append(prev_num)
-            prev_num = a[i]
-            mults.append(mult)
-            mult = 1
+    if d == 1:
+        nums = [a[0]]
+        mults = [1]
+    else:
+        mults = []
+        nums = []
+        prev_num = a[0]
+        mult = 1
+        for i in range(1, d):
+            if a[i] == prev_num:
+                mult += 1
+            else:
+                nums.append(prev_num)
+                prev_num = a[i]
+                mults.append(mult)
+                mult = 1
 
-        if i == d - 1:
-            nums.append(prev_num)
+            if i == d - 1:
+                nums.append(prev_num)
             mults.append(mult)
 
     array_str = repeats_str(nums[0], mults[0])
