@@ -174,7 +174,8 @@ class Model(object):
         self.eps = _eps
         self.eps.__name__ = eps.__name__
 
-        z = tf.zeros((100,self.D)) #tf.keras.Input(shape=(self.D))
+        # TODO make this Z obey the arbitrary parameter bounds
+        z = tf.ones((100,self.D)) #tf.keras.Input(shape=(self.D))
         T_z = self.eps(z)
         T_z_shape = T_z.shape
         if len(T_z_shape) != 2:
@@ -420,11 +421,13 @@ class Model(object):
                     c = beta * c
                 norms = norms_k
 
+        time_per_it = time2-time1
         if save_movie_data:
             np.savez(
                 ckpt_dir + "movie_data.npz",
                 zs=np.array(zs),
                 log_q_zs=np.array(log_q_zs),
+                time_per_it=time_per_it,
                 iterations=np.arange(0, k * num_iters + 1, log_rate),
             )
 
