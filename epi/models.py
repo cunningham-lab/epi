@@ -430,6 +430,11 @@ class Model(object):
                 time_per_it=time_per_it,
                 iterations=np.arange(0, k * num_iters + 1, log_rate),
             )
+        else:
+            np.savez(
+                ckpt_dir + "timing.npz",
+                time_per_it=time_per_it,
+            )
 
         # Save hyperparameters.
         self._save_hps(ckpt_dir, nf, aug_lag_hps, init_type, init_params)
@@ -611,6 +616,7 @@ class Model(object):
 
         # Entropy lines
         x_end = 1.25*iters[-1]
+        opt_y_shiftx = -0.05
         num_iters = opt_data_df[opt_data_df['k']==1]['iteration'].max()
         K = opt_data_df['k'].max()
         log_rate = opt_data_df['iteration'][1]
@@ -620,9 +626,9 @@ class Model(object):
         H_ax.set_ylim(min_H, max_H)
         H_line, = H_ax.plot(_iters, _Hs, c=palette[0])
         H_ax.set_ylabel(r"$H(q_\theta)$", rotation="horizontal", fontsize=fontsize)
-        H_ax.yaxis.set_label_coords(ylab_x, ylab_y)
+        H_ax.yaxis.set_label_coords(ylab_x+opt_y_shiftx, ylab_y)
         H_ax.set_xticks(xticks)
-        H_ax.set_xticklabels(xticks)
+        H_ax.set_xticklabels(len(xticks)*[''])
         H_ax.spines['bottom'].set_bounds(0, iters[-1])
         H_ax.spines['right'].set_visible(False)
         H_ax.spines['top'].set_visible(False)
@@ -637,10 +643,11 @@ class Model(object):
         R_ax.set_xlim(0, x_end)
         R_ax.set_ylim(min_R, max_R)
         R_ax.set_ylabel(r"$R(q_\theta)$", rotation="horizontal", fontsize=fontsize)
-        R_ax.yaxis.set_label_coords(ylab_x, ylab_y)
+        R_ax.yaxis.set_label_coords(ylab_x+opt_y_shiftx, ylab_y)
         R_ax.set_xlabel("iterations", fontsize=(fontsize-2))
         R_ax.set_xticks(xticks)
-        R_ax.set_xticklabels(xticks)
+        xticklabels = ["0"] + ["%dk" % int(xtick/1000) for xtick in xticks[1:]]
+        R_ax.set_xticklabels(xticklabels, fontsize=(fontsize-4))
         R_ax.spines['bottom'].set_bounds(0, iters[-1])
         R_ax.spines['right'].set_visible(False)
         R_ax.spines['top'].set_visible(False)
@@ -671,18 +678,20 @@ class Model(object):
             bfrac=0.05
             mat_ax = plt.subplot(2, 4, 5)
             texts = plot_square_mat(mat_ax, mode1, c=gray, lw=lw, fontsize=24, bfrac=bfrac, title="mode 1",
-                                    xlims=sqmat_xlims1, ylims=sqmat_ylims)
+                                    xlims=sqmat_xlims1, ylims=sqmat_ylims, text_c=palette[1])
             mat_ax = plt.subplot(2, 4, 6)
             texts += plot_square_mat(mat_ax, mode2, c=gray, lw=lw, fontsize=24, bfrac=bfrac, title="mode 2",
-                                     xlims=sqmat_xlims2, ylims=sqmat_ylims)
+                                     xlims=sqmat_xlims2, ylims=sqmat_ylims, text_c=palette[3])
+            mode1_vec = np.reshape(mode1, (4,))
+            mode2_vec = np.reshape(mode2, (4,))
 
         R_lines = []
         _Rs = []
         for i in range(m):
             _Rs.append([R[0, i]])
-            R_line, = R_ax.plot(_iters, _Rs[i], label=R_keys[i], c=palette[i + 1])
+            R_line, = R_ax.plot(_iters, _Rs[i], label=R_keys[i], c='k') #palette[i + 1])
             R_lines.append(R_line)
-        R_ax.legend(loc=9)
+        #R_ax.legend(loc=9)
 
         lines = [H_line] + R_lines
 
@@ -762,6 +771,16 @@ class Model(object):
             axs[i+scat_i][i+scat_j].spines['right'].set_visible(False)
             axs[i+scat_i][i+scat_j].spines['top'].set_visible(False)
 
+        # Plot modes
+        if (self.name == "lds_2D"):
+            for i in range(D-1):
+                for j in range(i+1, D):
+                    line, = axs[i+scat_i, j+scat_j].plot(mode1_vec[j], mode1_vec[i], 'o', c=palette[1])
+                    lines.append(line)
+                    line, = axs[i+scat_i, j+scat_j].plot(mode2_vec[j], mode2_vec[i], 'o', c=palette[3])
+                    lines.append(line)
+
+        # Tick labels
         for i in range(D):
             for j in range(1, D):
                 axs[i + scat_i, j + scat_j].set_yticklabels([])
@@ -784,6 +803,33 @@ class Model(object):
             for i in range(m):
                 lines[i + 1].set_data(_iters, _Rs[i])
 
+
+            # Update modes.
+            if (self.name == "lds_2D"):
+                mode1, mode2 = get_lds_2D_modes(z, log_q_z)
+                mode1s.append(mode1)
+                mode2s.append(mode2)
+
+                mode1_avg = np.mean(np.array(mode1s)[-wsize:,:], axis=0)
+                mode2_avg = np.mean(np.array(mode2s)[-wsize:,:], axis=0)
+                mode1_vec = np.reshape(mode1_avg, (4,))
+                mode2_vec = np.reshape(mode2_avg, (4,))
+                ind = 0
+                for i in range(2):
+                    for j in range(2):
+                        texts[ind].set_text('%.1f' % mode1_avg[i,j])
+                        texts[ind+4].set_text('%.1f' % mode2_avg[i,j])
+                        ind += 1
+
+                ind = 0
+                for i in range(D-1):
+                    for j in range(i+1,D):
+                        lines[1+m+ind].set_data(mode1_vec[j], mode1_vec[i])
+                        ind += 1
+                        lines[1+m+ind].set_data(mode2_vec[j], mode2_vec[i])
+                        ind += 1
+
+
             # Update scatters
             _ind = 0
             for i in range(D - 1):
@@ -791,20 +837,6 @@ class Model(object):
                     scats[_ind].set_offsets(np.stack((z[:, j], z[:, i]), axis=1))
                     scats[_ind].set_color(cmap(cvals))
                     _ind += 1
-
-            # Update modes.
-            if (self.name == "lds_2D"):
-                mode1, mode2 = get_lds_2D_modes(z, log_q_z)
-                mode1s.append(mode1)
-                mode2s.append(mode2)
-                mode1_avg = np.mean(np.array(mode1s)[-wsize:,:], axis=0)
-                mode2_avg = np.mean(np.array(mode2s)[-wsize:,:], axis=0)
-                ind = 0
-                for i in range(2):
-                    for j in range(2):
-                        texts[ind].set_text('%.1f' % mode1_avg[i,j])
-                        texts[ind+4].set_text('%.1f' % mode2_avg[i,j])
-                        ind += 1
 
             while conts:
                 cont = conts.pop(0)
