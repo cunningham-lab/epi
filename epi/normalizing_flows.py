@@ -408,6 +408,8 @@ class NormalizingFlow(tf.keras.Model):
 
             params = self.trainable_variables
             gradients = tape.gradient(loss, params)
+            ming, maxg = -1e5, 1e5
+            gradients = [tf.clip_by_value(grad, ming, maxg) for grad in gradients]
 
             optimizer.apply_gradients(zip(gradients, params))
             return loss
