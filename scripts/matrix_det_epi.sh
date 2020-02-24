@@ -6,4 +6,4 @@
 #SBATCH --mem-per-cpu=2gb
 
 source activate epi
-python3 matrix_det_epi.py --seed $1
+python3 matrix_det_epi.py --d $1 --seed $2

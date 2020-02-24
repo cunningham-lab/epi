@@ -6,7 +6,7 @@ source activate epi
 for hp_rs in {1..10}
 do
     echo "Running opt $hp_rs"
-    sbatch matrix_det_epi.sh $hp_rs
+    sbatch matrix_det_epi.sh 2 $hp_rs
 done
 
 
