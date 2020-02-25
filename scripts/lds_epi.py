@@ -15,11 +15,12 @@ print('Running epi on 2D-LDS with hyper parameter random seed %d.' % args.seed)
 
 # Define the 2D LDS model parameters.  
 # The four entries of the dynamics matrix will be bounded.
-bounds = [-10., 10.]
-a11 = Parameter("a11", bounds)
-a12 = Parameter("a12", bounds)
-a21 = Parameter("a21", bounds)
-a22 = Parameter("a22", bounds)
+lb = -10.
+ub = 10.
+a11 = Parameter("a11", 1, lb=lb, ub=ub)
+a12 = Parameter("a12", 1, lb=lb, ub=ub)
+a21 = Parameter("a21", 1, lb=lb, ub=ub)
+a22 = Parameter("a22", 1, lb=lb, ub=ub)
 params = [a11, a12, a21, a22]
 M = Model("lds_2D", params)
 
