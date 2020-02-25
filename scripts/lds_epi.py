@@ -31,9 +31,9 @@ M.set_eps(linear2D_freq)
 mu = np.array([0.0, 0.5**2, 2 * np.pi, (0.1 * 2 * np.pi)**2])
 
 np.random.seed(args.seed)
-num_stages = np.random.randint(3, 5) 
+num_stages = 3
 num_layers = np.random.randint(1, 3)
-num_units = np.random.randint(15, 25)
+num_units = np.random.randint(10, 25)
 
 init_params = {'loc':0., 'scale':3.}
 q_theta, opt_data, save_path, failed = M.epi(
