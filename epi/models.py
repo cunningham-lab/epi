@@ -370,6 +370,7 @@ class Model(object):
 
         # EPI optimization
         print(format_opt_msg(0, 0, cost_0, H_0, R_0), flush=True)
+        failed = False
         for k in range(1, K + 1):
             etas[k - 1], cs[k - 1], eta, c
             for i in range(1, num_iters + 1):
@@ -405,6 +406,7 @@ class Model(object):
 
             if k < K:
                 if (np.isnan(cost)):
+                    failed = True
                     break
                 # Check for convergence if early stopping.
                 if stop_early and converged:
@@ -442,7 +444,7 @@ class Model(object):
         # Return optimized distribution.
         q_theta = Distribution(nf, self.parameters)
 
-        return q_theta, opt_it_dfs[0], ckpt_dir
+        return q_theta, opt_it_dfs[0], ckpt_dir, failed
 
     def plot_epi_hpsearch(self, mu, alpha=0.05, nu=0.1):
         epi_dir = self.get_epi_path(mu)
