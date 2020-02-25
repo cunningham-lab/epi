@@ -395,7 +395,7 @@ def sample_aug_lag_hps(
     else:
         return aug_lag_hps
 
-def plot_square_mat(ax, A, c='k', lw=4, fontsize=12, bfrac=0.05, title=None, xlims=None, ylims=None):
+def plot_square_mat(ax, A, c='k', lw=4, fontsize=12, bfrac=0.05, title=None, xlims=None, ylims=None, text_c='k'):
     buf = .3
     if (xlims is None):
         ax.set_xlim([-.05, 1+buf])
@@ -415,14 +415,15 @@ def plot_square_mat(ax, A, c='k', lw=4, fontsize=12, bfrac=0.05, title=None, xli
     ys = np.linspace(1.- 1./(2.*D), 1./(2.*D), D)-.02
 
     shift_x1 = -.18/D
-    shift_x2 = -.25/D
+    shift_x2 = -.35/D
     shift_y1 = +.2/D
     shift_y2 = -.2/D
     texts = []
     for i in range(D):
         for j in range(D):
             ax.text(xs[j]+shift_x1, ys[i]+shift_y1, r"$a_{%d%d}$" % (i+1, j+1), fontsize=(fontsize-2))
-            texts.append(ax.text(xs[j]+shift_x2, ys[i]+shift_y2, "%.2f" % A[i,j], fontsize=fontsize))
+            texts.append(ax.text(xs[j]+shift_x2, ys[i]+shift_y2, "%.2f" % A[i,j], 
+                         fontsize=fontsize, color=text_c, weight='bold'))
 
     ax.plot([0,0], [0,1], 'k', c=c, lw=lw)
     ax.plot([0,bfrac], [0,0], 'k', c=c, lw=lw)
