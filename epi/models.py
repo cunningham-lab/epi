@@ -388,6 +388,7 @@ class Model(object):
                         zs.append(z.numpy()[:N_save, :])
                         log_q_zs.append(log_q_z.numpy()[:N_save])
                 if (np.isnan(cost)):
+                    failed = True
                     break
             if not verbose:
                 print(format_opt_msg(k, i, cost, H, R), flush=True)
@@ -396,8 +397,11 @@ class Model(object):
             opt_it_df = pd.concat(opt_it_dfs, ignore_index=True)
             manager.save(checkpoint_number=k)
 
-            R_means = get_R_mean_dist(nf, self.eps, mu_colvec, M_test, N_test)
-            converged = self.test_convergence(R_means.numpy(), alpha)
+            if failed:
+                converged = False
+            else:
+                R_means = get_R_mean_dist(nf, self.eps, mu_colvec, M_test, N_test)
+                converged = self.test_convergence(R_means.numpy(), alpha)
             last_ind = opt_it_df['iteration']==k*num_iters
 
             opt_it_df.loc[last_ind, 'converged'] = converged
@@ -406,7 +410,6 @@ class Model(object):
 
             if k < K:
                 if (np.isnan(cost)):
-                    failed = True
                     break
                 # Check for convergence if early stopping.
                 if stop_early and converged:
