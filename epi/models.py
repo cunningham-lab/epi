@@ -664,13 +664,24 @@ class Model(object):
             # Plot the matrices
             def get_lds_2D_modes(z, log_q_z):
                 M = log_q_z.shape[0]
+
                 mode1 = np.logical_and(z[:,1] > 0., z[:,2] < 0)
-                mode1_inds = np.arange(M)[mode1]
+                if (len(mode1) == 0):
+                    mode1 = np.zeros((2,2))
+                else:
+                    mode1_inds = np.arange(M)[mode1]
+                    mode1_ind = mode1_inds[np.argmax(log_q_z[mode1])]
+                    mode1 = np.reshape(z[mode1_ind], (2,2))
+
                 mode2 = np.logical_and(z[:,1] < 0., z[:,2] > 0)
-                mode2_inds = np.arange(M)[mode2]
-                mode1_ind = mode1_inds[np.argmax(log_q_z[mode1])]
-                mode2_ind = mode2_inds[np.argmax(log_q_z[mode2])]
-                return np.reshape(z[mode1_ind], (2,2)), np.reshape(z[mode2_ind], (2,2))
+                if (len(mode2) == 0):
+                    mode2 = np.zeros((2,2))
+                else:
+                    mode2_inds = np.arange(M)[mode2]
+                    mode2_ind = mode2_inds[np.argmax(log_q_z[mode2])]
+                    mode2 = np.reshape(z[mode2_ind], (2,2))
+
+                return mode1, mode2
 
             sqmat_xlims1 = [-.2, 1.25]
             sqmat_xlims2 = [-.05, 1.4]
