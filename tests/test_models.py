@@ -106,7 +106,7 @@ def test_epi():
 
     M = Model("lds", params)
     M.set_eps(linear2D_freq)
-    q_theta, opt_data, save_path = M.epi(mu, num_iters=100, K=1, save_movie_data=True)
+    q_theta, opt_data, save_path, _ = M.epi(mu, num_iters=100, K=1, save_movie_data=True)
     g = q_theta.plot_dist()
     M.epi_opt_movie(save_path)
     opt_data_filename = save_path + 'opt_data.csv'
@@ -152,7 +152,7 @@ def test_epi():
     params = [a22, a21, a12, a11]
     M = Model("lds2", params)
     M.set_eps(linear2D_freq)
-    q_theta, opt_data, save_path = M.epi(mu, K=2, num_iters=100, stop_early=True, verbose=True)
+    q_theta, opt_data, save_path, _ = M.epi(mu, K=2, num_iters=100, stop_early=True, verbose=True)
     with raises(IOError):
         M.epi_opt_movie(save_path)
 
