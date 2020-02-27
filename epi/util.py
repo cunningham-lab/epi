@@ -121,7 +121,7 @@ def array_str(a):
 
             if i == d - 1:
                 nums.append(prev_num)
-            mults.append(mult)
+                mults.append(mult)
 
     array_str = repeats_str(nums[0], mults[0])
     for i in range(1, len(nums)):
