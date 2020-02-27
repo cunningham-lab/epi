@@ -277,11 +277,12 @@ def test_unbiased_aug_grad():
     log_q_z = np.random.normal(2.0, 3.0, (N,)).astype(DTYPE)
     mu = np.array([0.0, 0.1, 2 * np.pi, 0.1 * np.pi]).astype(DTYPE)
 
-    bounds = [np.NINF, np.PINF]
+    lb = np.NINF
+    ub = np.PINF
     a11 = Parameter("a11", 1, lb, ub)
-    a11 = Parameter("a12", 1, lb, ub)
-    a11 = Parameter("a21", 1, lb, ub)
-    a11 = Parameter("a22", 1, lb, ub)
+    a12 = Parameter("a12", 1, lb, ub)
+    a21 = Parameter("a21", 1, lb, ub)
+    a22 = Parameter("a22", 1, lb, ub)
     params = [a11, a12, a21, a22]
     M = Model("lds", params)
     M.set_eps(linear2D_freq)
@@ -398,8 +399,7 @@ def test_sample_aug_lag_hps():
 
     return None
 
-if __name__ == "__main__":
-    test_array_str()
-    #test_sample_aug_lag_hps()
+#if __name__ == "__main__":
+#    test_unbiased_aug_grad()
 
 
