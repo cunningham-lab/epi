@@ -214,8 +214,8 @@ def aug_lag_vars(z, log_q_z, eps, mu, N):
     """
     H = -tf.reduce_mean(log_q_z)
     T_x = eps(z)
-    clip_lb = -1e10*tf.ones_like(T_x, dtype=tf.float32)
-    clip_ub = 1e10*tf.ones_like(T_x, dtype=tf.float32)
+    clip_lb = -1e10 * tf.ones_like(T_x, dtype=tf.float32)
+    clip_ub = 1e10 * tf.ones_like(T_x, dtype=tf.float32)
     T_x = tf.clip_by_value(T_x, clip_lb, clip_ub)
     R = tf.reduce_mean(T_x, axis=0) - mu
     R1s = tf.unstack(tf.reduce_mean(T_x[: N // 2, :], 0) - mu, axis=0)
@@ -347,6 +347,7 @@ def check_bound_param(bounds, param_name):
         raise ValueError("Bounds are not ordered correctly: bounds[1] < bounds[0].")
     return None
 
+
 def sample_aug_lag_hps(
     n,
     N_bounds=[200, 1000],
@@ -390,49 +391,73 @@ def sample_aug_lag_hps(
         aug_lag_hp_i = AugLagHPs(N, lr, c0, gamma, beta)
         aug_lag_hps.append(aug_lag_hp_i)
 
-    if (n==1):
+    if n == 1:
         return aug_lag_hps[0]
     else:
         return aug_lag_hps
 
-def plot_square_mat(ax, A, c='k', lw=4, fontsize=12, bfrac=0.05, title=None, xlims=None, ylims=None, text_c='k'):
-    buf = .3
-    if (xlims is None):
-        ax.set_xlim([-.05, 1+buf])
+
+def plot_square_mat(
+    ax,
+    A,
+    c="k",
+    lw=4,
+    fontsize=12,
+    bfrac=0.05,
+    title=None,
+    xlims=None,
+    ylims=None,
+    text_c="k",
+):
+    buf = 0.3
+    if xlims is None:
+        ax.set_xlim([-0.05, 1 + buf])
     else:
         ax.set_xlim(xlims)
-    if (ylims is None):
-        ax.set_ylim([-.05, 1+buf])
+    if ylims is None:
+        ax.set_ylim([-0.05, 1 + buf])
     else:
         ax.set_ylim(ylims)
 
     D = A.shape[0]
-    if (len(A) != 2):
+    if len(A) != 2:
         raise ValueError("A is not 2D.")
-    if (A.shape[1] != D):
+    if A.shape[1] != D:
         raise ValueError("A is not square")
-    xs = np.linspace(1./(2.*D), 1 - 1./(2.*D), D)
-    ys = np.linspace(1.- 1./(2.*D), 1./(2.*D), D)-.02
+    xs = np.linspace(1.0 / (2.0 * D), 1 - 1.0 / (2.0 * D), D)
+    ys = np.linspace(1.0 - 1.0 / (2.0 * D), 1.0 / (2.0 * D), D) - 0.02
 
-    shift_x1 = -.18/D
-    shift_x2 = -.35/D
-    shift_y1 = +.2/D
-    shift_y2 = -.2/D
+    shift_x1 = -0.18 / D
+    shift_x2 = -0.35 / D
+    shift_y1 = +0.2 / D
+    shift_y2 = -0.2 / D
     texts = []
     for i in range(D):
         for j in range(D):
-            ax.text(xs[j]+shift_x1, ys[i]+shift_y1, r"$a_{%d%d}$" % (i+1, j+1), fontsize=(fontsize-2))
-            texts.append(ax.text(xs[j]+shift_x2, ys[i]+shift_y2, "%.2f" % A[i,j], 
-                         fontsize=fontsize, color=text_c, weight='bold'))
+            ax.text(
+                xs[j] + shift_x1,
+                ys[i] + shift_y1,
+                r"$a_{%d%d}$" % (i + 1, j + 1),
+                fontsize=(fontsize - 2),
+            )
+            texts.append(
+                ax.text(
+                    xs[j] + shift_x2,
+                    ys[i] + shift_y2,
+                    "%.2f" % A[i, j],
+                    fontsize=fontsize,
+                    color=text_c,
+                    weight="bold",
+                )
+            )
 
-    ax.plot([0,0], [0,1], 'k', c=c, lw=lw)
-    ax.plot([0,bfrac], [0,0], 'k', c=c, lw=lw)
-    ax.plot([0,bfrac], [1,1], 'k', c=c, lw=lw)
-    ax.plot([1,1], [0,1], 'k', c=c, lw=lw)
-    ax.plot([1.-bfrac, 1], [0,0], 'k', c=c, lw=lw)
-    ax.plot([1.-bfrac, 1], [1,1], 'k', c=c, lw=lw)
-    if (title is not None):
-        ax.text(0.27, 1.1, title, fontsize=(fontsize-4))
-    ax.axis('off')
+    ax.plot([0, 0], [0, 1], "k", c=c, lw=lw)
+    ax.plot([0, bfrac], [0, 0], "k", c=c, lw=lw)
+    ax.plot([0, bfrac], [1, 1], "k", c=c, lw=lw)
+    ax.plot([1, 1], [0, 1], "k", c=c, lw=lw)
+    ax.plot([1.0 - bfrac, 1], [0, 0], "k", c=c, lw=lw)
+    ax.plot([1.0 - bfrac, 1], [1, 1], "k", c=c, lw=lw)
+    if title is not None:
+        ax.text(0.27, 1.1, title, fontsize=(fontsize - 4))
+    ax.axis("off")
     return texts
-

@@ -100,6 +100,11 @@ def test_NormalizingFlow_init():
             batch_norm=True,
             bn_momentum="foo",
         )
+    with raises(TypeError):
+        nf = NormalizingFlow(
+            arch_type, D, num_stages, num_layers, num_units, post_affine="foo",
+        )
+
     with raises(ValueError):
         nf = NormalizingFlow(
             arch_type, D, num_stages, num_layers, num_units, bounds=(lb, ub, ub)
@@ -166,16 +171,20 @@ def test_NormalizingFlow_call():
         assert type(bijectors[1]) is stage_bijector
         assert type(bijectors[0]) is tfp.bijectors.Chain
 
+        x = nf.sample(5)
+        assert x.shape[0] == 5
+        assert x.shape[1] == D
+
     return None
 
 
 def test_to_string():
     nf = NormalizingFlow("coupling", 4, 1, 2, 15)
-    #assert nf.to_string() == "D4_C1_L2_U15_bnmom=9.90E-01_PA_rs1"
-    #nf = NormalizingFlow("coupling", 100, 2, 4, 200, random_seed=20)
-    #assert nf.to_string() == "D100_C2_L4_U200_bnmom=9.90E-01_PA_rs20"
-    #nf = NormalizingFlow("coupling", 4, 1, 2, 15, bn_momentum=0.999, post_affine=False)
-    #assert nf.to_string() == "D4_C1_L2_U15_bnmom=9.99E-01_rs1"
+    assert nf.to_string() == "D4_C1_L2_U15_PA_rs1"
+    # nf = NormalizingFlow("coupling", 100, 2, 4, 200, random_seed=20)
+    # assert nf.to_string() == "D100_C2_L4_U200_bnmom=9.90E-01_PA_rs20"
+    # nf = NormalizingFlow("coupling", 4, 1, 2, 15, bn_momentum=0.999, post_affine=False)
+    # assert nf.to_string() == "D4_C1_L2_U15_bnmom=9.99E-01_rs1"
     nf = NormalizingFlow(
         "autoregressive", 4, 1, 2, 15, batch_norm=False, post_affine=False
     )
@@ -273,8 +282,10 @@ def test_interval_flow():
         x = np.random.normal(0.0, 3.0, (N, D)).astype(np.float32)
         y, ldj = IF.forward_and_log_det_jacobian(tf.constant(x))
         x_inv = IF.inverse(y)
+        x_inv_fwd = IF.forward(x_inv)
         ildj = IF.inverse_log_det_jacobian(y, 1)
         assert np.isclose(x_inv, x, rtol=rtol).all()
+        assert np.isclose(x_inv_fwd, y, rtol=rtol).all()
         assert np.isclose(ldj, -ildj, rtol=rtol).all()
         for i in range(N):
             y_np, ldj_np = interval_flow_np(x[i], lb, ub)
@@ -335,7 +346,8 @@ def test_initialization():
     loc = -0.5
     scale = 2.0
     init_params = {"loc": loc, "scale": scale}
-    nf.initialize(init_type, init_params)
+    nf.initialize(init_type, init_params, verbose=True)
+    nf.plot_init_opt(init_type, init_params)
 
     z = nf.sample(int(1e4))
     z = z.numpy()
@@ -356,7 +368,3 @@ def test_initialization():
     nf.initialize(init_type, init_params)
 
     return None
-
-
-if __name__ == "__main__":
-    test_to_string()

@@ -53,12 +53,13 @@ def linear2D_freq(a11, a12, a21, a22):
     )
     return T_x
 
+
 def linear2D_freq_sq(A):
     tau = 1.0
-    c11 = A[:,0] / tau
-    c12 = A[:,1] / tau
-    c21 = A[:,2] / tau
-    c22 = A[:,3] / tau
+    c11 = A[:, 0] / tau
+    c12 = A[:, 1] / tau
+    c21 = A[:, 2] / tau
+    c22 = A[:, 3] / tau
 
     real_term = 0.5 * (c11 + c22)
     complex_term = 0.5 * tf.sqrt(
@@ -95,7 +96,5 @@ def linear2D_freq_np(a11, a12, a21, a22):
 
     if eig1_i >= eig2_i:
         imag_lambda = eig1_i
-    else:
-        imag_lambda = eig2_i
 
     return real_lambda, imag_lambda

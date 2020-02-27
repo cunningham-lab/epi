@@ -362,11 +362,10 @@ class NormalizingFlow(tf.keras.Model):
         """
         optimizer = tf.keras.optimizers.Adam(lr)
 
-        if load_if_cached or save:
-            _init_path = init_path(self.to_string(), init_type, init_params)
-            init_file = _init_path + "ckpt"
-            checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=self)
-            ckpt = tf.train.latest_checkpoint(_init_path)
+        _init_path = init_path(self.to_string(), init_type, init_params)
+        init_file = _init_path + "ckpt"
+        checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=self)
+        ckpt = tf.train.latest_checkpoint(_init_path)
         if load_if_cached and (ckpt is not None):
             print("Loading variables from cached initialization.")
             status = checkpoint.restore(ckpt)
@@ -374,8 +373,6 @@ class NormalizingFlow(tf.keras.Model):
             opt_data_file = _init_path + "opt_data.csv"
             if os.path.exists(opt_data_file):
                 return pd.read_csv(opt_data_file)
-            else:
-                return None
 
         if init_type == "iso_gauss":
             loc = init_params["loc"]
@@ -442,9 +439,8 @@ class NormalizingFlow(tf.keras.Model):
                         print(i, "H", H, "loss", loss)
 
         opt_df = pd.concat(opt_it_dfs, ignore_index=True)
-        if save:
-            opt_df.to_csv(_init_path + "opt_data.csv")
-            checkpoint.save(file_prefix=init_file)
+        opt_df.to_csv(_init_path + "opt_data.csv")
+        checkpoint.save(file_prefix=init_file)
         return opt_df
 
     def plot_init_opt(self, init_type, init_params):
@@ -453,7 +449,7 @@ class NormalizingFlow(tf.keras.Model):
         if os.path.exists(opt_data_file):
             df = pd.read_csv(opt_data_file)
         else:
-            Print("Error: Initialization not found.")
+            print("Error: Initialization not found.")
             return None
         fig, axs = plt.subplots(1, 3, figsize=(12, 5))
         has_KL = not np.isnan(df["KL"][0])
@@ -488,14 +484,14 @@ class NormalizingFlow(tf.keras.Model):
             self.num_units,
         )
 
-        #if self.batch_norm:
+        # if self.batch_norm:
         #    arch_string += "_bnmom=%.2E" % self.bn_momentum
 
         if self.post_affine:
             arch_string += "_PA"
 
-        #if self.lb is not None and self.ub is not None:
-            #arch_string += "_lb=%s_ub=%s" % (array_str(self.lb), array_str(self.ub))
+        # if self.lb is not None and self.ub is not None:
+        # arch_string += "_lb=%s_ub=%s" % (array_str(self.lb), array_str(self.ub))
 
         arch_string += "_rs%d" % self.random_seed
         return arch_string
@@ -650,7 +646,6 @@ class IntervalFlow(tfp.bijectors.Bijector):
         x = tf.multiply(self.tanh_flg, tanh_inv) + tf.multiply(1 - self.tanh_flg, x)
         return x
 
-
     def forward_log_det_jacobian(self, x):
         """Calculates forward log det jac of the interval flow.
 
@@ -693,4 +688,3 @@ class IntervalFlow(tfp.bijectors.Bijector):
         """
 
         return -self.forward_log_det_jacobian(self.inverse(x))
-

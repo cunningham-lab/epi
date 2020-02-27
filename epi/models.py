@@ -54,19 +54,19 @@ class Parameter(object):
     def _set_D(self, D):
         if type(D) is not int:
             raise TypeError(format_type_err_msg(self, "D", D, int))
-        if (D < 1):
+        if D < 1:
             raise ValueError("Dimension of parameter must be positive.")
         self.D = D
 
     def _set_bounds(self, lb, ub):
-        if (lb is None):
-            lb = np.NINF*np.ones(self.D)
-        elif (isinstance(lb, REAL_NUMERIC_TYPES)):
+        if lb is None:
+            lb = np.NINF * np.ones(self.D)
+        elif isinstance(lb, REAL_NUMERIC_TYPES):
             lb = np.array([lb])
 
-        if (ub is None):
-            ub = np.PINF*np.ones(self.D)
-        elif (isinstance(ub, REAL_NUMERIC_TYPES)):
+        if ub is None:
+            ub = np.PINF * np.ones(self.D)
+        elif isinstance(ub, REAL_NUMERIC_TYPES):
             ub = np.array([ub])
 
         if type(lb) is not np.ndarray:
@@ -75,15 +75,15 @@ class Parameter(object):
             raise TypeError(format_type_err_msg(self, "ub", ub, np.ndarray))
 
         lb_shape = lb.shape
-        if (len(lb_shape) != 1):
+        if len(lb_shape) != 1:
             raise ValueError("Lower bound lb must be vector.")
-        if (lb_shape[0] != self.D):
+        if lb_shape[0] != self.D:
             raise ValueError("Lower bound lb does not have dimension D = %d." % self.D)
 
         ub_shape = ub.shape
-        if (len(ub_shape) != 1):
+        if len(ub_shape) != 1:
             raise ValueError("Upper bound ub must be vector.")
-        if (ub_shape[0] != self.D):
+        if ub_shape[0] != self.D:
             raise ValueError("Upper bound ub does not have dimension D = %d." % self.D)
 
         for i in range(self.D):
@@ -159,7 +159,9 @@ class Model(object):
                     self.parameters.remove(param)
                     break
             if not found:
-                raise ValueError("Function eps has argument %s not in model parameter list." % arg)
+                raise ValueError(
+                    "Function eps has argument %s not in model parameter list." % arg
+                )
 
         self.parameters = _parameters
 
@@ -167,7 +169,7 @@ class Model(object):
             ind = 0
             zs = []
             for D in Ds:
-                zs.append(z[:,ind:(ind+D)])
+                zs.append(z[:, ind : (ind + D)])
                 ind += D
             return eps(*zs)
 
@@ -175,7 +177,7 @@ class Model(object):
         self.eps.__name__ = eps.__name__
 
         # TODO make this Z obey the arbitrary parameter bounds
-        z = tf.ones((100,self.D)) #tf.keras.Input(shape=(self.D))
+        z = tf.ones((100, self.D))  # tf.keras.Input(shape=(self.D))
         T_z = self.eps(z)
         T_z_shape = T_z.shape
         if len(T_z_shape) != 2:
@@ -188,8 +190,8 @@ class Model(object):
         ub = np.zeros((self.D,))
         ind = 0
         for param in self.parameters:
-            lb[ind:(ind+param.D)] = param.lb
-            ub[ind:(ind+param.D)] = param.ub
+            lb[ind : (ind + param.D)] = param.lb
+            ub[ind : (ind + param.D)] = param.ub
             ind += param.D
         return (lb, ub)
 
@@ -387,7 +389,7 @@ class Model(object):
                     if save_movie_data:
                         zs.append(z.numpy()[:N_save, :])
                         log_q_zs.append(log_q_z.numpy()[:N_save])
-                if (np.isnan(cost)):
+                if np.isnan(cost):
                     failed = True
                     break
             if not verbose:
@@ -402,14 +404,14 @@ class Model(object):
             else:
                 R_means = get_R_mean_dist(nf, self.eps, mu_colvec, M_test, N_test)
                 converged = self.test_convergence(R_means.numpy(), alpha)
-            last_ind = opt_it_df['iteration']==k*num_iters
+            last_ind = opt_it_df["iteration"] == k * num_iters
 
-            opt_it_df.loc[last_ind, 'converged'] = converged
+            opt_it_df.loc[last_ind, "converged"] = converged
             self._save_epi_opt(ckpt_dir, opt_it_df, cs, etas)
             opt_it_dfs = [opt_it_df]
 
             if k < K:
-                if (np.isnan(cost)):
+                if np.isnan(cost):
                     break
                 # Check for convergence if early stopping.
                 if stop_early and converged:
@@ -426,7 +428,7 @@ class Model(object):
                     c = beta * c
                 norms = norms_k
 
-        time_per_it = time2-time1
+        time_per_it = time2 - time1
         if save_movie_data:
             np.savez(
                 ckpt_dir + "movie_data.npz",
@@ -437,8 +439,7 @@ class Model(object):
             )
         else:
             np.savez(
-                ckpt_dir + "timing.npz",
-                time_per_it=time_per_it,
+                ckpt_dir + "timing.npz", time_per_it=time_per_it,
             )
 
         # Save hyperparameters.
@@ -451,11 +452,11 @@ class Model(object):
 
     def plot_epi_hpsearch(self, mu, alpha=0.05, nu=0.1):
         epi_dir = self.get_epi_path(mu)
-        if (not os.path.exists(epi_dir)):
+        if not os.path.exists(epi_dir):
             raise IOError("Directory %s does not exist." % epi_dir)
         opt_dirs = os.listdir(epi_dir)
         n = len(opt_dirs)
-        if (n == 0):
+        if n == 0:
             raise IOError("No optimizations in %s." % epi_dir)
         Hs = []
         hp_dfs = []
@@ -463,76 +464,79 @@ class Model(object):
         for i, opt_dir in enumerate(opt_dirs):
             print(i, opt_dir)
             # Parse hp file.
-            hp_filename = epi_dir + opt_dir + '/hps.p'
-            if (not os.path.exists(hp_filename)):
-                print('skipping', hp_filename)
+            hp_filename = epi_dir + opt_dir + "/hps.p"
+            if not os.path.exists(hp_filename):
+                print("skipping", hp_filename)
                 continue
             hps = pickle.load(open(hp_filename, "rb"))
-            hps['N'] = hps['aug_lag_hps'].N
-            hps['lr'] = hps['aug_lag_hps'].lr
-            hps['c0'] = hps['aug_lag_hps'].c0
-            hps['gamma'] = hps['aug_lag_hps'].gamma
-            del hps['aug_lag_hps']
-            del hps['init_type']
-            del hps['init_params']
+            hps["N"] = hps["aug_lag_hps"].N
+            hps["lr"] = hps["aug_lag_hps"].lr
+            hps["c0"] = hps["aug_lag_hps"].c0
+            hps["gamma"] = hps["aug_lag_hps"].gamma
+            del hps["aug_lag_hps"]
+            del hps["init_type"]
+            del hps["init_params"]
             hp_dfs.append(pd.DataFrame(hps, index=[i]))
 
             # Parse opt data file.
-            opt_filename = epi_dir + opt_dir + '/opt_data.csv'
+            opt_filename = epi_dir + opt_dir + "/opt_data.csv"
             opt_df_i = pd.read_csv(opt_filename)
-            opt_df_i['hp'] = opt_dir
+            opt_df_i["hp"] = opt_dir
             opt_dfs.append(opt_df_i)
 
             # Calculate evaluation statistics
-            conv_its = opt_df_i['converged'] == True
-            if (np.sum(conv_its) == 0):
+            conv_its = opt_df_i["converged"] == True
+            if np.sum(conv_its) == 0:
                 Hs.append(np.nan)
             else:
-                Hs.append(np.max(opt_df_i.loc[conv_its, 'H']))
+                Hs.append(np.max(opt_df_i.loc[conv_its, "H"]))
 
         hp_df = pd.concat(hp_dfs, sort=False)
-        hp_df['H'] = np.array(Hs)
+        hp_df["H"] = np.array(Hs)
         opt_df = pd.concat(opt_dfs, sort=False)
 
-        hps = opt_df['hp'].unique()
-        
+        hps = opt_df["hp"].unique()
+
         # Plot optimization diagnostics.
         m = mu.shape[0]
-        fig, axs = plt.subplots(m+1, 1, figsize=(10,m*3))
+        fig, axs = plt.subplots(m + 1, 1, figsize=(10, m * 3))
         for hp in hps:
-            opt_df_hp = opt_df[opt_df['hp'] == hp]
-            axs[0].plot(opt_df_hp['iteration'], opt_df_hp['H'], label=hp)
-            axs[0].set_ylabel(r'$H(q_\theta)$')
+            opt_df_hp = opt_df[opt_df["hp"] == hp]
+            axs[0].plot(opt_df_hp["iteration"], opt_df_hp["H"], label=hp)
+            axs[0].set_ylabel(r"$H(q_\theta)$")
             for i in range(m):
-                axs[i+1].plot(opt_df_hp['iteration'], opt_df_hp['R%d' % (i+1)])
-                axs[i+1].set_ylabel(r'$R(q_\theta)_{%d}$' % (i+1))
-        plt.show()
+                axs[i + 1].plot(opt_df_hp["iteration"], opt_df_hp["R%d" % (i + 1)])
+                axs[i + 1].set_ylabel(r"$R(q_\theta)_{%d}$" % (i + 1))
+        plt.show(False)
 
         # Plot scatters of hyperparameters with stats.
-        arch_types = hp_df['arch_type'].unique()
+        arch_types = hp_df["arch_type"].unique()
         dtypes = hp_df.dtypes
-        Hisnan = hp_df['H'].isna()
-        minH = hp_df['H'].min()
+        Hisnan = hp_df["H"].isna()
+        minH = hp_df["H"].min()
         numnan = Hisnan.sum()
         for arch_type in arch_types:
             nrows = 3
             ncols = 4
             fig, axs = plt.subplots(3, 4, figsize=(14, 14))
-            hp_df_arch = hp_df[hp_df['arch_type'] == arch_type]
+            hp_df_arch = hp_df[hp_df["arch_type"] == arch_type]
             ind = 1
             for i in range(nrows):
-                axs[i][0].set_ylabel('H')
+                axs[i][0].set_ylabel("H")
                 for j in range(ncols):
                     col = hp_df.columns[ind]
                     ind += 1
-                    #if (col in ['batch_norm', 'post_affine']):
+                    # if (col in ['batch_norm', 'post_affine']):
                     #    continue
-                    axs[i][j].scatter(hp_df_arch[col], hp_df_arch['H'])
-                    axs[i][j].scatter(hp_df_arch[col][Hisnan].to_numpy(),
-                                      (minH-1)*np.ones(numnan),
-                                      c='r', marker='x')
+                    axs[i][j].scatter(hp_df_arch[col], hp_df_arch["H"])
+                    axs[i][j].scatter(
+                        hp_df_arch[col][Hisnan].to_numpy(),
+                        (minH - 1) * np.ones(numnan),
+                        c="r",
+                        marker="x",
+                    )
                     axs[i][j].set_xlabel(col)
-        plt.show()
+        plt.show(False)
 
         return hp_df, opt_df
 
@@ -547,20 +551,20 @@ class Model(object):
         :type aug_lag_hps: :obj:`epi.util.AugLagHPs`
         """
 
-        hps = {'arch_type':nf.arch_type,
-               'num_stages':nf.num_stages,
-               'num_layers':nf.num_layers,
-               'num_units':nf.num_units,
-               'batch_norm':nf.batch_norm,
-               'bn_momentum':nf.bn_momentum,
-               'post_affine':nf.post_affine,
-               'random_seed':nf.random_seed,
-               'init_type':init_type,
-               'init_params':init_params,
-               'aug_lag_hps':aug_lag_hps
-               }
-        pickle.dump(hps, open(ckpt_dir + 'hps.p', "wb"))
-
+        hps = {
+            "arch_type": nf.arch_type,
+            "num_stages": nf.num_stages,
+            "num_layers": nf.num_layers,
+            "num_units": nf.num_units,
+            "batch_norm": nf.batch_norm,
+            "bn_momentum": nf.bn_momentum,
+            "post_affine": nf.post_affine,
+            "random_seed": nf.random_seed,
+            "init_type": init_type,
+            "init_params": init_params,
+            "aug_lag_hps": aug_lag_hps,
+        }
+        pickle.dump(hps, open(ckpt_dir + "hps.p", "wb"))
 
     def epi_opt_movie(self, path):
         """Generate video of EPI optimization.
@@ -589,7 +593,9 @@ class Model(object):
         iters = z_file["iterations"]
         N_frames = len(iters)
         Hs = opt_data_df["H"]
-        if (len(Hs) < N_frames) or (not np.isclose(iters, opt_data_df["iteration"][:N_frames]).all()):
+        if (len(Hs) < N_frames) or (
+            not np.isclose(iters, opt_data_df["iteration"][:N_frames]).all()
+        ):
             raise IOError("opt_data.csv incompatible with movie_data.npz.")
         R_keys = []
         for key in opt_data_df.columns:
@@ -605,14 +611,14 @@ class Model(object):
         ylab_x = -0.075
         ylab_y = 0.6
 
-        if (not (self.name == "lds_2D")):
+        if not (self.name == "lds_2D"):
             iter_rows = 3
-            #z_labels = [param.name for param in self.parameters]
-            z_labels = ["z%d" % d for d in range(1, self.D+1)]
+            # z_labels = [param.name for param in self.parameters]
+            z_labels = ["z%d" % d for d in range(1, self.D + 1)]
             fig, axs = plt.subplots(D + iter_rows, D, figsize=(9, 12))
             H_ax = plt.subplot(D + iter_rows, 1, 1)
         else:
-            z_labels = [r'$a_{11}$', r'$a_{12}$', r'$a_{21}$', r'$a_{22}$']
+            z_labels = [r"$a_{11}$", r"$a_{12}$", r"$a_{21}$", r"$a_{22}$"]
             fig, axs = plt.subplots(4, 8, figsize=(16, 8))
             H_ax = plt.subplot(4, 2, 1)
             mode1s = []
@@ -620,26 +626,26 @@ class Model(object):
             wsize = 100
 
         # Entropy lines
-        x_end = 1.25*iters[-1]
+        x_end = 1.25 * iters[-1]
         opt_y_shiftx = -0.05
-        num_iters = opt_data_df[opt_data_df['k']==1]['iteration'].max()
-        K = opt_data_df['k'].max()
-        log_rate = opt_data_df['iteration'][1]
-        xticks = num_iters*np.arange(K+1)
+        num_iters = opt_data_df[opt_data_df["k"] == 1]["iteration"].max()
+        K = opt_data_df["k"].max()
+        log_rate = opt_data_df["iteration"][1]
+        xticks = num_iters * np.arange(K + 1)
         H_ax.set_xlim(0, x_end)
         min_H, max_H = np.min(Hs), np.max(Hs)
         H_ax.set_ylim(min_H, max_H)
-        H_line, = H_ax.plot(_iters, _Hs, c=palette[0])
+        (H_line,) = H_ax.plot(_iters, _Hs, c=palette[0])
         H_ax.set_ylabel(r"$H(q_\theta)$", rotation="horizontal", fontsize=fontsize)
-        H_ax.yaxis.set_label_coords(ylab_x+opt_y_shiftx, ylab_y)
+        H_ax.yaxis.set_label_coords(ylab_x + opt_y_shiftx, ylab_y)
         H_ax.set_xticks(xticks)
-        H_ax.set_xticklabels(len(xticks)*[''])
-        H_ax.spines['bottom'].set_bounds(0, iters[-1])
-        H_ax.spines['right'].set_visible(False)
-        H_ax.spines['top'].set_visible(False)
+        H_ax.set_xticklabels(len(xticks) * [""])
+        H_ax.spines["bottom"].set_bounds(0, iters[-1])
+        H_ax.spines["right"].set_visible(False)
+        H_ax.spines["top"].set_visible(False)
 
         # Constraint lines
-        if (not (self.name == "lds_2D")):
+        if not (self.name == "lds_2D"):
             R_ax = plt.subplot(D + iter_rows, 1, 2)
         else:
             R_ax = plt.subplot(4, 2, 3)
@@ -648,16 +654,16 @@ class Model(object):
         R_ax.set_xlim(0, x_end)
         R_ax.set_ylim(min_R, max_R)
         R_ax.set_ylabel(r"$R(q_\theta)$", rotation="horizontal", fontsize=fontsize)
-        R_ax.yaxis.set_label_coords(ylab_x+opt_y_shiftx, ylab_y)
-        R_ax.set_xlabel("iterations", fontsize=(fontsize-2))
+        R_ax.yaxis.set_label_coords(ylab_x + opt_y_shiftx, ylab_y)
+        R_ax.set_xlabel("iterations", fontsize=(fontsize - 2))
         R_ax.set_xticks(xticks)
-        xticklabels = ["0"] + ["%dk" % int(xtick/1000) for xtick in xticks[1:]]
-        R_ax.set_xticklabels(xticklabels, fontsize=(fontsize-4))
-        R_ax.spines['bottom'].set_bounds(0, iters[-1])
-        R_ax.spines['right'].set_visible(False)
-        R_ax.spines['top'].set_visible(False)
+        xticklabels = ["0"] + ["%dk" % int(xtick / 1000) for xtick in xticks[1:]]
+        R_ax.set_xticklabels(xticklabels, fontsize=(fontsize - 4))
+        R_ax.spines["bottom"].set_bounds(0, iters[-1])
+        R_ax.spines["right"].set_visible(False)
+        R_ax.spines["top"].set_visible(False)
 
-        if (not (self.name == "lds_2D")):
+        if not (self.name == "lds_2D"):
             for j in range(D):
                 axs[2, j].axis("off")
         else:
@@ -665,39 +671,59 @@ class Model(object):
             def get_lds_2D_modes(z, log_q_z):
                 M = log_q_z.shape[0]
 
-                mode1 = np.logical_and(z[:,1] > 0., z[:,2] < 0)
-                if (len(mode1) == 0):
-                    mode1 = np.zeros((2,2))
+                mode1 = np.logical_and(z[:, 1] > 0.0, z[:, 2] < 0)
+                if sum(mode1) == 0:
+                    mode1 = np.zeros((2, 2))
                 else:
                     mode1_inds = np.arange(M)[mode1]
                     mode1_ind = mode1_inds[np.argmax(log_q_z[mode1])]
-                    mode1 = np.reshape(z[mode1_ind], (2,2))
+                    mode1 = np.reshape(z[mode1_ind], (2, 2))
 
-                mode2 = np.logical_and(z[:,1] < 0., z[:,2] > 0)
-                if (len(mode2) == 0):
-                    mode2 = np.zeros((2,2))
+                mode2 = np.logical_and(z[:, 1] < 0.0, z[:, 2] > 0)
+                if sum(mode2) == 0:
+                    mode2 = np.zeros((2, 2))
                 else:
                     mode2_inds = np.arange(M)[mode2]
                     mode2_ind = mode2_inds[np.argmax(log_q_z[mode2])]
-                    mode2 = np.reshape(z[mode2_ind], (2,2))
+                    mode2 = np.reshape(z[mode2_ind], (2, 2))
 
                 return mode1, mode2
 
-            sqmat_xlims1 = [-.2, 1.25]
-            sqmat_xlims2 = [-.05, 1.4]
+            sqmat_xlims1 = [-0.2, 1.25]
+            sqmat_xlims2 = [-0.05, 1.4]
             sqmat_ylims = [-0.05, 1.4]
             mode1, mode2 = get_lds_2D_modes(z, log_q_z)
             mode1s.append(mode1)
             mode2s.append(mode2)
-            lw=5
-            gray = 0.4*np.ones(3)
-            bfrac=0.05
+            lw = 5
+            gray = 0.4 * np.ones(3)
+            bfrac = 0.05
             mat_ax = plt.subplot(2, 4, 5)
-            texts = plot_square_mat(mat_ax, mode1, c=gray, lw=lw, fontsize=24, bfrac=bfrac, title="mode 1",
-                                    xlims=sqmat_xlims1, ylims=sqmat_ylims, text_c=palette[1])
+            texts = plot_square_mat(
+                mat_ax,
+                mode1,
+                c=gray,
+                lw=lw,
+                fontsize=24,
+                bfrac=bfrac,
+                title="mode 1",
+                xlims=sqmat_xlims1,
+                ylims=sqmat_ylims,
+                text_c=palette[1],
+            )
             mat_ax = plt.subplot(2, 4, 6)
-            texts += plot_square_mat(mat_ax, mode2, c=gray, lw=lw, fontsize=24, bfrac=bfrac, title="mode 2",
-                                     xlims=sqmat_xlims2, ylims=sqmat_ylims, text_c=palette[3])
+            texts += plot_square_mat(
+                mat_ax,
+                mode2,
+                c=gray,
+                lw=lw,
+                fontsize=24,
+                bfrac=bfrac,
+                title="mode 2",
+                xlims=sqmat_xlims2,
+                ylims=sqmat_ylims,
+                text_c=palette[3],
+            )
             mode1_vec = np.reshape(mode1, (4,))
             mode2_vec = np.reshape(mode2, (4,))
 
@@ -705,9 +731,11 @@ class Model(object):
         _Rs = []
         for i in range(m):
             _Rs.append([R[0, i]])
-            R_line, = R_ax.plot(_iters, _Rs[i], label=R_keys[i], c='k') #palette[i + 1])
+            (R_line,) = R_ax.plot(
+                _iters, _Rs[i], label=R_keys[i], c="k"
+            )  # palette[i + 1])
             R_lines.append(R_line)
-        #R_ax.legend(loc=9)
+        # R_ax.legend(loc=9)
 
         lines = [H_line] + R_lines
 
@@ -729,7 +757,7 @@ class Model(object):
         # Collect scatters
         cmap = plt.get_cmap("viridis")
         scats = []
-        if (not (self.name == "lds_2D")):
+        if not (self.name == "lds_2D"):
             scat_i = iter_rows
             scat_j = 0
         else:
@@ -742,8 +770,8 @@ class Model(object):
                 scats.append(ax.scatter(z[:, j], z[:, i], c=log_q_zs[0], cmap=cmap))
                 ax.set_xlim(ax_mins[j], ax_maxs[j])
                 ax.set_ylim(ax_mins[i], ax_maxs[i])
-                ax.spines['right'].set_visible(False)
-                ax.spines['top'].set_visible(False)
+                ax.spines["right"].set_visible(False)
+                ax.spines["top"].set_visible(False)
 
         kdes = []
         conts = []
@@ -764,9 +792,13 @@ class Model(object):
                 _z = z[:, [j, i]]
                 kde.fit(_z, log_q_z)
                 z_grid = np.meshgrid(grid_xs, grid_ys)
-                z_grid_mat = np.stack([np.reshape(z_grid[0], (num_grid**2)),
-                                   np.reshape(z_grid[1], (num_grid**2))],
-                                  axis=1)
+                z_grid_mat = np.stack(
+                    [
+                        np.reshape(z_grid[0], (num_grid ** 2)),
+                        np.reshape(z_grid[1], (num_grid ** 2)),
+                    ],
+                    axis=1,
+                )
                 scores_ij = kde.score_samples(z_grid_mat)
                 scores_ij = np.reshape(scores_ij, (num_grid, num_grid))
                 levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 20)
@@ -781,19 +813,23 @@ class Model(object):
                 z_labels[i], rotation="horizontal", fontsize=fontsize,
             )
             axs[i + scat_i][scat_j].yaxis.set_label_coords(D * ylab_x, ylab_y)
-            axs[-1][i+scat_j].set_xlabel(z_labels[i], fontsize=fontsize)
-            axs[i+scat_i][i+scat_j].set_xlim(ax_mins[i], ax_maxs[i])
-            axs[i+scat_i][i+scat_j].set_ylim(ax_mins[i], ax_maxs[i])
-            axs[i+scat_i][i+scat_j].spines['right'].set_visible(False)
-            axs[i+scat_i][i+scat_j].spines['top'].set_visible(False)
+            axs[-1][i + scat_j].set_xlabel(z_labels[i], fontsize=fontsize)
+            axs[i + scat_i][i + scat_j].set_xlim(ax_mins[i], ax_maxs[i])
+            axs[i + scat_i][i + scat_j].set_ylim(ax_mins[i], ax_maxs[i])
+            axs[i + scat_i][i + scat_j].spines["right"].set_visible(False)
+            axs[i + scat_i][i + scat_j].spines["top"].set_visible(False)
 
         # Plot modes
-        if (self.name == "lds_2D"):
-            for i in range(D-1):
-                for j in range(i+1, D):
-                    line, = axs[i+scat_i, j+scat_j].plot(mode1_vec[j], mode1_vec[i], 'o', c=palette[1])
+        if self.name == "lds_2D":
+            for i in range(D - 1):
+                for j in range(i + 1, D):
+                    (line,) = axs[i + scat_i, j + scat_j].plot(
+                        mode1_vec[j], mode1_vec[i], "o", c=palette[1]
+                    )
                     lines.append(line)
-                    line, = axs[i+scat_i, j+scat_j].plot(mode2_vec[j], mode2_vec[i], 'o', c=palette[3])
+                    (line,) = axs[i + scat_i, j + scat_j].plot(
+                        mode2_vec[j], mode2_vec[i], "o", c=palette[3]
+                    )
                     lines.append(line)
 
         # Tick labels
@@ -819,32 +855,30 @@ class Model(object):
             for i in range(m):
                 lines[i + 1].set_data(_iters, _Rs[i])
 
-
             # Update modes.
-            if (self.name == "lds_2D"):
+            if self.name == "lds_2D":
                 mode1, mode2 = get_lds_2D_modes(z, log_q_z)
                 mode1s.append(mode1)
                 mode2s.append(mode2)
 
-                mode1_avg = np.mean(np.array(mode1s)[-wsize:,:], axis=0)
-                mode2_avg = np.mean(np.array(mode2s)[-wsize:,:], axis=0)
+                mode1_avg = np.mean(np.array(mode1s)[-wsize:, :], axis=0)
+                mode2_avg = np.mean(np.array(mode2s)[-wsize:, :], axis=0)
                 mode1_vec = np.reshape(mode1_avg, (4,))
                 mode2_vec = np.reshape(mode2_avg, (4,))
                 ind = 0
                 for i in range(2):
                     for j in range(2):
-                        texts[ind].set_text('%.1f' % mode1_avg[i,j])
-                        texts[ind+4].set_text('%.1f' % mode2_avg[i,j])
+                        texts[ind].set_text("%.1f" % mode1_avg[i, j])
+                        texts[ind + 4].set_text("%.1f" % mode2_avg[i, j])
                         ind += 1
 
                 ind = 0
-                for i in range(D-1):
-                    for j in range(i+1,D):
-                        lines[1+m+ind].set_data(mode1_vec[j], mode1_vec[i])
+                for i in range(D - 1):
+                    for j in range(i + 1, D):
+                        lines[1 + m + ind].set_data(mode1_vec[j], mode1_vec[i])
                         ind += 1
-                        lines[1+m+ind].set_data(mode2_vec[j], mode2_vec[i])
+                        lines[1 + m + ind].set_data(mode2_vec[j], mode2_vec[i])
                         ind += 1
-
 
             # Update scatters
             _ind = 0
@@ -868,9 +902,13 @@ class Model(object):
                     _z = z[:, [j, i]]
                     kde.fit(_z, log_q_z)
                     z_grid = np.meshgrid(grid_xs, grid_ys)
-                    z_grid_mat = np.stack([np.reshape(z_grid[0], (num_grid**2)),
-                                       np.reshape(z_grid[1], (num_grid**2))],
-                                      axis=1)
+                    z_grid_mat = np.stack(
+                        [
+                            np.reshape(z_grid[0], (num_grid ** 2)),
+                            np.reshape(z_grid[1], (num_grid ** 2)),
+                        ],
+                        axis=1,
+                    )
                     scores_ij = kde.score_samples(z_grid_mat)
                     scores_ij = np.reshape(scores_ij, (num_grid, num_grid))
                     ax = axs[i + scat_i][j + scat_j]
@@ -880,19 +918,19 @@ class Model(object):
 
             return lines + scats
 
-        if (self.name == "lds_2D"):
+        if self.name == "lds_2D":
             frames = []
             skip = False
             logs_per_k = num_iters // log_rate
             for k in range(K):
                 for iter in range(0, logs_per_k):
-                    if (k==0):
-                        frames += 4*[k*logs_per_k + iter]
-                    elif (1 <= k and k <= 2):
-                        frames += 2*[k*logs_per_k + iter]
+                    if k == 0:
+                        frames += 4 * [k * logs_per_k + iter]
+                    elif 1 <= k and k <= 2:
+                        frames += 2 * [k * logs_per_k + iter]
                     else:
                         if not skip:
-                            frames += [k*logs_per_k + iter]
+                            frames += [k * logs_per_k + iter]
                         skip = not skip
         else:
             frames = range(N_frames)
@@ -920,7 +958,7 @@ class Model(object):
         return np.prod(p_vals > (alpha / m))
 
     def _opt_it_df(self, k, iter, H, R, R_keys):
-        d = {"k": k, "iteration": iter, "H": H, "converged":None}
+        d = {"k": k, "iteration": iter, "H": H, "converged": None}
         d.update(zip(R_keys, list(R)))
         return pd.DataFrame(d, index=[0])
 
@@ -933,10 +971,10 @@ class Model(object):
         arch_string = arch.to_string()
         hp_string = AL_hps.to_string()
         return epi_path + "/%s/" % arch_string
-        #return epi_path + "/%s_%s/" % (
+        # return epi_path + "/%s_%s/" % (
         #    arch_string,
         #    hp_string,
-        #)
+        # )
 
     def get_epi_path(self, mu, eps_name=None):
         if eps_name is not None:
@@ -947,13 +985,12 @@ class Model(object):
             else:
                 raise AttributeError("Model.eps is not set.")
         mu_string = array_str(mu)
-        #return "data/%s_%s_mu=%s/" % (
+        # return "data/%s_%s_mu=%s/" % (
         return "data/%s_%s/" % (
             self.name,
             _eps_name,
-            #mu_string,
+            # mu_string,
         )
-
 
     def load_epi_dist(
         self,
@@ -1083,7 +1120,7 @@ class Distribution(object):
         return z.numpy()
 
     def _set_nf(self, nf):
-        #if type(nf) is not NormalizingFlow:
+        # if type(nf) is not NormalizingFlow:
         #    raise TypeError(format_type_err_msg(self, nf, "nf", NormalizingFlow))
         self.nf = nf
 
@@ -1181,8 +1218,8 @@ class Distribution(object):
         z = self.sample(N)
         log_q_z = self.log_prob(z)
         df = pd.DataFrame(z)
-        #z_labels = [param.name for param in self.parameters]
-        z_labels = ["z%d" % d for d in range(1, self.D+1)]
+        # z_labels = [param.name for param in self.parameters]
+        z_labels = ["z%d" % d for d in range(1, self.D + 1)]
         df.columns = z_labels
         df["log_q_z"] = log_q_z
 
@@ -1194,7 +1231,7 @@ class Distribution(object):
         g = g.map_upper(plt.scatter, color=cmap(log_q_z_std))
 
         g = g.map_lower(sns.kdeplot)
-        plt.show()
+        plt.show(False)
         return g
 
 

@@ -83,6 +83,10 @@ def test_np_column_vec():
 
 
 def test_array_str():
+    a = np.array([0.0492])
+    a_str = "4.92E-02"
+    assert a_str == array_str(a)
+
     a = np.array([3.2, 15.2, -0.4, -9.2])
     a_str = "3.20E+00_1.52E+01_-4.00E-01_-9.20E+00"
     assert a_str == array_str(a)
@@ -141,7 +145,7 @@ def test_init_path():
     init_param = {"mu": mu, "Sigma": Sigma}
     s = init_path(arch_string, init_type, init_param)
     s_true = "./data/foo/gaussian_mu=2x0.00E+00_Sigma=1.00E+00_0.00E+00_1.00E+00/"
-    assert(s == s_true)
+    assert s == s_true
     init_param = {"mu": mu}
     with raises(ValueError):
         s = init_path(arch_string, init_type, init_param)
@@ -325,31 +329,33 @@ def test_unbiased_aug_grad():
 
     return None
 
+
 def test_AugLagHPs():
     with raises(TypeError):
-        AugLagHPs(N='foo')
+        AugLagHPs(N="foo")
     with raises(ValueError):
         AugLagHPs(N=0)
 
     with raises(TypeError):
-        AugLagHPs(lr='foo')
+        AugLagHPs(lr="foo")
     with raises(ValueError):
-        AugLagHPs(lr=-1.)
+        AugLagHPs(lr=-1.0)
 
     with raises(TypeError):
-        AugLagHPs(c0='foo')
+        AugLagHPs(c0="foo")
     with raises(ValueError):
-        AugLagHPs(c0=-1.)
+        AugLagHPs(c0=-1.0)
 
     with raises(TypeError):
-        AugLagHPs(gamma='foo')
+        AugLagHPs(gamma="foo")
     with raises(ValueError):
-        AugLagHPs(gamma=-.1)
+        AugLagHPs(gamma=-0.1)
 
     with raises(TypeError):
-        AugLagHPs(beta='foo')
+        AugLagHPs(beta="foo")
     with raises(ValueError):
-        AugLagHPs(beta=-1.)
+        AugLagHPs(beta=-1.0)
+
 
 def test_sample_aug_lag_hps():
     N_bounds = [100, 500]
@@ -371,11 +377,22 @@ def test_sample_aug_lag_hps():
         assert aug_lag_hp.c0 < c0_bounds[1]
         assert aug_lag_hp.gamma >= gamma_bounds[0]
         assert aug_lag_hp.gamma < gamma_bounds[1]
-        assert aug_lag_hp.beta == 1. / aug_lag_hp.gamma
+        assert aug_lag_hp.beta == 1.0 / aug_lag_hp.gamma
+
+    aug_lag_hp = sample_aug_lag_hps(1, N_bounds, lr_bounds, c0_bounds, gamma_bounds)
+    assert aug_lag_hp.N >= N_bounds[0]
+    assert aug_lag_hp.N < N_bounds[1]
+    assert aug_lag_hp.lr >= lr_bounds[0]
+    assert aug_lag_hp.lr < lr_bounds[1]
+    assert aug_lag_hp.c0 >= c0_bounds[0]
+    assert aug_lag_hp.c0 < c0_bounds[1]
+    assert aug_lag_hp.gamma >= gamma_bounds[0]
+    assert aug_lag_hp.gamma < gamma_bounds[1]
+    assert aug_lag_hp.beta == 1.0 / aug_lag_hp.gamma
 
     with raises(TypeError):
-        sample_aug_lag_hps(n, N_bounds='foo')
-        
+        sample_aug_lag_hps(n, N_bounds="foo")
+
     with raises(ValueError):
         sample_aug_lag_hps(n, N_bounds=[1, 2, 3])
 
@@ -389,17 +406,16 @@ def test_sample_aug_lag_hps():
         sample_aug_lag_hps(n, N_bounds=[2, 100])
 
     with raises(ValueError):
-        sample_aug_lag_hps(n, lr_bounds=[-.1, .1])
+        sample_aug_lag_hps(n, lr_bounds=[-0.1, 0.1])
 
     with raises(ValueError):
-        sample_aug_lag_hps(n, c0_bounds=[-.1, .1])
+        sample_aug_lag_hps(n, c0_bounds=[-0.1, 0.1])
 
     with raises(ValueError):
-        sample_aug_lag_hps(n, gamma_bounds=[-.1, .1])
+        sample_aug_lag_hps(n, gamma_bounds=[-0.1, 0.1])
 
     return None
 
-#if __name__ == "__main__":
-#    test_unbiased_aug_grad()
 
-
+if __name__ == "__main__":
+    test_sample_aug_lag_hps()
