@@ -9,7 +9,8 @@ Welcome to epi's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
+   
+   Installation
    API
 
 

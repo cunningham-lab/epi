@@ -103,7 +103,7 @@ class Parameter(object):
 class Model(object):
     """Model to run emergent property inference on.  To run EPI on a model:
 
-    #. Initialize an :obj:epi.models.Model with a list of :obj:`epi.models.Parameter`.
+    #. Initialize an :obj:`epi.models.Model` with a list of :obj:`epi.models.Parameter`.
     #. Use :obj:`epi.models.Model.set_eps` to set the emergent property statistics of the model.
     #. Run emergent property inference for mean parameter :math:`\\mu` using :obj:`epi.models.Model.epi`.
 
@@ -946,9 +946,9 @@ class Model(object):
     def test_convergence(self, R_means, alpha):
         """Tests convergence of EPI constraints.
 
-        :param R_means: blah
+        :param R_means: Emergent property statistic means.
         :type R_means: np.ndarray
-        :param alpha: blah
+        :param alpha: P-value threshold.
         :type alpha: float
         """
         M, m = R_means.shape
@@ -1058,7 +1058,7 @@ class Model(object):
     def parameter_check(self, parameters, verbose=False):
         """Check that model parameter list has no duplicates and valid bounds.
 
-        :param parameters: List of :obj:`epi.models.Parameter`s.
+        :param parameters: List of :obj:`epi.models.Parameter`.
         :type parameters: list
         :param verbose: Print rationale for check failure if True, defaults to False.
         :type verbose: bool, optional
@@ -1104,10 +1104,10 @@ class Distribution(object):
     Obtain samples, log densities, gradients and Hessians of a distribution
     defined by a normalizing flow optimized via tensorflow.
 
-    :param parameters: List of :obj:`epi.models.Parameter`.
-    :type parameters: list
     :param nf: Normalizing flow trained via tensorflow.
-    :type nf: :obj:`epi.normalizing_flows.NormalizingFlow`.
+    :type nf: :obj:`epi.normalizing_flows.NormalizingFlow`
+    :param parameters: List of :obj:`epi.models.Parameter`. Defaults to z1, ..
+    :type parameters: list, optional
     """
 
     def __init__(self, nf, parameters=None):
