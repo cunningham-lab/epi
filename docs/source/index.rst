@@ -6,11 +6,15 @@
 Welcome to epi's documentation!
 ===============================
 
+This package provides EPI for general python implementations of neural circuit models based on the algorithm in
+`https://www.biorxiv.org/content/10.1101/837567v2.abstract <https://www.biorxiv.org/content/10.1101/837567v2.abstract>`_.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
    
    Installation
+   Tutorial
    API
 
 
