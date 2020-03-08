@@ -198,18 +198,18 @@ class Model(object):
     def epi(
         self,
         mu,
-        arch_type="autoregressive",
-        num_stages=1,
+        arch_type="coupling",
+        num_stages=3,
         num_layers=2,
         num_units=None,
         batch_norm=True,
         bn_momentum=0.99,
-        post_affine=True,
+        post_affine=False,
         random_seed=1,
         init_type="iso_gauss",
         init_params={"loc": 0.0, "scale": 1.0},
         K=10,
-        num_iters=2000,
+        num_iters=1000,
         N=500,
         lr=1e-3,
         c0=1.0,
@@ -218,7 +218,7 @@ class Model(object):
         alpha=0.05,
         nu=1.0,
         stop_early=False,
-        log_rate=100,
+        log_rate=50,
         verbose=False,
         save_movie_data=False,
     ):
@@ -227,19 +227,19 @@ class Model(object):
 
         :param mu: Mean parameter of the emergent property.
         :type mu: np.ndarray
-        :param arch_type: :math:`\\in` :obj:`['autoregressive', 'coupling']`, defaults to :obj:`'autoregressive'`.
+        :param arch_type: :math:`\\in` :obj:`['autoregressive', 'coupling']`, defaults to :obj:`'coupling'`.
         :type arch_type: str, optional
-        :param num_stages: Number of coupling or autoregressive stages.
+        :param num_stages: Number of coupling or autoregressive stages, defaults to 3.
         :type num_stages: int, optional
-        :param num_layers: Number of neural network layer per conditional.
+        :param num_layers: Number of neural network layer per conditional, defaults to 2.
         :type num_layers: int, optional
-        :param num_units: Number of units per layer.
+        :param num_units: Number of units per layer, defaults to max(2D, 15).
         :type num_units: int, optional
         :param batch_norm: Use batch normalization between stages, defaults to True.
         :type batch_norm: bool, optional
         :param bn_momentum: Batch normalization momentum parameter, defaults to 0.99.
         :type bn_momentrum: float, optional
-        :param post_affine: Shift and scale following main transform, defaults to True.
+        :param post_affine: Shift and scale following main transform, defaults to False.
         :type post_affine: bool, optional
         :param random_seed: Random seed of architecture parameters, defaults to 1.
         :type random_seed: int, optional
@@ -249,7 +249,7 @@ class Model(object):
         :type init_params: dict, optional
         :param K: Number of augmented Lagrangian iterations, defaults to 10.
         :type K: int, float, optional
-        :param num_iters: Number of optimization iterations, defaults to 2000.
+        :param num_iters: Number of optimization iterations, defaults to 1000.
         :type num_iters: int, optional
         :param N: Number of batch samples per iteration, defaults to 500.
         :type N: int, optional
@@ -1218,8 +1218,8 @@ class Distribution(object):
         z = self.sample(N)
         log_q_z = self.log_prob(z)
         df = pd.DataFrame(z)
-        # z_labels = [param.name for param in self.parameters]
-        z_labels = ["z%d" % d for d in range(1, self.D + 1)]
+        z_labels = [param.name for param in self.parameters]
+        #z_labels = ["z%d" % d for d in range(1, self.D + 1)]
         df.columns = z_labels
         df["log_q_z"] = log_q_z
 
@@ -1231,7 +1231,6 @@ class Distribution(object):
         g = g.map_upper(plt.scatter, color=cmap(log_q_z_std))
 
         g = g.map_lower(sns.kdeplot)
-        plt.show(False)
         return g
 
 
