@@ -4,17 +4,14 @@ Tutorial
 
 For a tutorial, check out the jupyter notebook for oscillating 2D linear dynamical systems.
 
-`Getting Started with EPI
+`1. Getting Started with EPI
 <https://github.com/cunningham-lab/epi/blob/master/notebooks/Getting_Started_with_EPI.ipynb>`_
 
-This notebook will demo the basic code functionality and run the optimization visualized below:
+`2. Choosing a normalizing flow architecture
+<https://github.com/cunningham-lab/epi/blob/master/notebooks/Normalizing_Flows.ipynb>`_
 
-.. raw:: html
+`3. Choosing hyperparameters for augmented Lagrangian optimization.
+<https://github.com/cunningham-lab/epi/blob/master/notebooks/Augmented_Lagrangian.ipynb>`_
 
-   <div>
-      <video width="500" controls>
-         <source src="epi_opt.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-      </video>
-   </div>
+
 
