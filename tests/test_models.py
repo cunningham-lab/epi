@@ -118,6 +118,9 @@ def test_epi():
     q_theta, opt_data, save_path, _ = M.epi(
         mu, num_iters=100, K=1, save_movie_data=True
     )
+
+    q_theta = M.load_epi_dist(mu, k=1)
+
     M.epi_opt_movie(save_path)
     q_theta, opt_data, save_path, _ = M.epi(
         mu, num_units=31, num_iters=100, K=1, save_movie_data=True
@@ -140,7 +143,6 @@ def test_epi():
     # os.remove(opt_data_filename)
     # with raises(IOError):
     #    M.epi_opt_movie(save_path)
-    q_theta = M.load_epi_dist(mu, k=1)
     assert q_theta is not None
     with raises(ValueError):
         q_theta = M.load_epi_dist(mu, k=20)
