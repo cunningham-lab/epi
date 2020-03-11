@@ -3,13 +3,15 @@
 import numpy as np
 import scipy.stats
 import matplotlib.pyplot as plt
+import seaborn as sns
 import os
 import tensorflow as tf
 import tensorflow_probability as tfp
-import pandas as pd
-
+from tensorflow_probability.python.internal import tensorshape_util
 tfb = tfp.bijectors
 tfd = tfp.distributions
+import tensorflow.compat.v1 as tf1
+import pandas as pd
 
 from epi.error_formatters import format_type_err_msg
 from epi.util import (
@@ -688,3 +690,125 @@ class IntervalFlow(tfp.bijectors.Bijector):
         """
 
         return -self.forward_log_det_jacobian(self.inverse(x))
+
+
+""" The code below is used to implement SNL and SNPE. """
+class ConditionedNormFlow(tf.keras.Model):
+    def __init__(self, D, num_layers=2, num_units=100):
+        super(ConditionedNormFlow, self).__init__()
+        self._set_D(D)
+        self._set_num_layers(num_layers)
+        self._set_num_units(num_units)
+        
+        self.q0 = tfd.MultivariateNormalDiag(loc=self.D * [0.0])
+        
+        self.conditioner = self._real_nvp_conditioner_template(
+            output_units=D//2, 
+            hidden_layers=num_layers*[num_units],
+            conditioner_num_layers=2,
+        )
+        
+        self.NVP = tfb.RealNVP(
+            num_masked= D // 2,
+            shift_and_log_scale_fn=self.conditioner,
+        )
+        self.dist = tfd.TransformedDistribution(
+            distribution=self.q0, bijector=self.NVP,
+            kwargs_split_fn=(lambda y: ({}, y)),
+        )
+        
+    def _real_nvp_conditioner_template(
+        self, 
+        output_units, 
+        hidden_layers=[100,100],
+        conditioner_num_layers=2,
+    ):
+        def tf1_net(x, num_layers, units):
+            for i in range(num_layers):
+                x = tf1.layers.dense(inputs=x, units=units)
+            return x
+
+        def _fn(z, output_units, **condition_kwargs):
+            x_data = condition_kwargs['x_data']
+                            
+            if tensorshape_util.rank(z.shape) == 1:
+                z = z[tf.newaxis, ...]
+                reshape_output = lambda y: y[0]
+            else:
+                reshape_output = lambda y: y
+            
+            nlayers = len(hidden_layers)
+            units_1 = hidden_layers[0]
+            W = tf1_net(x_data, num_layers=conditioner_num_layers, units=(self.D//2*units_1))
+            b = tf1_net(x_data, num_layers=conditioner_num_layers, units=units_1)
+            W = tf.reshape(W, (units_1, self.D//2))    
+            z = tf.tanh(tf.linalg.matvec(W, z) + b)
+            
+            for i in range(1,nlayers):
+                W = tf1_net(x_data, num_layers=conditioner_num_layers, units=(hidden_layers[i-1]*hidden_layers[i]))
+                b = tf1_net(x_data, num_layers=conditioner_num_layers, units=hidden_layers[i])
+                W = tf.reshape(W, (hidden_layers[i], hidden_layers[i-1]))
+                z = tf.tanh(tf.linalg.matvec(W, z) + b)
+                
+            W = tf1_net(x_data, num_layers=conditioner_num_layers, units=(hidden_layers[-1]*self.D//2))
+            b = tf1_net(x_data, num_layers=conditioner_num_layers, units=self.D//2)
+            W = tf.reshape(W, (self.D//2, hidden_layers[-1]))
+            z_out = tf.tanh(tf.linalg.matvec(W, z) + b)
+            
+            shift, log_scale = tf.split(z_out, 2, axis=-1)
+            v1 = reshape_output(shift)
+            v2 = reshape_output(log_scale)
+            return v1, v2
+             
+        return tf1.make_template('real_nvp_template', _fn)
+        
+    def __call__(self, N, **kwargs):
+        return self.dist.sample(N, **kwargs)
+    
+    def log_prob(self, z, **kwargs):
+        return self.dist.log_prob(z, **kwargs)
+
+    def plot_dist(self, N=100, **kwargs):
+        z = self(N, **kwargs)
+        log_q_z = self.log_prob(z, **kwargs)
+        df = pd.DataFrame(z)
+        z_labels = ["z%d" % d for d in range(1, self.D + 1)]
+        df.columns = z_labels
+        df["log_q_z"] = log_q_z
+
+        log_q_z_std = log_q_z - np.min(log_q_z)
+        log_q_z_std = log_q_z_std / np.max(log_q_z_std)
+        cmap = plt.get_cmap("viridis")
+        g = sns.PairGrid(df, vars=z_labels)
+        g = g.map_diag(sns.kdeplot)
+        g = g.map_upper(plt.scatter, color=cmap(log_q_z_std))
+
+        g = g.map_lower(sns.kdeplot)
+        return g
+
+        
+        
+    def _set_D(self, D):
+        if type(D) is not int:
+            raise TypeError(format_type_err_msg(self, "D", D, int))
+        elif D < 2:
+            raise ValueError("NormalizingFlow D %d must be greater than 0." % D)
+        self.D = D
+        
+    def _set_num_layers(self, num_layers):
+        if type(num_layers) is not int:
+            raise TypeError(format_type_err_msg(self, "num_layers", num_layers, int))
+        elif num_layers < 1:
+            raise ValueError(
+                "NormalizingFlow num_layers arg %d must be greater than 0." % num_layers
+            )
+        self.num_layers = num_layers
+
+    def _set_num_units(self, num_units):
+        if type(num_units) is not int:
+            raise TypeError(format_type_err_msg(self, "num_units", num_units, int))
+        elif num_units < 1:
+            raise ValueError(
+                "NormalizingFlow num_units %d must be greater than 0." % num_units
+            )
+        self.num_units = num_units
