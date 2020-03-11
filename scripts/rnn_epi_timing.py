@@ -68,7 +68,7 @@ else:
 
         x = x0
         for t in range(T):
-            x = x + tf.tanh(tf.matmul(J, x0))
+            x = x + tf.tanh(tf.matmul(J, x))
 
         out = tf.tensordot(x, w, [[1], [0]])
         T_x = tf.concat((out, tf.square(out)), axis=1)
