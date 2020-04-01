@@ -217,6 +217,7 @@ def aug_lag_vars(z, log_q_z, eps, mu, N):
     clip_lb = -1e10 * tf.ones_like(T_x, dtype=tf.float32)
     clip_ub = 1e10 * tf.ones_like(T_x, dtype=tf.float32)
     T_x = tf.clip_by_value(T_x, clip_lb, clip_ub)
+    print(T_x.shape, mu.shape)
     R = tf.reduce_mean(T_x, axis=0) - mu
     R1s = tf.unstack(tf.reduce_mean(T_x[: N // 2, :], 0) - mu, axis=0)
     R2 = tf.reduce_mean(T_x[N // 2 :, :], 0) - mu

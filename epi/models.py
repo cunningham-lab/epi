@@ -206,8 +206,8 @@ class Model(object):
         bn_momentum=0.99,
         post_affine=False,
         random_seed=1,
-        init_type="iso_gauss",
-        init_params={"loc": 0.0, "scale": 1.0},
+        init_type=None,#"iso_gauss",
+        init_params=None, #{"loc": 0.0, "scale": 1.0},
         K=10,
         num_iters=1000,
         N=500,
@@ -297,6 +297,24 @@ class Model(object):
 
         # Initialize architecture to gaussian.
         print("Initializing %s architecture." % nf.to_string(), flush=True)
+        if init_type is None or init_params is None:
+            mu_init = np.zeros((self.D))
+            Sigma = np.zeros((self.D, self.D))
+            for i in range(self.D):
+                if (np.isneginf(nf.lb[i]) and np.isposinf(nf.ub[i])):
+                    mu_init[i] = 0.
+                    Sigma[i,i] = 1.
+                elif (np.isneginf(nf.lb[i])):
+                    mu_init[i] = self.ub[i]-2.
+                    Sigma[i,i] = 1.
+                elif (np.isposinf(nf.ub[i])):
+                    mu_init[i] = self.lb[i]+2.
+                    Sigma[i,i] = 1.
+                else:
+                    mu_init[i] = (nf.lb[i] + nf.ub[i]) / 2.
+                    Sigma[i,i] = (nf.ub[i]-nf.lb[i]) / 2.
+            init_type = "gaussian"
+            init_params = {'mu':mu_init, 'Sigma':Sigma}
         nf.initialize(init_type, init_params)
 
         # Checkpoint the initialization.
@@ -1217,14 +1235,24 @@ class Distribution(object):
     def plot_dist(self, N=200):
         z = self.sample(N)
         log_q_z = self.log_prob(z)
+        print(z)
+        print(log_q_z)
         df = pd.DataFrame(z)
-        z_labels = [param.name for param in self.parameters]
-        # z_labels = ["z%d" % d for d in range(1, self.D + 1)]
+        # iterate over parameters to create label_names
+        z_labels = []
+        for param in self.parameters:
+            if param.D == 1:
+                z_labels.append(param.name)
+            else:
+                z_labels.extend([str(param.name) + str(i)
+                                 for i in range(param.D)])
+
         df.columns = z_labels
         df["log_q_z"] = log_q_z
 
         log_q_z_std = log_q_z - np.min(log_q_z)
         log_q_z_std = log_q_z_std / np.max(log_q_z_std)
+        print(log_q_z_std)
         cmap = plt.get_cmap("viridis")
         g = sns.PairGrid(df, vars=z_labels)
         g = g.map_diag(sns.kdeplot)

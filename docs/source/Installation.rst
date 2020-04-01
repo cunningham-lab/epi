@@ -10,3 +10,7 @@ Installation
     
     cd epi/
     pip install .
+
+In order to create videos visualizing the optimization, you'll need to install ffmpeg.
+
+`https://ffmpeg.org/documentation.html<https://ffmpeg.org/documentation.html>`_
