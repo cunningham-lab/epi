@@ -267,5 +267,5 @@ def test_Distribution():
                 hess_z = q_theta.hessian("foo")
 
 
-# if __name__ == '__main__':
-# test_epi()
+if __name__ == "__main__":
+    test_epi()

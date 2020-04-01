@@ -1219,7 +1219,7 @@ class Distribution(object):
         log_q_z = self.log_prob(z)
         df = pd.DataFrame(z)
         z_labels = [param.name for param in self.parameters]
-        #z_labels = ["z%d" % d for d in range(1, self.D + 1)]
+        # z_labels = ["z%d" % d for d in range(1, self.D + 1)]
         df.columns = z_labels
         df["log_q_z"] = log_q_z
 
