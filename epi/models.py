@@ -1238,8 +1238,15 @@ class Distribution(object):
         print(z)
         print(log_q_z)
         df = pd.DataFrame(z)
-        #z_labels = [param.name for param in self.parameters]
-        z_labels = ["z%d" % d for d in range(1, self.D + 1)]
+        # iterate over parameters to create label_names
+        z_labels = []
+        for param in self.parameters:
+            if param.D == 1:
+                z_labels.append(param.name)
+            else:
+                z_labels.extend([str(param.name) + str(i)
+                                 for i in range(param.D)])
+
         df.columns = z_labels
         df["log_q_z"] = log_q_z
 
