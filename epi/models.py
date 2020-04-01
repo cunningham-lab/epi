@@ -305,10 +305,10 @@ class Model(object):
                     mu_init[i] = 0.
                     Sigma[i,i] = 1.
                 elif (np.isneginf(nf.lb[i])):
-                    mu_init[i] = self.ub[i]-2.
+                    mu_init[i] = nf.ub[i]-2.
                     Sigma[i,i] = 1.
                 elif (np.isposinf(nf.ub[i])):
-                    mu_init[i] = self.lb[i]+2.
+                    mu_init[i] = nf.lb[i]+2.
                     Sigma[i,i] = 1.
                 else:
                     mu_init[i] = (nf.lb[i] + nf.ub[i]) / 2.
