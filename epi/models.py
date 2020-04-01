@@ -176,8 +176,8 @@ class Model(object):
         self.eps = _eps
         self.eps.__name__ = eps.__name__
 
-        # TODO make this Z obey the arbitrary parameter bounds
-        z = tf.ones((100, self.D))  # tf.keras.Input(shape=(self.D))
+        # Measure the eps dimensionality to populate self.m.
+        z = tf.ones((1, self.D))
         T_z = self.eps(z)
         T_z_shape = T_z.shape
         if len(T_z_shape) != 2:
@@ -312,7 +312,7 @@ class Model(object):
                     Sigma[i,i] = 1.
                 else:
                     mu_init[i] = (nf.lb[i] + nf.ub[i]) / 2.
-                    Sigma[i,i] = (nf.ub[i]-nf.lb[i]) / 2.
+                    Sigma[i,i] = np.square((nf.ub[i]-nf.lb[i]) / 4)
             init_type = "gaussian"
             init_params = {'mu':mu_init, 'Sigma':Sigma}
         nf.initialize(init_type, init_params)
@@ -988,11 +988,7 @@ class Model(object):
         epi_path = self.get_epi_path(mu, eps_name=eps_name)
         arch_string = arch.to_string()
         hp_string = AL_hps.to_string()
-        return epi_path + "/%s/" % arch_string
-        # return epi_path + "/%s_%s/" % (
-        #    arch_string,
-        #    hp_string,
-        # )
+        return epi_path + ("/%s_%s/" % (arch_string, hp_string))
 
     def get_epi_path(self, mu, eps_name=None):
         if eps_name is not None:
