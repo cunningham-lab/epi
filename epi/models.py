@@ -1231,8 +1231,6 @@ class Distribution(object):
     def plot_dist(self, N=200):
         z = self.sample(N)
         log_q_z = self.log_prob(z)
-        print(z)
-        print(log_q_z)
         df = pd.DataFrame(z)
         # iterate over parameters to create label_names
         z_labels = []
@@ -1248,7 +1246,6 @@ class Distribution(object):
 
         log_q_z_std = log_q_z - np.min(log_q_z)
         log_q_z_std = log_q_z_std / np.max(log_q_z_std)
-        print(log_q_z_std)
         cmap = plt.get_cmap("viridis")
         g = sns.PairGrid(df, vars=z_labels)
         g = g.map_diag(sns.kdeplot)
