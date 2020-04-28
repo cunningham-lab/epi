@@ -693,8 +693,11 @@ class IntervalFlow(tfp.bijectors.Bijector):
         return -self.forward_log_det_jacobian(self.inverse(x))
 
 
-""" The code below is used to implement SNL and SNPE. """
+""" The code below is used to implement SNL and SNPE.
 
+    Yeah, so it turns out these norm flow API's in tensorflow
+    are kinda sh**.  For conditional density estimation, use
+    https://github.com/srbittner/torch_nf
 
 class ConditionedNormFlow(tf.keras.Model):
     def __init__(self, D, num_stages=3, num_layers=2, num_units=100):
@@ -794,7 +797,7 @@ class ConditionedNormFlow(tf.keras.Model):
     def log_prob(self, z, **kwargs):
         return self.dist.log_prob(z, **kwargs)
 
-    def plot_dist(self, N=100, **kwargs):
+    def plot_dist(self, N=100, kde=True, **kwargs):
         z = self(N, **kwargs)
         log_q_z = self.log_prob(z, **kwargs)
         df = pd.DataFrame(z)
@@ -806,10 +809,10 @@ class ConditionedNormFlow(tf.keras.Model):
         log_q_z_std = log_q_z_std / np.max(log_q_z_std)
         cmap = plt.get_cmap("viridis")
         g = sns.PairGrid(df, vars=z_labels)
-        g = g.map_diag(sns.kdeplot)
         g = g.map_upper(plt.scatter, color=cmap(log_q_z_std))
-
-        g = g.map_lower(sns.kdeplot)
+        if (kde):
+            g = g.map_diag(sns.kdeplot)
+            g = g.map_lower(sns.kdeplot)
         return g
 
     def _set_D(self, D):
@@ -836,3 +839,5 @@ class ConditionedNormFlow(tf.keras.Model):
                 "NormalizingFlow num_units %d must be greater than 0." % num_units
             )
         self.num_units = num_units
+
+"""
