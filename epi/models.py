@@ -1228,7 +1228,7 @@ class Distribution(object):
         z = z.astype(np.float32)
         return z
 
-    def plot_dist(self, N=200):
+    def plot_dist(self, N=200, kde=True):
         z = self.sample(N)
         log_q_z = self.log_prob(z)
         df = pd.DataFrame(z)
@@ -1248,10 +1248,10 @@ class Distribution(object):
         log_q_z_std = log_q_z_std / np.max(log_q_z_std)
         cmap = plt.get_cmap("viridis")
         g = sns.PairGrid(df, vars=z_labels)
-        g = g.map_diag(sns.kdeplot)
         g = g.map_upper(plt.scatter, color=cmap(log_q_z_std))
-
-        g = g.map_lower(sns.kdeplot)
+        if (kde):
+            g = g.map_diag(sns.kdeplot)
+            g = g.map_lower(sns.kdeplot)
         return g
 
 
