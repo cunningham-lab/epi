@@ -98,3 +98,46 @@ def linear2D_freq_np(a11, a12, a21, a22):
         imag_lambda = eig1_i
 
     return real_lambda, imag_lambda
+
+
+def V1_dr_eps(alpha, inc_val):
+    neuron_inds = {'E':0, 'P':1, 'S':2, 'V':3}
+    neuron_ind = neuron_inds[alpha]
+
+    def euler_sim(f, x_init, dt, T):
+        x = x_init
+        for t in range(T):
+            x = x + f(x)*dt
+        return x[:,:,0]
+
+    def dr(dh):
+        dh = dh[:,:,None]
+        b = 1.*tf.ones_like(dh, dtype=tf.float32)
+        
+        dt = 0.005
+        T = 100
+        tau = 0.02
+
+        h = b + dh
+        
+        x_init = b*np.random.normal(1.0, 0.01, (1, 4, 1)).astype(np.float32)
+        
+        npzfile = np.load("../data/V1/V1_Zs.npz")
+        W = npzfile['Z_allen_square'][None, :, :]
+        W[:,:,1:] = -W[:,:,1:]
+        W = tf.constant(W, dtype=tf.float32)
+        
+        def f1(y):
+            return (-y + (tf.nn.relu(tf.matmul(W, y) + b)**2.)) / tau
+        def f2(y):
+            return (-y + (tf.nn.relu(tf.matmul(W, y) + h)**2.)) / tau
+        
+        x1 = euler_sim(f1, x_init, dt, T)[:,neuron_ind]
+        x2 = euler_sim(f2, x_init, dt, T)[:,neuron_ind]
+        
+        diff = x2-x1
+        T_x = tf.stack((diff, (diff-inc_val)**2), axis=1)
+        
+        return T_x
+
+    return dr
