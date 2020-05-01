@@ -117,6 +117,8 @@ class Model(object):
         self._set_name(name)
         self._set_parameters(parameters)
         self.eps = None
+        self.M_test = 200
+        self.M_norm = 200
 
     def _set_name(self, name):
         if type(name) is not str:
@@ -206,8 +208,8 @@ class Model(object):
         bn_momentum=0.99,
         post_affine=False,
         random_seed=1,
-        init_type=None,#"iso_gauss",
-        init_params=None, #{"loc": 0.0, "scale": 1.0},
+        init_type=None,  # "iso_gauss",
+        init_params=None,  # {"loc": 0.0, "scale": 1.0},
         K=10,
         num_iters=1000,
         N=500,
@@ -301,20 +303,20 @@ class Model(object):
             mu_init = np.zeros((self.D))
             Sigma = np.zeros((self.D, self.D))
             for i in range(self.D):
-                if (np.isneginf(nf.lb[i]) and np.isposinf(nf.ub[i])):
-                    mu_init[i] = 0.
-                    Sigma[i,i] = 1.
-                elif (np.isneginf(nf.lb[i])):
-                    mu_init[i] = nf.ub[i]-2.
-                    Sigma[i,i] = 1.
-                elif (np.isposinf(nf.ub[i])):
-                    mu_init[i] = nf.lb[i]+2.
-                    Sigma[i,i] = 1.
+                if np.isneginf(nf.lb[i]) and np.isposinf(nf.ub[i]):
+                    mu_init[i] = 0.0
+                    Sigma[i, i] = 1.0
+                elif np.isneginf(nf.lb[i]):
+                    mu_init[i] = nf.ub[i] - 2.0
+                    Sigma[i, i] = 1.0
+                elif np.isposinf(nf.ub[i]):
+                    mu_init[i] = nf.lb[i] + 2.0
+                    Sigma[i, i] = 1.0
                 else:
-                    mu_init[i] = (nf.lb[i] + nf.ub[i]) / 2.
-                    Sigma[i,i] = np.square((nf.ub[i]-nf.lb[i]) / 4)
+                    mu_init[i] = (nf.lb[i] + nf.ub[i]) / 2.0
+                    Sigma[i, i] = np.square((nf.ub[i] - nf.lb[i]) / 4)
             init_type = "gaussian"
-            init_params = {'mu':mu_init, 'Sigma':Sigma}
+            init_params = {"mu": mu_init, "Sigma": Sigma}
         nf.initialize(init_type, init_params)
 
         # Checkpoint the initialization.
@@ -345,28 +347,7 @@ class Model(object):
             optimizer.apply_gradients(zip(gradients, params))
             return cost, H, R, z, log_q_z
 
-        @tf.function
-        def two_dim_T_x_batch(nf, eps, M, N, m):
-            z, _ = nf(M * N)
-            T_x = eps(z)
-            T_x = tf.reshape(T_x, (M, N, m))
-            return T_x
-
-        @tf.function
-        def get_R_norm_dist(nf, eps, mu, M, N):
-            m = mu.shape[1]
-            T_x = two_dim_T_x_batch(nf, eps, M, N, m)
-            return tf.reduce_sum(tf.square(tf.reduce_mean(T_x, axis=1) - mu), axis=1)
-
-        @tf.function
-        def get_R_mean_dist(nf, eps, mu, M, N):
-            m = mu.shape[1]
-            T_x = two_dim_T_x_batch(nf, eps, M, N, m)
-            return tf.reduce_mean(T_x, axis=1) - mu
-
-        M_test = 200
         N_test = int(nu * N)
-        M_norm = 200
         # Initialize augmented Lagrangian parameters eta and c.
         eta, c = np.zeros((self.m,), np.float32), c0
         etas, cs = np.zeros((K, self.m)), np.zeros((K,))
@@ -386,7 +367,7 @@ class Model(object):
 
         # Measure initial R norm distribution.
         mu_colvec = np_column_vec(mu).astype(np.float32).T
-        norms = get_R_norm_dist(nf, self.eps, mu_colvec, M_norm, N)
+        norms = get_R_norm_dist(nf, self.eps, mu_colvec, self.M_norm, N)
 
         # EPI optimization
         print(format_opt_msg(0, 0, cost_0, H_0, R_0), flush=True)
@@ -420,7 +401,7 @@ class Model(object):
             if failed:
                 converged = False
             else:
-                R_means = get_R_mean_dist(nf, self.eps, mu_colvec, M_test, N_test)
+                R_means = get_R_mean_dist(nf, self.eps, mu_colvec, self.M_test, N_test)
                 converged = self.test_convergence(R_means.numpy(), alpha)
             last_ind = opt_it_df["iteration"] == k * num_iters
 
@@ -437,7 +418,7 @@ class Model(object):
 
                 # Update eta and c
                 eta = eta + c * R
-                norms_k = get_R_norm_dist(nf, self.eps, mu_colvec, M_norm, N)
+                norms_k = get_R_norm_dist(nf, self.eps, mu_colvec, self.M_norm, N)
                 t, p = ttest_ind(
                     norms_k.numpy(), gamma * norms.numpy(), equal_var=False
                 )
@@ -456,21 +437,20 @@ class Model(object):
                 iterations=np.arange(0, k * num_iters + 1, log_rate),
             )
         else:
-            np.savez(
-                ckpt_dir + "timing.npz", time_per_it=time_per_it,
-            )
+            np.savez(ckpt_dir + "timing.npz", time_per_it=time_per_it)
 
         # Save hyperparameters.
         self._save_hps(ckpt_dir, nf, aug_lag_hps, init_type, init_params)
+        self.aug_lag_hps = aug_lag_hps
 
         # Return optimized distribution.
         q_theta = Distribution(nf, self.parameters)
 
         return q_theta, opt_it_dfs[0], ckpt_dir, failed
 
-    def plot_epi_hpsearch(self, mu, alpha=0.05, nu=0.1):
-        epi_dir = self.get_epi_path(mu)
-        print('epi_dir', epi_dir)
+    def get_epi_dfs(self, mu, prefix=""):
+        epi_dir = prefix + self.get_epi_path(mu)
+        print("Checking in %s." % epi_dir)
         if not os.path.exists(epi_dir):
             raise IOError("Directory %s does not exist." % epi_dir)
         opt_dirs = os.listdir(epi_dir)
@@ -481,7 +461,6 @@ class Model(object):
         hp_dfs = []
         opt_dfs = []
         for i, opt_dir in enumerate(opt_dirs):
-            print(i, opt_dir)
             # Parse hp file.
             hp_filename = epi_dir + opt_dir + "/hps.p"
             if not os.path.exists(hp_filename):
@@ -492,6 +471,7 @@ class Model(object):
             hps["lr"] = hps["aug_lag_hps"].lr
             hps["c0"] = hps["aug_lag_hps"].c0
             hps["gamma"] = hps["aug_lag_hps"].gamma
+            hps["beta"] = hps["aug_lag_hps"].beta
             del hps["aug_lag_hps"]
             del hps["init_type"]
             del hps["init_params"]
@@ -514,51 +494,7 @@ class Model(object):
         hp_df["H"] = np.array(Hs)
         opt_df = pd.concat(opt_dfs, sort=False)
 
-        hps = opt_df["hp"].unique()
-
-        # Plot optimization diagnostics.
-        m = mu.shape[0]
-        fig, axs = plt.subplots(m + 1, 1, figsize=(10, m * 3))
-        for hp in hps:
-            opt_df_hp = opt_df[opt_df["hp"] == hp]
-            axs[0].plot(opt_df_hp["iteration"], opt_df_hp["H"], label=hp)
-            axs[0].set_ylabel(r"$H(q_\theta)$")
-            for i in range(m):
-                axs[i + 1].plot(opt_df_hp["iteration"], opt_df_hp["R%d" % (i + 1)])
-                axs[i + 1].set_ylabel(r"$R(q_\theta)_{%d}$" % (i + 1))
-                axs[i + 1].set_ylim([-.01, .01])
-        plt.show()
-
-        """
-        # Plot scatters of hyperparameters with stats.
-        arch_types = hp_df["arch_type"].unique()
-        dtypes = hp_df.dtypes
-        Hisnan = hp_df["H"].isna()
-        minH = hp_df["H"].min()
-        numnan = Hisnan.sum()
-        for arch_type in arch_types:
-            nrows = 3
-            ncols = 4
-            fig, axs = plt.subplots(3, 4, figsize=(14, 14))
-            hp_df_arch = hp_df[hp_df["arch_type"] == arch_type]
-            ind = 1
-            for i in range(nrows):
-                axs[i][0].set_ylabel("H")
-                for j in range(ncols):
-                    col = hp_df.columns[ind]
-                    ind += 1
-                    # if (col in ['batch_norm', 'post_affine']):
-                    #    continue
-                    axs[i][j].scatter(hp_df_arch[col], hp_df_arch["H"])
-                    axs[i][j].scatter(
-                        hp_df_arch[col][Hisnan].to_numpy(),
-                        (minH - 1) * np.ones(numnan),
-                        c="r",
-                        marker="x",
-                    )
-                    axs[i][j].set_xlabel(col)
-        plt.show(False)
-        """
+        print("Found %d optimizations." % len(opt_df["hp"].unique()))
 
         return hp_df, opt_df
 
@@ -832,7 +768,7 @@ class Model(object):
 
         for i in range(D):
             axs[i + scat_i][scat_j].set_ylabel(
-                z_labels[i], rotation="horizontal", fontsize=fontsize,
+                z_labels[i], rotation="horizontal", fontsize=fontsize
             )
             axs[i + scat_i][scat_j].yaxis.set_label_coords(D * ylab_x, ylab_y)
             axs[-1][i + scat_j].set_xlabel(z_labels[i], fontsize=fontsize)
@@ -965,7 +901,7 @@ class Model(object):
         ani.save(path + "epi_opt.mp4", writer=writer)
         return None
 
-    def test_convergence(self, R_means, alpha):
+    def test_convergence(self, R_means, alpha, verbose=False):
         """Tests convergence of EPI constraints.
 
         :param R_means: Emergent property statistic means.
@@ -977,6 +913,8 @@ class Model(object):
         gt = np.sum(R_means > 0.0, axis=0).astype(np.float32)
         lt = np.sum(R_means < 0.0, axis=0).astype(np.float32)
         p_vals = 2 * np.minimum(gt / M, lt / M)
+        if verbose:
+            print(p_vals > (alpha / m))
         return np.prod(p_vals > (alpha / m))
 
     def _opt_it_df(self, k, iter, H, R, R_keys):
@@ -1003,35 +941,10 @@ class Model(object):
             else:
                 raise AttributeError("Model.eps is not set.")
         mu_string = array_str(mu)
-        #return "data/%s_%s/" % (
-        return "data/%s_%s_mu=%s/" % (
-            self.name,
-            _eps_name,
-            mu_string,
-        )
+        # return "data/%s_%s/" % (
+        return "data/%s_%s_mu=%s/" % (self.name, _eps_name, mu_string)
 
-    def load_epi_dist(
-        self,
-        mu,
-        k=None,
-        alpha=None,
-        nu=0.1,
-        arch_type="coupling",
-        num_stages=3,
-        num_layers=2,
-        num_units=None,
-        batch_norm=True,
-        bn_momentum=0.99,
-        post_affine=False,
-        random_seed=1,
-        init_type="iso_gauss",
-        init_params={"loc": 0.0, "scale": 1.0},
-        N=500,
-        lr=1e-3,
-        c0=1.0,
-        gamma=0.25,
-        beta=4.0,
-    ):
+    def load_epi_dist(self, k, mu, nf, aug_lag_hps, prefix=""):
 
         if k is not None:
             if type(k) is not int:
@@ -1039,39 +952,59 @@ class Model(object):
             if k < 0:
                 raise ValueError("k must be augmented Lagrangian iteration index.")
 
-        if num_units is None:
-            num_units = max(2 * self.D, 15)
-
-        nf = NormalizingFlow(
-            arch_type=arch_type,
-            D=self.D,
-            num_stages=num_stages,
-            num_layers=num_layers,
-            num_units=num_units,
-            batch_norm=batch_norm,
-            bn_momentum=bn_momentum,
-            post_affine=post_affine,
-            bounds=self._get_bounds(),
-            random_seed=random_seed,
-        )
-
-        aug_lag_hps = AugLagHPs(N, lr, c0, gamma, beta)
-        optimizer = tf.keras.optimizers.Adam(lr)
+        optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
-        ckpt_dir = self.get_save_path(mu, nf, aug_lag_hps)
+        ckpt_dir = prefix + self.get_save_path(mu, nf, aug_lag_hps)
         ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
         if ckpt_state is not None:
             ckpts = ckpt_state.all_model_checkpoint_paths
         else:
             raise ValueError("No checkpoints found.")
 
-        if k is not None:
-            if k >= len(ckpts):
-                raise ValueError("Index of checkpoint 'k' too large.")
+        if k >= len(ckpts):
+            raise ValueError("Index of checkpoint 'k' too large.")
+        status = checkpoint.restore(ckpts[k])
+        status.expect_partial()
+        q_theta = Distribution(nf, self.parameters)
+        return q_theta
+
+    def get_convergence_epoch(
+        self, mu, nf, aug_lag_hps, prefix="", alpha=0.05, nu=0.1, mu_test=None
+    ):
+
+        if mu_test is not None:
+            _mu = np_column_vec(mu_test).astype(np.float32).T
+        else:
+            _mu = np_column_vec(mu).astype(np.float32).T
+        N_test = int(nu * aug_lag_hps.N)
+
+        optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
+        checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
+        ckpt_dir = prefix + self.get_save_path(mu, nf, aug_lag_hps)
+        ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
+        if ckpt_state is not None:
+            ckpts = ckpt_state.all_model_checkpoint_paths
+        else:
+            raise ValueError("No checkpoints found.")
+        num_ckpts = len(ckpts)
+
+        k = -1
+        converged = False
+        while not converged and (k < num_ckpts-1):
+            k += 1
+            print("k", k)
             status = checkpoint.restore(ckpts[k])
             status.expect_partial()
-            q_theta = Distribution(nf, self.parameters)
-            return q_theta
+
+            m = _mu.shape[1]
+            z, _ = nf(self.M_test * N_test)
+            T_x = self.eps(z)
+            T_x = tf.reshape(T_x, (self.M_test, N_test, m))
+            R_means = tf.reduce_mean(T_x, axis=1) - _mu
+
+            # R_means = get_R_mean_dist(nf, self.eps, _mu, self.M_test, N_test)
+            converged = self.test_convergence(R_means.numpy(), alpha, verbose=True)
+        return k, converged
 
     def parameter_check(self, parameters, verbose=False):
         """Check that model parameter list has no duplicates and valid bounds.
@@ -1242,8 +1175,7 @@ class Distribution(object):
             if param.D == 1:
                 z_labels.append(param.name)
             else:
-                z_labels.extend([str(param.name) + str(i)
-                                 for i in range(param.D)])
+                z_labels.extend([str(param.name) + str(i) for i in range(param.D)])
 
         df.columns = z_labels
         df["log_q_z"] = log_q_z
@@ -1253,10 +1185,32 @@ class Distribution(object):
         cmap = plt.get_cmap("viridis")
         g = sns.PairGrid(df, vars=z_labels)
         g = g.map_upper(plt.scatter, color=cmap(log_q_z_std))
-        if (kde):
+        if kde:
             g = g.map_diag(sns.kdeplot)
             g = g.map_lower(sns.kdeplot)
         return g
+
+
+@tf.function
+def two_dim_T_x_batch(nf, eps, M, N, m):
+    z, _ = nf(M * N)
+    T_x = eps(z)
+    T_x = tf.reshape(T_x, (M, N, m))
+    return T_x
+
+
+@tf.function
+def get_R_norm_dist(nf, eps, mu, M, N):
+    m = mu.shape[1]
+    T_x = two_dim_T_x_batch(nf, eps, M, N, m)
+    return tf.reduce_sum(tf.square(tf.reduce_mean(T_x, axis=1) - mu), axis=1)
+
+
+@tf.function
+def get_R_mean_dist(nf, eps, mu, M, N):
+    m = mu.shape[1]
+    T_x = two_dim_T_x_batch(nf, eps, M, N, m)
+    return tf.reduce_mean(T_x, axis=1) - mu
 
 
 def format_opt_msg(k, i, cost, H, R):
