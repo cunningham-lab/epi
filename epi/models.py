@@ -470,6 +470,7 @@ class Model(object):
 
     def plot_epi_hpsearch(self, mu, alpha=0.05, nu=0.1):
         epi_dir = self.get_epi_path(mu)
+        print('epi_dir', epi_dir)
         if not os.path.exists(epi_dir):
             raise IOError("Directory %s does not exist." % epi_dir)
         opt_dirs = os.listdir(epi_dir)
@@ -525,8 +526,10 @@ class Model(object):
             for i in range(m):
                 axs[i + 1].plot(opt_df_hp["iteration"], opt_df_hp["R%d" % (i + 1)])
                 axs[i + 1].set_ylabel(r"$R(q_\theta)_{%d}$" % (i + 1))
-        plt.show(False)
+                axs[i + 1].set_ylim([-.01, .01])
+        plt.show()
 
+        """
         # Plot scatters of hyperparameters with stats.
         arch_types = hp_df["arch_type"].unique()
         dtypes = hp_df.dtypes
@@ -555,6 +558,7 @@ class Model(object):
                     )
                     axs[i][j].set_xlabel(col)
         plt.show(False)
+        """
 
         return hp_df, opt_df
 
@@ -999,11 +1003,11 @@ class Model(object):
             else:
                 raise AttributeError("Model.eps is not set.")
         mu_string = array_str(mu)
-        # return "data/%s_%s_mu=%s/" % (
-        return "data/%s_%s/" % (
+        #return "data/%s_%s/" % (
+        return "data/%s_%s_mu=%s/" % (
             self.name,
             _eps_name,
-            # mu_string,
+            mu_string,
         )
 
     def load_epi_dist(

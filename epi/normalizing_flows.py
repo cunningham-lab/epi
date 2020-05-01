@@ -487,8 +487,8 @@ class NormalizingFlow(tf.keras.Model):
             self.num_units,
         )
 
-        # if self.batch_norm:
-        #    arch_string += "_bnmom=%.2E" % self.bn_momentum
+        if self.batch_norm:
+            arch_string += "_bnmom=%.2E" % self.bn_momentum
 
         if self.post_affine:
             arch_string += "_PA"

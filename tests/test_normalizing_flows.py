@@ -180,7 +180,7 @@ def test_NormalizingFlow_call():
 
 def test_to_string():
     nf = NormalizingFlow("coupling", 4, 1, 2, 15)
-    assert nf.to_string() == "D4_C1_L2_U15_PA_rs1"
+    assert nf.to_string() == "D4_C1_L2_U15_bnmom=9.90E-01_PA_rs1"
     # nf = NormalizingFlow("coupling", 100, 2, 4, 200, random_seed=20)
     # assert nf.to_string() == "D100_C2_L4_U200_bnmom=9.90E-01_PA_rs20"
     # nf = NormalizingFlow("coupling", 4, 1, 2, 15, bn_momentum=0.999, post_affine=False)
