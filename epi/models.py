@@ -445,6 +445,7 @@ class Model(object):
 
         # Return optimized distribution.
         q_theta = Distribution(nf, self.parameters)
+        q_theta.set_batch_norm_trainable(False)
 
         return q_theta, opt_it_dfs[0], ckpt_dir, failed
 
@@ -1189,6 +1190,13 @@ class Distribution(object):
             g = g.map_diag(sns.kdeplot)
             g = g.map_lower(sns.kdeplot)
         return g
+
+    def set_batch_norm_trainable(self, trainable):
+        bijectors = self.nf.trans_dist.bijector.bijectors
+        for bijector in bijectors:
+            if type(bijector).__name__ == 'BatchNormalization':
+                bijector._training = trainable
+        return None
 
 
 @tf.function

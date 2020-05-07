@@ -11,6 +11,7 @@ from tensorflow_probability.python.internal import tensorshape_util
 
 tfb = tfp.bijectors
 tfd = tfp.distributions
+from epi.batch_norm import BatchNormalization
 import tensorflow.compat.v1 as tf1
 import pandas as pd
 
@@ -151,12 +152,18 @@ class NormalizingFlow(tf.keras.Model):
             self.shift_and_log_scale_fns.append(shift_and_log_scale_fn)
 
             if i < self.num_stages - 1:
-                perm_i = tfb.Permute(np.random.permutation(self.D))
+                if (np.mod(i, 2) == 0):
+                    _perm_i = np.arange(self.D-1, -1, -1)
+                    print(0, i, _perm_i)
+                else:
+                    print(1, i, _perm_i)
+                    _perm_i = np.random.permutation(self.D)
+                perm_i = tfb.Permute(_perm_i)
                 self.permutations.append(perm_i)
                 bijectors.append(perm_i)
                 if self.batch_norm:
                     bn = tf.keras.layers.BatchNormalization(momentum=self.bn_momentum)
-                    batch_norm_i = tfb.BatchNormalization(batchnorm_layer=bn)
+                    batch_norm_i = BatchNormalization(batchnorm_layer=bn)
                     self.batch_norms.append(batch_norm_i)
                     bijectors.append(batch_norm_i)
 
@@ -207,7 +214,7 @@ class NormalizingFlow(tf.keras.Model):
         log_q_x = log_q0 - sum_ldj
         return x, log_q_x
 
-    @tf.function
+    #@tf.function
     def sample(self, N):
         """Generate N samples from the network.
 
