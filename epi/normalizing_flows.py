@@ -154,9 +154,7 @@ class NormalizingFlow(tf.keras.Model):
             if i < self.num_stages - 1:
                 if (np.mod(i, 2) == 0):
                     _perm_i = np.arange(self.D-1, -1, -1)
-                    print(0, i, _perm_i)
                 else:
-                    print(1, i, _perm_i)
                     _perm_i = np.random.permutation(self.D)
                 perm_i = tfb.Permute(_perm_i)
                 self.permutations.append(perm_i)

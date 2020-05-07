@@ -148,9 +148,6 @@ class BatchNormalization(bijector.Bijector):
         or a virtual batch size.
     """
     # Scale must be positive.
-    print('********************')
-    print("USING CUSTOM BN")
-    print('********************')
     g_constraint = lambda x: tf.nn.relu(x) + 1e-6
     self.batchnorm = batchnorm_layer or tf.keras.layers.BatchNormalization(
         gamma_constraint=g_constraint)
