@@ -1169,6 +1169,7 @@ class Distribution(object):
     def plot_dist(self, N=200, kde=True):
         z = self.sample(N)
         log_q_z = self.log_prob(z)
+        print(log_q_z)
         df = pd.DataFrame(z)
         # iterate over parameters to create label_names
         z_labels = []
