@@ -100,13 +100,15 @@ def linear2D_freq_np(a11, a12, a21, a22):
     return real_lambda, imag_lambda
 
 
-def V1_dr_eps(alpha, inc_val, isn_net=False):
+X_INIT = tf.constant(np.random.normal(1.0, 0.01, (1, 4, 1)).astype(np.float32))
+
+def V1_dr_eps(alpha, inc_val, b=np.array([1., 1., 1., 1.25])):
     neuron_inds = {"E": 0, "P": 1, "S": 2, "V": 3}
     neuron_ind = neuron_inds[alpha]
+    b = tf.constant(b[None,:,None], dtype=tf.float32)
 
     def dr(dh):
         dh = dh[:, :, None]
-        b = 1.5 * tf.ones_like(dh, dtype=tf.float32)
 
         dt = 0.005
         T = 100
@@ -114,13 +116,12 @@ def V1_dr_eps(alpha, inc_val, isn_net=False):
 
         h = b + dh
 
-        x_init = b * np.random.normal(1.0, 0.01, (1, 4, 1)).astype(np.float32)
+        _x_shape = tf.ones_like(dh, dtype=tf.float32)
+        x_init = _x_shape*X_INIT
 
         npzfile = np.load("../data/V1/V1_Zs.npz")
         _W = npzfile["Z_allen_square"][None, :, :]
         _W[:, :, 1:] = -_W[:, :, 1:]
-        if isn_net:
-            _W[0,0,0] = 6*_W[0,0,0]
         W = tf.constant(_W, dtype=tf.float32)
 
         def f1(y):
@@ -139,11 +140,12 @@ def V1_dr_eps(alpha, inc_val, isn_net=False):
 
     return dr
 
-def V1_all_dr_eps(inc_val, isn_net=False):
+def V1_all_dr_eps(inc_val, b=np.array([1., 1., 1., 1.25])):
+
+    b = tf.constant(b[None,:,None], dtype=tf.float32)
 
     def dr(dh):
         dh = dh[:, :, None]
-        b = 1.5 * tf.ones_like(dh, dtype=tf.float32)
 
         dt = 0.005
         T = 100
@@ -151,13 +153,12 @@ def V1_all_dr_eps(inc_val, isn_net=False):
 
         h = b + dh
 
-        x_init = b * np.random.normal(1.0, 0.01, (1, 4, 1)).astype(np.float32)
+        _x_shape = tf.ones_like(dh, dtype=tf.float32)
+        x_init = _x_shape*X_INIT
 
         npzfile = np.load("../data/V1/V1_Zs.npz")
         _W = npzfile["Z_allen_square"][None, :, :]
         _W[:, :, 1:] = -_W[:, :, 1:]
-        if isn_net:
-            _W[0,0,0] = 6*_W[0,0,0]
         W = tf.constant(_W, dtype=tf.float32)
 
         def f1(y):
@@ -176,10 +177,10 @@ def V1_all_dr_eps(inc_val, isn_net=False):
     return dr
 
 
-def V1_ISN(dh, isn_net=False):
+def V1_ISN(dh, b=np.array([1., 1., 1., 1.25])):
 
     dh = dh[:, :, None]
-    b = 1.5 * tf.ones_like(dh, dtype=tf.float32)
+    b = tf.constant(b[None,:,None], dtype=tf.float32)
 
     dt = 0.005
     T = 100
@@ -187,13 +188,12 @@ def V1_ISN(dh, isn_net=False):
 
     h = b + dh
 
-    x_init = b * np.random.normal(1.0, 0.01, (1, 4, 1)).astype(np.float32)
+    _x_shape = tf.ones_like(dh, dtype=tf.float32)
+    x_init = _x_shape*X_INIT
 
     npzfile = np.load("../data/V1/V1_Zs.npz")
     _W = npzfile["Z_allen_square"][None, :, :]
     _W[:, :, 1:] = -_W[:, :, 1:]
-    if isn_net:
-        _W[0,0,0] = 6*_W[0,0,0]
     W = tf.constant(_W, dtype=tf.float32)
 
     def f(y):
@@ -204,17 +204,12 @@ def V1_ISN(dh, isn_net=False):
     ISN = (1. - 2. * u_E * _W[0, 0, 0])[:,None]
     return ISN
 
-def euler_sim(f, x_init, dt, T):
-    x = x_init
-    for t in range(T):
-        x = x + f(x) * dt
-    return x[:, :, 0]
 
 
-def V1_sim(dh, isn_net=False):
+def V1_sim(dh, b=np.array([1., 1., 1., 1.25])):
 
     dh = dh[:, :, None]
-    b = 1.5 * tf.ones_like(dh, dtype=tf.float32)
+    b = tf.constant(b[None,:,None], dtype=tf.float32)
 
     dt = 0.005
     T = 100
@@ -222,13 +217,12 @@ def V1_sim(dh, isn_net=False):
 
     h = b + dh
 
-    x_init = b * np.random.normal(1.0, 0.01, (1, 4, 1)).astype(np.float32)
+    _x_shape = tf.ones_like(dh, dtype=tf.float32)
+    x_init = _x_shape*X_INIT
 
     npzfile = np.load("../data/V1/V1_Zs.npz")
     _W = npzfile["Z_allen_square"][None, :, :]
     _W[:, :, 1:] = -_W[:, :, 1:]
-    if isn_net:
-        _W[0,0,0] = 6*_W[0,0,0]
     W = tf.constant(_W, dtype=tf.float32)
 
     def f(y):
