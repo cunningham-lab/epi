@@ -12,6 +12,15 @@ import pandas as pd
 from sklearn.neighbors import KernelDensity
 from epi.error_formatters import format_type_err_msg
 
+def hp_df_to_aug_lag_hps(hp_df):
+    aug_lag_hps = AugLagHPs(
+        N=int(hp_df['N']),
+        lr=hp_df['lr'],
+        c0=hp_df['c0'],
+        gamma=hp_df['gamma'],
+        beta=hp_df['beta'],
+    )
+    return aug_lag_hps
 
 def gaussian_backward_mapping(mu, Sigma):
     """Calculates natural parameter of multivaraite gaussian from mean and cov.
@@ -466,12 +475,16 @@ def pairplot(
     Z,
     dims,
     labels,
+    z1=None,
+    z2=None,
     origin=False,
     xlims=None,
     ylims=None,
+    clims=None,
     ticks=None,
     c=None,
     c_label=None,
+    c_traj=None,
     cmap=None,
     ss=False,
     fontsize=12,
@@ -484,7 +497,15 @@ def pairplot(
     Z = Z[rand_order, :]
     if c is not None:
         c = c[rand_order]
-        plot_inds, below_inds, over_inds = filter_outliers(c, outlier_stds)
+        if clims is not None:
+            all_inds = np.arange(c.shape[0])
+            below_inds = all_inds[c < clims[0]]
+            over_inds = all_inds[c > clims[1]]
+            plot_inds = all_inds[
+                np.logical_and(clims[0] <= c, c <= clims[1])
+            ]
+        else:
+            plot_inds, below_inds, over_inds = filter_outliers(c, outlier_stds)
 
     fig, axs = plt.subplots(num_dims - 1, num_dims - 1, figsize=figsize)
     for i in range(num_dims - 1):
@@ -527,13 +548,49 @@ def pairplot(
                         Z[plot_inds, dim_i],
                         c=c[plot_inds],
                         cmap=cmap,
+                        vmin=clims[0],
+                        vmax=clims[1],
                         edgecolors="k",
                         linewidths=0.25,
                     )
                 else:
                     h = ax.scatter(
-                        Z[:, dim_j], Z[:, dim_i], edgecolors="k", linewidths=0.25, s=2
+                        Z[:, dim_j], Z[:, dim_i], c=0.25*np.ones((3,)), edgecolors="k", linewidths=0.25,
                     )
+                if (z1 is not None):
+                    if (z1.shape[0] == z2.shape[0]):
+                        for _i in range(len(z1)):
+                            fac = 0.9 # percentage of length where arrow head should start
+                            xy_st = [z1[_i,j], z1[_i,i]]
+                            xy_mid = [((1-fac)*z1[_i,j])+(fac*z2[_i,j]), 
+                                      ((1-fac)*z1[_i,i])+(fac*z2[_i,i])]
+                            xy_end = [z2[_i,j], z2[_i,i]]
+                            norm = np.linalg.norm(np.array(xy_end) - np.array(xy_st))
+                            if c_traj is not None:
+                                _c = c_traj[_i]
+                            else:
+                                _c = 'k'
+                            if xlims is not None:
+                                lims = xlims
+                            else:
+                                lims = [np.min(Z), np.max(Z)]
+                            if norm > 1.:
+                                ax.plot(
+                                    [xy_st[0], xy_mid[0]], 
+                                    [xy_st[1], xy_mid[1]], 
+                                    '-',
+                                    lw=5,
+                                    c=_c,
+                                )
+                                ax.annotate(
+                                    "", 
+                                    xy=xy_end,
+                                    xytext=xy_mid, 
+                                    arrowprops=dict(headwidth=norm*10, lw=2, color=_c)
+                                )
+                    else:
+                        print('Error: z1 and z2 had different lengths.')
+                        pass
                 if i + 1 == j:
                     ax.set_xlabel(labels[j], fontsize=fontsize)
                     ax.set_ylabel(labels[i], fontsize=fontsize)

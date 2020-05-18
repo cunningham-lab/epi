@@ -697,6 +697,20 @@ class IntervalFlow(tfp.bijectors.Bijector):
 
         return -self.forward_log_det_jacobian(self.inverse(x))
 
+def hp_df_to_nf(hp_df, model):
+    nf = NormalizingFlow(
+        arch_type=hp_df['arch_type'],
+        D=model.D,
+        num_stages=int(hp_df['num_stages']),
+        num_layers=int(hp_df['num_layers']),
+        num_units=int(hp_df['num_units']),
+        batch_norm=bool(hp_df['batch_norm']),
+        bn_momentum=float(hp_df['bn_momentum']),
+        post_affine=bool(hp_df['post_affine']),
+        bounds=model._get_bounds(),
+        random_seed=int(hp_df['random_seed']),
+    )
+    return nf
 
 """ The code below is used to implement SNL and SNPE.
 

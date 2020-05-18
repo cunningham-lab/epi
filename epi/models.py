@@ -390,6 +390,7 @@ class Model(object):
                         log_q_zs.append(log_q_z.numpy()[:N_save])
                 if np.isnan(cost):
                     failed = True
+                    print('Error: NaN in opt. Exiting.')
                     break
             if not verbose:
                 print(format_opt_msg(k, i, cost, H, R), flush=True)
@@ -915,7 +916,8 @@ class Model(object):
         lt = np.sum(R_means < 0.0, axis=0).astype(np.float32)
         p_vals = 2 * np.minimum(gt / M, lt / M)
         if verbose:
-            print(p_vals > (alpha / m))
+            print(p_vals, alpha/m)
+            #print(p_vals > (alpha / m))
         return np.prod(p_vals > (alpha / m))
 
     def _opt_it_df(self, k, iter, H, R, R_keys):
@@ -956,6 +958,8 @@ class Model(object):
         optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
         ckpt_dir = prefix + self.get_save_path(mu, nf, aug_lag_hps)
+        print('ckpt_dir')
+        print(ckpt_dir)
         ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
         if ckpt_state is not None:
             ckpts = ckpt_state.all_model_checkpoint_paths
@@ -982,6 +986,8 @@ class Model(object):
         optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
         ckpt_dir = prefix + self.get_save_path(mu, nf, aug_lag_hps)
+        print('ckpt_dir')
+        print(ckpt_dir)
         ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
         if ckpt_state is not None:
             ckpts = ckpt_state.all_model_checkpoint_paths
@@ -989,23 +995,28 @@ class Model(object):
             raise ValueError("No checkpoints found.")
         num_ckpts = len(ckpts)
 
-        k = -1
+        best_k = None
+        best_H = None
         converged = False
-        while not converged and (k < num_ckpts-1):
-            k += 1
-            print("k", k)
+        for k in range(num_ckpts):
             status = checkpoint.restore(ckpts[k])
             status.expect_partial()
 
             m = _mu.shape[1]
-            z, _ = nf(self.M_test * N_test)
+            z, log_q_z = nf(self.M_test * N_test)
             T_x = self.eps(z)
             T_x = tf.reshape(T_x, (self.M_test, N_test, m))
             R_means = tf.reduce_mean(T_x, axis=1) - _mu
 
             # R_means = get_R_mean_dist(nf, self.eps, _mu, self.M_test, N_test)
-            converged = self.test_convergence(R_means.numpy(), alpha, verbose=True)
-        return k, converged
+            _converged = self.test_convergence(R_means.numpy(), alpha, verbose=True)
+            if _converged:
+                H = -np.mean(log_q_z.numpy())
+                if best_H is None or best_H < H:
+                    best_k = k
+                    best_H = H
+                converged = True
+        return best_k, converged, best_H
 
     def parameter_check(self, parameters, verbose=False):
         """Check that model parameter list has no duplicates and valid bounds.
