@@ -347,7 +347,7 @@ def test_initialization():
     loc = -0.5
     scale = 2.0
     init_params = {"loc": loc, "scale": scale}
-    nf.initialize(init_type, init_params, num_iters=int(1e5), verbose=True)
+    nf.initialize(init_type, init_params, num_iters=int(2e4), verbose=True)
     nf.plot_init_opt(init_type, init_params)
 
     z = nf.sample(int(1e4))
