@@ -376,7 +376,7 @@ class Model(object):
         norms = get_R_norm_dist(nf, self.eps, mu_colvec, self.M_norm, N)
 
         # EPI optimization
-        print(format_opt_msg(0, 0, cost_0, H_0, R_0), flush=True)
+        print(format_opt_msg(0, 0, cost_0, H_0, R_0, 0.), flush=True)
         failed = False
         for k in range(1, K + 1):
             etas[k - 1], cs[k - 1], eta, c
@@ -385,8 +385,9 @@ class Model(object):
                 cost, H, R, z, log_q_z = train_step(eta, c)
                 time2 = time.time()
                 if i % log_rate == 0:
+		    time_per_it = time2 - time1
                     if verbose:
-                        print(format_opt_msg(k, i, cost, H, R), flush=True)
+                        print(format_opt_msg(k, i, cost, H, R, time_per_it), flush=True)
                     iter = (k - 1) * num_iters + i
                     opt_it_dfs.append(
                         self._opt_it_df(k, iter, H.numpy(), R.numpy(), R_keys)
@@ -399,7 +400,7 @@ class Model(object):
                     print('Error: NaN in opt. Exiting.')
                     break
             if not verbose:
-                print(format_opt_msg(k, i, cost, H, R), flush=True)
+                print(format_opt_msg(k, i, cost, H, R, time_per_it), flush=True)
 
             # Save epi optimization data following aug lag iteration k.
             opt_it_df = pd.concat(opt_it_dfs, ignore_index=True)
@@ -1247,5 +1248,5 @@ def get_R_mean_dist(nf, eps, mu, M, N):
 def format_opt_msg(k, i, cost, H, R):
     s1 = "" if cost < 0.0 else " "
     s2 = "" if H < 0.0 else " "
-    args = (k, i, s1, cost, s2, H, np.sum(np.square(R)))
-    return "EPI(k=%2d,i=%4d): cost %s%.2E, H %s%.2E, |R|^2 %.2E" % args
+    args = (k, i, s1, cost, s2, H, np.sum(np.square(R)), time_per_it)
+    return "EPI(k=%2d,i=%4d): cost %s%.2E, H %s%.2E, |R|^2 %.2E, %.2E s/it" % args
