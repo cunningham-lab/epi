@@ -315,9 +315,15 @@ class Model(object):
                 else:
                     mu_init[i] = (nf.lb[i] + nf.ub[i]) / 2.0
                     Sigma[i, i] = np.square((nf.ub[i] - nf.lb[i]) / 4)
-            init_type = "gaussian"
-            init_params = {"mu": mu_init, "Sigma": Sigma}
-        nf.initialize(init_type, init_params)
+            mu_elem_diff = np.sum(np.square(mu_init[0] - mu_init))
+            Sigma_diag_elem_diff = np.sum(np.square(Sigma[0,0] - np.diag(Sigma)))
+            if (mu_elem_diff == 0. and Sigma_diag_elem_diff == 0.):
+                init_type = "iso_gauss"
+                init_params = {"loc": mu_init[0], "scale": Sigma[0,0]}
+            else:
+                init_type = "gaussian"
+                init_params = {"mu": mu_init, "Sigma": Sigma}
+        nf.initialize(init_type, init_params, verbose=verbose)
 
         # Checkpoint the initialization.
         optimizer = tf.keras.optimizers.Adam(lr)
@@ -510,6 +516,11 @@ class Model(object):
         :param aug_lag_hps: Augmented Lagrangian hyperparameters.
         :type aug_lag_hps: :obj:`epi.util.AugLagHPs`
         """
+
+        print('aug_lag_hps')
+        print(aug_lag_hps)
+        print(type(aug_lag_hps))
+
 
         hps = {
             "arch_type": nf.arch_type,
