@@ -466,18 +466,21 @@ class Model(object):
             for arch_path in arch_paths:
                 arch = get_dir_index(os.path.join(arch_path, "arch.pkl"))
                 if arch is None: 
+                    print('no arch')
                     continue
                 next_listdir = [os.path.join(arch_path, f) for f in os.listdir(arch_path)]
                 ep_paths = [f for f in next_listdir if os.path.isdir(f)]
                 for ep_path in ep_paths:
                     ep = get_dir_index(os.path.join(ep_path, "ep.pkl"))
                     if ep is None: 
+                        print('no ep')
                         continue
                     next_listdir = [os.path.join(ep_path, f) for f in os.listdir(ep_path)]
                     AL_hp_paths = [f for f in next_listdir if os.path.isdir(f)]
                     for AL_hp_path in AL_hp_paths:
                         AL_hps = get_dir_index(os.path.join(AL_hp_path, "AL_hps.pkl"))
                         if AL_hps is None: 
+                            print('no al hps')
                             continue
                         opt_data_file = os.path.join(AL_hp_path, "opt_data.csv")
                         if os.path.exists(opt_data_file):
@@ -488,6 +491,8 @@ class Model(object):
                             df['arch'] = df.shape[0]*[arch]
                             df['EP'] = df.shape[0]*[ep]
                             df['AL_hps'] = df.shape[0]*[AL_hps]
+                        else:
+                            print(opt_data_file, 'DNE')
         return df
 
     def epi_opt_movie(self, path):
@@ -995,8 +1000,37 @@ class Model(object):
 
         return epi_path
 
-    def load_epi_dist(self, k, init_params, nf, mu, aug_lag_hps, prefix=""):
+    def get_epi_dist(self, epi_df_row):
+        init = epi_df_row["init"]
+        arch = epi_df_row["arch"]
+        ep = epi_df_row["EP"]
+        AL_hps = epi_df_row["AL_hps"]
 
+        k = int(epi_df_row["k"])
+        init_params = {"mu":init["mu"], "Sigma":init["Sigma"]}
+        nf = NormalizingFlow(
+            arch_type=arch["arch_type"],
+            D=arch["D"],
+            num_stages=arch["num_stages"],
+            num_layers=arch["num_layers"],
+            num_units=arch["num_units"],
+            batch_norm=arch["batch_norm"],
+            bn_momentum=arch["bn_momentum"],
+            post_affine=arch["post_affine"],
+            bounds=(arch["lb"], arch["ub"]),
+            random_seed=arch["random_seed"],
+        )
+        mu = ep["mu"]
+        aug_lag_hps = AugLagHPs(
+            N=AL_hps["N"],
+            lr=AL_hps["lr"],
+            c0=AL_hps["c0"],
+            gamma=AL_hps["gamma"],
+            beta=AL_hps["beta"],
+        )
+        return self._get_epi_dist(k, init_params, nf, mu, aug_lag_hps)
+
+    def _get_epi_dist(self, k, init_params, nf, mu, aug_lag_hps):
         if k is not None:
             if type(k) is not int:
                 raise TypeError(format_type_err_msg("Model.load_epi_dist", "k", k, int))
@@ -1005,8 +1039,7 @@ class Model(object):
 
         optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
-        epi_path = self.get_epi_path(init_params, nf, mu, aug_lag_hps)
-        ckpt_dir = os.join.path(prefix, epi_path)
+        ckpt_dir = self.get_epi_path(init_params, nf, mu, aug_lag_hps)
         ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
         if ckpt_state is not None:
             ckpts = ckpt_state.all_model_checkpoint_paths
@@ -1021,7 +1054,7 @@ class Model(object):
         return q_theta
 
     def get_convergence_epoch(
-        self, mu, nf, aug_lag_hps, prefix="", alpha=0.05, nu=0.1, mu_test=None
+        self, init_params, nf, mu, aug_lag_hps, alpha=0.05, nu=0.1, mu_test=None
     ):
 
         if mu_test is not None:
@@ -1032,7 +1065,7 @@ class Model(object):
 
         optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
-        ckpt_dir = os.path.join(prefix, self.get_save_path(mu, nf, aug_lag_hps))
+        ckpt_dir = self.get_epi_path(init_params, nf, mu, aug_lag_hps)
         ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
         if ckpt_state is not None:
             ckpts = ckpt_state.all_model_checkpoint_paths
@@ -1223,7 +1256,6 @@ class Distribution(object):
     def plot_dist(self, N=200, kde=True):
         z = self.sample(N)
         log_q_z = self.log_prob(z)
-        print(log_q_z)
         df = pd.DataFrame(z)
         # iterate over parameters to create label_names
         z_labels = []
