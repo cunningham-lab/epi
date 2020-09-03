@@ -36,7 +36,6 @@ def get_hash(hash_vars):
 def set_dir_index(index, index_file):
     if os.path.exists(index_file):
         with open(index_file, "rb") as f:
-            print('checking index')
             cur_index = pickle.load(f)
         for key, value in cur_index.items():
             if type(value) is np.ndarray:
@@ -45,7 +44,6 @@ def set_dir_index(index, index_file):
                 assert(index[key] == value)
     else:
         with open(index_file, "wb") as f:
-            print('dumping index')
             pickle.dump(index, f)
     return None
 
@@ -172,62 +170,6 @@ def array_str(a):
         array_str += "_" + repeats_str(nums[i], mults[i])
 
     return array_str
-
-
-"""def init_path(arch_string, init_type, init_params):
-    Deduces initialization file path from initialization type and parameters.
-
-    :param arch_string: Architecture string of normalizing flow.
-    :type arch_string: str
-    :param init_type: Initialization type \in ['iso_gauss']
-    :type init_type: str
-    :param init_param: init_type dependent parameters for initialization (more deets)
-    :type dict: 
-
-    :return: Initialization save path.
-    :rtype: str
-    
-    if type(arch_string) is not str:
-        raise TypeError(
-            format_type_err_msg("epi.util.init_path", "arch_string", arch_string, str)
-        )
-    if type(init_type) is not str:
-        raise TypeError(
-            format_type_err_msg("epi.util.init_path", "init_type", init_type, str)
-        )
-
-    path = "./data/" + arch_string + "/"
-
-    if init_type == "iso_gauss":
-        if "loc" in init_params:
-            loc = init_params["loc"]
-        else:
-            raise ValueError("'loc' field not in init_param for %s." % init_type)
-        if "scale" in init_params:
-            scale = init_params["scale"]
-        else:
-            raise ValueError("'scale' field not in init_param for %s." % init_type)
-        path += init_type + "_loc=%.2E_scale=%.2E/" % (loc, scale)
-    elif init_type == "gaussian":
-        if "mu" in init_params:
-            mu = np_column_vec(init_params["mu"])[:, 0]
-        else:
-            raise ValueError("'mu' field not in init_param for %s." % init_type)
-        if "Sigma" in init_params:
-            Sigma = init_params["Sigma"]
-        else:
-            raise ValueError("'Sigma' field not in init_param for %s." % init_type)
-        D = mu.shape[0]
-        mu_str = array_str(mu)
-        Sigma_str = array_str(Sigma[np.triu_indices(D, 0)])
-        path += init_type + "_mu=%s_Sigma=%s/" % (mu_str, Sigma_str)
-
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-    return path
- """
-
 
 def aug_lag_vars(z, log_q_z, eps, mu, N):
     """Calculate augmented lagrangian variables requiring gradient tape.
