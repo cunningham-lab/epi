@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 import pickle
 import os
+import hashlib
 import matplotlib
 from matplotlib import animation
 import matplotlib.pyplot as plt
@@ -21,6 +22,32 @@ def hp_df_to_aug_lag_hps(hp_df):
         beta=hp_df['beta'],
     )
     return aug_lag_hps
+
+def get_hash(hash_vars):
+    m = hashlib.md5()
+    for hash_var in hash_vars:
+        if hash_var is None:
+            continue
+        elif type(hash_var) is str:
+            hash_var = hash_var.encode('utf-8')
+        m.update(hash_var)
+    return m.hexdigest()
+
+def set_dir_index(index, index_file):
+    if os.path.exists(index_file):
+        with open(index_file, "rb") as f:
+            print('checking index')
+            cur_index = pickle.load(f)
+        for key, value in cur_index.items():
+            if type(value) is np.ndarray:
+                assert(np.isclose(index[key], value).all())
+            else:
+                assert(index[key] == value)
+    else:
+        with open(index_file, "wb") as f:
+            print('dumping index')
+            pickle.dump(index, f)
+    return None
 
 def gaussian_backward_mapping(mu, Sigma):
     """Calculates natural parameter of multivaraite gaussian from mean and cov.
@@ -139,8 +166,8 @@ def array_str(a):
     return array_str
 
 
-def init_path(arch_string, init_type, init_params):
-    """Deduces initialization file path from initialization type and parameters.
+"""def init_path(arch_string, init_type, init_params):
+    Deduces initialization file path from initialization type and parameters.
 
     :param arch_string: Architecture string of normalizing flow.
     :type arch_string: str
@@ -151,7 +178,7 @@ def init_path(arch_string, init_type, init_params):
 
     :return: Initialization save path.
     :rtype: str
-    """
+    
     if type(arch_string) is not str:
         raise TypeError(
             format_type_err_msg("epi.util.init_path", "arch_string", arch_string, str)
@@ -191,6 +218,7 @@ def init_path(arch_string, init_type, init_params):
         os.makedirs(path)
 
     return path
+ """
 
 
 def aug_lag_vars(z, log_q_z, eps, mu, N):

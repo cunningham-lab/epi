@@ -15,6 +15,8 @@ from epi.util import (
     array_str,
     np_column_vec,
     plot_square_mat,
+    get_hash,
+    set_dir_index,
 )
 import matplotlib.pyplot as plt
 from matplotlib import animation
@@ -299,7 +301,7 @@ class Model(object):
 
         # Initialize architecture to gaussian.
         print("Initializing %s architecture." % nf.to_string(), flush=True)
-        if init_type is None or init_params is None:
+        if init_params is None:
             mu_init = np.zeros((self.D))
             Sigma = np.zeros((self.D, self.D))
             for i in range(self.D):
@@ -317,14 +319,17 @@ class Model(object):
                     Sigma[i, i] = np.square((nf.ub[i] - nf.lb[i]) / 4)
             init_type = "gaussian"
             init_params = {"mu": mu_init, "Sigma": Sigma}
-        nf.initialize(init_type, init_params)
+        nf.initialize(init_params["mu"], init_params["Sigma"])
 
         # Checkpoint the initialization.
         optimizer = tf.keras.optimizers.Adam(lr)
         ckpt = tf.train.Checkpoint(optimizer=optimizer, model=nf)
-        ckpt_dir = self.get_save_path(mu, nf, aug_lag_hps)
+        ckpt_dir = self.get_epi_path(init_params, nf, mu, aug_lag_hps)
         manager = tf.train.CheckpointManager(ckpt, directory=ckpt_dir, max_to_keep=None)
         manager.save(checkpoint_number=0)
+
+        print("DONE!")
+        return None, None, None, False
         print("Saving EPI models to %s." % ckpt_dir, flush=True)
 
         @tf.function
@@ -390,7 +395,7 @@ class Model(object):
                         log_q_zs.append(log_q_z.numpy()[:N_save])
                 if np.isnan(cost):
                     failed = True
-                    print('Error: NaN in opt. Exiting.')
+                    print("Error: NaN in opt. Exiting.")
                     break
             if not verbose:
                 print(format_opt_msg(k, i, cost, H, R), flush=True)
@@ -916,8 +921,8 @@ class Model(object):
         lt = np.sum(R_means < 0.0, axis=0).astype(np.float32)
         p_vals = 2 * np.minimum(gt / M, lt / M)
         if verbose:
-            print(p_vals, alpha/m)
-            #print(p_vals > (alpha / m))
+            print(p_vals, alpha / m)
+            # print(p_vals > (alpha / m))
         return np.prod(p_vals > (alpha / m))
 
     def _opt_it_df(self, k, iter, H, R, R_keys):
@@ -929,13 +934,7 @@ class Model(object):
         np.savez(save_path + "opt_data.npz", etas=etas, cs=cs)
         opt_df.to_csv(save_path + "opt_data.csv")
 
-    def get_save_path(self, mu, arch, AL_hps, eps_name=None):
-        epi_path = self.get_epi_path(mu, eps_name=eps_name)
-        arch_string = arch.to_string()
-        hp_string = AL_hps.to_string()
-        return epi_path + ("/%s_%s/" % (arch_string, hp_string))
-
-    def get_epi_path(self, mu, eps_name=None):
+    def get_epi_path(self, init_params, nf, mu, AL_hps, eps_name=None):
         if eps_name is not None:
             _eps_name = eps_name
         else:
@@ -943,9 +942,85 @@ class Model(object):
                 _eps_name = self.eps.__name__
             else:
                 raise AttributeError("Model.eps is not set.")
-        mu_string = array_str(mu)
-        # return "data/%s_%s/" % (
-        return "data/%s_%s_mu=%s/" % (self.name, _eps_name, mu_string)
+        init_hash = get_hash([init_params["mu"], init_params["Sigma"], nf.lb, nf.ub])
+        ep_hash = get_hash([_eps_name, mu])
+
+        epi_path = "./data/epi/%s/%s/%s/%s/%s/" % (
+            self.name,
+            init_hash,
+            nf.to_string(),
+            ep_hash,
+            AL_hps.to_string(),
+        )
+
+        if not os.path.exists(epi_path):
+            os.makedirs(epi_path)
+
+        init_index = {
+            "mu": init_params["mu"],
+            "Sigma": init_params["Sigma"],
+            "lb": nf.lb,
+            "ub": nf.ub,
+        }
+        init_index_file = "./data/epi/%s/%s/init.pkl" % (self.name, init_hash)
+
+        arch_index = {
+            "arch_type": nf.arch_type,
+            "D": nf.D,
+            "num_stages": nf.num_stages,
+            "num_layers": nf.num_layers,
+            "num_units": nf.num_units,
+            "batch_norm": nf.batch_norm,
+            "bn_momentum": nf.bn_momentum,
+            "post_affine": nf.post_affine,
+            "lb": nf.lb,
+            "ub": nf.ub,
+            "random_seed": nf.random_seed,
+        }
+        arch_index_file = "./data/epi/%s/%s/%s/arch.pkl" % (
+            self.name,
+            init_hash,
+            nf.to_string(),
+        )
+
+        ep_index = {
+            "name": _eps_name,
+            "mu": mu,
+        }
+        ep_index_file = "./data/epi/%s/%s/%s/%s/ep.pkl" % (
+            self.name,
+            init_hash,
+            nf.to_string(),
+            ep_hash,
+        )
+
+        AL_hp_index = {
+            "N": AL_hps.N,
+            "lr": AL_hps.lr,
+            "c0": AL_hps.c0,
+            "gamma": AL_hps.gamma,
+            "beta": AL_hps.beta,
+        }
+        AL_hp_index_file = "./data/epi/%s/%s/%s/%s/%s/AL_hps.pkl" % (
+            self.name,
+            init_hash,
+            nf.to_string(),
+            ep_hash,
+            AL_hps.to_string(),
+        )
+
+        indexes = [init_index, arch_index, ep_index, AL_hp_index]
+        index_files = [
+            init_index_file,
+            arch_index_file,
+            ep_index_file,
+            AL_hp_index_file,
+        ]
+
+        for index, index_file in zip(indexes, index_files):
+            set_dir_index(index, index_file)
+
+        return epi_path
 
     def load_epi_dist(self, k, mu, nf, aug_lag_hps, prefix=""):
 
@@ -958,7 +1033,7 @@ class Model(object):
         optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
         ckpt_dir = prefix + self.get_save_path(mu, nf, aug_lag_hps)
-        print('ckpt_dir')
+        print("ckpt_dir")
         print(ckpt_dir)
         ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
         if ckpt_state is not None:
@@ -986,7 +1061,7 @@ class Model(object):
         optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
         ckpt_dir = prefix + self.get_save_path(mu, nf, aug_lag_hps)
-        print('ckpt_dir')
+        print("ckpt_dir")
         print(ckpt_dir)
         ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
         if ckpt_state is not None:
@@ -1206,7 +1281,7 @@ class Distribution(object):
     def set_batch_norm_trainable(self, trainable):
         bijectors = self.nf.trans_dist.bijector.bijectors
         for bijector in bijectors:
-            if type(bijector).__name__ == 'BatchNormalization':
+            if type(bijector).__name__ == "BatchNormalization":
                 bijector._training = trainable
         return None
 
