@@ -505,8 +505,8 @@ class Model(object):
         palette = sns.color_palette()
         fontsize = 22
 
-        z_filename = path + "movie_data.npz"
-        opt_data_filename = path + "opt_data.csv"
+        z_filename = os.path.join(path, "movie_data.npz")
+        opt_data_filename = os.path.join(path, "opt_data.csv")
         # Load zs for optimization.
         if os.path.exists(z_filename):
             z_file = np.load(z_filename)
