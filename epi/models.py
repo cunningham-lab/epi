@@ -435,17 +435,16 @@ class Model(object):
         time_per_it = time2 - time1
         if save_movie_data:
             np.savez(
-                ckpt_dir + "movie_data.npz",
+                os.path.join(ckpt_dir,"movie_data.npz"),
                 zs=np.array(zs),
                 log_q_zs=np.array(log_q_zs),
                 time_per_it=time_per_it,
                 iterations=np.arange(0, k * num_iters + 1, log_rate),
             )
         else:
-            np.savez(ckpt_dir + "timing.npz", time_per_it=time_per_it)
+            np.savez(os.path.join(ckpt_dir, "timing.npz"), time_per_it=time_per_it)
 
         # Save hyperparameters.
-        self._save_hps(ckpt_dir, nf, aug_lag_hps, init_type, init_params)
         self.aug_lag_hps = aug_lag_hps
 
         # Return optimized distribution.
@@ -490,33 +489,6 @@ class Model(object):
                             df['EP'] = df.shape[0]*[ep]
                             df['AL_hps'] = df.shape[0]*[AL_hps]
         return df
-
-
-    def _save_hps(self, ckpt_dir, nf, aug_lag_hps, init_type, init_params):
-        """Save hyperparameters to save directory.
-
-        :param ckpt_dir: Path the save directory.
-        :type ckpt_dir: str
-        :param nf: Normalizing flow.
-        :type nf: :obj:`epi.normalizing_flows.NormalizingFlow`
-        :param aug_lag_hps: Augmented Lagrangian hyperparameters.
-        :type aug_lag_hps: :obj:`epi.util.AugLagHPs`
-        """
-
-        hps = {
-            "arch_type": nf.arch_type,
-            "num_stages": nf.num_stages,
-            "num_layers": nf.num_layers,
-            "num_units": nf.num_units,
-            "batch_norm": nf.batch_norm,
-            "bn_momentum": nf.bn_momentum,
-            "post_affine": nf.post_affine,
-            "random_seed": nf.random_seed,
-            "init_type": init_type,
-            "init_params": init_params,
-            "aug_lag_hps": aug_lag_hps,
-        }
-        pickle.dump(hps, open(ckpt_dir + "hps.p", "wb"))
 
     def epi_opt_movie(self, path):
         """Generate video of EPI optimization.
@@ -892,7 +864,7 @@ class Model(object):
         Writer = animation.writers["ffmpeg"]
         writer = Writer(fps=30, metadata=dict(artist="Me"), bitrate=1800)
 
-        ani.save(path + "epi_opt.mp4", writer=writer)
+        ani.save(os.path.join(path,"epi_opt.mp4"), writer=writer)
         return None
 
     def test_convergence(self, R_means, alpha, verbose=False):
@@ -918,8 +890,8 @@ class Model(object):
         return pd.DataFrame(d, index=[0])
 
     def _save_epi_opt(self, save_path, opt_df, etas, cs):
-        np.savez(save_path + "opt_data.npz", etas=etas, cs=cs)
-        opt_df.to_csv(save_path + "opt_data.csv")
+        np.savez(os.path.join(save_path, "opt_data.npz"), etas=etas, cs=cs)
+        opt_df.to_csv(os.path.join(save_path, "opt_data.csv"))
 
     def get_epi_path(self, init_params, nf, mu, AL_hps, eps_name=None):
         if eps_name is not None:
@@ -932,7 +904,10 @@ class Model(object):
         init_hash = get_hash([init_params["mu"], init_params["Sigma"], nf.lb, nf.ub])
         ep_hash = get_hash([_eps_name, mu])
 
-        epi_path = "./data/epi/%s/%s/%s/%s/%s/" % (
+        base_path = os.path.join("data", "epi")
+
+        epi_path = os.path.join(
+            base_path,
             self.name,
             init_hash,
             nf.to_string(),
@@ -949,7 +924,12 @@ class Model(object):
             "lb": nf.lb,
             "ub": nf.ub,
         }
-        init_index_file = "./data/epi/%s/%s/init.pkl" % (self.name, init_hash)
+        init_index_file = os.path.join(
+            base_path,
+            self.name, 
+            init_hash,
+            "init.pkl"
+        )
 
         arch_index = {
             "arch_type": nf.arch_type,
@@ -964,21 +944,25 @@ class Model(object):
             "ub": nf.ub,
             "random_seed": nf.random_seed,
         }
-        arch_index_file = "./data/epi/%s/%s/%s/arch.pkl" % (
+        arch_index_file = os.path.join(
+            base_path,
             self.name,
             init_hash,
             nf.to_string(),
+            "arch.pkl",
         )
 
         ep_index = {
             "name": _eps_name,
             "mu": mu,
         }
-        ep_index_file = "./data/epi/%s/%s/%s/%s/ep.pkl" % (
+        ep_index_file = os.path.join(
+            base_path,
             self.name,
             init_hash,
             nf.to_string(),
             ep_hash,
+            "ep.pkl",
         )
 
         AL_hp_index = {
@@ -988,12 +972,14 @@ class Model(object):
             "gamma": AL_hps.gamma,
             "beta": AL_hps.beta,
         }
-        AL_hp_index_file = "./data/epi/%s/%s/%s/%s/%s/AL_hps.pkl" % (
+        AL_hp_index_file = os.path.join(
+            base_path,
             self.name,
             init_hash,
             nf.to_string(),
             ep_hash,
             AL_hps.to_string(),
+            "Al_hps.pkl",
         )
 
         indexes = [init_index, arch_index, ep_index, AL_hp_index]
@@ -1009,7 +995,7 @@ class Model(object):
 
         return epi_path
 
-    def load_epi_dist(self, k, mu, nf, aug_lag_hps, prefix=""):
+    def load_epi_dist(self, k, init_params, nf, mu, aug_lag_hps, prefix=""):
 
         if k is not None:
             if type(k) is not int:
@@ -1019,9 +1005,8 @@ class Model(object):
 
         optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
-        ckpt_dir = prefix + self.get_save_path(mu, nf, aug_lag_hps)
-        print("ckpt_dir")
-        print(ckpt_dir)
+        epi_path = self.get_epi_path(init_params, nf, mu, aug_lag_hps)
+        ckpt_dir = os.join.path(prefix, epi_path)
         ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
         if ckpt_state is not None:
             ckpts = ckpt_state.all_model_checkpoint_paths
@@ -1047,9 +1032,7 @@ class Model(object):
 
         optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
-        ckpt_dir = prefix + self.get_save_path(mu, nf, aug_lag_hps)
-        print("ckpt_dir")
-        print(ckpt_dir)
+        ckpt_dir = os.path.join(prefix, self.get_save_path(mu, nf, aug_lag_hps))
         ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
         if ckpt_state is not None:
             ckpts = ckpt_state.all_model_checkpoint_paths
@@ -1145,8 +1128,6 @@ class Distribution(object):
         return z.numpy()
 
     def _set_nf(self, nf):
-        # if type(nf) is not NormalizingFlow:
-        #    raise TypeError(format_type_err_msg(self, nf, "nf", NormalizingFlow))
         self.nf = nf
 
     def _set_parameters(self, parameters):
