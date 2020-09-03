@@ -457,6 +457,7 @@ class Model(object):
         base_path = os.path.join("data", "epi", self.name)
         next_listdir = [os.path.join(base_path, f) for f in os.listdir(base_path)]
         init_paths = [f for f in next_listdir if os.path.isdir(f)]
+        dfs = []
         for init_path in init_paths:
             init = get_dir_index(os.path.join(init_path, "init.pkl"))
             if init is None: 
@@ -491,9 +492,10 @@ class Model(object):
                             df['arch'] = df.shape[0]*[arch]
                             df['EP'] = df.shape[0]*[ep]
                             df['AL_hps'] = df.shape[0]*[AL_hps]
+                            dfs.append(df)
                         else:
                             print(opt_data_file, 'DNE')
-        return df
+        return pd.concat(dfs)
 
     def epi_opt_movie(self, path):
         """Generate video of EPI optimization.
