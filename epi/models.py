@@ -17,6 +17,7 @@ from epi.util import (
     plot_square_mat,
     get_hash,
     set_dir_index,
+    get_dir_index,
 )
 import matplotlib.pyplot as plt
 from matplotlib import animation
@@ -328,8 +329,6 @@ class Model(object):
         manager = tf.train.CheckpointManager(ckpt, directory=ckpt_dir, max_to_keep=None)
         manager.save(checkpoint_number=0)
 
-        print("DONE!")
-        return None, None, None, False
         print("Saving EPI models to %s." % ckpt_dir, flush=True)
 
         @tf.function
@@ -455,55 +454,43 @@ class Model(object):
 
         return q_theta, opt_it_dfs[0], ckpt_dir, failed
 
-    def get_epi_dfs(self, mu, prefix=""):
-        epi_dir = prefix + self.get_epi_path(mu)
-        print("Checking in %s." % epi_dir)
-        if not os.path.exists(epi_dir):
-            raise IOError("Directory %s does not exist." % epi_dir)
-        opt_dirs = os.listdir(epi_dir)
-        n = len(opt_dirs)
-        if n == 0:
-            raise IOError("No optimizations in %s." % epi_dir)
-        Hs = []
-        hp_dfs = []
-        opt_dfs = []
-        for i, opt_dir in enumerate(opt_dirs):
-            # Parse hp file.
-            hp_filename = epi_dir + opt_dir + "/hps.p"
-            if not os.path.exists(hp_filename):
-                print("skipping", hp_filename)
+    def get_epi_df(self):
+        base_path = os.path.join("data", "epi", self.name)
+        next_listdir = [os.path.join(base_path, f) for f in os.listdir(base_path)]
+        init_paths = [f for f in next_listdir if os.path.isdir(f)]
+        for init_path in init_paths:
+            init = get_dir_index(os.path.join(init_path, "init.pkl"))
+            if init is None: 
                 continue
-            hps = pickle.load(open(hp_filename, "rb"))
-            hps["N"] = hps["aug_lag_hps"].N
-            hps["lr"] = hps["aug_lag_hps"].lr
-            hps["c0"] = hps["aug_lag_hps"].c0
-            hps["gamma"] = hps["aug_lag_hps"].gamma
-            hps["beta"] = hps["aug_lag_hps"].beta
-            del hps["aug_lag_hps"]
-            del hps["init_type"]
-            del hps["init_params"]
-            hp_dfs.append(pd.DataFrame(hps, index=[i]))
+            next_listdir = [os.path.join(init_path, f) for f in os.listdir(init_path)]
+            arch_paths = [f for f in next_listdir if os.path.isdir(f)]
+            for arch_path in arch_paths:
+                arch = get_dir_index(os.path.join(arch_path, "arch.pkl"))
+                if arch is None: 
+                    continue
+                next_listdir = [os.path.join(arch_path, f) for f in os.listdir(arch_path)]
+                ep_paths = [f for f in next_listdir if os.path.isdir(f)]
+                for ep_path in ep_paths:
+                    ep = get_dir_index(os.path.join(ep_path, "ep.pkl"))
+                    if ep is None: 
+                        continue
+                    next_listdir = [os.path.join(ep_path, f) for f in os.listdir(ep_path)]
+                    AL_hp_paths = [f for f in next_listdir if os.path.isdir(f)]
+                    for AL_hp_path in AL_hp_paths:
+                        AL_hps = get_dir_index(os.path.join(AL_hp_path, "AL_hps.pkl"))
+                        if AL_hps is None: 
+                            continue
+                        opt_data_file = os.path.join(AL_hp_path, "opt_data.csv")
+                        if os.path.exists(opt_data_file):
+                            df = pd.read_csv(opt_data_file)
+                            df['path'] = AL_hp_path
 
-            # Parse opt data file.
-            opt_filename = epi_dir + opt_dir + "/opt_data.csv"
-            opt_df_i = pd.read_csv(opt_filename)
-            opt_df_i["hp"] = opt_dir
-            opt_dfs.append(opt_df_i)
+                            df['init'] = df.shape[0]*[init]
+                            df['arch'] = df.shape[0]*[arch]
+                            df['EP'] = df.shape[0]*[ep]
+                            df['AL_hps'] = df.shape[0]*[AL_hps]
+        return df
 
-            # Calculate evaluation statistics
-            conv_its = opt_df_i["converged"] == True
-            if np.sum(conv_its) == 0:
-                Hs.append(np.nan)
-            else:
-                Hs.append(np.max(opt_df_i.loc[conv_its, "H"]))
-
-        hp_df = pd.concat(hp_dfs, sort=False)
-        hp_df["H"] = np.array(Hs)
-        opt_df = pd.concat(opt_dfs, sort=False)
-
-        print("Found %d optimizations." % len(opt_df["hp"].unique()))
-
-        return hp_df, opt_df
 
     def _save_hps(self, ckpt_dir, nf, aug_lag_hps, init_type, init_params):
         """Save hyperparameters to save directory.

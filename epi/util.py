@@ -49,6 +49,14 @@ def set_dir_index(index, index_file):
             pickle.dump(index, f)
     return None
 
+def get_dir_index(path):
+    try:
+        with open(path, "rb") as f:
+            index = pickle.load(f)
+    except FileNotFoundError:
+        return None
+    return index
+
 def gaussian_backward_mapping(mu, Sigma):
     """Calculates natural parameter of multivaraite gaussian from mean and cov.
 
