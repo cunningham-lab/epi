@@ -15,6 +15,7 @@ from epi.util import (
     get_hash,
     set_dir_index,
     get_dir_index,
+    pairplot,
 )
 from epi.example_eps import linear2D_freq, linear2D_freq_np
 import pytest
@@ -23,6 +24,17 @@ import os
 
 DTYPE = np.float32
 
+def test_pairplot():
+    M = 200
+    D = 4 
+    z = np.random.normal(0., 1., (M,D))
+    dims = range(D)
+    labels = ["z%d" % d for d in range(1,D+1)]
+    c = np.random.normal(0., 1., (M,))
+
+    pairplot(z, dims, labels)
+    pairplot(z, dims, labels, c=c)
+    return None
 
 def test_get_hash():
     x = np.random.normal(0., 1., (10,))
@@ -359,3 +371,5 @@ def test_sample_aug_lag_hps():
 
     return None
 
+if __name__ == '__main__':
+    test_pairplot()

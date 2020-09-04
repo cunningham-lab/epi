@@ -13,20 +13,9 @@ import pandas as pd
 from sklearn.neighbors import KernelDensity
 from epi.error_formatters import format_type_err_msg
 
-def hp_df_to_aug_lag_hps(hp_df):
-    aug_lag_hps = AugLagHPs(
-        N=int(hp_df['N']),
-        lr=hp_df['lr'],
-        c0=hp_df['c0'],
-        gamma=hp_df['gamma'],
-        beta=hp_df['beta'],
-    )
-    return aug_lag_hps
-
 def get_hash(hash_vars):
     m = hashlib.md5()
     for hash_var in hash_vars:
-        print(type(hash_var), hash_var)
         if hash_var is None:
             continue
         elif type(hash_var) is str:
@@ -35,7 +24,8 @@ def get_hash(hash_vars):
     return m.hexdigest()
 
 def set_dir_index(index, index_file):
-    if os.path.exists(index_file):
+    exists = os.path.exists(index_file)
+    if exists:
         with open(index_file, "rb") as f:
             cur_index = pickle.load(f)
         for key, value in cur_index.items():
@@ -46,7 +36,7 @@ def set_dir_index(index, index_file):
     else:
         with open(index_file, "wb") as f:
             pickle.dump(index, f)
-    return None
+    return exists
 
 def get_dir_index(path):
     try:
@@ -471,8 +461,9 @@ def pairplot(
     outlier_stds=10,
     pfname="images/temp.png",
 ):
+    M = Z.shape[0]
     num_dims = len(dims)
-    rand_order = np.random.permutation(Z.shape[0])
+    rand_order = np.random.permutation(M)
     Z = Z[rand_order, :]
     if c is not None:
         c = c[rand_order]
@@ -485,6 +476,7 @@ def pairplot(
             ]
         else:
             plot_inds, below_inds, over_inds = filter_outliers(c, outlier_stds)
+            clims = [None, None]
 
     fig, axs = plt.subplots(num_dims - 1, num_dims - 1, figsize=figsize)
     for i in range(num_dims - 1):
@@ -500,7 +492,6 @@ def pairplot(
                     ax.plot(xlims, [0, 0], c=0.5 * np.ones(3), linestyle="--")
                     ax.plot([0, 0], ylims, c=0.5 * np.ones(3), linestyle="--")
                 if ss:
-                    M = Z.shape[0]
                     ax.plot(
                         np.reshape(Z[:, dim_j].T, (M // 2, 2)),
                         np.reshape(Z[:, dim_i].T, (M // 2, 2)),
@@ -534,7 +525,7 @@ def pairplot(
                     )
                 else:
                     h = ax.scatter(
-                        Z[:, dim_j], Z[:, dim_i], c=0.25*np.ones((3,)), edgecolors="k", linewidths=0.25,
+                        Z[:, dim_j], Z[:, dim_i], c='k', edgecolors="k", linewidths=0.25,
                     )
                 if (z1 is not None):
                     if (z1.shape[0] == z2.shape[0]):
