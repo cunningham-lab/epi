@@ -29,7 +29,6 @@ import os
 
 REAL_NUMERIC_TYPES = (int, float)
 
-
 class Parameter(object):
     """Univariate parameter of a model.
 
