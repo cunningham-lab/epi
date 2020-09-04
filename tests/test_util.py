@@ -13,6 +13,8 @@ from epi.util import (
     AugLagHPs,
     sample_aug_lag_hps,
     get_hash,
+    set_dir_index,
+    get_dir_index,
 )
 from epi.example_eps import linear2D_freq, linear2D_freq_np
 import pytest
@@ -46,18 +48,22 @@ def test_get_hash():
     return None
 
 def test_dir_indexes():
+    np.random.seed(0)
     index = {
         "w": None,
         "x": np.random.normal(0., 1., (10,)),
         "y": np.random.normal(0., 1., (10,)),
         "z": 'foo',
     }
-    index_file = "temp.foo.pkl"
+    index_file = os.path.join("foo.pkl")
     set_dir_index(index, index_file)
     set_dir_index(index, index_file)
     _index = get_dir_index(index_file)
     for key, value in index.items():
-        assert(_index[key] == value)
+        if type(value) is np.ndarray:
+            assert(np.isclose(_index[key], value).all())
+        else:
+            assert(_index[key] == value)
 
     index_file = "temp1.foo.pkl"
     assert(get_dir_index(index_file) is None)
@@ -353,5 +359,3 @@ def test_sample_aug_lag_hps():
 
     return None
 
-if __name__ == "__main__":
-    test_get_hash()
