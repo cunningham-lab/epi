@@ -490,37 +490,28 @@ class Model(object):
         next_listdir = [os.path.join(base_path, f) for f in os.listdir(base_path)]
         init_paths = [f for f in next_listdir if os.path.isdir(f)]
         dfs = []
-        print('base_path', base_path)
         for init_path in init_paths:
-            print('init_path', init_path)
             init = get_dir_index(os.path.join(init_path, "init.pkl"))
             if init is None: 
                 continue
             next_listdir = [os.path.join(init_path, f) for f in os.listdir(init_path)]
             arch_paths = [f for f in next_listdir if os.path.isdir(f)]
             for arch_path in arch_paths:
-                print('arch_path', arch_path)
                 arch = get_dir_index(os.path.join(arch_path, "arch.pkl"))
                 if arch is None: 
                     continue
                 next_listdir = [os.path.join(arch_path, f) for f in os.listdir(arch_path)]
                 ep_paths = [f for f in next_listdir if os.path.isdir(f)]
                 for ep_path in ep_paths:
-                    print('ep_path', ep_path)
                     ep = get_dir_index(os.path.join(ep_path, "ep.pkl"))
                     if ep is None: 
                         continue
                     next_listdir = [os.path.join(ep_path, f) for f in os.listdir(ep_path)]
                     AL_hp_paths = [f for f in next_listdir if os.path.isdir(f)]
                     for AL_hp_path in AL_hp_paths:
-                        print('AL_hp_path', AL_hp_path)
-                        print('list dir')
-                        print(os.listdir(AL_hp_path))
                         AL_hps = get_dir_index(os.path.join(AL_hp_path, "AL_hps.pkl"))
-                        print('AL_hps', AL_hps)
                         if AL_hps is None: 
-                            print('******continuing!*****')
-                            #continue
+                            continue
                         opt_data_file = os.path.join(AL_hp_path, "opt_data.csv")
                         if os.path.exists(opt_data_file):
                             df = pd.read_csv(opt_data_file)
@@ -531,9 +522,6 @@ class Model(object):
                             df['EP'] = df.shape[0]*[ep]
                             df['AL_hps'] = df.shape[0]*[AL_hps]
                             dfs.append(df)
-                        else:
-                            print('******opt_data_file DNE*****')
-                        print('dfs', dfs)
         return pd.concat(dfs)
 
     def epi_opt_movie(self, path):
@@ -1030,7 +1018,7 @@ class Model(object):
             nf.to_string(),
             ep_hash,
             AL_hps.to_string(),
-            "Al_hps.pkl",
+            "AL_hps.pkl",
         )
 
         indexes = [init_index, arch_index, ep_index, AL_hp_index]

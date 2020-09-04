@@ -35,7 +35,6 @@ def set_dir_index(index, index_file):
                 assert(index[key] == value)
     else:
         with open(index_file, "wb") as f:
-            print('writing to index file', index_file)
             pickle.dump(index, f)
     return exists
 
