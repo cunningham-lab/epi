@@ -395,7 +395,7 @@ class Model(object):
                 cost, H, R, z, log_q_z = train_step(eta, c)
                 time2 = time.time()
                 if i % log_rate == 0:
-		    time_per_it = time2 - time1
+                    time_per_it = time2 - time1
                     if verbose:
                         print(format_opt_msg(k, i, cost, H, R), flush=True)
                     it = (k - 1) * num_iters + i
