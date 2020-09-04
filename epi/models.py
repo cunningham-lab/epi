@@ -516,7 +516,9 @@ class Model(object):
                     for AL_hp_path in AL_hp_paths:
                         print('AL_hp_path', AL_hp_path)
                         AL_hps = get_dir_index(os.path.join(AL_hp_path, "AL_hps.pkl"))
+                        print('AL_hps', AL_hps)
                         if AL_hps is None: 
+                            print('******continuing!*****')
                             continue
                         opt_data_file = os.path.join(AL_hp_path, "opt_data.csv")
                         if os.path.exists(opt_data_file):
@@ -528,6 +530,9 @@ class Model(object):
                             df['EP'] = df.shape[0]*[ep]
                             df['AL_hps'] = df.shape[0]*[AL_hps]
                             dfs.append(df)
+                        else:
+                            print('******opt_data_file DNE*****')
+                        print('dfs', dfs)
         return pd.concat(dfs)
 
     def epi_opt_movie(self, path):
