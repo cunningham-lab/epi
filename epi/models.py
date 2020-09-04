@@ -515,11 +515,13 @@ class Model(object):
                     AL_hp_paths = [f for f in next_listdir if os.path.isdir(f)]
                     for AL_hp_path in AL_hp_paths:
                         print('AL_hp_path', AL_hp_path)
+                        print('list dir')
+                        print(os.listdir(AL_hp_path))
                         AL_hps = get_dir_index(os.path.join(AL_hp_path, "AL_hps.pkl"))
                         print('AL_hps', AL_hps)
                         if AL_hps is None: 
                             print('******continuing!*****')
-                            continue
+                            #continue
                         opt_data_file = os.path.join(AL_hp_path, "opt_data.csv")
                         if os.path.exists(opt_data_file):
                             df = pd.read_csv(opt_data_file)
