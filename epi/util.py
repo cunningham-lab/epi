@@ -26,6 +26,7 @@ def hp_df_to_aug_lag_hps(hp_df):
 def get_hash(hash_vars):
     m = hashlib.md5()
     for hash_var in hash_vars:
+        print(type(hash_var), hash_var)
         if hash_var is None:
             continue
         elif type(hash_var) is str:

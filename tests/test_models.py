@@ -119,7 +119,7 @@ def test_epi():
         mu, num_iters=100, K=1, save_movie_data=True
     )
 
-    hp_df, opt_df = M.get_epi_dfs(mu)
+    """hp_df, opt_df = M.get_epi_dfs(mu)
     for _, hp_df_row in hp_df.iterrows():
         _nf = hp_df_to_nf(hp_df_row, M)
         _aug_lag_hps = hp_df_to_aug_lag_hps(hp_df_row)
@@ -195,6 +195,7 @@ def test_epi():
     with raises(AttributeError):
         save_path = M.get_save_path(mu, nf, al_hps, None)
     save_path = M.get_save_path(mu, nf, al_hps, eps_name="foo")
+    """
     return None
 
 
@@ -219,18 +220,16 @@ def test_Distribution():
                 batch_norm=False,
                 post_affine=True,
             )
-            mu = np.random.normal(0.0, 1.0, (D, 1))
+            mu = np.random.normal(0.0, 1.0, (D,))
             Sigma = inv_wishart.rvs(1)
-            mvn = scipy.stats.multivariate_normal(mu[:, 0], Sigma)
-            init_type = "gaussian"
-            init_params = {"mu": mu, "Sigma": Sigma}
+            mvn = scipy.stats.multivariate_normal(mu, Sigma)
             opt_df = nf.initialize(
-                init_type, init_params, num_iters=2500, load_if_cached=False, save=False
+                mu, Sigma, num_iters=2500, load_if_cached=False, save=False
             )
             q_theta = Distribution(nf)
 
             z = q_theta.sample(N1)
-            assert np.isclose(np.mean(z, axis=0), mu[:, 0], rtol=0.1).all()
+            assert np.isclose(np.mean(z, axis=0), mu, rtol=0.1).all()
             cov = np.cov(z.T)
             assert np.sum(np.square(cov - Sigma)) / np.sum(np.square(Sigma)) < 0.1
 
@@ -240,7 +239,7 @@ def test_Distribution():
             Sigma_inv = np.linalg.inv(Sigma)
 
             # Test gradient
-            grad_true = np.dot(Sigma_inv, mu - z.T).T
+            grad_true = np.dot(Sigma_inv, mu[:,None] - z.T).T
             grad_z = q_theta.gradient(z)
             assert (
                 np.sum(np.square(grad_true - grad_z)) / np.sum(np.square(grad_true))
@@ -259,4 +258,4 @@ def test_Distribution():
 
 
 if __name__ == "__main__":
-    test_epi()
+    test_Distribution()

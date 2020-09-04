@@ -472,22 +472,6 @@ class NormalizingFlow(tf.keras.Model):
         checkpoint.save(file_prefix=init_file)
         return opt_df
 
-    def plot_init_opt(self, init_type, init_params):
-        _init_path = init_path(self.to_string(), init_type, init_params)
-        opt_data_file = _init_path + "opt_data.csv"
-        if os.path.exists(opt_data_file):
-            df = pd.read_csv(opt_data_file)
-        else:
-            print("Error: Initialization not found.")
-            return None
-        fig, axs = plt.subplots(1, 3, figsize=(12, 5))
-        has_KL = not np.isnan(df["KL"][0])
-        ys = ["loss", "H", "KL"] if has_KL else ["loss", "H"]
-        num_ys = len(ys)
-        for i in range(num_ys):
-            df.plot("iteration", ys[i], ax=axs[i])
-        return df
-
     def gauss_KL(self, z, log_q_z, mu, Sigma):
         if self.lb is not None or self.ub is not None:
             return np.nan
