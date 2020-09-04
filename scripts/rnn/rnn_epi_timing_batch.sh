@@ -3,10 +3,13 @@ source activate epi
 
 # This shell script does it linearly, but could you run each of these 
 # python scripts independently on different instances?
-for hp_rs in {1..10}
+for n in 2 4
 do
-    echo "Running opt $hp_rs"
-    sbatch matrix_det_epi.sh 2 $hp_rs
+  for T in 10
+  do
+    for traj in 0
+    do
+      sbatch rnn_epi_timing.sh $n $T $traj
+    done
+  done
 done
-
-
