@@ -343,26 +343,19 @@ def test_initialization():
     nf = NormalizingFlow(
         "autoregressive", D, 2, 2, 15, batch_norm=False, post_affine=True
     )
-    init_type = "iso_gauss"
-    loc = -0.5
-    scale = 2.0
-    init_params = {"loc": loc, "scale": scale}
-    nf.initialize(init_type, init_params, num_iters=int(2e4), verbose=True)
-    nf.plot_init_opt(init_type, init_params)
+    mu = -0.5*np.ones((D,))
+    Sigma = 2.0*np.eye(D)
+    nf.initialize(mu, Sigma, num_iters=int(5e3), verbose=True)
 
     z = nf.sample(int(1e4))
     z = z.numpy()
     mean_z = np.mean(z, 0)
     Sigma_z = np.cov(z.T)
-    print('mean_z')
-    print(mean_z)
-    print('Sigma_z')
-    print(Sigma_z)
-    assert np.isclose(mean_z, loc * np.ones((D,)), atol=0.5).all()
-    assert np.isclose(Sigma_z, scale * np.eye(D), atol=0.5).all()
+    assert np.isclose(mean_z, mu, atol=0.5).all()
+    assert np.isclose(Sigma_z, Sigma, atol=0.5).all()
 
     # For init load
-    nf.initialize(init_type, init_params)
+    nf.initialize(mu, Sigma)
 
     # Bounds
     lb = np.zeros((D,))
@@ -370,6 +363,10 @@ def test_initialization():
     nf = NormalizingFlow(
         "autoregressive", D, 2, 2, 15, batch_norm=True, bounds=(lb, ub)
     )
-    nf.initialize(init_type, init_params)
+    nf.initialize(mu, Sigma, num_iters=int(5e3))
 
     return None
+
+if __name__ == '__main__':
+    pass
+    #test_initialization()

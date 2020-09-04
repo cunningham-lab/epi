@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 import pickle
 import os
+import hashlib
 import matplotlib
 from matplotlib import animation
 import matplotlib.pyplot as plt
@@ -12,15 +13,38 @@ import pandas as pd
 from sklearn.neighbors import KernelDensity
 from epi.error_formatters import format_type_err_msg
 
-def hp_df_to_aug_lag_hps(hp_df):
-    aug_lag_hps = AugLagHPs(
-        N=int(hp_df['N']),
-        lr=hp_df['lr'],
-        c0=hp_df['c0'],
-        gamma=hp_df['gamma'],
-        beta=hp_df['beta'],
-    )
-    return aug_lag_hps
+def get_hash(hash_vars):
+    m = hashlib.md5()
+    for hash_var in hash_vars:
+        if hash_var is None:
+            continue
+        elif type(hash_var) is str:
+            hash_var = hash_var.encode('utf-8')
+        m.update(hash_var)
+    return m.hexdigest()
+
+def set_dir_index(index, index_file):
+    exists = os.path.exists(index_file)
+    if exists:
+        with open(index_file, "rb") as f:
+            cur_index = pickle.load(f)
+        for key, value in cur_index.items():
+            if type(value) is np.ndarray:
+                assert(np.isclose(index[key], value).all())
+            else:
+                assert(index[key] == value)
+    else:
+        with open(index_file, "wb") as f:
+            pickle.dump(index, f)
+    return exists
+
+def get_dir_index(path):
+    try:
+        with open(path, "rb") as f:
+            index = pickle.load(f)
+    except FileNotFoundError:
+        return None
+    return index
 
 def gaussian_backward_mapping(mu, Sigma):
     """Calculates natural parameter of multivaraite gaussian from mean and cov.
@@ -137,61 +161,6 @@ def array_str(a):
         array_str += "_" + repeats_str(nums[i], mults[i])
 
     return array_str
-
-
-def init_path(arch_string, init_type, init_params):
-    """Deduces initialization file path from initialization type and parameters.
-
-    :param arch_string: Architecture string of normalizing flow.
-    :type arch_string: str
-    :param init_type: Initialization type \in ['iso_gauss']
-    :type init_type: str
-    :param init_param: init_type dependent parameters for initialization (more deets)
-    :type dict: 
-
-    :return: Initialization save path.
-    :rtype: str
-    """
-    if type(arch_string) is not str:
-        raise TypeError(
-            format_type_err_msg("epi.util.init_path", "arch_string", arch_string, str)
-        )
-    if type(init_type) is not str:
-        raise TypeError(
-            format_type_err_msg("epi.util.init_path", "init_type", init_type, str)
-        )
-
-    path = "./data/" + arch_string + "/"
-
-    if init_type == "iso_gauss":
-        if "loc" in init_params:
-            loc = init_params["loc"]
-        else:
-            raise ValueError("'loc' field not in init_param for %s." % init_type)
-        if "scale" in init_params:
-            scale = init_params["scale"]
-        else:
-            raise ValueError("'scale' field not in init_param for %s." % init_type)
-        path += init_type + "_loc=%.2E_scale=%.2E/" % (loc, scale)
-    elif init_type == "gaussian":
-        if "mu" in init_params:
-            mu = np_column_vec(init_params["mu"])[:, 0]
-        else:
-            raise ValueError("'mu' field not in init_param for %s." % init_type)
-        if "Sigma" in init_params:
-            Sigma = init_params["Sigma"]
-        else:
-            raise ValueError("'Sigma' field not in init_param for %s." % init_type)
-        D = mu.shape[0]
-        mu_str = array_str(mu)
-        Sigma_str = array_str(Sigma[np.triu_indices(D, 0)])
-        path += init_type + "_mu=%s_Sigma=%s/" % (mu_str, Sigma_str)
-
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-    return path
-
 
 def aug_lag_vars(z, log_q_z, eps, mu, N):
     """Calculate augmented lagrangian variables requiring gradient tape.
@@ -492,8 +461,9 @@ def pairplot(
     outlier_stds=10,
     pfname="images/temp.png",
 ):
+    M = Z.shape[0]
     num_dims = len(dims)
-    rand_order = np.random.permutation(Z.shape[0])
+    rand_order = np.random.permutation(M)
     Z = Z[rand_order, :]
     if c is not None:
         c = c[rand_order]
@@ -506,6 +476,7 @@ def pairplot(
             ]
         else:
             plot_inds, below_inds, over_inds = filter_outliers(c, outlier_stds)
+            clims = [None, None]
 
     fig, axs = plt.subplots(num_dims - 1, num_dims - 1, figsize=figsize)
     for i in range(num_dims - 1):
@@ -521,7 +492,6 @@ def pairplot(
                     ax.plot(xlims, [0, 0], c=0.5 * np.ones(3), linestyle="--")
                     ax.plot([0, 0], ylims, c=0.5 * np.ones(3), linestyle="--")
                 if ss:
-                    M = Z.shape[0]
                     ax.plot(
                         np.reshape(Z[:, dim_j].T, (M // 2, 2)),
                         np.reshape(Z[:, dim_i].T, (M // 2, 2)),
@@ -555,7 +525,7 @@ def pairplot(
                     )
                 else:
                     h = ax.scatter(
-                        Z[:, dim_j], Z[:, dim_i], c=0.25*np.ones((3,)), edgecolors="k", linewidths=0.25,
+                        Z[:, dim_j], Z[:, dim_i], c='k', edgecolors="k", linewidths=0.25,
                     )
                 if (z1 is not None):
                     if (z1.shape[0] == z2.shape[0]):

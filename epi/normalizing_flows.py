@@ -5,6 +5,7 @@ import scipy.stats
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+import pickle
 import tensorflow as tf
 import tensorflow_probability as tfp
 from tensorflow_probability.python.internal import tensorshape_util
@@ -19,13 +20,13 @@ from epi.error_formatters import format_type_err_msg
 from epi.util import (
     gaussian_backward_mapping,
     np_column_vec,
-    init_path,
+    get_hash,
+    set_dir_index,
     array_str,
 )
 
 DTYPE = tf.float32
 EPS = 1e-6
-
 
 class NormalizingFlow(tf.keras.Model):
     """Normalizing flow network for approximating parameter distributions.
@@ -315,10 +316,39 @@ class NormalizingFlow(tf.keras.Model):
             raise TypeError(format_type_err_msg(self, "random_seed", random_seed, int))
         self.random_seed = random_seed
 
+    def get_init_path(self, mu, Sigma):
+        init_hash = get_hash([mu, Sigma, self.lb, self.ub])
+        init_path = "./data/inits/%s/%s/" % (init_hash, self.to_string())
+        if not os.path.exists(init_path):
+            os.makedirs(init_path)
+
+        init_index = {"mu":mu, "Sigma":Sigma, "lb":self.lb, "ub":self.ub}
+        init_index_file = "./data/inits/%s/init.pkl" % init_hash
+
+        arch_index = {
+            "arch_type":self.arch_type,
+            "D":self.D,
+            "num_stages":self.num_stages,
+            "num_layers":self.num_layers,
+            "num_units":self.num_units,
+            "batch_norm":self.batch_norm,
+            "bn_momentum":self.bn_momentum,
+            "post_affine":self.post_affine,
+            "lb":self.lb,
+            "ub":self.ub,
+            "random_seed":self.random_seed,
+        }
+        arch_index_file = "./data/inits/%s/%s/arch.pkl" % (init_hash, self.to_string())
+        
+        set_dir_index(init_index, init_index_file)
+        set_dir_index(arch_index, arch_index_file)
+
+        return init_path
+
     def initialize(
         self,
-        init_type,
-        init_params,
+        mu,
+        Sigma,
         N=500,
         num_iters=int(1e4),
         lr=1e-3,
@@ -370,26 +400,17 @@ class NormalizingFlow(tf.keras.Model):
         """
         optimizer = tf.keras.optimizers.Adam(lr)
 
-        _init_path = init_path(self.to_string(), init_type, init_params)
-        init_file = _init_path + "ckpt"
+        init_path = self.get_init_path(mu, Sigma)
+        init_file = init_path + "ckpt"
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=self)
-        ckpt = tf.train.latest_checkpoint(_init_path)
+        ckpt = tf.train.latest_checkpoint(init_path)
         if load_if_cached and (ckpt is not None):
             print("Loading variables from cached initialization.")
             status = checkpoint.restore(ckpt)
             status.expect_partial()  # Won't use optimizer momentum parameters
-            opt_data_file = _init_path + "opt_data.csv"
+            opt_data_file = init_path + "opt_data.csv"
             if os.path.exists(opt_data_file):
                 return pd.read_csv(opt_data_file)
-
-        if init_type == "iso_gauss":
-            loc = init_params["loc"]
-            scale = init_params["scale"]
-            mu = np.array(self.D * [loc])
-            Sigma = scale * np.eye(self.D)
-        elif init_type == "gaussian":
-            mu = np_column_vec(init_params["mu"])[:, 0]
-            Sigma = init_params["Sigma"]
 
         eta = gaussian_backward_mapping(mu, Sigma)
 
@@ -447,25 +468,9 @@ class NormalizingFlow(tf.keras.Model):
                         print(i, "H", H, "loss", loss)
 
         opt_df = pd.concat(opt_it_dfs, ignore_index=True)
-        opt_df.to_csv(_init_path + "opt_data.csv")
+        opt_df.to_csv(init_path + "opt_data.csv")
         checkpoint.save(file_prefix=init_file)
         return opt_df
-
-    def plot_init_opt(self, init_type, init_params):
-        _init_path = init_path(self.to_string(), init_type, init_params)
-        opt_data_file = _init_path + "opt_data.csv"
-        if os.path.exists(opt_data_file):
-            df = pd.read_csv(opt_data_file)
-        else:
-            print("Error: Initialization not found.")
-            return None
-        fig, axs = plt.subplots(1, 3, figsize=(12, 5))
-        has_KL = not np.isnan(df["KL"][0])
-        ys = ["loss", "H", "KL"] if has_KL else ["loss", "H"]
-        num_ys = len(ys)
-        for i in range(num_ys):
-            df.plot("iteration", ys[i], ax=axs[i])
-        return df
 
     def gauss_KL(self, z, log_q_z, mu, Sigma):
         if self.lb is not None or self.ub is not None:
