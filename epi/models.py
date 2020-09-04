@@ -397,7 +397,7 @@ class Model(object):
                 if i % log_rate == 0:
                     time_per_it = time2 - time1
                     if verbose:
-                        print(format_opt_msg(k, i, cost, H, R), flush=True)
+                        print(format_opt_msg(k, i, cost, H, R, time_per_it), flush=True)
                     it = (k - 1) * num_iters + i
                     opt_it_dfs.append(
                         self._opt_it_df(
@@ -415,7 +415,7 @@ class Model(object):
                 if np.isnan(cost):
                     failed = True
                     if verbose:
-                        print(format_opt_msg(k, i, cost, H, R), flush=True)
+                        print(format_opt_msg(k, i, cost, H, R, time_per_it), flush=True)
                     it = (k - 1) * num_iters + i
                     opt_it_dfs.append(
                         self._opt_it_df(
@@ -1361,7 +1361,7 @@ def get_R_mean_dist(nf, eps, mu, M, N):
     return tf.reduce_mean(T_x, axis=1) - mu
 
 
-def format_opt_msg(k, i, cost, H, R):
+def format_opt_msg(k, i, cost, H, R, time_per_it):
     s1 = "" if cost < 0.0 else " "
     s2 = "" if H < 0.0 else " "
     args = (k, i, s1, cost, s2, H, np.sum(np.square(R)), time_per_it)
