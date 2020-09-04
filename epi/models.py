@@ -281,7 +281,7 @@ class Model(object):
         :rtype: epi.models.Distribution, pandas.DataFrame, str
         """
         if num_units is None:
-            num_units = max(2 * self.D, 15)
+            num_units = min(max(2 * self.D, 15), 200)
 
         nf = NormalizingFlow(
             arch_type=arch_type,
