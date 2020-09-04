@@ -8,11 +8,11 @@ from epi.util import (
     gaussian_backward_mapping,
     np_column_vec,
     array_str,
-    init_path,
     aug_lag_vars,
     unbiased_aug_grad,
     AugLagHPs,
     sample_aug_lag_hps,
+    get_hash,
 )
 from epi.example_eps import linear2D_freq, linear2D_freq_np
 import pytest
@@ -21,6 +21,48 @@ import os
 
 DTYPE = np.float32
 
+
+def test_get_hash():
+    x = np.random.normal(0., 1., (10,))
+    y = np.random.normal(0., 1., (10,))
+    z = 'foo'
+
+    h1 = get_hash([x])
+    h2 = get_hash([y])
+    h3 = get_hash([x+(1e-16)])
+    h4 = get_hash([x, y])
+    h5 = get_hash([x, y])
+    h6 = get_hash([x, y, z])
+    h7 = get_hash([x, y, z, None])
+    h8 = get_hash([None, x, y, z])
+
+    assert(h1 != h2)
+    assert(h1 != h3)
+    assert(h1 != h4)
+    assert(h4 == h5)
+    assert(h4 != h6)
+    assert(h6 == h7)
+    assert(h6 == h8)
+    return None
+
+def test_dir_indexes():
+    index = {
+        "w": None,
+        "x": np.random.normal(0., 1., (10,)),
+        "y": np.random.normal(0., 1., (10,)),
+        "z": 'foo',
+    }
+    index_file = "temp.foo.pkl"
+    set_dir_index(index, index_file)
+    set_dir_index(index, index_file)
+    _index = get_dir_index(index_file)
+    for key, value in index.items():
+        assert(_index[key] == value)
+
+    index_file = "temp1.foo.pkl"
+    assert(get_dir_index(index_file) is None)
+    return None
+    
 
 def test_gaussian_backward_mapping():
     """ Test gaussian_backward_mapping. """
@@ -114,111 +156,6 @@ def test_array_str():
         array_str(np.random.normal(0.0, 1.0, (3, 3)))
 
     return None
-
-
-def test_init_path():
-    arch_string = "foo"
-    init_type = "iso_gauss"
-    init_param = {"loc": 0.0, "scale": 1.0}
-
-    s = init_path(arch_string, init_type, init_param)
-    s_true = "./data/foo/iso_gauss_loc=0.00E+00_scale=1.00E+00/"
-    assert s == s_true
-
-    with raises(TypeError):
-        init_path(1, init_type, init_param)
-
-    with raises(TypeError):
-        init_path(arch_string, 1, init_param)
-
-    init_param = {"scale": 1.0}
-    with raises(ValueError):
-        init_path(arch_string, init_type, init_param)
-
-    init_param = {"loc": 0.0}
-    with raises(ValueError):
-        init_path(arch_string, init_type, init_param)
-
-    init_type = "gaussian"
-    mu = np.zeros(2)
-    Sigma = np.eye(2)
-    init_param = {"mu": mu, "Sigma": Sigma}
-    s = init_path(arch_string, init_type, init_param)
-    s_true = "./data/foo/gaussian_mu=2x0.00E+00_Sigma=1.00E+00_0.00E+00_1.00E+00/"
-    assert s == s_true
-    init_param = {"mu": mu}
-    with raises(ValueError):
-        s = init_path(arch_string, init_type, init_param)
-    init_param = {"Sigma": Sigma}
-    with raises(ValueError):
-        s = init_path(arch_string, init_type, init_param)
-
-    return None
-
-
-@pytest.fixture
-def tf_image_classifier1():
-    """ Basic model from the tf 2.0 tutorial. """
-    tf.keras.backend.clear_session()
-    mnist = tf.keras.datasets.mnist
-
-    (x_train, _), _ = mnist.load_data()
-    x_train = x_train[:32] / 255.0
-    x_train = x_train[..., tf.newaxis]
-
-    tf.random.set_seed(1)
-    np.random.seed(1)
-
-    class MyModel(tf.keras.Model):
-        def __init__(self):
-            super(MyModel, self).__init__()
-            self.conv1 = tf.keras.layers.Conv2D(32, 3, activation="relu")
-            self.flatten = tf.keras.layers.Flatten()
-            self.d1 = tf.keras.layers.Dense(128, activation="relu")
-            self.d2 = tf.keras.layers.Dense(10, activation="softmax")
-
-        def call(self, x):
-            x = self.conv1(x)
-            x = self.flatten(x)
-            x = self.d1(x)
-            return self.d2(x)
-
-    model = MyModel()
-    model(x_train)
-    return model
-
-
-@pytest.fixture
-def tf_image_classifier2():
-    """ Basic model from the tf 2.0 tutorial. """
-    tf.keras.backend.clear_session()
-    mnist = tf.keras.datasets.mnist
-
-    (x_train, _), _ = mnist.load_data()
-    x_train = x_train[:32] / 255.0
-    x_train = x_train[..., tf.newaxis]
-
-    tf.random.set_seed(2)
-    np.random.seed(2)
-
-    class MyModel(tf.keras.Model):
-        def __init__(self):
-            super(MyModel, self).__init__()
-            self.conv1 = tf.keras.layers.Conv2D(32, 3, activation="relu")
-            self.flatten = tf.keras.layers.Flatten()
-            self.d1 = tf.keras.layers.Dense(128, activation="relu")
-            self.d2 = tf.keras.layers.Dense(10, activation="softmax")
-
-        def call(self, x):
-            x = self.conv1(x)
-            x = self.flatten(x)
-            x = self.d1(x)
-            return self.d2(x)
-
-    model = MyModel()
-    model(x_train)
-    return model
-
 
 def test_aug_lag_vars():
     # Test using linear 2D system eps
@@ -416,6 +353,5 @@ def test_sample_aug_lag_hps():
 
     return None
 
-
 if __name__ == "__main__":
-    test_sample_aug_lag_hps()
+    test_get_hash()
