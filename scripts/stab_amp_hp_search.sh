@@ -1,15 +1,12 @@
 #!/bin/bash
-source activate epi
 
 # This shell script does it linearly, but could you run each of these 
 # python scripts independently on different instances?
-for n in 2 4
+for N in 100 200 500
 do
-  for T in 10
+  for c0 in 3
   do
-    for traj in 0
-    do
-      sbatch rnn_epi_timing.sh $n $T $traj
-    done
+    echo "Running N = $N, c0 = $c0"
+    sbatch cpu_stab_amp_epi.sh $N $c0
   done
 done

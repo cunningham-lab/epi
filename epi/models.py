@@ -29,7 +29,6 @@ import os
 
 REAL_NUMERIC_TYPES = (int, float)
 
-
 class Parameter(object):
     """Univariate parameter of a model.
 
@@ -387,7 +386,7 @@ class Model(object):
         norms = get_R_norm_dist(nf, self.eps, mu_colvec, self.M_norm, N)
 
         # EPI optimization
-        print(format_opt_msg(0, 0, cost_0, H_0, R_0), flush=True)
+        print(format_opt_msg(0, 0, cost_0, H_0, R_0, 0.), flush=True)
         failed = False
         for k in range(1, K + 1):
             etas[k - 1], cs[k - 1], eta, c
@@ -396,6 +395,7 @@ class Model(object):
                 cost, H, R, z, log_q_z = train_step(eta, c)
                 time2 = time.time()
                 if i % log_rate == 0:
+		    time_per_it = time2 - time1
                     if verbose:
                         print(format_opt_msg(k, i, cost, H, R), flush=True)
                     it = (k - 1) * num_iters + i
@@ -430,7 +430,7 @@ class Model(object):
                     print("NaN in EPI optimization. Exiting.")
                     break
             if not verbose:
-                print(format_opt_msg(k, i, cost, H, R), flush=True)
+                print(format_opt_msg(k, i, cost, H, R, time_per_it), flush=True)
 
             # Save epi optimization data following aug lag iteration k.
             opt_it_df = pd.concat(opt_it_dfs)
@@ -491,30 +491,25 @@ class Model(object):
         next_listdir = [os.path.join(base_path, f) for f in os.listdir(base_path)]
         init_paths = [f for f in next_listdir if os.path.isdir(f)]
         dfs = []
-        print('base_path', base_path)
         for init_path in init_paths:
-            print('init_path', init_path)
             init = get_dir_index(os.path.join(init_path, "init.pkl"))
             if init is None: 
                 continue
             next_listdir = [os.path.join(init_path, f) for f in os.listdir(init_path)]
             arch_paths = [f for f in next_listdir if os.path.isdir(f)]
             for arch_path in arch_paths:
-                print('arch_path', arch_path)
                 arch = get_dir_index(os.path.join(arch_path, "arch.pkl"))
                 if arch is None: 
                     continue
                 next_listdir = [os.path.join(arch_path, f) for f in os.listdir(arch_path)]
                 ep_paths = [f for f in next_listdir if os.path.isdir(f)]
                 for ep_path in ep_paths:
-                    print('ep_path', ep_path)
                     ep = get_dir_index(os.path.join(ep_path, "ep.pkl"))
                     if ep is None: 
                         continue
                     next_listdir = [os.path.join(ep_path, f) for f in os.listdir(ep_path)]
                     AL_hp_paths = [f for f in next_listdir if os.path.isdir(f)]
                     for AL_hp_path in AL_hp_paths:
-                        print('AL_hp_path', AL_hp_path)
                         AL_hps = get_dir_index(os.path.join(AL_hp_path, "AL_hps.pkl"))
                         if AL_hps is None: 
                             continue
@@ -1024,7 +1019,7 @@ class Model(object):
             nf.to_string(),
             ep_hash,
             AL_hps.to_string(),
-            "Al_hps.pkl",
+            "AL_hps.pkl",
         )
 
         indexes = [init_index, arch_index, ep_index, AL_hp_index]
@@ -1369,5 +1364,5 @@ def get_R_mean_dist(nf, eps, mu, M, N):
 def format_opt_msg(k, i, cost, H, R):
     s1 = "" if cost < 0.0 else " "
     s2 = "" if H < 0.0 else " "
-    args = (k, i, s1, cost, s2, H, np.sum(np.square(R)))
-    return "EPI(k=%2d,i=%4d): cost %s%.2E, H %s%.2E, |R|^2 %.2E" % args
+    args = (k, i, s1, cost, s2, H, np.sum(np.square(R)), time_per_it)
+    return "EPI(k=%2d,i=%4d): cost %s%.2E, H %s%.2E, |R|^2 %.2E, %.2E s/it" % args
