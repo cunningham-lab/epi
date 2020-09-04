@@ -385,9 +385,9 @@ class Model(object):
                 if i % log_rate == 0:
                     if verbose:
                         print(format_opt_msg(k, i, cost, H, R), flush=True)
-                    iter = (k - 1) * num_iters + i
+                    it = (k - 1) * num_iters + i
                     opt_it_dfs.append(
-                        self._opt_it_df(k, iter, H.numpy(), R.numpy(), R_keys)
+                        self._opt_it_df(k, it, H.numpy(), R.numpy(), R_keys)
                     )
                     if save_movie_data:
                         zs.append(z.numpy()[:N_save, :])
