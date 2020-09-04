@@ -325,7 +325,13 @@ class Model(object):
         # Checkpoint the initialization.
         optimizer = tf.keras.optimizers.Adam(lr)
         ckpt = tf.train.Checkpoint(optimizer=optimizer, model=nf)
-        ckpt_dir = self.get_epi_path(init_params, nf, mu, aug_lag_hps)
+        ckpt_dir, exists = self.get_epi_path(init_params, nf, mu, aug_lag_hps)
+        if exists:
+            print("Loading cached epi at %s." % ckpt_dir)
+            q_theta = self._get_epi_dist(-1, init_params, nf, mu, aug_lag_hps)
+            opt_df = pd.read_csv(os.path.join(ckpt_dir, "opt_data.csv"), index_col=0)
+            failed = (opt_df['cost'].isna()).sum() > 0 
+            return q_theta, opt_df, ckpt_dir, failed
         manager = tf.train.CheckpointManager(ckpt, directory=ckpt_dir, max_to_keep=None)
         manager.save(checkpoint_number=0)
 
@@ -361,7 +367,14 @@ class Model(object):
         H_0, R_0, _, _ = aug_lag_vars(z, log_q_z, self.eps, mu, N)
         cost_0 = -H_0 + np.dot(eta, R_0) + np.sum(np.square(R_0))
         R_keys = ["R%d" % (i + 1) for i in range(self.m)]
-        opt_it_dfs = [self._opt_it_df(0, 0, H_0.numpy(), R_0.numpy(), R_keys)]
+        opt_it_dfs = [self._opt_it_df(
+            0, 
+            0, 
+            H_0.numpy(), 
+            cost_0.numpy(), 
+            R_0.numpy(), 
+            log_rate, 
+            R_keys)]
 
         # Record samples for movie.
         if save_movie_data:
@@ -387,20 +400,40 @@ class Model(object):
                         print(format_opt_msg(k, i, cost, H, R), flush=True)
                     it = (k - 1) * num_iters + i
                     opt_it_dfs.append(
-                        self._opt_it_df(k, it, H.numpy(), R.numpy(), R_keys)
+                        self._opt_it_df(
+                            k, 
+                            it, 
+                            H.numpy(), 
+                            cost.numpy(), 
+                            R.numpy(), 
+                            log_rate, 
+                            R_keys)
                     )
                     if save_movie_data:
                         zs.append(z.numpy()[:N_save, :])
                         log_q_zs.append(log_q_z.numpy()[:N_save])
                 if np.isnan(cost):
                     failed = True
-                    print("Error: NaN in opt. Exiting.")
+                    if verbose:
+                        print(format_opt_msg(k, i, cost, H, R), flush=True)
+                    it = (k - 1) * num_iters + i
+                    opt_it_dfs.append(
+                        self._opt_it_df(
+                            k, 
+                            it, 
+                            H.numpy(), 
+                            cost.numpy(), 
+                            R.numpy(), 
+                            log_rate,
+                            R_keys)
+                    )
+                    print("NaN in EPI optimization. Exiting.")
                     break
             if not verbose:
                 print(format_opt_msg(k, i, cost, H, R), flush=True)
 
             # Save epi optimization data following aug lag iteration k.
-            opt_it_df = pd.concat(opt_it_dfs, ignore_index=True)
+            opt_it_df = pd.concat(opt_it_dfs)
             manager.save(checkpoint_number=k)
 
             if failed:
@@ -467,21 +500,18 @@ class Model(object):
             for arch_path in arch_paths:
                 arch = get_dir_index(os.path.join(arch_path, "arch.pkl"))
                 if arch is None: 
-                    print('no arch')
                     continue
                 next_listdir = [os.path.join(arch_path, f) for f in os.listdir(arch_path)]
                 ep_paths = [f for f in next_listdir if os.path.isdir(f)]
                 for ep_path in ep_paths:
                     ep = get_dir_index(os.path.join(ep_path, "ep.pkl"))
                     if ep is None: 
-                        print('no ep')
                         continue
                     next_listdir = [os.path.join(ep_path, f) for f in os.listdir(ep_path)]
                     AL_hp_paths = [f for f in next_listdir if os.path.isdir(f)]
                     for AL_hp_path in AL_hp_paths:
                         AL_hps = get_dir_index(os.path.join(AL_hp_path, "AL_hps.pkl"))
                         if AL_hps is None: 
-                            print('no al hps')
                             continue
                         opt_data_file = os.path.join(AL_hp_path, "opt_data.csv")
                         if os.path.exists(opt_data_file):
@@ -493,8 +523,6 @@ class Model(object):
                             df['EP'] = df.shape[0]*[ep]
                             df['AL_hps'] = df.shape[0]*[AL_hps]
                             dfs.append(df)
-                        else:
-                            print(opt_data_file, 'DNE')
         return pd.concat(dfs)
 
     def epi_opt_movie(self, path):
@@ -888,13 +916,18 @@ class Model(object):
         p_vals = 2 * np.minimum(gt / M, lt / M)
         if verbose:
             print(p_vals, alpha / m)
-            # print(p_vals > (alpha / m))
         return np.prod(p_vals > (alpha / m))
 
-    def _opt_it_df(self, k, iter, H, R, R_keys):
-        d = {"k": k, "iteration": iter, "H": H, "converged": None}
+    def _opt_it_df(self, k, it, H, cost, R, log_rate, R_keys):
+        d = {
+            "k": k, 
+            "iteration": it, 
+            "H": H, 
+            "cost": cost, 
+            "converged": None
+        }
         d.update(zip(R_keys, list(R)))
-        return pd.DataFrame(d, index=[0])
+        return pd.DataFrame(d, index=[it//log_rate])
 
     def _save_epi_opt(self, save_path, opt_df, etas, cs):
         np.savez(os.path.join(save_path, "opt_data.npz"), etas=etas, cs=cs)
@@ -998,18 +1031,24 @@ class Model(object):
         ]
 
         for index, index_file in zip(indexes, index_files):
-            set_dir_index(index, index_file)
+            exists = set_dir_index(index, index_file)
 
-        return epi_path
+        # if final index is set, this EPI opt has been run before.
+        return epi_path, exists
 
-    def get_epi_dist(self, epi_df_row):
-        init = epi_df_row["init"]
-        arch = epi_df_row["arch"]
-        ep = epi_df_row["EP"]
-        AL_hps = epi_df_row["AL_hps"]
+    def get_epi_dist(self, df_row):
+        init = df_row["init"]
+        ep = df_row["EP"]
 
-        k = int(epi_df_row["k"])
+        k = int(df_row["k"])
         init_params = {"mu":init["mu"], "Sigma":init["Sigma"]}
+        nf = self._df_row_to_nf(df_row)
+        mu = ep["mu"]
+        aug_lag_hps = self._df_row_to_al_hps(df_row)
+        return self._get_epi_dist(k, init_params, nf, mu, aug_lag_hps)
+
+    def _df_row_to_nf(self, df_row):
+        arch = df_row['arch']
         nf = NormalizingFlow(
             arch_type=arch["arch_type"],
             D=arch["D"],
@@ -1022,7 +1061,10 @@ class Model(object):
             bounds=(arch["lb"], arch["ub"]),
             random_seed=arch["random_seed"],
         )
-        mu = ep["mu"]
+        return nf
+
+    def _df_row_to_al_hps(self, df_row):
+        AL_hps = df_row['AL_hps']
         aug_lag_hps = AugLagHPs(
             N=AL_hps["N"],
             lr=AL_hps["lr"],
@@ -1030,27 +1072,33 @@ class Model(object):
             gamma=AL_hps["gamma"],
             beta=AL_hps["beta"],
         )
-        return self._get_epi_dist(k, init_params, nf, mu, aug_lag_hps)
+        return aug_lag_hps
+
 
     def _get_epi_dist(self, k, init_params, nf, mu, aug_lag_hps):
         if k is not None:
             if type(k) is not int:
                 raise TypeError(format_type_err_msg("Model.load_epi_dist", "k", k, int))
-            if k < 0:
-                raise ValueError("k must be augmented Lagrangian iteration index.")
 
         optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
-        ckpt_dir = self.get_epi_path(init_params, nf, mu, aug_lag_hps)
+        ckpt_dir, exists = self.get_epi_path(init_params, nf, mu, aug_lag_hps)
+        if not exists:
+            return None
         ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
         if ckpt_state is not None:
             ckpts = ckpt_state.all_model_checkpoint_paths
         else:
             raise ValueError("No checkpoints found.")
 
-        if k >= len(ckpts):
-            raise ValueError("Index of checkpoint 'k' too large.")
-        status = checkpoint.restore(ckpts[k])
+        num_ckpts = len(ckpts)
+        if k >= num_ckpts and k < -num_ckpts:
+            raise ValueError("Index of checkpoint 'k' out of range.")
+
+        if k >= 0:
+            status = checkpoint.restore(ckpts[k])
+        else:
+            status = checkpoint.restore(ckpts[num_ckpts+k])
         status.expect_partial()
         q_theta = Distribution(nf, self.parameters)
         return q_theta
@@ -1067,7 +1115,10 @@ class Model(object):
 
         optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
-        ckpt_dir = self.get_epi_path(init_params, nf, mu, aug_lag_hps)
+        ckpt_dir, exists = self.get_epi_path(init_params, nf, mu, aug_lag_hps)
+        if not exists:
+            return None, None, None
+
         ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
         if ckpt_state is not None:
             ckpts = ckpt_state.all_model_checkpoint_paths
