@@ -120,6 +120,8 @@ def test_epi():
         mu, num_iters=100, K=1, save_movie_data=True
     )
 
+    print('epi_path', epi_path)
+
     epi_df = M.get_epi_df()
     epi_df_row = epi_df[epi_df['iteration']==100].iloc[0]
     q_theta = M.get_epi_dist(epi_df_row)
