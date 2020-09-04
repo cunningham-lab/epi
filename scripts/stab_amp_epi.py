@@ -8,14 +8,20 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 import argparse
 
+tf.test.is_gpu_available(
+    cuda_only=False, min_cuda_compute_capability=None
+)
+
 DTYPE = np.float32
 
 # Get random seed.
 parser = argparse.ArgumentParser()
 parser.add_argument('--N', type=int)
+parser.add_argument('--c0', type=float)
 args = parser.parse_args()
 
-print('Running epi for RNN N=%d stable amplification.' % args.N)
+print('Running epi for RNN N=%d, c0=%f stable amplification.' % (args.N, args.c0))
+c0 = args.c0
 N = args.N
 r = 2 # rank-2 networks
 
@@ -68,7 +74,8 @@ q_theta, opt_data, save_path, failed = M.epi(
     mu, 
     batch_norm=False,
     lr=1e-3, 
-    c0=0., 
+    c0=c0, 
+    beta = 10.,
     nu=0.2,
     verbose=True,
     stop_early=True,
