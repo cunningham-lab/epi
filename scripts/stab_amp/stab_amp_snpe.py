@@ -3,7 +3,7 @@
 import numpy as np
 import os
 import pickle
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import argparse
 
 import delfi
@@ -175,7 +175,7 @@ obs_stats = np.array([0.5, 1.5])
 pilot_samples = 2000
 
 # training schedule
-n_rounds = 3
+n_rounds = 100
 
 # fitting setup
 minibatch = 100
@@ -213,7 +213,7 @@ logs, trn_datasets, posteriors, times = res.run(
                     val_frac=val_frac,
                     verbose=True,)
 
-def plot_SNPEC_opt(logs, trn_datasets, posteriors):
+"""def plot_SNPEC_opt(logs, trn_datasets, posteriors):
     losses = [logs[i]['val_loss'] for i in range(len(logs))]
     loss = np.concatenate(losses, axis=0)
     plt.plot(loss,lw=2)
@@ -221,7 +221,7 @@ def plot_SNPEC_opt(logs, trn_datasets, posteriors):
     plt.ylabel('val loss')
 
 #plot_SNPEC_opt(logs, trn_datasets, posteriors)
-#plt.show()
+#plt.show()"""
 optim = {'logs':logs,
          'trn_datasets':trn_datasets,
          'times':times}
