@@ -68,7 +68,6 @@ def stable_amplification_r2(U, V):
     return T_x
 
 M.set_eps(stable_amplification_r2)
-np.random.seed(1)
 
 q_theta, opt_data, save_path, failed = M.epi(
     mu, 
