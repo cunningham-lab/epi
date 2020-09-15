@@ -23,6 +23,9 @@ args = parser.parse_args()
 N = args.N
 rs = args.rs
 
+sleep_time = N*0.5 + rs*0.05
+time.sleep(sleep_time)
+
 print('Running SNPE on RNN conditioned on stable amplification with:')
 print('N = %d, seed=%d' % (N, rs))
 
@@ -70,6 +73,7 @@ db_path = ("sqlite:///" +
 observation = np.array([0.5, 1.5])
 abc.new(db_path, {"data": observation})
 
+np.random.seed(rs)
 eps = 0.5
 min_acc = 1./(1e7)
 time1 = time.time()
