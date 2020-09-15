@@ -71,14 +71,20 @@ observation = np.array([0.5, 1.5])
 abc.new(db_path, {"data": observation})
 
 eps = 0.5
+max_t = 100
 min_acc = 1./(1e7)
 time1 = time.time()
-history = abc.run(minimum_epsilon=eps, min_acceptance_rate=min_acc)
+history = abc.run(
+    minimum_epsilon=eps, 
+    max_nr_populations=max_t,
+    min_acceptance_rate=min_acc
+)
 time2 = time.time()
 
 optim = {'history':history,
         'eps':eps,
         'time':(time2-time1),
+        'max_t':max_t,
         'min_acc':min_acc,
         }
 
