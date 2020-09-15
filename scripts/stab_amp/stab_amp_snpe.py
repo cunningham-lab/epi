@@ -62,7 +62,9 @@ def Jeigs(params):
     Jr = np.matmul(np.transpose(V), U) + 0.0001*np.eye(2)
     Jr_tr = np.trace(Jr)
     sqrt_term = np.square(Jr_tr) + -4.*np.linalg.det(Jr)
-    J_eig_realmax = 0.5 * (Jr_tr + np.real(np.sqrt(sqrt_term)))
+    J_eig_realmax = 0.5 * Jr_tr
+    if (sqrt_term > 0.):
+        J_eig_realmax += 0.5*np.sqrt(sqrt_term)
 
     return np.array([J_eig_realmax, Js_eig_max])
 
@@ -179,7 +181,7 @@ n_rounds = 100
 
 # fitting setup
 minibatch = 100
-epochs = 100
+epochs = 500
 val_frac = 0.05
 
 # network setup
