@@ -45,13 +45,8 @@ def Jeigs(params):
         seed : int
         """
 
-    u1 = params[0,:N]
-    u2 = params[0,N:(2*N)]
-    v1 = params[0,(2*N):(3*N)]
-    v2 = params[0,(3*N):]
-
-    U = np.stack((u1, u2), axis=1)
-    V = np.stack((v1, v2), axis=1)
+    U = np.reshape(params[0,:(2*N)], (N,2))
+    V = np.reshape(params[0,(2*N):], (N,2))
 
     J = np.matmul(U, np.transpose(V))
     Js = (J + np.transpose(J)) / 2.
@@ -67,7 +62,6 @@ def Jeigs(params):
         J_eig_realmax += 0.5*np.sqrt(sqrt_term)
 
     return np.array([J_eig_realmax, Js_eig_max])
-
 
 class RNN(BaseSimulator):
     def __init__(self, N):
