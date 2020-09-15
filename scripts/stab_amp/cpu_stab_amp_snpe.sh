@@ -6,4 +6,4 @@
 #SBATCH --mem-per-cpu=2gb
 
 source activate delfi
-python3 stab_amp_snpe.py --N $1 --n_train 10000 --n_mades 2 --n_atoms $2 --rs $3
+python3 stab_amp_snpe.py --N $1 --n_train $2 --n_mades $3 --n_atoms $4 --rs $5
