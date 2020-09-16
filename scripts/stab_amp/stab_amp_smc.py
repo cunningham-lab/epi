@@ -85,11 +85,16 @@ history = abc.run(
 )
 time2 = time.time()
 
+df = history.get_all_populations()
+min_eps = df['epsilon'].min()
+converged = min_eps < eps
+
 optim = {'history':history,
         'eps':eps,
         'time':(time2-time1),
         'max_t':max_t,
         'min_acc':min_acc,
+        'converged':converged,
         }
 
 base_path = os.path.join("data", "smc")
