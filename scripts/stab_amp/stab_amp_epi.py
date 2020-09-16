@@ -18,11 +18,14 @@ DTYPE = np.float32
 parser = argparse.ArgumentParser()
 parser.add_argument('--N', type=int)
 parser.add_argument('--c0', type=float)
+parser.add_argument('--rs', type=int)
 args = parser.parse_args()
 
-print('Running epi for RNN N=%d, c0=%f stable amplification.' % (args.N, args.c0))
-c0 = args.c0
+print('Running epi for RNN N=%d, c0=%f, rs=%d stable amplification.' % (args.N, args.c0, args.rs))
 N = args.N
+c0 = args.c0
+rs = args.rs
+
 r = 2 # rank-2 networks
 
 
@@ -80,6 +83,7 @@ q_theta, opt_data, save_path, failed = M.epi(
     stop_early=True,
     log_rate=50,
     save_movie_data=False,
+    random_seed=rs,
 )
 if not failed:
     print("EPI done.")
