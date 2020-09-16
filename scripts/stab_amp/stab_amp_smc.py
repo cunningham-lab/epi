@@ -23,6 +23,9 @@ args = parser.parse_args()
 N = args.N
 rs = args.rs
 
+sleep_time = N*0.5 + rs*0.05
+time.sleep(sleep_time)
+
 print('Running SNPE on RNN conditioned on stable amplification with:')
 print('N = %d, seed=%d' % (N, rs))
 
@@ -70,16 +73,31 @@ db_path = ("sqlite:///" +
 observation = np.array([0.5, 1.5])
 abc.new(db_path, {"data": observation})
 
+np.random.seed(rs)
 eps = 0.5
+max_t = 100
 min_acc = 1./(1e7)
 time1 = time.time()
-history = abc.run(minimum_epsilon=eps, min_acceptance_rate=min_acc)
+history = abc.run(
+    minimum_epsilon=eps, 
+    max_nr_populations=max_t,
+    min_acceptance_rate=min_acc
+)
 time2 = time.time()
+df1, w = history.get_distribution(m=0,t=history.max_t)
+z = df1.to_numpy()
+
+df = history.get_all_populations()
+min_eps = df['epsilon'].min()
+converged = min_eps < eps
 
 optim = {'history':history,
+        'z':z,
         'eps':eps,
         'time':(time2-time1),
+        'max_t':max_t,
         'min_acc':min_acc,
+        'converged':converged,
         }
 
 base_path = os.path.join("data", "smc")
