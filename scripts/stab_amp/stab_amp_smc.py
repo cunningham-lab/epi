@@ -80,8 +80,11 @@ history = abc.run(
     min_acceptance_rate=min_acc
 )
 time2 = time.time()
+df1, w = history.get_distribution(m=0,t=history.max_t)
+z = df1.to_numpy()
 
 optim = {'history':history,
+        'z':z,
         'eps':eps,
         'time':(time2-time1),
         'max_t':max_t,
