@@ -75,7 +75,7 @@ abc.new(db_path, {"data": observation})
 
 np.random.seed(rs)
 eps = 0.5
-max_t = 100
+max_t = 200
 min_acc = 1./(1e7)
 time1 = time.time()
 history = abc.run(

@@ -2,7 +2,7 @@
 #SBATCH --account=stats
 #SBATCH --job-name=sa_snpe
 #SBATCH -c 1
-#SBATCH --time=2:00:00
+#SBATCH --time=11:30:00
 #SBATCH --mem-per-cpu=1gb
 
 source activate delfi

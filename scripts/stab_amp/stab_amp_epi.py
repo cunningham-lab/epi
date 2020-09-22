@@ -1,4 +1,4 @@
-"""Run EPI on oscillating 2D LDS. """
+"""Run EPI on Rank2 RNN. """
 
 from epi.models import Model, Parameter
 from epi.example_eps import linear2D_freq
@@ -28,6 +28,7 @@ rs = args.rs
 
 r = 2 # rank-2 networks
 
+num_epochs = 20
 
 # 1. Define model: dxd matrix
 D = int(N*r)
@@ -52,6 +53,7 @@ mu = np.array([Js_eig_max_mean,
                J_eig_realmax_mean,
                0.25**2], dtype=DTYPE)
 
+
 def stable_amplification_r2(U, V):
     U = tf.reshape(U, (-1, N, 2))
     V = tf.reshape(V, (-1, N, 2))
@@ -61,7 +63,7 @@ def stable_amplification_r2(U, V):
     Js_eig_max = tf.reduce_max(Js_eigs, axis=1)
     
     # Take eig of low rank similar mat
-    Jr = tf.matmul(tf.transpose(V, [0,2,1]), U) + 0.0001*tf.eye(2)[None,:,:]
+    Jr = tf.matmul(tf.transpose(V, [0,2,1]), U) + 0.01*tf.eye(2)[None,:,:]
     Jr_tr = tf.linalg.trace(Jr)
     maybe_complex_term = tf.complex(tf.square(Jr_tr) + -4.*tf.linalg.det(Jr), 0.)
     J_eig_realmax = 0.5 * (Jr_tr + tf.math.real(tf.sqrt(maybe_complex_term)))
@@ -76,9 +78,11 @@ q_theta, opt_data, save_path, failed = M.epi(
     mu, 
     batch_norm=False,
     lr=1e-3, 
-    c0=c0, 
+    N = 100,
+    c0=c0,
     beta = 10.,
-    nu=0.2,
+    nu=1.,
+    K=num_epochs,
     verbose=True,
     stop_early=True,
     log_rate=50,
