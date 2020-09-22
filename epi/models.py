@@ -281,7 +281,7 @@ class Model(object):
         :rtype: epi.models.Distribution, pandas.DataFrame, str
         """
         if num_units is None:
-            num_units = min(max(2 * self.D, 15), 200)
+            num_units = min(max(2 * self.D, 15), 100)
 
         nf = NormalizingFlow(
             arch_type=arch_type,
@@ -319,7 +319,8 @@ class Model(object):
                     Sigma[i, i] = np.square((nf.ub[i] - nf.lb[i]) / 4)
             init_type = "gaussian"
             init_params = {"mu": mu_init, "Sigma": Sigma}
-        nf.initialize(init_params["mu"], init_params["Sigma"])
+        nf.initialize(init_params["mu"], init_params["Sigma"], 
+                      N=N, verbose=True)
 
         # Checkpoint the initialization.
         optimizer = tf.keras.optimizers.Adam(lr)
