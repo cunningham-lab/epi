@@ -58,6 +58,7 @@ def stable_amplification_r2(U, V):
     U = tf.reshape(U, (-1, N, 2))
     V = tf.reshape(V, (-1, N, 2))
     J = tf.matmul(U, tf.transpose(V, [0,2,1]))
+    J = J + tf.random.normal(J.shape, 0., 0.01)
     Js = (J + tf.transpose(J, [0, 2, 1])) / 2.
     Js_eigs = tf.linalg.eigvalsh(Js)
     Js_eig_max = tf.reduce_max(Js_eigs, axis=1)

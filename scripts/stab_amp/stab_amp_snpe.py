@@ -50,18 +50,19 @@ def Jeigs(params, seed=None):
     else:
         rng = np.random.RandomState()
 
-    params = params + rng.normal(0., 0.01, params.shape)
+    params = params
 
     U = np.reshape(params[0,:(2*N)], (N,2))
     V = np.reshape(params[0,(2*N):], (N,2))
 
     J = np.matmul(U, np.transpose(V))
+    J = J + rng.normal(0., 0.01, J.shape)
     Js = (J + np.transpose(J)) / 2.
     Js_eigs = np.linalg.eigvalsh(Js)
     Js_eig_max = np.max(Js_eigs, axis=0)
 
     # Take eig of low rank similar mat
-    Jr = np.matmul(np.transpose(V), U) + 0.0001*np.eye(2)
+    Jr = np.matmul(np.transpose(V), U) + 0.01*np.eye(2)
     Jr_tr = np.trace(Jr)
     sqrt_term = np.square(Jr_tr) + -4.*np.linalg.det(Jr)
     J_eig_realmax = 0.5 * Jr_tr
@@ -212,15 +213,6 @@ logs, trn_datasets, posteriors, times = res.run(
                     val_frac=val_frac,
                     verbose=True,)
 
-"""def plot_SNPEC_opt(logs, trn_datasets, posteriors):
-    losses = [logs[i]['val_loss'] for i in range(len(logs))]
-    loss = np.concatenate(losses, axis=0)
-    plt.plot(loss,lw=2)
-    plt.xlabel('iteration')
-    plt.ylabel('val loss')
-
-#plot_SNPEC_opt(logs, trn_datasets, posteriors)
-#plt.show()"""
 optim = {'logs':logs,
          'trn_datasets':trn_datasets,
          'times':times}
