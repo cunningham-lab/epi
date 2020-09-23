@@ -35,7 +35,7 @@ print('Running SNPE on RNN conditioned on stable amplification with:')
 print('N = %d, n_train = %d, n_mades = %d, n_atoms = %d, seed=%d' \
       % (N, n_train, n_mades, n_atoms, rs))
 
-def Jeigs(params):
+def Jeigs(params, seed=None):
     """Calculates Jeigs.
 
         Parameters
@@ -44,6 +44,13 @@ def Jeigs(params):
             Parameter vector
         seed : int
         """
+
+    if seed is not None:
+        rng = np.random.RandomState(seed=seed)
+    else:
+        rng = np.random.RandomState()
+
+    params = params + rng.normal(0., 0.01, params.shape)
 
     U = np.reshape(params[0,:(2*N)], (N,2))
     V = np.reshape(params[0,(2*N):], (N,2))
@@ -64,17 +71,13 @@ def Jeigs(params):
     return np.array([J_eig_realmax, Js_eig_max])
 
 class RNN(BaseSimulator):
-    def __init__(self, N):
+    def __init__(self, N, seed=None):
         """Hodgkin-Huxley simulator
 
         Parameters
         ----------
-        I : array
-            Numpy array with the input current
-        dt : float
-            Timestep
-        V0 : float
-            Voltage at first time step
+        N : int or None
+            Number of neurons.
         seed : int or None
             If set, randomness across runs is disabled
         """
@@ -103,9 +106,9 @@ class RNN(BaseSimulator):
 
         assert params.ndim == 1, 'params.ndim must be 1'
 
-        hh_seed = self.gen_newseed()
+        Jeig_seed = self.gen_newseed()
 
-        states = self.Jeigs(params.reshape(1, -1))
+        states = self.Jeigs(params.reshape(1, -1), seed=Jeig_seed)
 
         return {'data': states}
 
@@ -151,12 +154,12 @@ m = RNN(N=N)
 s = RNNStats()
 g = dg.Default(model=m, prior=prior, summary=s)
 
-n_processes = 10
+n_processes = 16
 
 seeds_m = np.arange(1,n_processes+1,1)
 m = []
 for i in range(n_processes):
-    m.append(RNN(N=N))
+    m.append(RNN(N=N, seed=seeds_m[i]))
 g = dg.MPGenerator(models=m, prior=prior, summary=s)
 
 # true parameters and respective labels
