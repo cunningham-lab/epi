@@ -2,7 +2,7 @@
 
 # This shell script does it linearly, but could you run each of these 
 # python scripts independently on different instances?
-for N in 2 3 4 5 6
+for N in 2
 do
   for rs in {1..10}
   do

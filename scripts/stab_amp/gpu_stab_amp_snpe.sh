@@ -3,8 +3,8 @@
 #SBATCH --job-name=sa_snpe
 #SBATCH -c 1
 #SBATCH --gres=gpu:1
-#SBATCH --time=1:00:00
-#SBATCH --mem-per-cpu=1gb
+#SBATCH --time=2:00:00
+#SBATCH --mem-per-cpu=10gb
 
 source activate delfi
 module load gcc/7.2.0
