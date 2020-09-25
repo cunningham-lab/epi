@@ -102,7 +102,6 @@ def linear2D_freq_np(a11, a12, a21, a22):
 
 X_INIT = tf.constant(np.random.normal(1.0, 0.01, (1, 4, 1)).astype(np.float32))
 
-"""
 def V1_dr_eps(alpha, inc_val, b=np.array([1., 1., 1., 1.25])):
     neuron_inds = {"E": 0, "P": 1, "S": 2, "V": 3}
     neuron_ind = neuron_inds[alpha]
@@ -120,7 +119,7 @@ def V1_dr_eps(alpha, inc_val, b=np.array([1., 1., 1., 1.25])):
         _x_shape = tf.ones_like(dh, dtype=tf.float32)
         x_init = _x_shape*X_INIT
 
-        npzfile = np.load("../data/V1/V1_Zs.npz")
+        npzfile = np.load("data/V1_Zs.npz")
         _W = npzfile["Z_allen_square"][None, :, :]
         _W[:, :, 1:] = -_W[:, :, 1:]
         W = tf.constant(_W, dtype=tf.float32)
@@ -157,7 +156,7 @@ def V1_all_dr_eps(inc_val, b=np.array([1., 1., 1., 1.25])):
         _x_shape = tf.ones_like(dh, dtype=tf.float32)
         x_init = _x_shape*X_INIT
 
-        npzfile = np.load("../data/V1/V1_Zs.npz")
+        npzfile = np.load("data/V1_Zs.npz")
         _W = npzfile["Z_allen_square"][None, :, :]
         _W[:, :, 1:] = -_W[:, :, 1:]
         W = tf.constant(_W, dtype=tf.float32)
@@ -192,7 +191,7 @@ def V1_ISN(dh, b=np.array([1., 1., 1., 1.25])):
     _x_shape = tf.ones_like(dh, dtype=tf.float32)
     x_init = _x_shape*X_INIT
 
-    npzfile = np.load("../data/V1/V1_Zs.npz")
+    npzfile = np.load("data/V1_Zs.npz")
     _W = npzfile["Z_allen_square"][None, :, :]
     _W[:, :, 1:] = -_W[:, :, 1:]
     W = tf.constant(_W, dtype=tf.float32)
@@ -221,7 +220,7 @@ def V1_sim(dh, b=np.array([1., 1., 1., 1.25])):
     _x_shape = tf.ones_like(dh, dtype=tf.float32)
     x_init = _x_shape*X_INIT
 
-    npzfile = np.load("../data/V1/V1_Zs.npz")
+    npzfile = np.load("data/V1_Zs.npz")
     _W = npzfile["Z_allen_square"][None, :, :]
     _W[:, :, 1:] = -_W[:, :, 1:]
     W = tf.constant(_W, dtype=tf.float32)
@@ -245,4 +244,3 @@ def euler_sim_traj(f, x_init, dt, T):
         x = x + f(x) * dt
         xs.append(x)
     return tf.concat(xs, axis=2)
-"""

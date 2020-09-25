@@ -320,7 +320,7 @@ class Model(object):
             init_type = "gaussian"
             init_params = {"mu": mu_init, "Sigma": Sigma}
         nf.initialize(init_params["mu"], init_params["Sigma"], 
-                      N=N, verbose=True)
+                      N=N, num_iters=500, verbose=True)
 
         # Checkpoint the initialization.
         optimizer = tf.keras.optimizers.Adam(lr)
@@ -389,6 +389,7 @@ class Model(object):
         # EPI optimization
         print(format_opt_msg(0, 0, cost_0, H_0, R_0, 0.), flush=True)
         failed = False
+        time_per_it = np.nan
         for k in range(1, K + 1):
             etas[k - 1], cs[k - 1], eta, c
             for i in range(1, num_iters + 1):
@@ -610,7 +611,7 @@ class Model(object):
         else:
             R_ax = plt.subplot(4, 2, 3)
         R_ax.set_xlim(0, iters[-1])
-        min_R, max_R = np.min(R), np.max(R)
+        min_R, max_R = np.min(R[20:,:]), np.max(R[20:,:])
         R_ax.set_xlim(0, x_end)
         R_ax.set_ylim(min_R, max_R)
         R_ax.set_ylabel(r"$R(q_\theta)$", rotation="horizontal", fontsize=fontsize)
@@ -764,8 +765,8 @@ class Model(object):
                 levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 20)
                 cont = ax.contourf(z_grid[0], z_grid[1], scores_ij, levels=levels)
                 conts.append(cont)
-                ax.set_xlim(ax_mins[i], ax_maxs[i])
-                ax.set_ylim(ax_mins[j], ax_maxs[j])
+                ax.set_xlim(ax_mins[j], ax_maxs[j])
+                ax.set_ylim(ax_mins[i], ax_maxs[i])
                 kdes.append(kde)
 
         for i in range(D):
