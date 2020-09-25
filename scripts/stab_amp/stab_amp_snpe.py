@@ -172,14 +172,14 @@ obs = m[0].gen_single(true_params)
 
 obs_stats = np.array([0.5, 1.5])
 
-pilot_samples = 2000
+pilot_samples = n_train
 
 # training schedule
 n_rounds = 100
 
 # fitting setup
 minibatch = 100
-epochs = 500
+epochs = 100
 val_frac = 0.05
 
 # network setup
