@@ -24,52 +24,25 @@ ub_dh = 1.*np.ones((2,))
 
 h = Parameter("h", 4, lb=lb_h, ub=ub_h)
 dh = Parameter("dh", 2, lb=lb_dh, ub=ub_dh)
-n = Parameter("n", 1, lb=1.5, ub=3.)
-#epsilon = Parameter("epsilon", 1, lb=0., ub=.001)
+#epsilon = Parameter("epsilon", 1, lb=0., ub=1.)
 
 # Define model
 name = "V1Circuit"
-parameters = [h, dh, n]#, epsilon]
+parameters = [h, dh]
 model = Model(name, parameters)
 
 X_INIT = tf.constant(np.random.normal(1.0, 0.01, (1, 4, 1)).astype(np.float32))
 
-def V1_sim(h, dh, n):#, epsilon):
-    h = h[:, :, None]
-    dh = tf.concat((dh, tf.zeros_like(dh, dtype=tf.float32)), axis=1)[:, :, None]
-    n = n[:, :, None]
-    #epsilon = epsilon[:, :, None]
-
-    dt = 0.005
-    T = 100
-    tau = 0.02
-
-    _x_shape = tf.ones_like(h, dtype=tf.float32)
-    x_init = _x_shape*X_INIT
-
-    npzfile = np.load("data/V1_Zs.npz")
-    _W = npzfile["Z_allen_square"][None, :, :]
-    _W[:, :, 1:] = -_W[:, :, 1:]
-    W = tf.constant(_W, dtype=tf.float32)
-
-    def f(y):
-        #omega = tf.random.normal(y.shape, 0., 1.)
-        #noise = epsilon*omega
-        #return (-y + (tf.nn.relu(tf.matmul(W, y) + h + dh + noise) ** n)) / tau
-        return (-y + (tf.nn.relu(tf.matmul(W, y) + h + dh) ** n)) / tau
-
-    r_t = euler_sim_traj(f, x_init, dt, T)
-    return r_t
-
 # Define eps
 diff_prod_mean = -0.5
 diff_sum_mean = 0.
-def SV_flip(h, dh, n):#, epsilon):
+def SV_flip(h, dh):#, epsilon):
     h = h[:, :, None]
     dh = tf.concat((dh, tf.zeros_like(dh, dtype=tf.float32)), axis=1)[:, :, None]
-    n = n[:, :, None]
     #epsilon = epsilon[:, :, None]
 
+    n = 2.
+    epsilon = 0.05
     dt = 0.005
     T = 100
     tau = 0.02
@@ -83,16 +56,14 @@ def SV_flip(h, dh, n):#, epsilon):
     W = tf.constant(_W, dtype=tf.float32)
 
     def f1(y):
-        #omega = tf.random.normal(y.shape, 0., 1.)
-        #noise = epsilon*omega
-        #return (-y + (tf.nn.relu(tf.matmul(W, y) + h + noise) ** n)) / tau
-        return (-y + (tf.nn.relu(tf.matmul(W, y) + h) ** n)) / tau
+        omega = tf.random.normal(y.shape, 0., 1.)
+        noise = epsilon*omega
+        return (-y + (tf.nn.relu(tf.matmul(W, y) + h + noise) ** n)) / tau
 
     def f2(y):
-        #omega = tf.random.normal(y.shape, 0., 1.)
-        #noise = epsilon*omega
-        #return (-y + (tf.nn.relu(tf.matmul(W, y) + h + dh + noise) ** n)) / tau
-        return (-y + (tf.nn.relu(tf.matmul(W, y) + h + dh) ** n)) / tau
+        omega = tf.random.normal(y.shape, 0., 1.)
+        noise = epsilon*omega
+        return (-y + (tf.nn.relu(tf.matmul(W, y) + h + dh + noise) ** n)) / tau
 
     ss1 = euler_sim(f1, x_init, dt, T)
     ss2 = euler_sim(f2, x_init, dt, T)
@@ -123,8 +94,8 @@ q_theta, opt_data, epi_path, failed = model.epi(
     post_affine=True,
     batch_norm=True,
     K=15,
-    N=200,
-    num_iters=1000,
+    N=500,
+    num_iters=2500,
     lr=1e-3,
     c0=c0,
     beta=4.,
