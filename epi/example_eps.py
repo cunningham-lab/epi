@@ -189,7 +189,41 @@ def V1_ISN(dh, b=np.array([1., 1., 1., 1.25])):
     h = b + dh
 
     _x_shape = tf.ones_like(dh, dtype=tf.float32)
-    x_init = _x_shape*X_INIT
+    x_indef V1_all_dr_eps(inc_val, b=np.array([1., 1., 1., 1.25])):
+
+    b = tf.constant(b[None,:,None], dtype=tf.float32)
+
+    def dr(dh):
+        dh = dh[:, :, None]
+
+        dt = 0.005
+        T = 100
+        tau = 0.02
+
+        h = b + dh
+
+        _x_shape = tf.ones_like(dh, dtype=tf.float32)
+        x_init = _x_shape*X_INIT
+
+        npzfile = np.load("data/V1_Zs.npz")
+        _W = npzfile["Z_allen_square"][None, :, :]
+        _W[:, :, 1:] = -_W[:, :, 1:]
+        W = tf.constant(_W, dtype=tf.float32)
+
+        def f1(y):
+            return (-y + (tf.nn.relu(tf.matmul(W, y) + b) ** 2.0)) / tau
+
+        def f2(y):
+            return (-y + (tf.nn.relu(tf.matmul(W, y) + h) ** 2.0)) / tau
+
+        x1 = euler_sim(f1, x_init, dt, T)
+        x2 = euler_sim(f2, x_init, dt, T)
+
+        diff = x2 - x1
+        T_x = tf.concat((diff, (diff - inc_val) ** 2), axis=1)
+
+        return T_x
+    return drit = _x_shape*X_INIT
 
     npzfile = np.load("data/V1_Zs.npz")
     _W = npzfile["Z_allen_square"][None, :, :]

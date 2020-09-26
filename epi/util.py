@@ -440,7 +440,7 @@ def plot_square_mat(
     ax.axis("off")
     return texts
 
-def pairplot(
+def old_pairplot(
     Z,
     dims,
     labels,
@@ -575,6 +575,130 @@ def pairplot(
                     ax.set_xlim(xlims)
                 if ylims is not None:
                     ax.set_ylim(ylims)
+            else:
+                ax.axis("off")
+
+    if c is not None:
+        fig.subplots_adjust(right=0.90)
+        cbar_ax = fig.add_axes([0.92, 0.15, 0.04, 0.7])
+        clb = fig.colorbar(h, cax=cbar_ax)
+        a = (1.01 / (num_dims - 1)) / (0.9 / (num_dims - 1))
+        b = (num_dims - 1) * 1.15
+        plt.text(a, b, c_label, {"fontsize": fontsize}, transform=ax.transAxes)
+    # plt.savefig(pfname)
+    return fig, axs
+
+def filter_outliers(c, num_stds=4):
+    max_stat = 10e5
+    _c = c[np.logical_and(c < max_stat, c > -max_stat)]
+    c_mean = np.mean(_c)
+    c_std = np.std(_c)
+    all_inds = np.arange(c.shape[0])
+    below_inds = all_inds[c < c_mean - num_stds * c_std]
+    over_inds = all_inds[c > c_mean + num_stds * c_std]
+    plot_inds = all_inds[
+        np.logical_and(c_mean - num_stds * c_std <= c, c <= c_mean + num_stds * c_std)
+    ]
+    return plot_inds, below_inds, over_inds
+
+
+
+
+def pairplot(
+    Z,
+    dims,
+    labels,
+    lb = None,
+    ub = None,
+    clims=None,
+    ticks=None,
+    c=None,
+    c_label=None,
+    cmap=None,
+    mode=False,
+    fontsize=12,
+    figsize=(12, 12),
+    outlier_stds=10,
+    pfname="images/temp.png",
+):
+    M = Z.shape[0]
+    num_dims = len(dims)
+    rand_order = np.random.permutation(M)
+    Z = Z[rand_order, :]
+    if c is not None:
+        c = c[rand_order]
+        if clims is not None:
+            all_inds = np.arange(c.shape[0])
+            below_inds = all_inds[c < clims[0]]
+            over_inds = all_inds[c > clims[1]]
+            plot_inds = all_inds[
+                np.logical_and(clims[0] <= c, c <= clims[1])
+            ]
+        else:
+            plot_inds, below_inds, over_inds = filter_outliers(c, outlier_stds)
+            clims = [None, None]
+
+    fig, axs = plt.subplots(num_dims - 1, num_dims - 1, figsize=figsize)
+    for i in range(num_dims - 1):
+        dim_i = dims[i]
+        for j in range(1, num_dims):
+            if num_dims == 2:
+                ax = plt.gca()
+            else:
+                ax = axs[i, j - 1]
+            if j > i:
+                dim_j = dims[j]
+                if c is not None:
+                    ax.scatter(
+                        Z[below_inds, dim_j],
+                        Z[below_inds, dim_i],
+                        c="k",
+                        edgecolors="k",
+                        linewidths=0.25,
+                    )
+                    ax.scatter(
+                        Z[over_inds, dim_j],
+                        Z[over_inds, dim_i],
+                        c="w",
+                        edgecolors="k",
+                        linewidths=0.25,
+                    )
+                    h = ax.scatter(
+                        Z[plot_inds, dim_j],
+                        Z[plot_inds, dim_i],
+                        c=c[plot_inds],
+                        cmap=cmap,
+                        vmin=clims[0],
+                        vmax=clims[1],
+                        edgecolors="k",
+                        linewidths=0.25,
+                    )
+                else:
+                    h = ax.scatter(
+                        Z[:, dim_j], Z[:, dim_i], c='k', edgecolors="k", linewidths=0.25,
+                    )
+                if mode:
+                    mode_ind = np.argmax(c)
+                    ax.scatter(
+                        Z[mode_ind, dim_j], Z[mode_ind, dim_i], s=200, c='k', 
+                        marker='*', edgecolors="k", linewidths=0.25,
+                    )
+
+
+                if i + 1 == j:
+                    ax.set_xlabel(labels[j], fontsize=fontsize)
+                    ax.set_ylabel(labels[i], fontsize=fontsize)
+                else:
+                    ax.set_xticklabels([])
+                    ax.set_yticklabels([])
+
+                if ticks is not None:
+                    ax.set_xticks(ticks, fontsize=fontsize)
+                    ax.set_yticks(ticks, fontsize=fontsize)
+                if lb is not None and ub is not None:
+                    ax.set_xlim(lb[dim_j], ub[dim_j])
+                if lb is not None and ub is not None:
+                    ax.set_ylim(lb[dim_i], ub[dim_i])
             else:
                 ax.axis("off")
 

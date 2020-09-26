@@ -320,7 +320,7 @@ class Model(object):
             init_type = "gaussian"
             init_params = {"mu": mu_init, "Sigma": Sigma}
         nf.initialize(init_params["mu"], init_params["Sigma"], 
-                      N=N, num_iters=500, verbose=True)
+                      N=N, verbose=True)
 
         # Checkpoint the initialization.
         optimizer = tf.keras.optimizers.Adam(lr)
@@ -1332,6 +1332,37 @@ class Distribution(object):
             g = g.map_diag(sns.kdeplot)
             g = g.map_lower(sns.kdeplot)
         return g
+
+    def plot_dist(self, N=200, kde=True):
+        z, log_q_z = self.nf(N)
+        df = pd.DataFrame(z)
+        # iterate over parameters to create label_names
+        z_labels = []
+        for param in self.parameters:
+            if param.D == 1:
+                z_labels.append(param.name)
+            else:
+                z_labels.extend([str(param.name) + str(i) for i in range(param.D)])
+
+        df.columns = z_labels
+        df["log_q_z"] = log_q_z
+
+        log_q_z_std = log_q_z - np.min(log_q_z)
+        log_q_z_std = log_q_z_std / np.max(log_q_z_std)
+        cmap = plt.get_cmap("viridis")
+        g = sns.PairGrid(df, vars=z_labels)
+        g = g.map_upper(plt.scatter, color=cmap(log_q_z_std))
+        if kde:
+            g = g.map_diag(sns.kdeplot)
+            g = g.map_lower(sns.kdeplot)
+        for i in range(self.D):
+            for j in range(i+1, self.D):
+                g.axes[i,j].set_ylim(self.nf.lb[i], self.nf.ub[i])
+                g.axes[i,j].set_xlim(self.nf.lb[j], self.nf.ub[j])
+                g.axes[j,i].set_ylim(self.nf.lb[j], self.nf.ub[j])
+                g.axes[j,i].set_xlim(self.nf.lb[i], self.nf.ub[i])
+
+        return g, z.numpy(), log_q_z.numpy()
 
     def set_batch_norm_trainable(self, trainable):
         bijectors = self.nf.trans_dist.bijector.bijectors
