@@ -102,19 +102,18 @@ def linear2D_freq_np(a11, a12, a21, a22):
 
 X_INIT = tf.constant(np.random.normal(1.0, 0.01, (1, 4, 1)).astype(np.float32))
 
-def V1_dr_eps(alpha, inc_val, b=np.array([1., 1., 1., 1.25])):
+def V1_dr_eps(alpha, inc_val, epsilon, h=np.array([1., 1., 1., 1.25])):
     neuron_inds = {"E": 0, "P": 1, "S": 2, "V": 3}
     neuron_ind = neuron_inds[alpha]
-    b = tf.constant(b[None,:,None], dtype=tf.float32)
+    h = tf.constant(h[None,:,None], dtype=tf.float32)
 
     def dr(dh):
         dh = dh[:, :, None]
 
+        n = 2.
         dt = 0.005
         T = 100
         tau = 0.02
-
-        h = b + dh
 
         _x_shape = tf.ones_like(dh, dtype=tf.float32)
         x_init = _x_shape*X_INIT
@@ -125,10 +124,14 @@ def V1_dr_eps(alpha, inc_val, b=np.array([1., 1., 1., 1.25])):
         W = tf.constant(_W, dtype=tf.float32)
 
         def f1(y):
-            return (-y + (tf.nn.relu(tf.matmul(W, y) + b) ** 2.0)) / tau
+            omega = tf.random.normal(y.shape, 0., 1.)
+            noise = epsilon*omega
+            return (-y + (tf.nn.relu(tf.matmul(W, y) + h + noise) ** n)) / tau
 
         def f2(y):
-            return (-y + (tf.nn.relu(tf.matmul(W, y) + h) ** 2.0)) / tau
+            omega = tf.random.normal(y.shape, 0., 1.)
+            noise = epsilon*omega
+            return (-y + (tf.nn.relu(tf.matmul(W, y) + h + dh + noise) ** n)) / tau
 
         x1 = euler_sim(f1, x_init, dt, T)[:, neuron_ind]
         x2 = euler_sim(f2, x_init, dt, T)[:, neuron_ind]
@@ -175,69 +178,6 @@ def V1_all_dr_eps(inc_val, b=np.array([1., 1., 1., 1.25])):
 
         return T_x
     return dr
-
-
-def V1_ISN(dh, b=np.array([1., 1., 1., 1.25])):
-
-    dh = dh[:, :, None]
-    b = tf.constant(b[None,:,None], dtype=tf.float32)
-
-    dt = 0.005
-    T = 100
-    tau = 0.02
-
-    h = b + dh
-
-    _x_shape = tf.ones_like(dh, dtype=tf.float32)
-    x_indef V1_all_dr_eps(inc_val, b=np.array([1., 1., 1., 1.25])):
-
-    b = tf.constant(b[None,:,None], dtype=tf.float32)
-
-    def dr(dh):
-        dh = dh[:, :, None]
-
-        dt = 0.005
-        T = 100
-        tau = 0.02
-
-        h = b + dh
-
-        _x_shape = tf.ones_like(dh, dtype=tf.float32)
-        x_init = _x_shape*X_INIT
-
-        npzfile = np.load("data/V1_Zs.npz")
-        _W = npzfile["Z_allen_square"][None, :, :]
-        _W[:, :, 1:] = -_W[:, :, 1:]
-        W = tf.constant(_W, dtype=tf.float32)
-
-        def f1(y):
-            return (-y + (tf.nn.relu(tf.matmul(W, y) + b) ** 2.0)) / tau
-
-        def f2(y):
-            return (-y + (tf.nn.relu(tf.matmul(W, y) + h) ** 2.0)) / tau
-
-        x1 = euler_sim(f1, x_init, dt, T)
-        x2 = euler_sim(f2, x_init, dt, T)
-
-        diff = x2 - x1
-        T_x = tf.concat((diff, (diff - inc_val) ** 2), axis=1)
-
-        return T_x
-    return drit = _x_shape*X_INIT
-
-    npzfile = np.load("data/V1_Zs.npz")
-    _W = npzfile["Z_allen_square"][None, :, :]
-    _W[:, :, 1:] = -_W[:, :, 1:]
-    W = tf.constant(_W, dtype=tf.float32)
-
-    def f(y):
-        return (-y + (tf.nn.relu(tf.matmul(W, y) + h) ** 2.0)) / tau
-
-    r_ss_E = euler_sim(f, x_init, dt, T)[:,0]
-    u_E = tf.math.sqrt(r_ss_E)
-    ISN = (1. - 2. * u_E * _W[0, 0, 0])[:,None]
-    return ISN
-
 
 
 def V1_sim(dh, b=np.array([1., 1., 1., 1.25])):
