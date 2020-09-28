@@ -35,6 +35,19 @@ print('Running SNPE on RNN conditioned on stable amplification with:')
 print('N = %d, n_train = %d, n_mades = %d, n_atoms = %d, seed=%d' \
       % (N, n_train, n_mades, n_atoms, rs))
 
+base_path = os.path.join("data", "snpe")
+save_dir = "SNPE_RNN_stab_amp_N=%d_ntrain=%dk_nmades=%d_natoms=%d_rs=%d" \
+        % (N, n_train//1000, n_mades, n_atoms, rs)
+
+save_path = os.path.join(base_path, save_dir)
+if not os.path.exists(save_path):
+    os.makedirs(save_path)
+
+if os.path.exists(os.path.join(base_path, save_dir, "optim.pkl")):
+    print("SNPE optimization already run. Exitting.")
+    exit()
+
+
 def Jeigs(params, seed=None):
     """Calculates Jeigs.
 
