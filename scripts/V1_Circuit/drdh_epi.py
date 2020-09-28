@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from epi.models import Parameter, Model
 from epi.example_eps import V1_dr_eps
-
+import time
 
 # Parse script command-line parameters.
 parser = argparse.ArgumentParser()
@@ -19,6 +19,10 @@ epsilon = args.epsilon
 c0 = 10.**args.logc0
 random_seed = args.random_seed
 
+sleep_dur = ord(alpha)/11. + 3.*epsilon + np.abs(args.logc0) + random_seed/5.
+print('short stagger sleep of', sleep_dur, flush=True)
+time.sleep(sleep_dur)
+
 # 1. Specify the V1 model for EPI.
 D = 4
 lb = -5.*np.ones((D,))
@@ -27,7 +31,7 @@ ub = 5.*np.ones((D,))
 dh = Parameter("dh", D, lb=lb, ub=ub)
 
 # Define model
-name = "V1Circuit_eps=%.2f" % epsilon
+name = "V1Circuit_%s_eps=%.2f" % (alpha, epsilon)
 parameters = [dh]
 model = Model(name, parameters)
 
@@ -49,13 +53,13 @@ q_theta, opt_data, epi_path, failed = model.epi(
     num_units=50,
     post_affine=True,
     batch_norm=True,
-    K=4,
+    K=15,
     N=500,
-    num_iters=1000,
+    num_iters=2500,
     lr=1e-3,
     c0=c0,
     beta=4.,
-    nu=0.5,
+    nu=0.2,
     random_seed=random_seed,
     verbose=True,
     stop_early=True,
