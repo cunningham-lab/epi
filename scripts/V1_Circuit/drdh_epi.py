@@ -8,13 +8,15 @@ import time
 
 # Parse script command-line parameters.
 parser = argparse.ArgumentParser()
-parser.add_argument('--alpha', type=str, default='E') # log10 of c_0
-parser.add_argument('--epsilon', type=float, default=0.) # log10 of c_0
+parser.add_argument('--alpha', type=str, default='E') # neuron type
+parser.add_argument('--beta', type=float, default=4.) # aug lag hp
+parser.add_argument('--epsilon', type=float, default=0.) # noise
 parser.add_argument('--logc0', type=float, default=0.) # log10 of c_0
 parser.add_argument('--random_seed', type=int, default=1)
 args = parser.parse_args()
 
 alpha = args.alpha
+beta = args.beta
 epsilon = args.epsilon
 c0 = 10.**args.logc0
 random_seed = args.random_seed
@@ -31,7 +33,7 @@ ub = 5.*np.ones((D,))
 dh = Parameter("dh", D, lb=lb, ub=ub)
 
 # Define model
-name = "V1Circuit_%s_eps=%.2f" % (alpha, epsilon)
+name = "V1_Circuit_%s_eps=%.2f" % (alpha, epsilon)
 parameters = [dh]
 model = Model(name, parameters)
 
@@ -58,7 +60,7 @@ q_theta, opt_data, epi_path, failed = model.epi(
     num_iters=2500,
     lr=1e-3,
     c0=c0,
-    beta=4.,
+    beta=beta,
     nu=0.2,
     random_seed=random_seed,
     verbose=True,
