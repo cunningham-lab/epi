@@ -19,7 +19,7 @@ random_seed = args.random_seed
 lb_h = 0.*np.ones((4,))
 ub_h = 3.*np.ones((4,))
 
-lb_dh = 0.*np.ones((2,))
+lb_dh = -1.*np.ones((2,))
 ub_dh = 1.*np.ones((2,))
 
 h = Parameter("h", 4, lb=lb_h, ub=ub_h)
