@@ -23,9 +23,9 @@ c0 = 10.**args.logc0
 bnmom = args.bnmom
 random_seed = args.random_seed
 
-sleep_dur = ord(alpha)/11. + 3.*epsilon + np.abs(args.logc0) + random_seed/5.
-print('short stagger sleep of', sleep_dur, flush=True)
-time.sleep(sleep_dur)
+#sleep_dur = ord(alpha)/11. + 3.*epsilon + np.abs(args.logc0) + random_seed/5.
+#print('short stagger sleep of', sleep_dur, flush=True)
+#time.sleep(sleep_dur)
 
 # 1. Specify the V1 model for EPI.
 D = 4
