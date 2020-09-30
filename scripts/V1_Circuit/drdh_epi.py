@@ -42,7 +42,10 @@ model = Model(name, parameters)
 X_INIT = tf.constant(np.random.normal(1.0, 0.01, (1, 4, 1)).astype(np.float32))
 
 inc_val = 0.
-dr = V1_dr_eps(alpha, inc_val, epsilon)
+npzfile = np.load('SV_mode.npz')
+z_mode = npzfile['z_mode1']
+h = z_mode[:,:4]
+dr = V1_dr_eps(alpha, inc_val, epsilon, h=h)
 model.set_eps(dr)
 
 # Emergent property values.
