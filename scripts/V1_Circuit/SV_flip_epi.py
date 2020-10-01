@@ -1,4 +1,4 @@
-import os
+import os 
 import argparse
 import numpy as np
 import tensorflow as tf
@@ -24,25 +24,23 @@ ub_dh = 1.*np.ones((2,))
 
 h = Parameter("h", 4, lb=lb_h, ub=ub_h)
 dh = Parameter("dh", 2, lb=lb_dh, ub=ub_dh)
-#epsilon = Parameter("epsilon", 1, lb=0., ub=1.)
 
 # Define model
-name = "V1Circuit"
+sigma_eps = 0.1
+name = "V1Circuit_SVflip_sigeps=%.2f" % sigma_eps
 parameters = [h, dh]
 model = Model(name, parameters)
 
 X_INIT = tf.constant(np.random.normal(1.0, 0.01, (1, 4, 1)).astype(np.float32))
 
 # Define eps
-diff_prod_mean = -0.5
+diff_prod_mean = -0.25
 diff_sum_mean = 0.
-def SV_flip(h, dh):#, epsilon):
+def SV_flip(h, dh):
     h = h[:, :, None]
     dh = tf.concat((dh, tf.zeros_like(dh, dtype=tf.float32)), axis=1)[:, :, None]
-    #epsilon = epsilon[:, :, None]
 
     n = 2.
-    epsilon = 0.05
     dt = 0.005
     T = 100
     tau = 0.02
@@ -57,12 +55,12 @@ def SV_flip(h, dh):#, epsilon):
 
     def f1(y):
         omega = tf.random.normal(y.shape, 0., 1.)
-        noise = epsilon*omega
+        noise = sigma_eps*omega
         return (-y + (tf.nn.relu(tf.matmul(W, y) + h + noise) ** n)) / tau
 
     def f2(y):
         omega = tf.random.normal(y.shape, 0., 1.)
-        noise = epsilon*omega
+        noise = sigma_eps*omega
         return (-y + (tf.nn.relu(tf.matmul(W, y) + h + dh + noise) ** n)) / tau
 
     ss1 = euler_sim(f1, x_init, dt, T)
@@ -82,7 +80,7 @@ def SV_flip(h, dh):#, epsilon):
 model.set_eps(SV_flip)
 
 # Emergent property values.
-mu = np.array([diff_prod_mean, diff_sum_mean, 0.25**2, 0.25**2])
+mu = np.array([diff_prod_mean, diff_sum_mean, 0.125**2, 0.125**2])
 
 # 3. Run EPI.
 q_theta, opt_data, epi_path, failed = model.epi(
