@@ -1,0 +1,49 @@
+This is BibTeX, Version 0.99d (TeX Live 2016)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: V1_model.aux
+The style file: unsrt.bst
+Database file #1: epi.bib
+Warning--entry type for "allen2018layer" isn't style-file defined
+--line 21 of file epi.bib
+You've used 3 entries,
+            1791 wiz_defined-function locations,
+            459 strings with 4284 characters,
+and the built_in function-call counts, 899 in all, are:
+= -- 69
+> -- 62
+< -- 2
++ -- 22
+- -- 19
+* -- 47
+:= -- 139
+add.period$ -- 8
+call.type$ -- 3
+change.case$ -- 3
+chr.to.int$ -- 0
+cite$ -- 3
+duplicate$ -- 49
+empty$ -- 65
+format.name$ -- 19
+if$ -- 208
+int.to.chr$ -- 0
+int.to.str$ -- 3
+missing$ -- 2
+newline$ -- 17
+num.names$ -- 3
+pop$ -- 13
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 47
+stack$ -- 0
+substring$ -- 24
+swap$ -- 29
+text.length$ -- 2
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 0
+while$ -- 5
+width$ -- 4
+write$ -- 31
+(There was 1 warning)
