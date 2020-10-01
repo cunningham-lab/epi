@@ -23,9 +23,9 @@ c0 = 10.**args.logc0
 bnmom = args.bnmom
 random_seed = args.random_seed
 
-#sleep_dur = ord(alpha)/11. + 3.*epsilon + np.abs(args.logc0) + random_seed/5.
-#print('short stagger sleep of', sleep_dur, flush=True)
-#time.sleep(sleep_dur)
+sleep_dur = ord(alpha)/11. + beta/2. + 3.*epsilon + np.abs(args.logc0) + random_seed/17.
+print('short stagger sleep of', sleep_dur, flush=True)
+time.sleep(sleep_dur)
 
 # 1. Specify the V1 model for EPI.
 D = 4
@@ -44,7 +44,7 @@ X_INIT = tf.constant(np.random.normal(1.0, 0.01, (1, 4, 1)).astype(np.float32))
 inc_val = 0.
 npzfile = np.load('SV_mode.npz')
 z_mode = npzfile['z_mode1']
-h = z_mode[:,:4]
+h = z_mode[0,:4]
 dr = V1_dr_eps(alpha, inc_val, epsilon, h=h)
 model.set_eps(dr)
 

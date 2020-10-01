@@ -26,7 +26,7 @@ h = Parameter("h", 4, lb=lb_h, ub=ub_h)
 dh = Parameter("dh", 2, lb=lb_dh, ub=ub_dh)
 
 # Define model
-sigma_eps = 0.1
+sigma_eps = 0.25
 name = "V1Circuit_SVflip_sigeps=%.2f" % sigma_eps
 parameters = [h, dh]
 model = Model(name, parameters)
@@ -34,7 +34,7 @@ model = Model(name, parameters)
 X_INIT = tf.constant(np.random.normal(1.0, 0.01, (1, 4, 1)).astype(np.float32))
 
 # Define eps
-diff_prod_mean = -0.25
+diff_prod_mean = -0.5
 diff_sum_mean = 0.
 def SV_flip(h, dh):
     h = h[:, :, None]
@@ -80,7 +80,7 @@ def SV_flip(h, dh):
 model.set_eps(SV_flip)
 
 # Emergent property values.
-mu = np.array([diff_prod_mean, diff_sum_mean, 0.125**2, 0.125**2])
+mu = np.array([diff_prod_mean, diff_sum_mean, 0.25**2, 0.25**2])
 
 # 3. Run EPI.
 q_theta, opt_data, epi_path, failed = model.epi(
