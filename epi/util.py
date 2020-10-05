@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 import pickle
 import os
+import hashlib
 import matplotlib
 from matplotlib import animation
 import matplotlib.pyplot as plt
@@ -12,15 +13,38 @@ import pandas as pd
 from sklearn.neighbors import KernelDensity
 from epi.error_formatters import format_type_err_msg
 
-def hp_df_to_aug_lag_hps(hp_df):
-    aug_lag_hps = AugLagHPs(
-        N=int(hp_df['N']),
-        lr=hp_df['lr'],
-        c0=hp_df['c0'],
-        gamma=hp_df['gamma'],
-        beta=hp_df['beta'],
-    )
-    return aug_lag_hps
+def get_hash(hash_vars):
+    m = hashlib.md5()
+    for hash_var in hash_vars:
+        if hash_var is None:
+            continue
+        elif type(hash_var) is str:
+            hash_var = hash_var.encode('utf-8')
+        m.update(hash_var)
+    return m.hexdigest()
+
+def set_dir_index(index, index_file):
+    exists = os.path.exists(index_file)
+    if exists:
+        with open(index_file, "rb") as f:
+            cur_index = pickle.load(f)
+        for key, value in cur_index.items():
+            if type(value) is np.ndarray:
+                assert(np.isclose(index[key], value).all())
+            else:
+                assert(index[key] == value)
+    else:
+        with open(index_file, "wb") as f:
+            pickle.dump(index, f)
+    return exists
+
+def get_dir_index(path):
+    try:
+        with open(path, "rb") as f:
+            index = pickle.load(f)
+    except FileNotFoundError:
+        return None
+    return index
 
 def gaussian_backward_mapping(mu, Sigma):
     """Calculates natural parameter of multivaraite gaussian from mean and cov.
@@ -137,61 +161,6 @@ def array_str(a):
         array_str += "_" + repeats_str(nums[i], mults[i])
 
     return array_str
-
-
-def init_path(arch_string, init_type, init_params):
-    """Deduces initialization file path from initialization type and parameters.
-
-    :param arch_string: Architecture string of normalizing flow.
-    :type arch_string: str
-    :param init_type: Initialization type \in ['iso_gauss']
-    :type init_type: str
-    :param init_param: init_type dependent parameters for initialization (more deets)
-    :type dict: 
-
-    :return: Initialization save path.
-    :rtype: str
-    """
-    if type(arch_string) is not str:
-        raise TypeError(
-            format_type_err_msg("epi.util.init_path", "arch_string", arch_string, str)
-        )
-    if type(init_type) is not str:
-        raise TypeError(
-            format_type_err_msg("epi.util.init_path", "init_type", init_type, str)
-        )
-
-    path = "./data/" + arch_string + "/"
-
-    if init_type == "iso_gauss":
-        if "loc" in init_params:
-            loc = init_params["loc"]
-        else:
-            raise ValueError("'loc' field not in init_param for %s." % init_type)
-        if "scale" in init_params:
-            scale = init_params["scale"]
-        else:
-            raise ValueError("'scale' field not in init_param for %s." % init_type)
-        path += init_type + "_loc=%.2E_scale=%.2E/" % (loc, scale)
-    elif init_type == "gaussian":
-        if "mu" in init_params:
-            mu = np_column_vec(init_params["mu"])[:, 0]
-        else:
-            raise ValueError("'mu' field not in init_param for %s." % init_type)
-        if "Sigma" in init_params:
-            Sigma = init_params["Sigma"]
-        else:
-            raise ValueError("'Sigma' field not in init_param for %s." % init_type)
-        D = mu.shape[0]
-        mu_str = array_str(mu)
-        Sigma_str = array_str(Sigma[np.triu_indices(D, 0)])
-        path += init_type + "_mu=%s_Sigma=%s/" % (mu_str, Sigma_str)
-
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-    return path
-
 
 def aug_lag_vars(z, log_q_z, eps, mu, N):
     """Calculate augmented lagrangian variables requiring gradient tape.
@@ -471,7 +440,7 @@ def plot_square_mat(
     ax.axis("off")
     return texts
 
-def pairplot(
+def old_pairplot(
     Z,
     dims,
     labels,
@@ -492,8 +461,9 @@ def pairplot(
     outlier_stds=10,
     pfname="images/temp.png",
 ):
+    M = Z.shape[0]
     num_dims = len(dims)
-    rand_order = np.random.permutation(Z.shape[0])
+    rand_order = np.random.permutation(M)
     Z = Z[rand_order, :]
     if c is not None:
         c = c[rand_order]
@@ -506,6 +476,7 @@ def pairplot(
             ]
         else:
             plot_inds, below_inds, over_inds = filter_outliers(c, outlier_stds)
+            clims = [None, None]
 
     fig, axs = plt.subplots(num_dims - 1, num_dims - 1, figsize=figsize)
     for i in range(num_dims - 1):
@@ -521,7 +492,6 @@ def pairplot(
                     ax.plot(xlims, [0, 0], c=0.5 * np.ones(3), linestyle="--")
                     ax.plot([0, 0], ylims, c=0.5 * np.ones(3), linestyle="--")
                 if ss:
-                    M = Z.shape[0]
                     ax.plot(
                         np.reshape(Z[:, dim_j].T, (M // 2, 2)),
                         np.reshape(Z[:, dim_i].T, (M // 2, 2)),
@@ -555,7 +525,7 @@ def pairplot(
                     )
                 else:
                     h = ax.scatter(
-                        Z[:, dim_j], Z[:, dim_i], c=0.25*np.ones((3,)), edgecolors="k", linewidths=0.25,
+                        Z[:, dim_j], Z[:, dim_i], c='k', edgecolors="k", linewidths=0.25,
                     )
                 if (z1 is not None):
                     if (z1.shape[0] == z2.shape[0]):
@@ -605,6 +575,130 @@ def pairplot(
                     ax.set_xlim(xlims)
                 if ylims is not None:
                     ax.set_ylim(ylims)
+            else:
+                ax.axis("off")
+
+    if c is not None:
+        fig.subplots_adjust(right=0.90)
+        cbar_ax = fig.add_axes([0.92, 0.15, 0.04, 0.7])
+        clb = fig.colorbar(h, cax=cbar_ax)
+        a = (1.01 / (num_dims - 1)) / (0.9 / (num_dims - 1))
+        b = (num_dims - 1) * 1.15
+        plt.text(a, b, c_label, {"fontsize": fontsize}, transform=ax.transAxes)
+    # plt.savefig(pfname)
+    return fig, axs
+
+def filter_outliers(c, num_stds=4):
+    max_stat = 10e5
+    _c = c[np.logical_and(c < max_stat, c > -max_stat)]
+    c_mean = np.mean(_c)
+    c_std = np.std(_c)
+    all_inds = np.arange(c.shape[0])
+    below_inds = all_inds[c < c_mean - num_stds * c_std]
+    over_inds = all_inds[c > c_mean + num_stds * c_std]
+    plot_inds = all_inds[
+        np.logical_and(c_mean - num_stds * c_std <= c, c <= c_mean + num_stds * c_std)
+    ]
+    return plot_inds, below_inds, over_inds
+
+
+
+
+def pairplot(
+    Z,
+    dims,
+    labels,
+    lb = None,
+    ub = None,
+    clims=None,
+    ticks=None,
+    c=None,
+    c_label=None,
+    cmap=None,
+    mode=False,
+    fontsize=12,
+    figsize=(12, 12),
+    outlier_stds=10,
+    pfname="images/temp.png",
+):
+    M = Z.shape[0]
+    num_dims = len(dims)
+    rand_order = np.random.permutation(M)
+    Z = Z[rand_order, :]
+    if c is not None:
+        c = c[rand_order]
+        if clims is not None:
+            all_inds = np.arange(c.shape[0])
+            below_inds = all_inds[c < clims[0]]
+            over_inds = all_inds[c > clims[1]]
+            plot_inds = all_inds[
+                np.logical_and(clims[0] <= c, c <= clims[1])
+            ]
+        else:
+            plot_inds, below_inds, over_inds = filter_outliers(c, outlier_stds)
+            clims = [None, None]
+
+    fig, axs = plt.subplots(num_dims - 1, num_dims - 1, figsize=figsize)
+    for i in range(num_dims - 1):
+        dim_i = dims[i]
+        for j in range(1, num_dims):
+            if num_dims == 2:
+                ax = plt.gca()
+            else:
+                ax = axs[i, j - 1]
+            if j > i:
+                dim_j = dims[j]
+                if c is not None:
+                    ax.scatter(
+                        Z[below_inds, dim_j],
+                        Z[below_inds, dim_i],
+                        c="k",
+                        edgecolors="k",
+                        linewidths=0.25,
+                    )
+                    ax.scatter(
+                        Z[over_inds, dim_j],
+                        Z[over_inds, dim_i],
+                        c="w",
+                        edgecolors="k",
+                        linewidths=0.25,
+                    )
+                    h = ax.scatter(
+                        Z[plot_inds, dim_j],
+                        Z[plot_inds, dim_i],
+                        c=c[plot_inds],
+                        cmap=cmap,
+                        vmin=clims[0],
+                        vmax=clims[1],
+                        edgecolors="k",
+                        linewidths=0.25,
+                    )
+                else:
+                    h = ax.scatter(
+                        Z[:, dim_j], Z[:, dim_i], c='k', edgecolors="k", linewidths=0.25,
+                    )
+                if mode:
+                    mode_ind = np.argmax(c)
+                    ax.scatter(
+                        Z[mode_ind, dim_j], Z[mode_ind, dim_i], s=200, c='k', 
+                        marker='*', edgecolors="k", linewidths=0.25,
+                    )
+
+
+                if i + 1 == j:
+                    ax.set_xlabel(labels[j], fontsize=fontsize)
+                    ax.set_ylabel(labels[i], fontsize=fontsize)
+                else:
+                    ax.set_xticklabels([])
+                    ax.set_yticklabels([])
+
+                if ticks is not None:
+                    ax.set_xticks(ticks, fontsize=fontsize)
+                    ax.set_yticks(ticks, fontsize=fontsize)
+                if lb is not None and ub is not None:
+                    ax.set_xlim(lb[dim_j], ub[dim_j])
+                if lb is not None and ub is not None:
+                    ax.set_ylim(lb[dim_i], ub[dim_i])
             else:
                 ax.axis("off")
 

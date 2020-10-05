@@ -1,0 +1,23 @@
+\begin{thebibliography}{1}
+
+\bibitem{bittner2019interrogating}
+Sean~R Bittner, Agostina Palmigiano, Alex~T Piet, Chunyu~A Duan, Carlos~D
+  Brody, Kenneth~D Miller, and John~P Cunningham.
+\newblock Interrogating theoretical models of neural computation with deep
+  inference.
+\newblock {\em bioRxiv}, page 837567, 2019.
+
+\bibitem{allen2018layer}
+(2018) Allen~Institute for Brain~Science.
+\newblock Layer 4 model of v1. available from:
+  https://portal.brain-map.org/explore/models/l4-mv1.
+
+\bibitem{billeh2019systematic}
+Yazan~N Billeh, Binghuang Cai, Sergey~L Gratiy, Kael Dai, Ramakrishnan Iyer,
+  Nathan~W Gouwens, Reza Abbasi-Asl, Xiaoxuan Jia, Joshua~H Siegle, Shawn~R
+  Olsen, et~al.
+\newblock Systematic integration of structural and functional data into
+  multi-scale models of mouse primary visual cortex.
+\newblock {\em bioRxiv}, page 662189, 2019.
+
+\end{thebibliography}
