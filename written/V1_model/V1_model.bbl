@@ -1,11 +1,73 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
-\bibitem{bittner2019interrogating}
-Sean~R Bittner, Agostina Palmigiano, Alex~T Piet, Chunyu~A Duan, Carlos~D
-  Brody, Kenneth~D Miller, and John~P Cunningham.
-\newblock Interrogating theoretical models of neural computation with deep
-  inference.
-\newblock {\em bioRxiv}, page 837567, 2019.
+\bibitem{tsodyks1997paradoxical}
+Misha~V Tsodyks, William~E Skaggs, Terrence~J Sejnowski, and Bruce~L
+  McNaughton.
+\newblock Paradoxical effects of external modulation of inhibitory
+  interneurons.
+\newblock {\em Journal of neuroscience}, 17(11):4382--4388, 1997.
+
+\bibitem{murphy2009balanced}
+Brendan~K Murphy and Kenneth~D Miller.
+\newblock Balanced amplification: a new mechanism of selective amplification of
+  neural activity patterns.
+\newblock {\em Neuron}, 61(4):635--648, 2009.
+
+\bibitem{ozeki2009inhibitory}
+Hirofumi Ozeki, Ian~M Finn, Evan~S Schaffer, Kenneth~D Miller, and David
+  Ferster.
+\newblock Inhibitory stabilization of the cortical network underlies visual
+  surround suppression.
+\newblock {\em Neuron}, 62(4):578--592, 2009.
+
+\bibitem{rubin2015stabilized}
+Daniel~B Rubin, Stephen~D Van~Hooser, and Kenneth~D Miller.
+\newblock The stabilized supralinear network: a unifying circuit motif
+  underlying multi-input integration in sensory cortex.
+\newblock {\em Neuron}, 85(2):402--417, 2015.
+
+\bibitem{markram2004interneurons}
+Henry Markram, Maria Toledo-Rodriguez, Yun Wang, Anirudh Gupta, Gilad
+  Silberberg, and Caizhi Wu.
+\newblock Interneurons of the neocortical inhibitory system.
+\newblock {\em Nature reviews neuroscience}, 5(10):793, 2004.
+
+\bibitem{rudy2011three}
+Bernardo Rudy, Gordon Fishell, SooHyun Lee, and Jens Hjerling-Leffler.
+\newblock Three groups of interneurons account for nearly 100\% of neocortical
+  gabaergic neurons.
+\newblock {\em Developmental neurobiology}, 71(1):45--61, 2011.
+
+\bibitem{tremblay2016}
+Robin Tremblay, Soohyun Lee, and Bernardo Rudy.
+\newblock {GABAergic Interneurons in the Neocortex: From Cellular Properties to
+  Circuits}.
+\newblock {\em Neuron}, 91(2):260--292, 2016.
+
+\bibitem{pfeffer2013inhibition}
+Carsten~K Pfeffer, Mingshan Xue, Miao He, Z~Josh Huang, and Massimo Scanziani.
+\newblock Inhibition of inhibition in visual cortex: the logic of connections
+  between molecularly distinct interneurons.
+\newblock {\em Nature neuroscience}, 16(8):1068, 2013.
+
+\bibitem{litwin2016inhibitory}
+Ashok Litwin-Kumar, Robert Rosenbaum, and Brent Doiron.
+\newblock Inhibitory stabilization and visual coding in cortical circuits with
+  multiple interneuron subtypes.
+\newblock {\em Journal of neurophysiology}, 115(3):1399--1409, 2016.
+
+\bibitem{GarciaDelMolino2017}
+Luis~Carlos {Garcia Del Molino}, Guangyu~Robert Yang, Jorge~F. Mejias, and
+  Xiao~Jing Wang.
+\newblock {Paradoxical response reversal of top- down modulation in cortical
+  circuits with three interneuron types}.
+\newblock {\em Elife}, 6:1--15, 2017.
+
+\bibitem{Chen2019}
+Guang Chen, Carl~Van Vreeswijk, David Hansel, and David Hansel.
+\newblock {Mechanisms underlying the response of mouse cortical networks to
+  optogenetic manipulation}.
+\newblock 2019.
 
 \bibitem{allen2018layer}
 (2018) Allen~Institute for Brain~Science.
