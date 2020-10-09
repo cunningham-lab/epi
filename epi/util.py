@@ -615,7 +615,9 @@ def pairplot(
     c=None,
     c_label=None,
     cmap=None,
-    mode=False,
+    s=10,
+    starred=None,
+    c_starred = None,
     fontsize=12,
     figsize=(12, 12),
     outlier_stds=10,
@@ -653,6 +655,7 @@ def pairplot(
                         Z[below_inds, dim_j],
                         Z[below_inds, dim_i],
                         c="k",
+                        s=s,
                         edgecolors="k",
                         linewidths=0.25,
                     )
@@ -660,6 +663,7 @@ def pairplot(
                         Z[over_inds, dim_j],
                         Z[over_inds, dim_i],
                         c="w",
+                        s=s,
                         edgecolors="k",
                         linewidths=0.25,
                     )
@@ -668,6 +672,7 @@ def pairplot(
                         Z[plot_inds, dim_i],
                         c=c[plot_inds],
                         cmap=cmap,
+                        s=s,
                         vmin=clims[0],
                         vmax=clims[1],
                         edgecolors="k",
@@ -675,15 +680,19 @@ def pairplot(
                     )
                 else:
                     h = ax.scatter(
-                        Z[:, dim_j], Z[:, dim_i], c='k', edgecolors="k", linewidths=0.25,
+                        Z[:, dim_j], Z[:, dim_i], c='k', s=s, edgecolors="k", linewidths=0.25,
                     )
-                if mode:
-                    mode_ind = np.argmax(c)
-                    ax.scatter(
-                        Z[mode_ind, dim_j], Z[mode_ind, dim_i], s=200, c='k', 
-                        marker='*', edgecolors="k", linewidths=0.25,
-                    )
-
+                if starred is not None:
+                    if c_starred is None:
+                        ax.scatter(
+                            starred[:, dim_j], starred[:, dim_i], s=400, c='k', 
+                            marker='*', edgecolors="k", linewidths=0.5,
+                        )
+                    else:
+                        ax.scatter(
+                            starred[:, dim_j], starred[:, dim_i], s=400, c=c_starred, 
+                            marker='*', edgecolors="k", linewidths=0.5,
+                        )
 
                 if i + 1 == j:
                     ax.set_xlabel(labels[j], fontsize=fontsize)
@@ -725,3 +734,32 @@ def filter_outliers(c, num_stds=4):
     ]
     return plot_inds, below_inds, over_inds
 
+purple = '#4C0099'
+def plot_T_x(T_x, T_x_sim, bins=30, xmin=None, xmax=None, 
+             x_mean=None, x_std=None,
+             xlabel=None, ylim=None, fontsize=14):
+    if xmin is not None and xmax is not None:
+        _range = (xmin, xmax)
+    else:
+        _range = None
+    fig, ax = plt.subplots(1,1)
+    ['ABC simulations', 'ABC posterior predictive']
+    if T_x is None:
+        ax.hist(T_x_sim, bins=bins, range=_range, color=purple, 
+                alpha=0.5, label='ABC posterior predictive')
+    else:
+        n, bins, patches = ax.hist(T_x, bins=bins, color='k', range=_range, 
+                alpha=0.5, label='ABC simulations')
+        ax.hist(T_x_sim, bins=bins, color=purple, alpha=0.5, label='ABC posterior predictive')
+    if ylim is not None:
+        ax.set_ylim(ylim)
+    ylim = ax.get_ylim()
+    ax.plot([x_mean, x_mean], ylim, 'k--')
+    ax.plot([x_mean+2*x_std, x_mean+2*x_std], ylim, '--', c=[0.5, 0.5, 0.5])
+    ax.plot([x_mean-2*x_std, x_mean-2*x_std], ylim, '--', c=[0.5, 0.5, 0.5])
+
+    if xlabel is not None:
+        ax.set_xlabel(xlabel, fontsize=fontsize)
+    ax.set_ylabel('count', fontsize=fontsize)
+
+    return ax
