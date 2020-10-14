@@ -134,43 +134,23 @@ The normalizing flows library and autograd functionality of Tensorflow are used 
 
 \umlclass[x=0, y=-6]{Architecture}{ 
   + arch\_type : string \\ 
-  + num\_layers : pos int \\ 
+  + D : pos int \\ 
+  + num\_stages :  int \\ 
+  + num\_units :  int \\ 
+  + num\_layers :  int \\
+  + batch\_norm : bool \\
+  + bn\_momentum : float \\ 
   + post\_affine : bool \\
+  + bounds : tuple \\
+  + random\_seed : int \\
   }
   { 
-  + \_\_call\_\_() \\
-  + \_set\_type() \\
-  + \_set\_num\_layers() \\
-  + \_set\_post\_affine() \\
+  \# setters
+  + sample(N : int) \\
+  + initialize(init\_type, init\_params) \\
   + to\_string() \\
-  + to\_model() \\
 } 
 
-\umlclass[x=-1, y=-12]{CouplingArch}{ 
-  + D : pos int \\ 
-  + num\_couplings : pos int \\
-  + num\_units : pos int \\  
-  }
-  { 
-  + \_\_call\_\_() \\
-  \# \_set\_D() \\
-  \# \_set\_num\_couplings() \\
-  \# \_set\_num\_units() \\
-  + to\_string() \\
-}
-
-\umlclass[x=6, y=-12]{AutoregressiveArch}{ 
-  + D : pos int \\ 
-  + num\_couplings : pos int \\
-  + num\_units : pos int \\  
-  }
-  { 
-  + \_\_call\_\_() \\
-  \# \_set\_D() \\
-  \# \_set\_num\_ars() \\
-  \# \_set\_num\_units() \\
-  + to\_string() \\
-}
 
 \umlclass[x=6, y=-6]{Distribution}{ 
   \# \_D : int \\ 
@@ -187,8 +167,6 @@ The normalizing flows library and autograd functionality of Tensorflow are used 
 \umlunicompo{Distribution}{Parameter}
 \umldep{Model}{Architecture}
 \umldep{Model}{Distribution}
-\umlinherit{CouplingArch}{Architecture}
-\umlinherit{AutoregressiveArch}{Architecture}
 \end{umlpackage}
 
 \end{tikzpicture}
