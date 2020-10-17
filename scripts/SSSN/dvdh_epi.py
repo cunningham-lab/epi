@@ -108,8 +108,8 @@ def SSSN_sim(h):
 def dv(dh):
     h = tf.constant(H[None,:], dtype=tf.float32)
 
-    x1 = f_r(SSSN_sim(h)[:,:,neuron_ind])
-    x2 = f_r(SSSN_sim(h + dh)[:,:,neuron_ind])
+    x1 = SSSN_sim(h)[:,:,neuron_ind]
+    x2 = SSSN_sim(h + dh)[:,:,neuron_ind]
 
     diff = x2 - x1
     T_x = tf.concat((diff, diff ** 2), axis=1)

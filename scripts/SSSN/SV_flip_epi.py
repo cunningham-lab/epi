@@ -15,7 +15,7 @@ args = parser.parse_args()
 c0 = 10.**args.logc0
 random_seed = args.random_seed
 
-M = 50
+M = 200
 
 # 1. Specify the V1 model for EPI.
 lb_h = 0.*np.ones((4,))
@@ -127,7 +127,7 @@ q_theta, opt_data, epi_path, failed = model.epi(
     num_units=50,
     post_affine=True,
     batch_norm=True,
-    K=5,
+    K=2,
     N=M,
     num_iters=1000,
     lr=1e-3,
