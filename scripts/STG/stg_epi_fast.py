@@ -28,8 +28,8 @@ random_seed = args.random_seed
 
 # 1. Specify the V1 model for EPI.
 D = 2 
-g_el = Parameter("g_el", 1, lb=5., ub=6.)
-g_synA = Parameter("g_synA", 1, lb=1., ub=2.)
+g_el = Parameter("g_el", 1, lb=0, ub=7.)
+g_synA = Parameter("g_synA", 1, lb=0., ub=10.)
 
 # Define model
 name = "STG"
@@ -37,7 +37,7 @@ parameters = [g_el, g_synA]
 model = Model(name, parameters)
 
 # Emergent property values.
-mu = np.concatenate((0.53*np.ones((1,)), 0.25*np.ones((1,))))
+mu = np.concatenate((0.53*np.ones((1,)), 0.025**2])
 
 def network_freq(g_el, g_synA):
     """Simulate the STG circuit given parameters z.
@@ -235,20 +235,18 @@ def network_freq(g_el, g_synA):
 model.set_eps(network_freq)
 
 # 3. Run EPI.
-import time
-t1 = time.time()
 q_theta, opt_data, epi_path, failed = model.epi(
     mu,
     arch_type='coupling',
-    num_stages=3,
+    num_stages=2,
     num_layers=2,
     num_units=50,
     post_affine=True,
     batch_norm=True,
     bn_momentum=bnmom,
-    K=1,
+    K=10,
     N=100,
-    num_iters=10,
+    num_iters=1000,
     lr=1e-3,
     c0=c0,
     beta=beta,
@@ -259,8 +257,6 @@ q_theta, opt_data, epi_path, failed = model.epi(
     log_rate=1,
     save_movie_data=True,
 )
-t2 = time.time()
-print(t2 - t1, 'entire epi')
 
 if not failed:
     print("Making movie.")
