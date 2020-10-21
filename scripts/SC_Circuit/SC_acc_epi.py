@@ -9,7 +9,7 @@ DTYPE = tf.float32
 
 # Parse script command-line parameters.
 parser = argparse.ArgumentParser()
-parser.add_argument('--p', type=str, default=0.5) # neuron type
+parser.add_argument('--p', type=float, default=0.5) # neuron type
 parser.add_argument('--beta', type=float, default=4.) # aug lag hp
 parser.add_argument('--logc0', type=float, default=0.) # log10 of c_0
 parser.add_argument('--bnmom', type=float, default=.99) # log10 of c_0
@@ -23,20 +23,21 @@ bnmom = args.bnmom
 random_seed = args.random_seed
 
 M = 200
-N = 50
+N = 100
+sigma_init = 20.
 
 # 1. Specify the V1 model for EPI.
-lb = -10.
-ub = 10.
+lb = None
+ub = None
 
-sW_P = Parameter("sW_P", 1, lb=lb, ub=0.)
-sW_A = Parameter("sW_A", 1, lb=0., ub=ub)
+sW_P = Parameter("sW_P", 1, lb=lb, ub=ub)
+sW_A = Parameter("sW_A", 1, lb=lb, ub=ub)
 
-vW_PA = Parameter("vW_PA", 1, lb=lb, ub=0.)
-vW_AP = Parameter("vW_AP", 1, lb=lb, ub=0.)
+vW_PA = Parameter("vW_PA", 1, lb=lb, ub=ub)
+vW_AP = Parameter("vW_AP", 1, lb=lb, ub=ub)
 
-dW_PA = Parameter("dW_PA", 1, lb=0., ub=ub)
-dW_AP = Parameter("dW_AP", 1, lb=lb, ub=0.)
+dW_PA = Parameter("dW_PA", 1, lb=lb, ub=ub)
+dW_AP = Parameter("dW_AP", 1, lb=lb, ub=ub)
 
 hW_P = Parameter("hW_P", 1, lb=lb, ub=ub)
 hW_A = Parameter("hW_A", 1, lb=lb, ub=ub)
@@ -46,8 +47,7 @@ parameters = [sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A]
 model = Model("SC_Circuit", parameters)
 
 # EP values
-mu_std = 0.15
-mu = np.array([p, 1.-p, mu_std**2, mu_std**2])
+mu = np.array([p, 1.-p])
 
 t_cue_delay = 1.2
 t_choice = 0.6
@@ -136,12 +136,12 @@ def SC_acc(sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A):
         #v = eta[i] * (0.5 * tf.tanh((u - theta) / beta) + 0.5)
 
     p = tf.reduce_mean(tf.math.sigmoid(100.*(v[:,:,0,:]-v[:,:,3,:])), axis=2)
-    T_x = tf.concat((p, tf.square(p - mu[:2][None,:])), axis=1)
-    return T_x
+    return p
 
 model.set_eps(SC_acc)
 
-# Emergent property values.
+init_type = "gaussian"
+init_params = {"mu": np.zeros((model.D,)), "Sigma": (sigma_init**2)*np.eye(model.D)}
 
 # 3. Run EPI.
 q_theta, opt_data, epi_path, failed = model.epi(
@@ -160,10 +160,12 @@ q_theta, opt_data, epi_path, failed = model.epi(
     c0=c0,
     beta=beta,
     nu=0.5,
+    init_type=init_type,
+    init_params=init_params,
     random_seed=random_seed,
     verbose=True,
     stop_early=True,
-    log_rate=50,
+    log_rate=100,
     save_movie_data=True,
 )
 
