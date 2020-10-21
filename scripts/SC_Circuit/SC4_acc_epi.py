@@ -24,27 +24,19 @@ random_seed = args.random_seed
 
 M = 200
 N = 100
-sigma_init = 20.
 
 # 1. Specify the V1 model for EPI.
-lb = None
-ub = None
+lb = -10.
+ub = 10.
 
-sW_P = Parameter("sW_P", 1, lb=lb, ub=ub)
-sW_A = Parameter("sW_A", 1, lb=lb, ub=ub)
+sW = Parameter("sW", 1, lb=2*lb, ub=0.)
+vW = Parameter("vW", 1, lb=3*lb, ub=0.)
+dW = Parameter("dW", 1, lb=lb, ub=ub)
+hW = Parameter("hW", 1, lb=2*lb, ub=0.)
 
-vW_PA = Parameter("vW_PA", 1, lb=lb, ub=ub)
-vW_AP = Parameter("vW_AP", 1, lb=lb, ub=ub)
+parameters = [sW, vW, dW, hW]
 
-dW_PA = Parameter("dW_PA", 1, lb=lb, ub=ub)
-dW_AP = Parameter("dW_AP", 1, lb=lb, ub=ub)
-
-hW_P = Parameter("hW_P", 1, lb=lb, ub=ub)
-hW_A = Parameter("hW_A", 1, lb=lb, ub=ub)
-
-parameters = [sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A]
-
-model = Model("SC_Circuit", parameters)
+model = Model("SC4", parameters)
 
 # EP values
 mu = np.array([p, 1.-p])
@@ -112,12 +104,13 @@ I_LA = I_constant + I_Pbias + I_Arule + I_choice + I_lightL
 
 I = tf.concat((I_LP, I_LA), axis=2)
 
-def SC_acc(sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A):
-    Wrow1 = tf.stack([sW_P, vW_PA, dW_PA, hW_P], axis=2)
-    Wrow2 = tf.stack([vW_AP, sW_A, hW_A, dW_AP], axis=2)
-    Wrow3 = tf.stack([dW_AP, hW_A, sW_A, vW_AP], axis=2)
-    Wrow4 = tf.stack([hW_P, dW_PA, vW_PA, sW_P], axis=2)
-    
+def SC_acc(sW, vW, dW, hW):
+    N = 100
+    Wrow1 = tf.stack([sW, vW, dW, hW], axis=2)
+    Wrow2 = tf.stack([vW, sW, hW, dW], axis=2)
+    Wrow3 = tf.stack([dW, hW, sW, vW], axis=2)
+    Wrow4 = tf.stack([hW, dW, vW, sW], axis=2)
+
     W = tf.stack([Wrow1, Wrow2, Wrow3, Wrow4], axis=2)
     
     # initial conditions
@@ -140,9 +133,6 @@ def SC_acc(sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A):
 
 model.set_eps(SC_acc)
 
-init_type = "gaussian"
-init_params = {"mu": np.zeros((model.D,)), "Sigma": (sigma_init**2)*np.eye(model.D)}
-
 # 3. Run EPI.
 q_theta, opt_data, epi_path, failed = model.epi(
     mu,
@@ -160,8 +150,6 @@ q_theta, opt_data, epi_path, failed = model.epi(
     c0=c0,
     beta=beta,
     nu=0.5,
-    init_type=init_type,
-    init_params=init_params,
     random_seed=random_seed,
     verbose=True,
     stop_early=True,
