@@ -22,21 +22,21 @@ c0 = 10.**args.logc0
 bnmom = args.bnmom
 random_seed = args.random_seed
 
-M = 200
-N = 100
+M = 100
+N = 200
 
 # 1. Specify the V1 model for EPI.
-lb = -10.
-ub = 10.
+lb = -50.
+ub = 50.
 
-sW = Parameter("sW", 1, lb=2*lb, ub=0.)
-vW = Parameter("vW", 1, lb=3*lb, ub=0.)
+sW = Parameter("sW", 1, lb=lb, ub=0.)
+vW = Parameter("vW", 1, lb=lb, ub=0.)
 dW = Parameter("dW", 1, lb=lb, ub=ub)
-hW = Parameter("hW", 1, lb=2*lb, ub=0.)
+hW = Parameter("hW", 1, lb=lb, ub=ub)
 
 parameters = [sW, vW, dW, hW]
 
-model = Model("SC4", parameters)
+model = Model("SC_Circuit", parameters)
 
 # EP values
 mu = np.array([p, 1.-p])
@@ -105,7 +105,6 @@ I_LA = I_constant + I_Pbias + I_Arule + I_choice + I_lightL
 I = tf.concat((I_LP, I_LA), axis=2)
 
 def SC_acc(sW, vW, dW, hW):
-    N = 100
     Wrow1 = tf.stack([sW, vW, dW, hW], axis=2)
     Wrow2 = tf.stack([vW, sW, hW, dW], axis=2)
     Wrow3 = tf.stack([dW, hW, sW, vW], axis=2)
@@ -115,7 +114,7 @@ def SC_acc(sW, vW, dW, hW):
     
     # initial conditions
     # M,C,4,N
-    state_shape = (sW_P.shape[0], C, 4, N)
+    state_shape = (sW.shape[0], C, 4, N)
     v0 = 0.1 * tf.ones(state_shape, dtype=DTYPE)
     v0 = v0 + 0.005*tf.random.normal(v0.shape, 0., 1.)
     u0 = beta * tf.math.atanh(2 * v0 - 1) - theta
@@ -132,6 +131,12 @@ def SC_acc(sW, vW, dW, hW):
     return p
 
 model.set_eps(SC_acc)
+
+init_type = 'abc'
+init_params = {'num_keep':200, 
+               'means':np.array([p, 1-p]),
+               'stds':np.array([0.025, 0.025]),
+              }
 
 # 3. Run EPI.
 q_theta, opt_data, epi_path, failed = model.epi(
@@ -151,6 +156,8 @@ q_theta, opt_data, epi_path, failed = model.epi(
     beta=beta,
     nu=0.5,
     random_seed=random_seed,
+    init_type=init_type,
+    init_params=init_params,
     verbose=True,
     stop_early=True,
     log_rate=100,
