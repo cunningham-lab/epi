@@ -247,7 +247,7 @@ class Model(object):
         :type post_affine: bool, optional
         :param random_seed: Random seed of architecture parameters, defaults to 1.
         :type random_seed: int, optional
-        :param init_type: :math:`\\in` :obj:`['iso_gauss', 'gaussian']`.
+        :param init_type: :math:`\\in` :obj:`['gaussian', 'abc']`.
         :type init_type: str, optional
         :param init_params: Parameters according to :obj:`init_type`.
         :type init_params: dict, optional
@@ -301,24 +301,81 @@ class Model(object):
 
         # Initialize architecture to gaussian.
         print("Initializing %s architecture." % nf.to_string(), flush=True)
-        if init_params is None:
-            mu_init = np.zeros((self.D))
-            Sigma = np.zeros((self.D, self.D))
-            for i in range(self.D):
-                if np.isneginf(nf.lb[i]) and np.isposinf(nf.ub[i]):
-                    mu_init[i] = 0.0
-                    Sigma[i, i] = 1.0
-                elif np.isneginf(nf.lb[i]):
-                    mu_init[i] = nf.ub[i] - 2.0
-                    Sigma[i, i] = 1.0
-                elif np.isposinf(nf.ub[i]):
-                    mu_init[i] = nf.lb[i] + 2.0
-                    Sigma[i, i] = 1.0
-                else:
-                    mu_init[i] = (nf.lb[i] + nf.ub[i]) / 2.0
-                    Sigma[i, i] = np.square((nf.ub[i] - nf.lb[i]) / 4)
-            init_type = "gaussian"
-            init_params = {"mu": mu_init, "Sigma": Sigma}
+        if init_type is None or init_type == 'gaussian':
+            if init_params is None:
+                mu_init = np.zeros((self.D))
+                Sigma = np.zeros((self.D, self.D))
+                for i in range(self.D):
+                    if np.isneginf(nf.lb[i]) and np.isposinf(nf.ub[i]):
+                        mu_init[i] = 0.0
+                        Sigma[i, i] = 1.0
+                    elif np.isneginf(nf.lb[i]):
+                        mu_init[i] = nf.ub[i] - 2.0
+                        Sigma[i, i] = 1.0
+                    elif np.isposinf(nf.ub[i]):
+                        mu_init[i] = nf.lb[i] + 2.0
+                        Sigma[i, i] = 1.0
+                    else:
+                        mu_init[i] = (nf.lb[i] + nf.ub[i]) / 2.0
+                        Sigma[i, i] = np.square((nf.ub[i] - nf.lb[i]) / 4)
+                init_params = {"mu": mu_init, "Sigma": Sigma}
+        elif init_type == 'abc':
+            if 'num_keep' in init_params.keys():
+                num_keep = init_params['num_keep']
+            else:
+                num_keep = 200
+            if 'means' in init_params.keys():
+                means = init_params['means']
+            else:
+                means = mu[:len(mu)//2]
+            if 'stds' in init_params.keys():
+                stds = init_params['stds']
+            else:
+                stds = np.sqrt(mu[len(mu)//2:])
+
+            abc_fname = os.path.join("data", "abc", "M=%d_p=%.2f_std=%.3fabc.npz" % 
+                                    (num_keep, means[0], stds[0]))
+            if os.path.exists(abc_fname):
+                print('Loading prev ABC.')
+                npzfile = np.load(abc_fname)
+                init_params = {'mu': npzfile['mu'],
+                               'Sigma': npzfile['Sigma']}
+
+            else:
+                print('Running ABC!')
+                def accept_inds(T_x, means, stds):
+                    acc = np.array([np.logical_and(means[i] - 2*stds[i] < T_x[:,i],
+                                    T_x[:,i] < means[i] + 2*stds[i]) for i in range(len(means))])
+                    return np.logical_and.reduce(acc, axis=0)
+
+                num_found = 0
+                z_abc = None
+                T_x_abc = None
+                while (num_found < num_keep):
+                    _z = np.zeros((N, self.D), dtype=np.float32)
+                    for j in range(self.D):
+                        _z[:,j] = np.random.uniform(self.parameters[j].lb, self.parameters[j].ub, (N,))
+                    _T_x = self.eps(_z).numpy()
+
+                    inds = accept_inds(_T_x, means, stds)
+                    _z = _z[inds, :]
+                    _T_x = _T_x[inds, :]
+                    num_found += _z.shape[0]
+
+                    if (z_abc is None):
+                        z_abc = _z
+                        T_x_abc = _T_x
+                    else:
+                        z_abc = np.concatenate((z_abc, _z), axis=0)
+                        T_x_abc = np.concatenate((T_x_abc, _T_x), axis=0)
+                    print('ABC for init: %d/%d\r' % (num_found, num_keep), end='')
+
+                mu_init = np.mean(z_abc, axis=0)
+                Sigma = np.eye(self.D)
+                np.savez(abc_fname, mu=mu, Sigma=Sigma)
+                init_params = {'mu': mu_init,
+                               'Sigma': Sigma}
+
         nf.initialize(init_params["mu"], init_params["Sigma"], 
                       N=N, verbose=True)
 
@@ -917,7 +974,13 @@ class Model(object):
         lt = np.sum(R_means < 0.0, axis=0).astype(np.float32)
         p_vals = 2 * np.minimum(gt / M, lt / M)
         if verbose:
-            print(p_vals, alpha / m)
+            s = ''
+            for i in range(len(p_vals)):
+                s += "%.2f" % p_vals[i]
+                if i < (len(p_vals) - 1):
+                    s += '_'
+            s += '\r'
+            print(s, end="")
         return np.prod(p_vals > (alpha / m))
 
     def _opt_it_df(self, k, it, H, cost, R, log_rate, R_keys):
@@ -1149,6 +1212,7 @@ class Model(object):
                     best_k = k
                     best_H = H
                 converged = True
+        print('')
         return best_k, converged, best_H
 
     def parameter_check(self, parameters, verbose=False):
