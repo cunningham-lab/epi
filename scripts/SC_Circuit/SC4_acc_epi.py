@@ -148,9 +148,9 @@ q_theta, opt_data, epi_path, failed = model.epi(
     post_affine=True,
     batch_norm=True,
     bn_momentum=bnmom,
-    K=6,
+    K=2,
     N=M,
-    num_iters=1000,
+    num_iters=100,
     lr=1e-3,
     c0=c0,
     beta=beta,
@@ -160,7 +160,7 @@ q_theta, opt_data, epi_path, failed = model.epi(
     init_params=init_params,
     verbose=True,
     stop_early=True,
-    log_rate=100,
+    log_rate=10,
     save_movie_data=True,
 )
 

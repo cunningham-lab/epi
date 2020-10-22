@@ -372,7 +372,7 @@ class Model(object):
 
                 mu_init = np.mean(z_abc, axis=0)
                 Sigma = np.eye(self.D)
-                np.savez(abc_fname, mu=mu, Sigma=Sigma)
+                np.savez(abc_fname, mu=mu_init, Sigma=Sigma)
                 init_params = {'mu': mu_init,
                                'Sigma': Sigma}
 
