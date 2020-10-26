@@ -17,12 +17,12 @@ parser.add_argument('--random_seed', type=int, default=1)
 args = parser.parse_args()
 
 p = args.p
-beta = args.beta
+AL_beta = args.beta
 c0 = 10.**args.logc0
 bnmom = args.bnmom
 random_seed = args.random_seed
 
-M = 100
+M = 200
 N = 200
 
 # 1. Specify the V1 model for EPI.
@@ -39,7 +39,8 @@ parameters = [sW, vW, dW, hW]
 model = Model("SC_Circuit", parameters)
 
 # EP values
-mu = np.array([p, 1.-p])
+mu_std = 0.1
+mu = np.array([p, 1.-p, mu_std**2, mu_std**2])
 
 t_cue_delay = 1.2
 t_choice = 0.6
@@ -128,14 +129,16 @@ def SC_acc(sW, vW, dW, hW):
         #v = eta[i] * (0.5 * tf.tanh((u - theta) / beta) + 0.5)
 
     p = tf.reduce_mean(tf.math.sigmoid(100.*(v[:,:,0,:]-v[:,:,3,:])), axis=2)
-    return p
+    T_x = tf.concat((p, tf.square(p - mu[:2][None,:])), axis=1)
+    return T_x
 
 model.set_eps(SC_acc)
 
 init_type = 'abc'
+abc_std = 0.01
 init_params = {'num_keep':200, 
                'means':np.array([p, 1-p]),
-               'stds':np.array([0.025, 0.025]),
+               'stds':np.array([abc_std, abc_std]),
               }
 
 # 3. Run EPI.
@@ -150,17 +153,17 @@ q_theta, opt_data, epi_path, failed = model.epi(
     bn_momentum=bnmom,
     K=2,
     N=M,
-    num_iters=100,
+    num_iters=1250,
     lr=1e-3,
     c0=c0,
-    beta=beta,
+    beta=AL_beta,
     nu=0.5,
     random_seed=random_seed,
     init_type=init_type,
     init_params=init_params,
     verbose=True,
     stop_early=True,
-    log_rate=10,
+    log_rate=100,
     save_movie_data=True,
 )
 

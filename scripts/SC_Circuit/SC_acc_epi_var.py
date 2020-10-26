@@ -17,37 +17,37 @@ parser.add_argument('--random_seed', type=int, default=1)
 args = parser.parse_args()
 
 p = args.p
-AL_beta = args.beta
+beta = args.beta
 c0 = 10.**args.logc0
 bnmom = args.bnmom
 random_seed = args.random_seed
 
-M = 200
-N = 100
-sigma_init = 20.
+M = 100
+N = 25
 
 # 1. Specify the V1 model for EPI.
-lb = -30.
-ub = 30.
+lb = -10.
+ub = 10.
 
 sW_P = Parameter("sW_P", 1, lb=lb, ub=0.)
-sW_A = Parameter("sW_A", 1, lb=lb, ub=0.)
+sW_A = Parameter("sW_A", 1, lb=0., ub=ub)
 
 vW_PA = Parameter("vW_PA", 1, lb=lb, ub=0.)
 vW_AP = Parameter("vW_AP", 1, lb=lb, ub=0.)
 
-dW_PA = Parameter("dW_PA", 1, lb=lb, ub=ub)
-dW_AP = Parameter("dW_AP", 1, lb=lb, ub=ub)
+dW_PA = Parameter("dW_PA", 1, lb=0., ub=ub)
+dW_AP = Parameter("dW_AP", 1, lb=lb, ub=0.)
 
-hW_P = Parameter("hW_P", 1, lb=lb, ub=0.)
-hW_A = Parameter("hW_A", 1, lb=lb, ub=0.)
+hW_P = Parameter("hW_P", 1, lb=lb, ub=ub)
+hW_A = Parameter("hW_A", 1, lb=lb, ub=ub)
 
 parameters = [sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A]
 
 model = Model("SC_Circuit", parameters)
 
 # EP values
-mu = np.array([p, 1.-p])
+mu_std = 0.15
+mu = np.array([p, 1.-p, mu_std**2, mu_std**2])
 
 t_cue_delay = 1.2
 t_choice = 0.6
@@ -136,12 +136,12 @@ def SC_acc(sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A):
         #v = eta[i] * (0.5 * tf.tanh((u - theta) / beta) + 0.5)
 
     p = tf.reduce_mean(tf.math.sigmoid(100.*(v[:,:,0,:]-v[:,:,3,:])), axis=2)
-    return p
+    T_x = tf.concat((p, tf.square(p - mu[:2][None,:])), axis=1)
+    return T_x
 
 model.set_eps(SC_acc)
 
-#init_type = "gaussian"
-#init_params = {"mu": np.zeros((model.D,)), "Sigma": (sigma_init**2)*np.eye(model.D)}
+# Emergent property values.
 
 # 3. Run EPI.
 q_theta, opt_data, epi_path, failed = model.epi(
@@ -155,13 +155,11 @@ q_theta, opt_data, epi_path, failed = model.epi(
     bn_momentum=bnmom,
     K=15,
     N=M,
-    num_iters=1000,
+    num_iters=2500,
     lr=1e-3,
     c0=c0,
-    beta=AL_beta,
+    beta=beta,
     nu=0.5,
-    #init_type=init_type,
-    #init_params=init_params,
     random_seed=random_seed,
     verbose=True,
     stop_early=True,
