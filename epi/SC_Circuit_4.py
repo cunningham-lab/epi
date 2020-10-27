@@ -132,4 +132,3 @@ def SC_acc(sW, vW, dW, hW):
 
     p = tf.reduce_mean(tf.math.sigmoid(100.*(v[:,:,0,:]-v[:,:,3,:])), axis=2)
     return p
-
