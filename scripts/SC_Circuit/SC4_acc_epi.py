@@ -22,40 +22,42 @@ c0 = 10.**args.logc0
 bnmom = args.bnmom
 random_seed = args.random_seed
 
-M = 200
+M = 100
 N = 200
 
 # 1. Specify the V1 model for EPI.
-lb = -50.
-ub = 50.
+lb = -5.
+ub = 5.
 
 sW = Parameter("sW", 1, lb=lb, ub=0.)
 vW = Parameter("vW", 1, lb=lb, ub=0.)
-dW = Parameter("dW", 1, lb=lb, ub=ub)
-hW = Parameter("hW", 1, lb=lb, ub=ub)
+dW = Parameter("dW", 1, lb=lb, ub=0.)
+hW = Parameter("hW", 1, lb=lb, ub=0.)
 
 parameters = [sW, vW, dW, hW]
 
 model = Model("SC_Circuit", parameters)
 
 # EP values
-mu_std = 0.1
-mu = np.array([p, 1.-p, mu_std**2, mu_std**2])
+#mu_std = 0.1
+mu = np.array([p, 1.-p])
 
 t_cue_delay = 1.2
-t_choice = 0.6
-t_total = t_cue_delay + t_choice
+t_choice = 0.3
+t_post_choice = 0.3
+t_total = t_cue_delay + t_choice + t_post_choice
 dt = 0.024
 t = np.arange(0.0, t_total, dt)
 T = t.shape[0]
 
+fac = 0.5
 # input parameters
-E_constant = 0.
-E_Pbias = 0.
-E_Prule = 1.
-E_Arule = 1.
-E_choice = 1.
-E_light = 1.
+E_constant = fac*1.5
+E_Pbias = fac*1.
+E_Prule = fac*1.2
+E_Arule = fac*1.2
+E_choice = fac*0.5
+E_light = fac*1.
         
 # set constant parameters
 C = 2
@@ -63,7 +65,7 @@ C = 2
 theta = 0.05
 beta = 0.5
 tau = 0.09
-sigma = 0.5
+sigma = 0.2
 
 # inputs
 I_constant = E_constant * tf.ones((T, 1, 1, 4, 1), dtype=DTYPE)
@@ -89,14 +91,14 @@ I_choice = I_choice[:,None,None,:,None]
 I_choice = E_choice * tf.constant(I_choice, dtype=DTYPE)
 
 I_lightL = np.zeros((T, 4))
-I_lightL[1.2 < t] = np.array([1, 1, 0, 0])
-#I_lightL[np.logical_and(1.2 < t, t < 1.5)] = np.array([1, 1, 0, 0])
+#I_lightL[1.2 < t] = np.array([1, 1, 0, 0])
+I_lightL[np.logical_and(1.2 < t, t < 1.5)] = np.array([1, 1, 0, 0])
 I_lightL = I_lightL[:,None,None,:,None]
 I_lightL = E_light * tf.constant(I_lightL, dtype=DTYPE)
 
 I_lightR = np.zeros((T, 4))
-I_lightR[1.2 < t] = np.array([0, 0, 1, 1])
-#I_lightR[np.logical_and(1.2 < t, t < 1.5)] = np.array([0, 0, 1, 1])
+#I_lightR[1.2 < t] = np.array([0, 0, 1, 1])
+I_lightR[np.logical_and(1.2 < t, t < 1.5)] = np.array([0, 0, 1, 1])
 I_lightR = I_lightR[:,None,None,:,None]
 I_lightR = E_light * tf.constant(I_lightR, dtype=DTYPE)
 
@@ -106,11 +108,12 @@ I_LA = I_constant + I_Pbias + I_Arule + I_choice + I_lightL
 I = tf.concat((I_LP, I_LA), axis=2)
 
 def SC_acc(sW, vW, dW, hW):
+    N = 200
     Wrow1 = tf.stack([sW, vW, dW, hW], axis=2)
     Wrow2 = tf.stack([vW, sW, hW, dW], axis=2)
     Wrow3 = tf.stack([dW, hW, sW, vW], axis=2)
     Wrow4 = tf.stack([hW, dW, vW, sW], axis=2)
-
+    
     W = tf.stack([Wrow1, Wrow2, Wrow3, Wrow4], axis=2)
     
     # initial conditions
@@ -129,14 +132,12 @@ def SC_acc(sW, vW, dW, hW):
         #v = eta[i] * (0.5 * tf.tanh((u - theta) / beta) + 0.5)
 
     p = tf.reduce_mean(tf.math.sigmoid(100.*(v[:,:,0,:]-v[:,:,3,:])), axis=2)
-    T_x = tf.concat((p, tf.square(p - mu[:2][None,:])), axis=1)
-    return T_x
-
+    return p
 model.set_eps(SC_acc)
 
 init_type = 'abc'
-abc_std = 0.01
-init_params = {'num_keep':200, 
+abc_std = 0.025
+init_params = {'num_keep':100, 
                'means':np.array([p, 1-p]),
                'stds':np.array([abc_std, abc_std]),
               }
