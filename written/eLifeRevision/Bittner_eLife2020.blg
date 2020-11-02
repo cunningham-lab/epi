@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99d (TeX Live 2016)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: Bittner_eLife2020.aux
+The style file: unsrt.bst
+Database file #1: eLife2020.bib
+Warning--entry type for "allen2018layer" isn't style-file defined
+--line 294 of file eLife2020.bib
+Warning--empty journal in Chen2019
+You've used 75 entries,
+            1791 wiz_defined-function locations,
+            853 strings with 18290 characters,
+and the built_in function-call counts, 19168 in all, are:
+= -- 1669
+> -- 998
+< -- 14
++ -- 360
+- -- 285
+* -- 1374
+:= -- 3028
+add.period$ -- 224
+call.type$ -- 75
+change.case$ -- 75
+chr.to.int$ -- 0
+cite$ -- 76
+duplicate$ -- 838
+empty$ -- 1740
+format.name$ -- 285
+if$ -- 4231
+int.to.chr$ -- 0
+int.to.str$ -- 75
+missing$ -- 74
+newline$ -- 377
+num.names$ -- 75
+pop$ -- 179
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 457
+stack$ -- 0
+substring$ -- 1342
+swap$ -- 236
+text.length$ -- 14
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 1
+while$ -- 182
+width$ -- 77
+write$ -- 806
+(There were 2 warnings)
