@@ -81,12 +81,14 @@ eta[np.logical_and(0.8 <= t, t <= 1.2), :, 2:, :, :] = opto_strength
 
 def SC_sim(sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A):
     N = 50
-    Wrow1 = tf.stack([sW_P, vW_PA, dW_PA, hW_P], axis=2)
-    Wrow2 = tf.stack([vW_AP, sW_A, hW_A, dW_AP], axis=2)
-    Wrow3 = tf.stack([dW_AP, hW_A, sW_A, vW_AP], axis=2)
-    Wrow4 = tf.stack([hW_P, dW_PA, vW_PA, sW_P], axis=2)
+    W = W_star[None, None, :, :]
+
+    #Wrow1 = tf.stack([sW_P, vW_PA, dW_PA, hW_P], axis=2)
+    #Wrow2 = tf.stack([vW_AP, sW_A, hW_A, dW_AP], axis=2)
+    #Wrow3 = tf.stack([dW_AP, hW_A, sW_A, vW_AP], axis=2)
+    #Wrow4 = tf.stack([hW_P, dW_PA, vW_PA, sW_P], axis=2)
     
-    W = tf.stack([Wrow1, Wrow2, Wrow3, Wrow4], axis=2) + W_star[None, None, :,:]
+    #W = tf.stack([Wrow1, Wrow2, Wrow3, Wrow4], axis=2) + W_star[None, None, :,:]
     
     # initial conditions
     # M,C,4,1
@@ -132,7 +134,7 @@ def SC_acc(sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A):
     for i in range(1, T):
         du = (dt / tau) * (-u + tf.matmul(W, v) + I[i] + sigma * tf.random.normal(state_shape, 0., 1.))
         u = u + du
-        v = 1. * (0.5 * tf.tanh((u - theta) / beta) + 0.5)
+        v = eta[i] * (0.5 * tf.tanh((u - theta) / beta) + 0.5)
 
     p = tf.reduce_mean(tf.math.sigmoid(100.*(v[:,:,0,:]-v[:,:,3,:])), axis=2)
     return p
