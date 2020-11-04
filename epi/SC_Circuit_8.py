@@ -141,7 +141,7 @@ def SC_acc(sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A):
 
 def SC_acc_diff(sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A):
     p = SC_acc(sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A)
-    p_diffs = (p[:,:2] - p[:,2:]) / p[:,:2]
+    p_diffs = p[:,:2] - p[:,2:]
     return p_diffs 
 
 def unwrap(z):
