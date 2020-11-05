@@ -3,7 +3,7 @@ import argparse
 import numpy as np
 import tensorflow as tf
 from epi.models import Parameter, Model
-from epi.SC_Circuit_8 import SC_acc_diff
+from epi.SC_Circuit_8 import SC_acc_diff_var
 import time
 
 DTYPE = tf.float32
@@ -47,9 +47,10 @@ parameters = [sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A]
 model = Model("SC_acc_diff", parameters)
 
 # EP values
-mu = np.array([0., 0.2])
+mu_std = 0.05
+mu = np.array([0., -0.25, mu_std**2, mu_std**2])
 
-model.set_eps(SC_acc_diff)
+model.set_eps(SC_acc_diff_var)
 
 #init_type = "gaussian"
 #init_params = {"mu": np.zeros((model.D,)), "Sigma": (sigma_init**2)*np.eye(model.D)}
@@ -64,9 +65,9 @@ q_theta, opt_data, epi_path, failed = model.epi(
     post_affine=True,
     batch_norm=True,
     bn_momentum=bnmom,
-    K=3,
+    K=10,
     N=M,
-    num_iters=1000,
+    num_iters=2000,
     lr=1e-3,
     c0=c0,
     beta=AL_beta,

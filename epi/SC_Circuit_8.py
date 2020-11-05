@@ -3,10 +3,10 @@ import numpy as np
 
 DTYPE = tf.float32
 
-sW = -1.2489603
-vW = -4.750631
-dW = -1.3874508
-hW = -1.6592684
+sW =  -0.7011077
+vW = -2.5233145
+dW = -2.0368552
+hW = -1.1994056
 
 W_star = tf.constant([[sW, vW, dW, hW],
                       [vW, sW, hW, dW],
@@ -143,6 +143,14 @@ def SC_acc_diff(sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A):
     p = SC_acc(sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A)
     p_diffs = p[:,:2] - p[:,2:]
     return p_diffs 
+
+_mu = np.array([[0., -0.25]])
+def SC_acc_diff_var(sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A):
+    p = SC_acc(sW_P, sW_A, vW_PA, vW_AP, dW_PA, dW_AP, hW_P, hW_A)
+    p_diffs = p[:,:2] - p[:,2:]
+    p_diff_vars = (p_diffs - _mu)**2
+    T_x = tf.concat((p_diffs, p_diff_vars), axis=1)
+    return T_x
 
 def unwrap(z):
     sW_P = z[:,0][:,None]
