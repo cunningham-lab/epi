@@ -65,9 +65,9 @@ The dynamics evolve with timescale $\tau=0.09$ via an internal variable $u$ gove
 \begin{equation}
 \tau \frac{du}{dt} = -u + Wx + h + \sigma dB
 \end{equation}
-with gaussian noise of variance $\sigma^2$ = 1.
+with gaussian noise of variance $\sigma^2$ = 0.2.
 The input $h$ is comprised of a cue-dependent input to the Pro or Anti populations, a stimulus orientation input to either the Left or Right populations, and a choice-period input to the entire network (see Section \ref{methods_SC}).
-Here, we use EPI to determine the changes in network connectivity $z = [ sW_P, sW_A, vW_{PA}, vW_{AP}, dW_{PA}, dW_{AP}, hW_P, hW_A]$ resulting in greater levels of rapid task switching accuracy.
+Here, we use EPI to determine the changes in network connectivity $z = [sW, vW, dW, hW]^{\top}$ resulting in greater levels of rapid task switching accuracy.
 
 \begin{figure}
 \begin{center}
@@ -84,10 +84,9 @@ E. The correlation of Schur eigenvalue with task performance in each learned EPI
 \label{fig:SC}
 \end{figure}
 
-To quantify the emergent property of rapid task switching at various levels of accuracy, we considered the requirements of this model in this behavioral paradigm.
-At the end of successful trials, the response of the Pro population in the hemisphere of the correct choice must have a value near 1, while the Pro population in the opposite hemisphere must have a value near 0.
-Constraining a population response $x_\alpha \in \left[0,1\right]$ to be either 0 or 1 can be achieved by requiring that it has Bernoulli variance (see Section \ref{methods_SC}).
-Thus, we can formulate rapid task switching at a level of accuracy $p \in \left[0, 1\right]$ in both tasks in terms of the average steady response of the Pro population $\hat{p}$ of the correct choice,  the error in Bernoulli variance of that Pro neuron $\sigma^2_{\text{err}}$, and the average difference in Pro neuron responses $d$ in both Pro and Anti trials:
+To quantify the emergent property of rapid task switching , we considered the requirements of this model in this behavioral paradigm.
+At the end of successful trials, the response of the Pro population in the hemisphere of the correct choice must be greater than the Pro population in the opposite hemisphere.
+Thus, we can formulate rapid task switching accuracy as the average number of successful trials over gaussian noise.
 \begin{equation}
 \mathcal{B}(p) ~~\triangleq~~ \mathbb{E}\begin{bmatrix} \hat{p}_P \\ \hat{p}_A \\ (\hat{p}_P-p)^2 \\ (\hat{p}_A - p)^2 \\ \sigma^2_{P,err} \\ \sigma^2_{A,err} \\ d_P \\ d_A \end{bmatrix} = \begin{bmatrix} p \\ p \\ 0.15^2 \\ 0.15^2 \\ 0 \\ 0 \\ 1 \\ 1 \end{bmatrix}.
 \end{equation}
