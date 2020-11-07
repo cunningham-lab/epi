@@ -107,7 +107,7 @@ def unwrap(z):
 
 
 def SC_acc(sW, vW, dW, hW):
-    N = 200
+    N = 500
     Wrow1 = tf.stack([sW, vW, dW, hW], axis=2)
     Wrow2 = tf.stack([vW, sW, hW, dW], axis=2)
     Wrow3 = tf.stack([dW, hW, sW, vW], axis=2)
@@ -164,3 +164,71 @@ def SC_acc_var(sW, vW, dW, hW):
     T_x = tf.concat((p, p_var), axis=1)
 
     return T_x
+
+C_opto = 4
+I_opto = tf.concat((I_LP, I_LA, I_LP, I_LA), axis=2)
+opto_strength = 0.3
+eta = np.ones((T, 1, C_opto, 1, 1), dtype=np.float32)
+eta[np.logical_and(0.8 <= t, t <= 1.2), :, 2:, :, :] = opto_strength
+
+def SC_sim_opto(sW, vW, dW, hW):
+    N = 200
+    Wrow1 = tf.stack([sW, vW, dW, hW], axis=2)
+    Wrow2 = tf.stack([vW, sW, hW, dW], axis=2)
+    Wrow3 = tf.stack([dW, hW, sW, vW], axis=2)
+    Wrow4 = tf.stack([hW, dW, vW, sW], axis=2)
+
+    W = tf.stack([Wrow1, Wrow2, Wrow3, Wrow4], axis=2)
+
+    # initial conditions
+    # M,C,4,1
+    state_shape = (sW.shape[0], C_opto, 4, N)
+    v0 = 0.1 * tf.ones(state_shape, dtype=DTYPE)
+    v0 = v0 + 0.005*tf.random.normal(v0.shape, 0., 1.)
+    u0 = beta * tf.math.atanh(2 * v0 - 1) - theta
+
+    v = v0
+    u = u0
+    v_t_list = [v]
+    u_t_list = [u]
+    for i in range(1, T):
+        du = (dt / tau) * (-u + tf.matmul(W, v) + I_opto[i] + sigma * tf.random.normal(state_shape, 0., 1.))
+        u = u + du
+        v = eta[i] * (0.5 * tf.tanh((u - theta) / beta) + 0.5)
+        v_t_list.append(v)
+        u_t_list.append(u)
+
+    u_t = tf.stack(u_t_list, axis=0)
+    v_t = tf.stack(v_t_list, axis=0)
+    return u_t, v_t
+
+def SC_acc_opto(sW, vW, dW, hW):
+    N = 500
+    Wrow1 = tf.stack([sW, vW, dW, hW], axis=2)
+    Wrow2 = tf.stack([vW, sW, hW, dW], axis=2)
+    Wrow3 = tf.stack([dW, hW, sW, vW], axis=2)
+    Wrow4 = tf.stack([hW, dW, vW, sW], axis=2)
+
+    W = tf.stack([Wrow1, Wrow2, Wrow3, Wrow4], axis=2)
+
+    # initial conditions
+    # M,C,4,N
+    state_shape = (sW.shape[0], C_opto, 4, N)
+    v0 = 0.1 * tf.ones(state_shape, dtype=DTYPE)
+    v0 = v0 + 0.005*tf.random.normal(v0.shape, 0., 1.)
+    u0 = beta * tf.math.atanh(2 * v0 - 1) - theta
+
+    v = v0
+    u = u0
+    for i in range(1, T):
+        du = (dt / tau) * (-u + tf.matmul(W, v) + I_opto[i] + sigma * tf.random.normal(state_shape, 0., 1.))
+        u = u + du
+        v = eta[i] * (0.5 * tf.tanh((u - theta) / beta) + 0.5)
+
+    p = tf.reduce_mean(tf.math.sigmoid(100.*(v[:,:,0,:]-v[:,:,3,:])), axis=2)
+    return p
+
+def SC_acc_diff(sW, vW, dW, hW):
+    p = SC_acc_opto(sW, vW, dW, hW)
+    p_diffs = p[:,:2] - p[:,2:]
+    return p_diffs
