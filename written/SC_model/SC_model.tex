@@ -96,15 +96,15 @@ A variance of $5\%$ performance in each task will confer a posterior producing p
 
 We ran EPI to obtain SC model connectivity parameters $z$ producing rapid task switching (Fig. \ref{fig:SC}C).
 There is strong pairwise correlation between each parameter of the connectivity matrix.
-Shading the distribution by $p_P$, we see that positive shifts in the parameters result in lower accuracy in the Pro task.
-Indeed, this difference in accuracy is apparent when we simulate this model for greater parameter values (black star) and lower parameter values (gray star) (Fig. \ref{fig:SC}D). 
-
-
-To make sense of this inferred distributions, we followed the approach of Duan et al. by decomposing the connectivity matrix $W = V\Lambda V^{-1}$ in such a way (the Schur decomposition) that the basis vectors $v_i$ are the same for all $W$ (Fig. SX). 
+To make sense of this inferred distribution, we followed the approach of Duan et al. by decomposing the connectivity matrix $W = V\Lambda V^{-1}$ in such a way (the Schur decomposition) that the basis vectors $v_i$ are the same for all $W$ (Fig. \ref{fig:SC_Eigs}A). 
 These basis vectors have intuitive roles in processing for this task, and are accordingly named the \textit{all} mode - all neurons co-fluctuate, \textit{side} mode - one side dominates the other, \textit{task} mode - the Pro or Anti populations dominate the other, and \textit{diag} mode - Pro- and Anti-populations of opposite hemispheres dominate the opposite pair. 
 The corresponding eigenvalues (e.g. $\lambda_{\text{task}}$, which change according to $W$) indicate the degree to which activity along that mode is increased or decreased by $W$. 
-We found that $\lambda_{\text{all}}$ is anti-correlated with $p_P$ and $\lambda_{\text{task}}$ is correlated with $p_P$.
-TODO interpret further.  Maybe push further on the optogenetics analysis.
+Strong anticorrelation between $p_P$ and $\lambda_{\text{all}}$ (Fig. \ref{fig:SC_Eigs}B) suggests that accuracy in the Pro task is greater when all parameters decrease along the strongly correlated posterior.
+Indeed, this difference in accuracy is apparent when we simulate this model for greater parameter values (black star) and lower parameter values (gray star) (Fig. \ref{fig:SC}D). 
+In contrast, intermediate parameter values result in greater $p_A$ than extremal parameter vaues (Fig. \ref{fig:SC_EPI2}).
+While $p_P$ is well predicted by the remaining Schur eigenvalues (correlated with $\lambda_{\text{task}}$ and $\lambda_{\text{diag}}$ and anticorrelated with $\lambda_{\text{side}}$), $p_A$ is not well predicted by any of them (Fig. \ref{fig:SC_Eigs}B).
+
+Finally, we sought to 
 
 \section{Supplementary}\label{methods_SC}
 \begin{equation}
@@ -165,17 +165,6 @@ and an input to the right or left-side depending on where the light stimulus is 
 \end{equation}
 The input parameterization was fixed to $I_{\text{constant}} = 0.75$, $I_{\text{P,bias}} = 0.5 $, $I_{\text{P,rule}} = 0.6$,  $I_{\text{A,rule}} = 0.6$,  $I_{\text{choice}} = 0.25$,  and $I_{\text{light}} = 0.5$.
 
-
-\begin{figure}
-\begin{center}
-\includegraphics[scale=0.75]{figs/figSX2.pdf}
-\end{center}
-\caption{\small Sentence 1 .
-A. Rapid task switching behavioral paradigm (see text). 
-B. blah}
-\label{fig:SC_EPI2}
-\end{figure}
-
 \begin{figure}
 \begin{center}
 \includegraphics[scale=0.75]{figs/figSX1.pdf}
@@ -186,6 +175,16 @@ B. blah}
 \label{fig:SC_Eigs}
 \end{figure}
 
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.75]{figs/figSX2.pdf}
+\end{center}
+\caption{\small Sentence 1 .
+A. Rapid task switching behavioral paradigm (see text). 
+B. blah}
+\label{fig:SC_EPI2}
+\end{figure}
 
 
 \bibliography{epi}
