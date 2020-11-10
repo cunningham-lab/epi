@@ -22,30 +22,31 @@ c0 = 10.**args.logc0
 bnmom = args.bnmom
 random_seed = args.random_seed
 
-hb = load_SSSN_variable('hb', ind=0)
+ind = 1070
+hb = load_SSSN_variable('hb', ind=ind)
+hc = load_SSSN_variable('hb', ind=ind)
+H = (hb + contrast*hc)[None,:]
 
 neuron_inds = {'E':0, 'P':1, 'S':2, 'V':3}
 neuron_ind = neuron_inds[alpha]
 
-M = 100
+M = 200
 
 # 1. Specify the V1 model for EPI.
 D = 4
-lb = -.25*np.ones((D,))
-ub = .25*np.ones((D,))
+lb = -.5*np.ones((D,))
+ub = .5*np.ones((D,))
 
 dh = Parameter("dh", D, lb=lb, ub=ub)
 
 # Define model
-name = "SSSN_dvdh_%s_c=%.1f" % (alpha, contrast)
+name = "SSSN_drdh_%s_c=%.1f" % (alpha, contrast)
 parameters = [dh]
 model = Model(name, parameters)
 
 def dr(dh):
-    h = hb[None,:]
-
-    x1 = SSSN_sim(h)[:,:,neuron_ind]
-    x2 = SSSN_sim(h + dh)[:,:,neuron_ind]
+    x1 = SSSN_sim(H)[:,:,neuron_ind]
+    x2 = SSSN_sim(H + dh)[:,:,neuron_ind]
 
     diff = tf.reduce_mean(x2 - x1, axis=1)
     T_x = tf.stack((diff, diff ** 2), axis=1)
@@ -68,9 +69,9 @@ q_theta, opt_data, epi_path, failed = model.epi(
     post_affine=True,
     batch_norm=True,
     bn_momentum=bnmom,
-    K=1,
+    K=5,
     N=M,
-    num_iters=100,
+    num_iters=2000,
     lr=1e-3,
     c0=c0,
     beta=beta,
@@ -78,7 +79,7 @@ q_theta, opt_data, epi_path, failed = model.epi(
     random_seed=random_seed,
     verbose=True,
     stop_early=True,
-    log_rate=1,
+    log_rate=50,
     save_movie_data=True,
 )
 
