@@ -520,7 +520,7 @@ class IntervalFlow(tfp.bijectors.Bijector):
     * no bound: :math:`y_i = x_i`
     * only lower bound: :math:`y_i = \\log(1 + \\exp(x_i)) + lb_i`
     * only upper bound: :math:`y_i = -\\log(1 + \\exp(x_i)) + ub_i`
-    * upper and lower bound: :math:`y_i = \\frac{ub_i - lb_i}{2} \\tanh(x_i) + \\frac{ub_i + lb_i}{2}`
+    * upper and lower bound: :math:`y_i = \\frac{ub_i - lb_i} \\sigmoid(x_i) + \\frac{ub_i + lb_i}{2}`
 
     :param lb: Lower bound. N values are numeric including :obj:`float('-inf')`.
     :type lb: np.ndarray
@@ -554,17 +554,17 @@ class IntervalFlow(tfp.bijectors.Bijector):
         for lb_i, ub_i in zip(self.lb, self.ub):
             if lb_i >= ub_i:
                 raise ValueError("Lower bound %.2E > upper bound %.2E." % (lb_i, ub_i))
-        tanh_flg, softplus_flg = self.D * [0], self.D * [0]
-        tanh_m, tanh_c = self.D * [1.0], self.D * [0.0]
+        sigmoid_flg, softplus_flg = self.D * [0], self.D * [0]
+        sigmoid_m, sigmoid_c = self.D * [1.0], self.D * [0.0]
         softplus_m, softplus_c = self.D * [1.0], self.D * [0.0]
         for i in range(self.D):
             lb_i, ub_i = self.lb[i], self.ub[i]
             has_lb = not np.isneginf(lb_i)
             has_ub = not np.isposinf(ub_i)
             if has_lb and has_ub:
-                tanh_flg[i] = 1
-                tanh_m[i] = (ub_i - lb_i) / 2.0
-                tanh_c[i] = (ub_i + lb_i) / 2.0
+                sigmoid_flg[i] = 1
+                sigmoid_m[i] = (ub_i - lb_i)
+                sigmoid_c[i] = lb_i
             elif has_lb:
                 softplus_flg[i] = 1
                 softplus_m[i] = 1.0
@@ -574,10 +574,10 @@ class IntervalFlow(tfp.bijectors.Bijector):
                 softplus_m[i] = -1.0
                 softplus_c[i] = ub_i
 
-        self.tanh_flg = tf.constant(tanh_flg, dtype=DTYPE)
+        self.sigmoid_flg = tf.constant(sigmoid_flg, dtype=DTYPE)
         self.softplus_flg = tf.constant(softplus_flg, dtype=DTYPE)
-        self.tanh_m = tf.constant(tanh_m, dtype=DTYPE)
-        self.tanh_c = tf.constant(tanh_c, dtype=DTYPE)
+        self.sigmoid_m = tf.constant(sigmoid_m, dtype=DTYPE)
+        self.sigmoid_c = tf.constant(sigmoid_c, dtype=DTYPE)
         self.softplus_m = tf.constant(softplus_m, dtype=DTYPE)
         self.softplus_c = tf.constant(softplus_c, dtype=DTYPE)
 
@@ -593,18 +593,17 @@ class IntervalFlow(tfp.bijectors.Bijector):
         :rtype: (tf.Tensor, tf.Tensor)
         """
         ldj = 0.0
-        tanh_x = tf.tanh(x)
-        out = tf.math.multiply(self.tanh_m, tanh_x) + self.tanh_c
-        tanh_ldj = tf.reduce_sum(
+        sigmoid_x = tf.sigmoid(x)
+        out = tf.math.multiply(self.sigmoid_m, sigmoid_x) + self.sigmoid_c
+        sigmoid_ldj = tf.reduce_sum(
             tf.multiply(
-                self.tanh_flg,
-                tf.math.log(self.tanh_m + EPS)
-                + tf.math.log(1.0 + tf.square(tanh_x) + EPS),
-            ),
+                self.sigmoid_flg,
+                tf.math.log(self.sigmoid_m + EPS)
+                + tf.math.log_sigmoid(x) + tf.math.log_sigmoid(-x) + EPS),
             1,
         )
-        ldj += tanh_ldj
-        x = tf.multiply(self.tanh_flg, out) + tf.multiply(1 - self.tanh_flg, x)
+        ldj += sigmoid_ldj
+        x = tf.multiply(self.sigmoid_flg, out) + tf.multiply(1 - self.sigmoid_flg, x)
 
         out = tf.math.multiply(self.softplus_m, tf.math.softplus(x)) + self.softplus_c
         softplus_ldj = tf.reduce_sum(
@@ -624,9 +623,9 @@ class IntervalFlow(tfp.bijectors.Bijector):
         :returns: The forward pass of the interval flow
         :rtype: (tf.Tensor, tf.Tensor)
         """
-        tanh_x = tf.tanh(x)
-        out = tf.math.multiply(self.tanh_m, tanh_x) + self.tanh_c
-        x = tf.multiply(self.tanh_flg, out) + tf.multiply(1 - self.tanh_flg, x)
+        sigmoid_x = tf.math.sigmoid(x)
+        out = tf.math.multiply(self.sigmoid_m, sigmoid_x) + self.sigmoid_c
+        x = tf.multiply(self.sigmoid_flg, out) + tf.multiply(1 - self.sigmoid_flg, x)
 
         out = tf.math.multiply(self.softplus_m, tf.math.softplus(x)) + self.softplus_c
         x = tf.multiply(self.softplus_flg, out) + tf.multiply(1 - self.softplus_flg, x)
@@ -655,10 +654,10 @@ class IntervalFlow(tfp.bijectors.Bijector):
             1 - self.softplus_flg, x
         )
 
-        tanh_inv = tf.math.atanh(
-            tf.multiply(self.tanh_flg, tf.divide(x - self.tanh_c, self.tanh_m))
-        )
-        x = tf.multiply(self.tanh_flg, tanh_inv) + tf.multiply(1 - self.tanh_flg, x)
+        logit_input = tf.multiply(self.sigmoid_flg, tf.divide(x - self.sigmoid_c, self.sigmoid_m+EPS))
+        logit = tf.math.log(logit_input+EPS) - tf.math.log(1. - logit_input + EPS)
+
+        x = tf.multiply(self.sigmoid_flg, logit) + tf.multiply(1. - self.sigmoid_flg, x)
         return x
 
     def forward_log_det_jacobian(self, x):
@@ -672,18 +671,17 @@ class IntervalFlow(tfp.bijectors.Bijector):
         """
         ldj = 0.0
         # Tanh stage
-        tanh_x = tf.tanh(x)
-        out = tf.math.multiply(self.tanh_m, tanh_x) + self.tanh_c
-        tanh_ldj = tf.reduce_sum(
+        sigmoid_x = tf.sigmoid(x)
+        out = tf.math.multiply(self.sigmoid_m, sigmoid_x) + self.sigmoid_c
+        sigmoid_ldj = tf.reduce_sum(
             tf.multiply(
-                self.tanh_flg,
-                tf.math.log(self.tanh_m+EPS)
-                + tf.math.log(1.0 + tf.square(tanh_x) + EPS),
-            ),
+                self.sigmoid_flg,
+                tf.math.log(self.sigmoid_m+EPS)
+                + tf.math.log_sigmoid(x) + tf.math.log_sigmoid(-x) + EPS),
             1,
         )
-        ldj += tanh_ldj
-        x = tf.multiply(self.tanh_flg, out) + tf.multiply(1 - self.tanh_flg, x)
+        ldj += sigmoid_ldj
+        x = tf.multiply(self.sigmoid_flg, out) + tf.multiply(1 - self.sigmoid_flg, x)
 
         softplus_ldj = tf.reduce_sum(
             tf.math.multiply(self.softplus_flg, tf.math.log_sigmoid(x)), 1
@@ -722,7 +720,7 @@ def hp_df_to_nf(hp_df, model):
 """ The code below is used to implement SNL and SNPE.
 
     Yeah, so it turns out these norm flow API's in tensorflow
-    are kinda sh**.  For conditional density estimation, use
+    are pretty bad.  For conditional density estimation, use
     https://github.com/srbittner/torch_nf
 
 class ConditionedNormFlow(tf.keras.Model):
