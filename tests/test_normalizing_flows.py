@@ -213,7 +213,7 @@ def interval_flow_np(x, lb, ub):
             m = (ub_i - lb_i) / 2
             c = (ub_i + lb_i) / 2
             y[i] = m * np.tanh(x_i) + c
-            ldj += np.log(m) + np.log(1.0 - np.square(np.tanh(x_i)) + EPS)
+            ldj += np.log(m) + np.log(1.0 + np.square(np.tanh(x_i)))
         elif has_lb:
             y[i] = softplus(x_i) + lb_i
             ldj += np.log(1.0 / (1.0 + np.exp(-x_i)) + EPS)
@@ -358,8 +358,8 @@ def test_initialization():
     nf.initialize(mu, Sigma)
 
     # Bounds
-    lb = np.zeros((D,))
-    ub = np.ones((D,))
+    lb = -5*np.ones((D,))
+    ub = 5*np.ones((D,))
     nf = NormalizingFlow(
         "autoregressive", D, 2, 2, 15, batch_norm=True, bounds=(lb, ub)
     )
@@ -368,5 +368,4 @@ def test_initialization():
     return None
 
 if __name__ == '__main__':
-    pass
-    #test_initialization()
+    test_interval_flow()

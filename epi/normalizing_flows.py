@@ -23,6 +23,7 @@ from epi.util import (
     get_hash,
     set_dir_index,
     array_str,
+    dbg_check,
 )
 
 DTYPE = tf.float32
@@ -438,6 +439,7 @@ class NormalizingFlow(tf.keras.Model):
             gradients = [tf.clip_by_value(grad, ming, maxg) for grad in gradients]
 
             optimizer.apply_gradients(zip(gradients, params))
+
             return loss
 
         z, log_q_z = self(N)
@@ -597,7 +599,7 @@ class IntervalFlow(tfp.bijectors.Bijector):
             tf.multiply(
                 self.tanh_flg,
                 tf.math.log(self.tanh_m + EPS)
-                + tf.math.log(1.0 - tf.square(tanh_x) + EPS),
+                + tf.math.log(1.0 + tf.square(tanh_x) + EPS),
             ),
             1,
         )
@@ -675,8 +677,8 @@ class IntervalFlow(tfp.bijectors.Bijector):
         tanh_ldj = tf.reduce_sum(
             tf.multiply(
                 self.tanh_flg,
-                tf.math.log(self.tanh_m + EPS)
-                + tf.math.log(1.0 - tf.square(tanh_x) + EPS),
+                tf.math.log(self.tanh_m+EPS)
+                + tf.math.log(1.0 + tf.square(tanh_x) + EPS),
             ),
             1,
         )
