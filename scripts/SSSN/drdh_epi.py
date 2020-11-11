@@ -24,18 +24,18 @@ random_seed = args.random_seed
 
 ind = 1070
 hb = load_SSSN_variable('hb', ind=ind)
-hc = load_SSSN_variable('hb', ind=ind)
+hc = load_SSSN_variable('hc', ind=ind)
 H = (hb + contrast*hc)[None,:]
 
 neuron_inds = {'E':0, 'P':1, 'S':2, 'V':3}
 neuron_ind = neuron_inds[alpha]
 
-M = 200
+M = 500
 
 # 1. Specify the V1 model for EPI.
 D = 4
-lb = -.5*np.ones((D,))
-ub = .5*np.ones((D,))
+lb = -.25*np.ones((D,))
+ub = .25*np.ones((D,))
 
 dh = Parameter("dh", D, lb=lb, ub=ub)
 
@@ -56,7 +56,7 @@ def dr(dh):
 model.set_eps(dr)
 
 # Emergent property values.
-mu_std = 0.025
+mu_std = 0.05
 mu = np.array([0., mu_std**2])
 
 # 3. Run EPI.
@@ -69,9 +69,9 @@ q_theta, opt_data, epi_path, failed = model.epi(
     post_affine=True,
     batch_norm=True,
     bn_momentum=bnmom,
-    K=5,
+    K=15,
     N=M,
-    num_iters=2000,
+    num_iters=2500,
     lr=1e-3,
     c0=c0,
     beta=beta,
@@ -79,7 +79,7 @@ q_theta, opt_data, epi_path, failed = model.epi(
     random_seed=random_seed,
     verbose=True,
     stop_early=True,
-    log_rate=50,
+    log_rate=100,
     save_movie_data=True,
 )
 
