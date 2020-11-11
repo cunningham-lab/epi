@@ -13,6 +13,16 @@ import pandas as pd
 from sklearn.neighbors import KernelDensity
 from epi.error_formatters import format_type_err_msg
 
+def dbg_check(tensor, name):
+    num_elems = 1
+    for dim in tensor.shape:
+        num_elems *= dim
+    num_infs = tf.reduce_sum(tf.cast(tf.math.is_inf(tensor), tf.float32))
+    num_nans = tf.reduce_sum(tf.cast(tf.math.is_nan(tensor), tf.float32))
+
+    print(name, "infs %d/%d" % (num_infs, num_elems), "nans %d/%d" % (num_nans, num_elems))
+    return num_nans or num_infs
+
 def get_hash(hash_vars):
     m = hashlib.md5()
     for hash_var in hash_vars:
@@ -621,6 +631,7 @@ def pairplot(
     fontsize=12,
     figsize=(12, 12),
     outlier_stds=10,
+    ticksize=None,
     pfname="images/temp.png",
 ):
     M = Z.shape[0]
@@ -639,6 +650,8 @@ def pairplot(
         else:
             plot_inds, below_inds, over_inds = filter_outliers(c, outlier_stds)
             clims = [None, None]
+    if ticksize is None:
+        ticksize = fontsize-4
 
     fig, axs = plt.subplots(num_dims - 1, num_dims - 1, figsize=figsize)
     for i in range(num_dims - 1):
@@ -697,6 +710,8 @@ def pairplot(
                 if i + 1 == j:
                     ax.set_xlabel(labels[j], fontsize=fontsize)
                     ax.set_ylabel(labels[i], fontsize=fontsize)
+                    plt.setp(ax.get_xticklabels(), fontsize=ticksize)
+                    plt.setp(ax.get_yticklabels(), fontsize=ticksize)
                 else:
                     ax.set_xticklabels([])
                     ax.set_yticklabels([])
@@ -718,6 +733,7 @@ def pairplot(
         a = (1.01 / (num_dims - 1)) / (0.9 / (num_dims - 1))
         b = (num_dims - 1) * 1.15
         plt.text(a, b, c_label, {"fontsize": fontsize}, transform=ax.transAxes)
+        clb.ax.tick_params(labelsize=ticksize)
     # plt.savefig(pfname)
     return fig, axs
 
@@ -741,7 +757,7 @@ def plot_T_x(T_x, T_x_sim, bins=30, xmin=None, xmax=None,
     if xmin is not None and xmax is not None:
         _range = (xmin, xmax)
     else:
-        _range = None
+        _range = (x_mean - 4*x_std, x_mean + 4*x_std)
     fig, ax = plt.subplots(1,1)
     ['ABC simulations', 'ABC posterior predictive']
     if T_x is None:
@@ -760,6 +776,11 @@ def plot_T_x(T_x, T_x_sim, bins=30, xmin=None, xmax=None,
 
     if xlabel is not None:
         ax.set_xlabel(xlabel, fontsize=fontsize)
+    xticks = [_range[0], x_mean-2*x_std, x_mean, x_mean+2*x_std, _range[1]]
+    xticks = np.around(xticks, 2)
+    ax.set_xticks(xticks)
+    ax.set_xticklabels(xticks, fontsize=(fontsize-4))
+    plt.setp(ax.get_yticklabels(), fontsize=(fontsize-4))
     ax.set_ylabel('count', fontsize=fontsize)
 
     return ax
