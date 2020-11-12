@@ -598,8 +598,8 @@ class IntervalFlow(tfp.bijectors.Bijector):
         sigmoid_ldj = tf.reduce_sum(
             tf.multiply(
                 self.sigmoid_flg,
-                tf.math.log(self.sigmoid_m + EPS)
-                + tf.math.log_sigmoid(x) + tf.math.log_sigmoid(-x) + EPS),
+                tf.math.log(self.sigmoid_m) +
+                tf.math.log_sigmoid(x) + tf.math.log_sigmoid(-x)),
             1,
         )
         ldj += sigmoid_ldj
@@ -676,8 +676,8 @@ class IntervalFlow(tfp.bijectors.Bijector):
         sigmoid_ldj = tf.reduce_sum(
             tf.multiply(
                 self.sigmoid_flg,
-                tf.math.log(self.sigmoid_m+EPS)
-                + tf.math.log_sigmoid(x) + tf.math.log_sigmoid(-x) + EPS),
+                tf.math.log(self.sigmoid_m) +
+                tf.math.log_sigmoid(x) + tf.math.log_sigmoid(-x)),
             1,
         )
         ldj += sigmoid_ldj
