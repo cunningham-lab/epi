@@ -37,60 +37,67 @@ dt = 0.00025
 N = 1
 T = 100
 
-sigma_eps = 0.001*np.array([1., 1., 1., 1.], np.float32)
-sigma_eps = sigma_eps[None,None,:,None]
 tau = 0.001*np.array([1. , 1., 1., 1.], np.float32)
 tau = tau[None,None,:,None]
 tau_noise = 0.005*np.array([1., 1., 1., 1.], np.float32)
 tau_noise = tau_noise[None,None,:,None]
 
 # Dim is [M,N,|r|,T]
-def SSSN_sim_traj(h):
-    h = h[:,None,:,None]
-    W = W_mat[None,None,:,:]
+def SSSN_sim_traj(eps):
+    sigma_eps = eps*np.array([1., 1., 1., 1.], np.float32)
+    sigma_eps = sigma_eps[None,None,:,None]
+    def _SSSN_sim_traj(h):
+        h = h[:,None,:,None]
+        W = W_mat[None,None,:,:]
 
-    _x_shape = tf.ones((h.shape[0], N, 4, 1), dtype=tf.float32)
-    x_init = _x_shape*X_INIT
-    eps_init = 0.*_x_shape
-    y_init = tf.concat((x_init, eps_init), axis=2)
+        _x_shape = tf.ones((h.shape[0], N, 4, 1), dtype=tf.float32)
+        x_init = _x_shape*X_INIT
+        eps_init = 0.*_x_shape
+        y_init = tf.concat((x_init, eps_init), axis=2)
 
-    def f(y):
-        x = y[:,:,:4,:]
-        eps = y[:,:,4:,:]
-        B = tf.random.normal(eps.shape, 0., np.sqrt(dt))
+        def f(y):
+            x = y[:,:,:4,:]
+            eps = y[:,:,4:,:]
+            B = tf.random.normal(eps.shape, 0., np.sqrt(dt))
 
-        dx = (-x + (tf.nn.relu(tf.matmul(W, x) + h + eps)**n)) / tau
-        deps = (-eps + (np.sqrt(2.*tau_noise)*sigma_eps*B/dt)) / tau_noise
+            dx = (-x + (tf.nn.relu(tf.matmul(W, x) + h + eps)**n)) / tau
+            deps = (-eps + (np.sqrt(2.*tau_noise)*sigma_eps*B/dt)) / tau_noise
 
-        return tf.concat((dx, deps), axis=2)
+            return tf.concat((dx, deps), axis=2)
 
-    x_t = euler_sim_stoch_traj(f, y_init, dt, T)
-    return x_t
+        x_t = euler_sim_stoch_traj(f, y_init, dt, T)
+        return x_t
+    return _SSSN_sim_traj
 
-def SSSN_sim(h):
-    h = h[:,None,:,None]
-    W = W_mat[None,None,:,:]
-   
-    _x_shape = tf.ones((h.shape[0], N, 4, 1), dtype=tf.float32)
-    x_init = _x_shape*X_INIT
-    eps_init = 0.*_x_shape
-    y_init = tf.concat((x_init, eps_init), axis=2)
-    
-    def f(y):
-        x = y[:,:,:4,:]
-        eps = y[:,:,4:,:]
-        B = tf.random.normal(eps.shape, 0., np.sqrt(dt))
-
-        dx = (-x + (tf.nn.relu(tf.matmul(W, x) + h + eps)**n)) / tau
-        deps = (-eps + (np.sqrt(2.*tau_noise)*sigma_eps*B/dt)) / tau_noise
+def SSSN_sim(eps):
+    sigma_eps = eps*np.array([1., 1., 1., 1.], np.float32)
+    sigma_eps = sigma_eps[None,None,:,None]
+    def _SSSN_sim(h):
+        h = h[:,None,:,None]
+        W = W_mat[None,None,:,:]
+       
+        _x_shape = tf.ones((h.shape[0], N, 4, 1), dtype=tf.float32)
+        x_init = _x_shape*X_INIT
+        eps_init = 0.*_x_shape
+        y_init = tf.concat((x_init, eps_init), axis=2)
         
-        return tf.concat((dx, deps), axis=2)
-        
-    x_ss = euler_sim_stoch(f, y_init, dt, T)
-    return x_ss
+        def f(y):
+            x = y[:,:,:4,:]
+            eps = y[:,:,4:,:]
+            B = tf.random.normal(eps.shape, 0., np.sqrt(dt))
+
+            dx = (-x + (tf.nn.relu(tf.matmul(W, x) + h + eps)**n)) / tau
+            deps = (-eps + (np.sqrt(2.*tau_noise)*sigma_eps*B/dt)) / tau_noise
+            
+            return tf.concat((dx, deps), axis=2)
+            
+        x_ss = euler_sim_stoch(f, y_init, dt, T)
+        return x_ss
+
+    return _SSSN_sim
 
 def SSSN_sim_sigma_c0(sigma):
-    N = 1
+    N = 25
     h = HB[None,None,:,None]
     W = W_mat[None,None,:,:]
     sigma = sigma[:,None,:,None]
@@ -114,7 +121,7 @@ def SSSN_sim_sigma_c0(sigma):
     return x_ss
 
 def SSSN_sim_sigma_c1(sigma):
-    N = 1
+    N = 25
     h = (HB+HC)[None,None,:,None]
     W = W_mat[None,None,:,:]
     sigma = sigma[:,None,:,None]
