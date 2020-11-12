@@ -42,7 +42,7 @@ model = Model("SC_Circuit_var", parameters)
 # EP values
 mu = np.array([p, 1.-p, mu_std**2, mu_std**2])
 
-model.set_eps(SC_acc_var)
+model.set_eps(SC_acc_var(p))
 
 #init_type = 'abc'
 #abc_std = 0.025
