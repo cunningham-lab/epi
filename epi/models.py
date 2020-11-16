@@ -207,7 +207,7 @@ class Model(object):
         num_layers=2,
         num_units=None,
         batch_norm=True,
-        bn_momentum=0.99,
+        bn_momentum=0.,
         post_affine=False,
         random_seed=1,
         init_type=None,  # "iso_gauss",
@@ -385,7 +385,7 @@ class Model(object):
         ckpt_dir, exists = self.get_epi_path(init_params, nf, mu, aug_lag_hps)
         if exists:
             print("Loading cached epi at %s." % ckpt_dir)
-            q_theta = self._get_epi_dist(-1, init_params, nf, mu, aug_lag_hps)
+            q_theta = self._get_epi_dist(-1, init_params, nf, mu, aug_lag_hps, training=True)
             opt_df = pd.read_csv(os.path.join(ckpt_dir, "opt_data.csv"), index_col=0)
             failed = (opt_df['cost'].isna()).sum() > 0 
             return q_theta, opt_df, ckpt_dir, failed
@@ -961,7 +961,7 @@ class Model(object):
         ani.save(os.path.join(path,"epi_opt.mp4"), writer=writer)
         return None
 
-    def test_convergence(self, R_means, alpha, verbose=False):
+    def test_convergence(self, R_means, alpha, verbose=False, ind=None):
         """Tests convergence of EPI constraints.
 
         :param R_means: Emergent property statistic means.
@@ -974,7 +974,10 @@ class Model(object):
         lt = np.sum(R_means < 0.0, axis=0).astype(np.float32)
         p_vals = 2 * np.minimum(gt / M, lt / M)
         if verbose:
-            s = ''
+            if ind is None:
+                s = ''
+            else:
+                s = "%d: " % ind
             for i in range(len(p_vals)):
                 s += "%.2f" % p_vals[i]
                 if i < (len(p_vals) - 1):
@@ -1166,6 +1169,8 @@ class Model(object):
             status = checkpoint.restore(ckpts[num_ckpts+k])
         status.expect_partial()
         q_theta = Distribution(nf, self.parameters)
+        #if not training:
+        #    q_theta.set_batch_norm_trainable(False)
         return q_theta
 
     def get_convergence_epoch(
@@ -1205,7 +1210,7 @@ class Model(object):
             R_means = tf.reduce_mean(T_x, axis=1) - _mu
 
             # R_means = get_R_mean_dist(nf, self.eps, _mu, self.M_test, N_test)
-            _converged = self.test_convergence(R_means.numpy(), alpha, verbose=True)
+            _converged = self.test_convergence(R_means.numpy(), alpha, verbose=True, ind=k)
             if _converged:
                 H = -np.mean(log_q_z.numpy())
                 if best_H is None or best_H < H:
@@ -1396,37 +1401,6 @@ class Distribution(object):
             g = g.map_diag(sns.kdeplot)
             g = g.map_lower(sns.kdeplot)
         return g
-
-    def plot_dist(self, N=200, kde=True):
-        z, log_q_z = self.nf(N)
-        df = pd.DataFrame(z)
-        # iterate over parameters to create label_names
-        z_labels = []
-        for param in self.parameters:
-            if param.D == 1:
-                z_labels.append(param.name)
-            else:
-                z_labels.extend([str(param.name) + str(i) for i in range(param.D)])
-
-        df.columns = z_labels
-        df["log_q_z"] = log_q_z
-
-        log_q_z_std = log_q_z - np.min(log_q_z)
-        log_q_z_std = log_q_z_std / np.max(log_q_z_std)
-        cmap = plt.get_cmap("viridis")
-        g = sns.PairGrid(df, vars=z_labels)
-        g = g.map_upper(plt.scatter, color=cmap(log_q_z_std))
-        if kde:
-            g = g.map_diag(sns.kdeplot)
-            g = g.map_lower(sns.kdeplot)
-        for i in range(self.D):
-            for j in range(i+1, self.D):
-                g.axes[i,j].set_ylim(self.nf.lb[i], self.nf.ub[i])
-                g.axes[i,j].set_xlim(self.nf.lb[j], self.nf.ub[j])
-                g.axes[j,i].set_ylim(self.nf.lb[j], self.nf.ub[j])
-                g.axes[j,i].set_xlim(self.nf.lb[i], self.nf.ub[i])
-
-        return g, z.numpy(), log_q_z.numpy()
 
     def set_batch_norm_trainable(self, trainable):
         bijectors = self.nf.trans_dist.bijector.bijectors

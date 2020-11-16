@@ -100,7 +100,7 @@ class NormalizingFlow(tf.keras.Model):
         num_layers,
         num_units,
         batch_norm=True,
-        bn_momentum=0.99,
+        bn_momentum=0.0,
         post_affine=True,
         bounds=None,
         random_seed=1,
@@ -113,9 +113,7 @@ class NormalizingFlow(tf.keras.Model):
         self._set_num_layers(num_layers)
         self._set_num_units(num_units)
         self._set_batch_norm(batch_norm)
-        if self.batch_norm:
-            self._set_bn_momentum(bn_momentum)
-        else:
+        if not self.batch_norm:
             self.bn_momentum = None
         self._set_post_affine(post_affine)
         self._set_bounds(bounds)
@@ -162,7 +160,7 @@ class NormalizingFlow(tf.keras.Model):
                 self.permutations.append(perm_i)
                 bijectors.append(perm_i)
                 if self.batch_norm:
-                    bn = tf.keras.layers.BatchNormalization(momentum=self.bn_momentum)
+                    bn = tf.keras.layers.BatchNormalization(momentum=bn_momentum)
                     batch_norm_i = BatchNormalization(batchnorm_layer=bn)
                     self.batch_norms.append(batch_norm_i)
                     bijectors.append(batch_norm_i)
@@ -175,6 +173,7 @@ class NormalizingFlow(tf.keras.Model):
             self.PA = tfb.Chain([self.shift, self.scale])
             bijectors.append(self.PA)
 
+        # TODO Make this "or" ?
         if self.lb is not None and self.ub is not None:
             self.support_mapping = IntervalFlow(self.lb, self.ub)
             bijectors.append(self.support_mapping)
@@ -183,6 +182,9 @@ class NormalizingFlow(tf.keras.Model):
         self.trans_dist = tfd.TransformedDistribution(
             distribution=self.q0, bijector=tfb.Chain(bijectors)
         )
+
+        if self.batch_norm:
+            self._set_bn_momentum(bn_momentum)
 
     def __call__(self, N):
         tf.random.set_seed(self.random_seed)
@@ -280,6 +282,23 @@ class NormalizingFlow(tf.keras.Model):
                 format_type_err_msg(self, "bn_momentum", bn_momentum, float)
             )
         self.bn_momentum = bn_momentum
+        bijectors = self.trans_dist.bijector.bijectors
+        for bijector in bijectors:
+            print(bijector)
+            if type(bijector).__name__ == "BatchNormalization":
+                print('here!')
+                bijector.batchnorm.momentum = bn_momentum
+        return None
+
+    def _reset_bn_movings(self,):
+        bijectors = self.trans_dist.bijector.bijectors
+        for bijector in bijectors:
+            if type(bijector).__name__ == "BatchNormalization":
+                bijector.batchnorm.moving_mean.assign(np.zeros((self.D,)))
+                bijector.batchnorm.moving_variance.assign(np.ones((self.D,)))
+                print(bijector.batchnorm.moving_mean)
+                print(bijector.batchnorm.moving_variance)
+        return None
 
     def _set_post_affine(self, post_affine):
         if type(post_affine) is not bool:
@@ -640,7 +659,6 @@ class IntervalFlow(tfp.bijectors.Bijector):
         :returns: The backward pass of the interval flow
         :rtype: (tf.Tensor, tf.Tensor)
         """
-
         softplus_inv = tf.math.log(
             tf.math.exp(
                 tf.multiply(
@@ -700,7 +718,8 @@ class IntervalFlow(tfp.bijectors.Bijector):
         :rtype: (tf.Tensor, tf.Tensor)
         """
 
-        return -self.forward_log_det_jacobian(self.inverse(x))
+        ildj =  -self.forward_log_det_jacobian(self.inverse(x))
+        return ildj
 
 def hp_df_to_nf(hp_df, model):
     nf = NormalizingFlow(
