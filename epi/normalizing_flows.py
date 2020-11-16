@@ -282,9 +282,7 @@ class NormalizingFlow(tf.keras.Model):
         self.bn_momentum = bn_momentum
         bijectors = self.trans_dist.bijector.bijectors
         for bijector in bijectors:
-            print(bijector)
             if type(bijector).__name__ == "BatchNormalization":
-                print('here!')
                 bijector.batchnorm.momentum = bn_momentum
         return None
 
