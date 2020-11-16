@@ -205,7 +205,8 @@ class BatchNormalization(bijector.Bijector):
     return _broadcast
 
   def _normalize(self, y):
-    return self.batchnorm.apply(y, training=self._training)
+    out = self.batchnorm.apply(y, training=self._training)
+    return out
 
   def _de_normalize(self, x):
     # Uses the saved statistics.
@@ -226,9 +227,9 @@ class BatchNormalization(bijector.Bijector):
   def _inverse(self, y):
     return self._de_normalize(y)
 
-  def _forward_log_det_jacobian(self, x, use_saved_statistics=False):
+  def _forward_log_det_jacobian(self, x):
     # Uses saved statistics to compute volume distortion.
-    return -self._inverse_log_det_jacobian(x, use_saved_statistics=use_saved_statistics)
+    return -self._inverse_log_det_jacobian(x, use_saved_statistics=False)
 
   def _inverse_log_det_jacobian(self, y, use_saved_statistics=True):
     if not self.batchnorm.built:
@@ -258,5 +259,5 @@ class BatchNormalization(bijector.Bijector):
     log_total_variance = tf.reduce_sum(log_variance)
     # The ildj is scalar, as it does not depend on the values of x and are
     # constant across minibatch elements.
-    return log_total_gamma - 0.5 * log_total_variance
+    return - log_total_gamma + 0.5 * log_total_variance
 

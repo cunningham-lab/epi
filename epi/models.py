@@ -385,7 +385,7 @@ class Model(object):
         ckpt_dir, exists = self.get_epi_path(init_params, nf, mu, aug_lag_hps)
         if exists:
             print("Loading cached epi at %s." % ckpt_dir)
-            q_theta = self._get_epi_dist(-1, init_params, nf, mu, aug_lag_hps, training=True)
+            q_theta = self._get_epi_dist(-1, init_params, nf, mu, aug_lag_hps)
             opt_df = pd.read_csv(os.path.join(ckpt_dir, "opt_data.csv"), index_col=0)
             failed = (opt_df['cost'].isna()).sum() > 0 
             return q_theta, opt_df, ckpt_dir, failed
@@ -541,7 +541,7 @@ class Model(object):
 
         # Return optimized distribution.
         q_theta = Distribution(nf, self.parameters)
-        q_theta.set_batch_norm_trainable(False)
+        #q_theta.set_batch_norm_trainable(False)
 
         return q_theta, opt_it_dfs[0], ckpt_dir, failed
 
@@ -1377,8 +1377,9 @@ class Distribution(object):
         z = z.astype(np.float32)
         return z
 
-    def plot_dist(self, N=200, kde=True):
-        z = self.sample(N)
+    #def plot_dist(self, N=200, c=None, kde=True):
+    #    z = self.sample(N)
+    def plot_dist(self, z, c=None, kde=True):
         log_q_z = self.log_prob(z)
         df = pd.DataFrame(z)
         # iterate over parameters to create label_names
@@ -1394,9 +1395,13 @@ class Distribution(object):
 
         log_q_z_std = log_q_z - np.min(log_q_z)
         log_q_z_std = log_q_z_std / np.max(log_q_z_std)
+
         cmap = plt.get_cmap("viridis")
+        if c is None:
+            c = log_q_z_std
+        plt.figure()
         g = sns.PairGrid(df, vars=z_labels)
-        g = g.map_upper(plt.scatter, color=cmap(log_q_z_std))
+        g = g.map_upper(plt.scatter, color=cmap(c))
         if kde:
             g = g.map_diag(sns.kdeplot)
             g = g.map_lower(sns.kdeplot)

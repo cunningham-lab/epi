@@ -632,6 +632,7 @@ def pairplot(
     figsize=(12, 12),
     outlier_stds=10,
     ticksize=None,
+    labelpads=None,
     pfname="images/temp.png",
 ):
     M = Z.shape[0]
@@ -652,6 +653,14 @@ def pairplot(
             clims = [None, None]
     if ticksize is None:
         ticksize = fontsize-4
+    xlabelpad = None
+    ylabelpad = None
+    if labelpads is not None:
+        if labelpads[0] is not None:
+            xlabelpad = labelpads[0]
+        if labelpads[1] is not None:
+            ylabelpad = labelpads[1]
+
 
     fig, axs = plt.subplots(num_dims - 1, num_dims - 1, figsize=figsize)
     for i in range(num_dims - 1):
@@ -708,8 +717,8 @@ def pairplot(
                         )
 
                 if i + 1 == j:
-                    ax.set_xlabel(labels[j], fontsize=fontsize)
-                    ax.set_ylabel(labels[i], fontsize=fontsize)
+                    ax.set_xlabel(labels[j], fontsize=fontsize, labelpad=xlabelpad)
+                    ax.set_ylabel(labels[i], fontsize=fontsize, labelpad=ylabelpad)
                     plt.setp(ax.get_xticklabels(), fontsize=ticksize)
                     plt.setp(ax.get_yticklabels(), fontsize=ticksize)
                 else:
@@ -776,7 +785,7 @@ def plot_T_x(T_x, T_x_sim, bins=30, xmin=None, xmax=None,
 
     if xlabel is not None:
         ax.set_xlabel(xlabel, fontsize=fontsize)
-    xticks = [_range[0], x_mean-2*x_std, x_mean, x_mean+2*x_std, _range[1]]
+    xticks = [x_mean-2*x_std, x_mean, x_mean+2*x_std]
     xticks = np.around(xticks, 2)
     ax.set_xticks(xticks)
     ax.set_xticklabels(xticks, fontsize=(fontsize-4))

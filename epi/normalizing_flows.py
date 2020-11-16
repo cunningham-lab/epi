@@ -187,8 +187,6 @@ class NormalizingFlow(tf.keras.Model):
             self._set_bn_momentum(bn_momentum)
 
     def __call__(self, N):
-        tf.random.set_seed(self.random_seed)
-
         x = self.q0.sample(N)
         log_q0 = self.q0.log_prob(x)
 
@@ -484,9 +482,9 @@ class NormalizingFlow(tf.keras.Model):
                 opt_it_dfs.append(pd.DataFrame(d, index=[0]))
                 if verbose:
                     if not np.isnan(KL):
-                        print(i, "H", H, "KL", KL, "loss", loss)
+                        print(i, "H", H, "KL", KL, "loss", loss, flush=True)
                     else:
-                        print(i, "H", H, "loss", loss)
+                        print(i, "H", H, "loss", loss, flush=True)
 
         opt_df = pd.concat(opt_it_dfs, ignore_index=True)
         opt_df.to_csv(init_path + "opt_data.csv")
