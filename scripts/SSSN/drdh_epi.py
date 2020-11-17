@@ -48,7 +48,7 @@ model = Model(name, parameters)
 sssn_sim = SSSN_sim(eps)
 
 def dr(dh):
-    x1 = sssn_sim(H)[:,:,neuron_ind]
+    x1 = sssn_sim(H+tf.zeros_like(dh))[:,:,neuron_ind]
     x2 = sssn_sim(H + dh)[:,:,neuron_ind]
 
     diff = tf.reduce_mean(x2 - x1, axis=1)
@@ -71,7 +71,7 @@ q_theta, opt_data, epi_path, failed = model.epi(
     num_units=50,
     post_affine=True,
     batch_norm=True,
-    bn_momentum=0.99,
+    bn_momentum=0.0,
     K=15,
     N=M,
     num_iters=2500,
