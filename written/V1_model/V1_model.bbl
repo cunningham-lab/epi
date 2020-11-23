@@ -7,6 +7,11 @@ Misha~V Tsodyks, William~E Skaggs, Terrence~J Sejnowski, and Bruce~L
   interneurons.
 \newblock {\em Journal of neuroscience}, 17(11):4382--4388, 1997.
 
+\bibitem{goldman2009memory}
+Mark~S Goldman.
+\newblock Memory without feedback in a neural network.
+\newblock {\em Neuron}, 61(4):621--634, 2009.
+
 \bibitem{murphy2009balanced}
 Brendan~K Murphy and Kenneth~D Miller.
 \newblock Balanced amplification: a new mechanism of selective amplification of
@@ -68,6 +73,13 @@ Guang Chen, Carl~Van Vreeswijk, David Hansel, and David Hansel.
 \newblock {Mechanisms underlying the response of mouse cortical networks to
   optogenetic manipulation}.
 \newblock 2019.
+
+\bibitem{hennequin2018dynamical}
+Guillaume Hennequin, Yashar Ahmadian, Daniel~B Rubin, M{\'a}t{\'e} Lengyel, and
+  Kenneth~D Miller.
+\newblock The dynamical regime of sensory cortex: stable dynamics around a
+  single stimulus-tuned attractor account for patterns of noise variability.
+\newblock {\em Neuron}, 98(4):846--860, 2018.
 
 \bibitem{allen2018layer}
 (2018) Allen~Institute for Brain~Science.
