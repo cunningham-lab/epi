@@ -78,9 +78,10 @@ A. Rapid task switching behavioral paradigm (see text).
 B. Model of superior colliculus (SC). Neurons: LP - left pro, RP - right pro, LA - left anti, RA - right anti. 
 Parameters: $sW$ - self, $hW$ - horizontal, $vW$ -vertical, $dW$ - diagonal weights.  
 Subscripts $P$ and $A$ of connectivity weights indicate Pro or Anti populations, and e.g. $vW_{PA}$ is a vertical weight from an Anti to a Pro population.  
-C. The Schur decomposition of the weight matrix $W = V\Lambda V^{-1}$ is a unique decomposition with orthogonal $V$ and upper triangular $\Lambda$. Schur modes: $v_{\text{all}}$, $v_{\text{task}}$, $v_{\text{side}}$, and $v_{\text{diag}}$.  
-D. The marginal EPI distributions of the Schur eigenvalues at each level of task accuracy.
-E. The correlation of Schur eigenvalue with task performance in each learned EPI distribution.}
+C. The marginal EPI distributions of the Schur eigenvalues at each level of task accuracy.
+D. Simulations of SC networks with parameterizations indicated by the stars in panel C.  Shading  shows standard deviations across trials.
+E. The effect of delay period inactivation on accuracy versus Schur eigenvalues.
+F. Same as D with delay period inactivation.}
 \label{fig:SC}
 \end{figure}
 
@@ -95,30 +96,28 @@ We formulate rapid task switching as an emergent property by stipulating that th
 A variance of $5\%$ performance in each task will confer a posterior producing performances ranging from about $65\%-85\%$, allowing us to examine the properties of connectivity that yield better performance.
 
 We ran EPI to obtain SC model connectivity parameters $z$ producing rapid task switching (Fig. \ref{fig:SC}C).
-There is strong pairwise correlation between each parameter of the connectivity matrix.
 To make sense of this inferred distribution, we followed the approach of Duan et al. by decomposing the connectivity matrix $W = V\Lambda V^{-1}$ in such a way (the Schur decomposition) that the basis vectors $v_i$ are the same for all $W$ (Fig. \ref{fig:SC_Eigs}A). 
 These basis vectors have intuitive roles in processing for this task, and are accordingly named the \textit{all} mode - all neurons co-fluctuate, \textit{side} mode - one side dominates the other, \textit{task} mode - the Pro or Anti populations dominate the other, and \textit{diag} mode - Pro- and Anti-populations of opposite hemispheres dominate the opposite pair. 
 The corresponding eigenvalues (e.g. $\lambda_{\text{task}}$, which change according to $W$) indicate the degree to which activity along that mode is increased or decreased by $W$. 
-Strong anticorrelation between $p_P$ and $\lambda_{\text{all}}$ (Fig. \ref{fig:SC_Eigs}B) suggests that accuracy in the Pro task is greater when all parameters decrease along the strongly correlated posterior.
-Indeed, this difference in accuracy is apparent when we simulate this model for greater parameter values (black star) and lower parameter values (gray star) (Fig. \ref{fig:SC}D). 
-In contrast, intermediate parameter values result in greater $p_A$ than extremal parameter vaues (Fig. \ref{fig:SC_EPI2}).
-While $p_P$ is well predicted by the remaining Schur eigenvalues (correlated with $\lambda_{\text{task}}$ and $\lambda_{\text{diag}}$ and anticorrelated with $\lambda_{\text{side}}$), $p_A$ is not well predicted by any of them (Fig. \ref{fig:SC_Eigs}B).
 
-Finally, we sought to 
+
+In agreement with experimental results form Duan et al., we found the optogenetic silencing during the delay period consistently decreased performance in the Anti task by 15-30\%, but had no consistent effect on the Pro task (Fig. \ref{fig:SC}E). 
+For example, the networks indicated by the black star suffers a steep drop in accuracy in the Anti task with delay period inactivation (Fig. \ref{fig:SC}F).  
+Networks resilient to delay period inactivation had greater $\lambda_{\text{task}}$ and $\lambda_{\text{task}}$ and lower $\lambda_{\text{all}}$ and $\lambda_{\text{side}}$ (Fig. \ref{fig:SC}E).
 
 \section{Supplementary}\label{methods_SC}
 \begin{equation}
-\mathbf{x}_\alpha = f(\mathbf{u}) = \left(\frac{1}{2}\tanh\left(\frac{\mathbf{u}_\alpha - \epsilon}{\zeta}\right)+ \frac{1}{2} \right)
+\mathbf{x}_\alpha = f(\mathbf{u}) = \left(\frac{1}{2}\tanh\left(\frac{u_\alpha - \epsilon}{\zeta}\right)+ \frac{1}{2} \right)
 \end{equation}
 where $\epsilon = 0.05$ and $\zeta = 0.5$.  
 
 The accuracies of $p_P$ and $p_A$ are calculated as
 \begin{equation}
-p_P(\mathbf{x}; \mathbf{z}) = \mathbb{E}_{x \sim p(x \mid z)}\left[\Theta[x_{LP}(t=1.8s) - x_{RP}(t=1.8s)]\right]
+p_P(\mathbf{x}; \mathbf{z}) = \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z})}\left[\Theta[x_{LP}(t=1.8s) - x_{RP}(t=1.8s)]\right]
 \end{equation}
 and 
 \begin{equation}
-p_A(\mathbf{x}; \mathbf{z}) = \mathbb{E}_{x \sim p(x \mid z)}\left[\Theta[x_{RP}(t=1.8s) - x_{LP}(t=1.8s)]\right]
+p_A(\mathbf{x}; \mathbf{z}) = \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z})}\left[\Theta[x_{RP}(t=1.8s) - x_{LP}(t=1.8s)]\right]
 \end{equation}
 given that the stimulus is on the left side, where $\Theta$ is the Heaviside step function.
 
@@ -167,22 +166,21 @@ The input parameterization was fixed to $I_{\text{constant}} = 0.75$, $I_{\text{
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.75]{figs/figSX1.pdf}
+\includegraphics[scale=0.9]{figs/figSX1.pdf}
 \end{center}
 \caption{\small Sentence 1 .
-A. Rapid task switching behavioral paradigm (see text). 
-B. blah}
+A. The Schur decomposition of the weight matrix $W = V\Lambda V^{-1}$ is a unique decomposition with orthogonal $V$ and upper triangular $\Lambda$. Schur modes: $v_{\text{all}}$, $v_{\text{task}}$, $v_{\text{side}}$, and $v_{\text{diag}}$.  
+B. Task accuracy vs. Schur eigenvalue.}
 \label{fig:SC_Eigs}
 \end{figure}
 
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.75]{figs/figSX2.pdf}
+\includegraphics[scale=0.6]{figs/figSX2.pdf}
 \end{center}
-\caption{\small Sentence 1 .
-A. Rapid task switching behavioral paradigm (see text). 
-B. blah}
+\caption{\small
+Same as Fig. 1C shaded by Anti task accuracy.}
 \label{fig:SC_EPI2}
 \end{figure}
 

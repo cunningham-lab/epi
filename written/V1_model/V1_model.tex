@@ -15,6 +15,7 @@
 \usepackage{graphicx}
 \DeclareMathOperator*{\argmin}{argmin}
 \DeclareMathOperator*{\argmax}{argmax}
+\usepackage{bm}
 
 \oddsidemargin0cm
 \topmargin-2cm     %I recommend adding these three lines to increase the 
@@ -48,7 +49,7 @@
 \begin{center}                  % Center the following lines
 {\Large Draft of new V1 section} \\
 Sean Bittner, Agostina Palmigiano \\
-October 6, 2020 \\
+November 24, 2020 \\
 \end{center}
 
 \section{Exploratory analysis of V1 with EPI produces a novel theory}\label{results_V1}
@@ -58,25 +59,31 @@ Despite their strong predictive power, E-I circuit models rely on the assumption
 However, experimental evidence shows that inhibition is composed of distinct elements -- parvalbumin (P), somatostatin (S), VIP (V) --
 composing 80\% of GABAergic interneurons in V1 \cite{markram2004interneurons, rudy2011three, tremblay2016}, and that these inhibitory cell types follow specific connectivity patterns (Fig. \ref{fig:SV_flip}A) \cite{pfeffer2013inhibition}.
 Recent theoretical advances \cite{litwin2016inhibitory, GarciaDelMolino2017, Chen2019},  have only started to address the consequences of this multiplicity in the dynamics of V1, strongly relying on linear theoretical tools. 
-Here, we use EPI to gain a comprehensive understanding of how external circuit inputs govern S-V flipping and modulate variability.
+Here, we use EPI to elucidate the mechanisms of neuron-type stability in V1 at different levels of contrast.
 
-We consider contrast responses of a nonlinear dynamical V1 circuit model (Fig. \ref{fig:SV_flip}A) with a state comprised of each neuron-type population's average membrane potential $x = \left[x_E, x_P , x_S, x_V \right]^\top$ (mV).
-Specifically, we examine the stochastic stabilized supralinear network \cite{hennequin2018dynamical}, generalized to have inhibitory multiplicity (see Section \ref{methods_V1}).
-Each population of neuron-type $\alpha$ receives recurrent input $\left(W f_r(x)\right)_\alpha$ from synaptic projections, where $W$ is the connectivity matrix and $f_r = \left[\cdot\right]_+^2$ is the rate nonlinearity.  
-$W$ is calculated from recent experiments measuring post-synaptic potentials and connectivity rates in mice  \cite{allen2018layer, billeh2019systematic}.
-Additionally, each population experiences a positive baseline input of $b_\alpha$, a contrast ($c$)-dependent input $h_\alpha$, and a stochastic input $\epsilon_\alpha$.
-%Since contrast is only considered to change input to the E- and P-populations in V1 (\textbf{TODO} AP to add citation), $h_E = h_P = c h^{(c)}$ and $h_S = h_V = 0\text{mV}$.
-Little is known about the scales of these baseline and contrast-dependent inputs, so we treat these as free parameters in our application of EPI:
- \begin{equation}
- z =  \begin{bmatrix} b_E & b_P & b_S & b_V & h^{(c)} \end{bmatrix}^\top.
-\end{equation}
+We consider contrast responses of a nonlinear dynamical V1 circuit model (Fig. \ref{fig:Fig3}A) with a state comprised of each neuron-type population's rate $x = \left[x_E, x_P , x_S, x_V \right]^\top$.
+Each population of neuron-type $\alpha$ receives recurrent input $\left(W f_r(x)\right)_\alpha$ from synaptic projections, where $W$ is the connectivity matrix and $f_r = \left[\cdot\right]_+^2$ is the rate nonlinearity.
+Driven by a baseline input $\mathbf{b}$, the circuit evolves form an initial condition $\mathbf{x}(0)$ to a steady-state solution (Fig. \ref{fig:Fig3}B, solid).
+When slow noise $\mathbf{\epsilon}$ is introduced, circuit activity fluctuates around this solution (Fig. \ref{fig:Fig3}B dashed), and the model is then a stochastic stabilized supralinear network (SSSN) \cite{hennequin2018dynamical} (see Section \ref{methods_V1}).
+As contrast is enhanced, input to the E- and P-populations via $h^{(c)}$ increases causing the steady state solution (and fluctuations thereabout) to change  (Fig. \ref{fig:Fig3}C).
+In this analysis, we consider $W$,$b$, and $h^{(c)}$ that have been fit to contrast responses in mouse V1 using the deterministic model (TODO cite, see Section \ref{methods_V1}).
+As contrast changes, so does the degree of stochastic variability of each neuron-type (Fig. \ref{fig:Fig3}D).
+Moreover, the circuit transitions into an inhibition-stabilized network (ISN) with increasing contrast (Fig. \ref{fig:Fig3}D inset).
+While the ISN-regime and it's effects are well understood in E-I networks, it's role in the stability of this SSSN with inhibitory multiplicity has not been explored.
 
-From first principles, we may attempt to fit or infer $z$ based on recorded V1 population responses at varying contrasts (\textbf{TODO} AP to add citation).
-However, such a class of constrained models rarely produce good fits that generalize well.
-Instead, we can use EPI to condition $z$ on one of the most salient properties of these data-sets called ``S-V flipping" --  a winner-take-all relationship between the S- and V-populations. At low contrast values, the V-population dominates the S-population, and at greater contrast values, the S-population dominates the V-population.  We formulate the emergent property of S-V flipping with a normalized statistic measuring the difference in steady state ($x_{ss}$) between the S- and V-population at a given contrast:
+To study the role of inhibition stabilization in this network, we explore the changes in input 
 \begin{equation}
-d_{S,V}(c; z) = \frac{f_r(x_{ss,S}(c; z)) - f_r(x_{ss,V}(c; z))}{|f_r(x_{ss}(c; z))|_2}
+\mathbf{z} = \begin{bmatrix} dh_E & dh_P & dh_S & dh_V \end{bmatrix}^{\top}
 \end{equation}
+resulting in each neuron-type's stability around it's mean rate.
+The emergent property of ``neuron-type stability" for population $\alpha$  at contrast level $c$ is defined as 
+\begin{equation}\label{eq:EP}
+\begin{split}
+\mathcal{X}(\alpha, c) ~~:~~  \mathbb{E}_{\mathbf{z}}\begin{bmatrix} dx_\alpha(\mathbf{x}; \mathbf{z},c) \end{bmatrix}  &~~=~~  0  ~~\triangleq~~ \bm{\mu}  \\ 
+\text{Var}_{\mathbf{z}}\begin{bmatrix} dx_\alpha(\mathbf{x}; \mathbf{z},c) \end{bmatrix}  &~~=~~  \begin{bmatrix} 0.05^2 \end{bmatrix} ~~\triangleq~~ \bm{\sigma}^2 .
+\end{split}
+\end{equation}
+
 
 \clearpage
 \begin{figure}[h]
@@ -84,147 +91,122 @@ d_{S,V}(c; z) = \frac{f_r(x_{ss,S}(c; z)) - f_r(x_{ss,V}(c; z))}{|f_r(x_{ss}(c; 
 \textbf{B}. EPI posterior $q_\theta(z \mid \mathcal{B}_{S-V})$ for S-V flipping. The obtained posterior is visualized as 500 samples from the inferred distribution colored by $\log(q_\theta(z))$. This posterior is bimodal and concentrated in planes $h^{(c)} > 0$ and $h^{(c)} < 0$ at distinct modes $z_1$ (black star) and $z_2$ (gray, star), respectively.  Bottom-left: Posterior predictive distribution of the emergent property statistics with respect to the constrained means (black, dashed line) and variances (gray, dashed lines at two standard deviations). 
 \textbf{C}. Posterior predictive distribution of $d_{S,V}$ for each mode.  The $z_1$-mode produces V-to-S flipping with increasing contrast.
 \textbf{D}. Model simulations at the mode $z_1$ at $c=0$ (solid) and $c=1$ (dashed). \textbf{E}. Mean system response at varying contrasts for $z_1$. Error bars show noise in rate. \textbf{F}. Plot of noise with contrast from E. Error bars are standard error measured across simulations.
- }\label{fig:SV_flip}
+ }\label{fig:Fig3}
 \begin{center}
-\includegraphics[scale=.31]{figs/Fig3/Fig3.pdf}
+\includegraphics[scale=.18]{figs/Fig3/Fig3.pdf}
 \end{center}
 \end{figure}
 \clearpage
 
-For S and V to flip their steady states, the difference between the S- and V-population rates at no contrast ($c=0$) must have opposite sign at full contrast ($c=1$).  Therefore, we stipulate the emergent property of S-V flipping to require the product of $d_{S,V}(c=0)$ and $d_{S,V}(c=1)$ to be appreciably negative.  The means and variance of this emergent property statistics were chosen such that the posterior predictive distribution always produced S-V flipping.
 
-\begin{equation}
-\begin{split}
-\mathcal{B}_{S,V} \triangleq \text{\hspace{.5cm}} \mathbb{E}\left[ d_{S,V}(0)d_{S,V}(1) \right] &= -0.25 \\ 
-\text{Var}\left[ d_{S,V}(0)d_{S,V}(1)\right] &=  0.125^2
-\end{split}
-\end{equation}
-
-We ran EPI to obtain the parameter distribution of neuron-type population input parameters $z$ that produce S-V flipping (Fig. \ref{fig:SV_flip}B).
-We considered positive baseline inputs $b_\alpha$ from 0 to 25mV and contrast-dependent changes in $h^{(c)}$ from -10 to 10mV.
-The shape and structure of this distribution reveal some important properties of this model.
-\begin{enumerate}
-\item Two types of $z$ result in S-V flipping. (There are two modes separated by the hyperplane $h^{(c)} = 0$.)
-\item S-V flipping is sensitive to anticorrelated changes in $b_S$ and $b_V$.  (The pairwise marginal distribution of $q_\theta(b_S, b_V \mid \mathcal{B}_{S,V})$ reveals strong correlation between these parameters.)
-\item S-V flipping is most degenerate with respect to input to the P population. (The marginal distributions of $q_\theta(h_P \mid \mathcal{B}_{S,V})$ and  $q_\theta(dh_P \mid \mathcal{B}_{S,V})$ are approximately uniform along their allowed range.)
-\end{enumerate}
-Simulation from the posterior reveals that the biologically plausible mode ($h^{(c)} > 0$) matches experiments by producing V-to-S flipping with contrast.
-Alternatively, the biologically implausible mode ($h^{(c)} > 0$) produces S-to-V flipping with contrast -- the opposite effect from experiments (Fig. \ref{fig:SV_flip}C).
-
-We examined the responses of this circuit model to varying contrasts using the highest log-probability parameterization ($z_1$) of the plausible mode.
-Simulations show the stochastic responses of the S- and V-population are indeed flipped at no and full contrast (Fig. \ref{fig:SV_flip}D).
-This flipping occurs gradually with graded increases in contrast (Fig. \ref{fig:SV_flip}E).
-Interestingly, the responses are noisier at intermediate contrasts (Fig. \ref{fig:SV_flip}F).
-This suggests a new hypothesis explaining phenomena of variability in V1: noise is greater in stabilized supralinear networks during winner-take-all competition between the S- and V- populations, but is quenched as either the S- or V-population overtakes the other.
 
 
 \section{V1 Supplemental section}\label{methods_V1}
 
-The dynamics are driven by the rectified and exponentiated sum of recurrent inputs $Wx$, external inputs $h$, and external noise $\epsilon \sim \mathcal{N}(0, \sigma_{\epsilon}^2)$:
+The dynamics are driven by the rectified and exponentiated sum of recurrent inputs $Wx$, external inputs $h$, and external noise:
 
 \begin{equation}
-T \frac{dx}{dt} = -x + x_{\text{rest}} +Wf_r(x) + b + h + \epsilon
+\tau \frac{dx}{dt} = -x +Wf_r(x) + b + h + \epsilon
 \end{equation}
 
-where $T$ is a diagonal matrix with $\tau_E = 20\text{ms}$ and $\tau_P = \tau_S = \tau_V = 10\text{ms}$, $x_{\text{rest}} = -65\text{mV}$, and $f_r(x) = \left[x - x_{\text{rest}} \right]_+^2$.
+where $\tau = 1 \text{ms}$, and $f_r(x) = \left[x \right]_+^2$.
 
-The noise is an modeled as an Ornstein-Uhlenbeck process:
+The noise is modeled as an Ornstein-Uhlenbeck process:
 \begin{equation}
 \tau_{\text{noise}} d\epsilon_\alpha = -\epsilon_\alpha dt + \sqrt{2\tau_{\text{noise}}}\sigma_\alpha dB
 \end{equation}
 
-where $\tau_{\text{noise}}$ is slow at 50ms, $\sigma_E = 0.2\text{mV}$, $\sigma_P = \sigma_S = \sigma_V = 0.1\text{mV}$, and $dB$ is a standard Wiener process.
+where $\tau_{\text{noise}}$ is slow at 5ms, $\sigma_\alpha =  0.01 $, and $dB$ is a standard Wiener process.
 
-We considered fixed effective connectivity weights $W$ approximated from experimental recordings of publicly available datasets of mouse V1 \cite{allen2018layer, billeh2019systematic} (see Section \ref{methods_V1}).  The input to this circuit is comprised of a nominal baseline input $b$ and additive contrast-dependent input $h$
+We considered the stability of this stochastic stabilized supralinear network using connectivity ($W$) and input ($b$ and $h^{(c)}$) parameters fit to the deterministic model (TODO cite)
+
 \begin{equation}
-h = c \begin{bmatrix} h^{(c)} \\ h^{(c)} \\ 0 \\ 0 \end{bmatrix}.
+W =  \begin{bmatrix} W_{EE} & W_{EP} & W_{ES} & W_{EV} \\
+W_{PE} & W_{PP} & W_{PS} & W_{PV} \\
+W_{SE} & W_{SP} & W_{SS} & W_{SV} \\
+W_{VE} & W_{VP} & W_{VS} & W_{VV}  \end{bmatrix} = 
+ \begin{bmatrix} .785 & -.102 & -1.24 & -.306 \\
+.809 & -.100 & -.620 & -.264 \\
+.833 & -.000128 & -.0000483 & -.742 \\
+.708 & -.306 & -.452 & -.0000605 \\
+ \end{bmatrix},
+\end{equation} 
+
+\begin{equation}
+b =  \begin{bmatrix} b_E \\ b_P \\ b_S \\ b_V \end{bmatrix} =
+ \begin{bmatrix} .590 \\ .504 \\ .515 \\ .670 \end{bmatrix} ,
+\end{equation} 
+and
+\begin{equation} 
+h^{(c)} = \begin{bmatrix} h^{(c)}_E \\ h^{(c)}_P \\ 0 \\ 0 \end{bmatrix} = 
+\begin{bmatrix} .595 \\ .396 \\ 0 \\ 0 \end{bmatrix}.
+\end{equation} 
+
+This ISN coefficient $\gamma(x; z)$ is calculated by simulating 
+
+
+The expectation and variance in the emergent property definition are taken over both the posterior distribution and the stochasticity of the SSSN:
+\begin{equation}
+= \mathbb{E}_{\mathbf{z}}\begin{bmatrix} dx_\alpha(\mathbf{x}; \mathbf{z},c) \end{bmatrix}  = \mathbb{E}_{\mathbf{z}\sim q_\theta} \left[ \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z})} \begin{bmatrix} x_\alpha(\mathbf{x}; \mathbf{z},c) - x_\alpha(\mathbf{x}; \mathbf{0},c) \end{bmatrix}\right].
 \end{equation}
 
- 
-We considered fixed effective connectivity weights $W$ approximated from experimental recordings of publicly available datasets of mouse V1.  Specifically, Billeh et al. \cite{billeh2019systematic} produce estimates of the synaptic strength (in mV)
-\begin{equation}
-M = \begin{bmatrix} 
-0.36 & -0.48 & -0.31 & -0.28 \\
-1.49 & -0.68 & -0.50 & -0.18 \\
-0.86 & -0.42 & -0.15 & -0.32 \\
-1.31 & -0.41 & -0.52 & -0.37 \end{bmatrix}
-\end{equation}
-and connection probability
-\begin{equation}
-C = \begin{bmatrix} 0.16 & 0.411 & 0.424 &  0.087 \\
-0.395 & .451 & 0.857 & 0.02 \\
-0.182 & 0.03 & 0.082 & 0.625 \\
-0.105 & 0.22 & 0.77 & 0.028 \end{bmatrix}.
-\end{equation}
+\begin{figure}[h]
+\caption{\small SX 1
+ }\label{fig:SX1}
+\begin{center}
+\includegraphics[scale=.5]{figs/FigSX/Fig_SX1.pdf}
+\end{center}
+\end{figure}
 
-Multiplying these connection probabilities and synaptic efficacies gives us an effective connectivity matrix:
-\begin{equation}
-W = C \odot M = \begin{bmatrix} 
-0.0576 & -0.197 & -0.131 & -0.0244 \\
-0.589 & -0.307 & -0.429 & -0.00360 \\
-0.157 & -0.0126  & -0.0123 & -0.200 \\
-0.138 & -0.0902 & -0.400 & -0.0104 \end{bmatrix}.
-\end{equation}
-
-%\begin{figure}[h]
-%\caption{\small \textbf{A}. ...
-% }\label{fig:drdh}
-%\begin{center}
-%\includegraphics[scale=.3]{figs/FigSabc/FigSabc.pdf}
-%\end{center}
-%\end{figure}
-%
-%s
-%\begin{figure}[h]
-%\caption{\small \textbf{A}. ...
-% }\label{fig:drdh}
-%\begin{center}
-%\includegraphics[scale=.15]{figs/FigSX/FigSX.pdf}
-%\end{center}
-%\end{figure}
+\begin{figure}[h]
+\caption{\small SX 2
+ }\label{fig:SX2}
+\begin{center}
+\includegraphics[scale=.5]{figs/FigSX/Fig_SX2.pdf}
+\end{center}
+\end{figure}
 
 
 \bibliography{epi}
 \bibliographystyle{unsrt}
 
-\end{document}
-
-% With this model, we are interested in the differential responses of each neuron-type population to changes in input $dh$. 
-% Initially, we studied the linearized response of the system to input $\frac{dx_{ss}}{dh}$ at the steady state response $x_{ss}$, i.e. a fixed point. 
-% All analyses of this model consider the steady state response, so we drop the notation $ss$ from here on.
-% While this linearization accurately predicts differential responses $dx = \left[ dx_{E} , dx_{P} , dx_{S} ,dx_{V} \right]^\top$  for small differential inputs to each population $dh = \left[ 0.1 , 0.1 , 0.1 , 0.1 \right]^\top$ (Fig \ref{fig:V1_EPI}B left), the linearization is a poor predictor in this nonlinear model more generally (Fig. \ref{fig:V1_EPI}B right).  
-% Currently available approaches to deriving the steady state response of the system are limited.
+ With this model, we are interested in the differential responses of each neuron-type population to changes in input $dh$. 
+ Initially, we studied the linearized response of the system to input $\frac{dx_{ss}}{dh}$ at the steady state response $x_{ss}$, i.e. a fixed point. 
+ All analyses of this model consider the steady state response, so we drop the notation $ss$ from here on.
+ While this linearization accurately predicts differential responses $dx = \left[ dx_{E} , dx_{P} , dx_{S} ,dx_{V} \right]^\top$  for small differential inputs to each population $dh = \left[ 0.1 , 0.1 , 0.1 , 0.1 \right]^\top$ (Fig \ref{fig:V1_EPI}B left), the linearization is a poor predictor in this nonlinear model more generally (Fig. \ref{fig:V1_EPI}B right).  
+ Currently available approaches to deriving the steady state response of the system are limited.
 
 %\section{Stability analysis}
-%The input $h = b + dh$ is comprised of a baseline input  $b = \left[ b_E, b_P , b_S , b_V \right]^\top = \left[ 1, 1, 1 ,1.25 \right]^\top$  and a differential input $dh = \left[ dh_E , dh_P , dh_S , dh_V\right]^\top$ to each neuron-type population.  
-%
-%We want to know the differential inputs $dh$ that maintain the steady state $x_{\alpha}$ for $\alpha \in \{E, P, S, V\}$. 
-%We see from Figure 1B that input to a single population in the recurrent circuit elicits a variety of responses across populations: E same, P up, S down, and V up.
-%We define the differential steady state $dx_{\alpha}$ as the change in steady state $x_{\alpha}$ when receiving input $h=b + dh$ with respect to the baseline $h = b$.
-%Maintaining the steady state of a neuron-type population amounts to the emergent property 
-%\begin{equation}
-%\mathcal{B}(\alpha, \sigma) ~~\triangleq~~ 
-%\mathbb{E} \begin{bmatrix} dx_{\alpha} \\ dx_{\alpha}^2 \end{bmatrix} ~~=~~ \begin{bmatrix} 0 \\ \sigma^2 \end{bmatrix}.\\
-%\end{equation}
-%In the following analyses, we chose $\sigma=0.25$.
-%
-%\section{EPI agrees with ABC}
-%To get an idea of what distribution of parameters ($dh$) we should expect from EPI, we can use ABC to obtain a set of parameters related to the emergent property.  
-%We compare EPI to ABC with a rejection heuristic defined by the standard deviation of the differential responses $\sigma_{ABC}$
-% \[f_{ABC}(dx_\alpha; \sigma_{ABC}) = |dx_\alpha| > 2\sigma_{ABC}.\]
-% In other words, we ran ABC accepting parameters that generate differential responses within two standard deviations $\sigma_{ABC}=0.25$ of $dx_\alpha = 0$.
-% In Figure 2, we see that the distributions obtained via EPI (colored by $\log q_\theta(z)$) are visually similar to those obtained via ABC (colored by $dx_\alpha$). \\
-% 
-% \textbf{Figure 2}: EPI (left) vs ABC (right).  Arrows in EPI distribution indicate dimensions of maximal sensitivity at selected parameters $dh$. The importance of $v_S$ and $v_P$ are explained in section 4.2. \\
-%
-%There are some subtle differences between the EPI and ABC distributions, but some difference is to be expected.
-%Rather than simply attributing these differences to imperfection of the EPI optimization routine, we consider the the effect of bias in $dx_\alpha$ from ABC (and lack thereof from EPI).
-%
-%When $\epsilon > 0$ in ABC, the samples are \textit{not} from the posterior distribution.
-%For $\epsilon > 0$, the ``posterior" predictive means of ABC $\mathbb{E}_{ABC(\alpha, \sigma_{ABC})}\left[dx_\alpha \right]$ may be far from zero.
-%In Figure 3, we see that with ABC, there is an increasingly negative bias in $\mathbb{E}_{ABC(\alpha, \sigma_{ABC})}\left[dx_\alpha \right]$ for greater error tolerances across all neuron-types.  
-%Additionally with ABC, there is no precise control of the variance $\mathbb{E}_{ABC(\alpha, \sigma_{ABC})}\left[dx_\alpha^2 \right]$, which may be undesireable.
-%
-%In contrast, the first and second moments of $dx_\alpha$ are controlled to a specified degree of accuracy (Figure 4).
-%The variances of each distribution of $dx_\alpha$ are close to their target value $0.25^2 = 0.0625$ (see variances next to histograms of Figure 4). 
+The input $h = b + dh$ is comprised of a baseline input  $b = \left[ b_E, b_P , b_S , b_V \right]^\top = \left[ 1, 1, 1 ,1.25 \right]^\top$  and a differential input $dh = \left[ dh_E , dh_P , dh_S , dh_V\right]^\top$ to each neuron-type population.  
 
+We want to know the differential inputs $dh$ that maintain the steady state $x_{\alpha}$ for $\alpha \in \{E, P, S, V\}$. 
+We see from Figure 1B that input to a single population in the recurrent circuit elicits a variety of responses across populations: E same, P up, S down, and V up.
+We define the differential steady state $dx_{\alpha}$ as the change in steady state $x_{\alpha}$ when receiving input $h=b + dh$ with respect to the baseline $h = b$.
+Maintaining the steady state of a neuron-type population amounts to the emergent property 
+\begin{equation}
+\mathcal{B}(\alpha, \sigma) ~~\triangleq~~ 
+\mathbb{E} \begin{bmatrix} dx_{\alpha} \\ dx_{\alpha}^2 \end{bmatrix} ~~=~~ \begin{bmatrix} 0 \\ \sigma^2 \end{bmatrix}.\\
+\end{equation}
+In the following analyses, we chose $\sigma=0.25$.
+
+\section{EPI agrees with ABC}
+To get an idea of what distribution of parameters ($dh$) we should expect from EPI, we can use ABC to obtain a set of parameters related to the emergent property.  
+We compare EPI to ABC with a rejection heuristic defined by the standard deviation of the differential responses $\sigma_{ABC}$
+ \[f_{ABC}(dx_\alpha; \sigma_{ABC}) = |dx_\alpha| > 2\sigma_{ABC}.\]
+ In other words, we ran ABC accepting parameters that generate differential responses within two standard deviations $\sigma_{ABC}=0.25$ of $dx_\alpha = 0$.
+ In Figure 2, we see that the distributions obtained via EPI (colored by $\log q_\theta(z)$) are visually similar to those obtained via ABC (colored by $dx_\alpha$). \\
+ 
+ \textbf{Figure 2}: EPI (left) vs ABC (right).  Arrows in EPI distribution indicate dimensions of maximal sensitivity at selected parameters $dh$. The importance of $v_S$ and $v_P$ are explained in section 4.2. \\
+
+There are some subtle differences between the EPI and ABC distributions, but some difference is to be expected.
+Rather than simply attributing these differences to imperfection of the EPI optimization routine, we consider the the effect of bias in $dx_\alpha$ from ABC (and lack thereof from EPI).
+
+When $\epsilon > 0$ in ABC, the samples are \textit{not} from the posterior distribution.
+For $\epsilon > 0$, the ``posterior" predictive means of ABC $\mathbb{E}_{ABC(\alpha, \sigma_{ABC})}\left[dx_\alpha \right]$ may be far from zero.
+In Figure 3, we see that with ABC, there is an increasingly negative bias in $\mathbb{E}_{ABC(\alpha, \sigma_{ABC})}\left[dx_\alpha \right]$ for greater error tolerances across all neuron-types.  
+Additionally with ABC, there is no precise control of the variance $\mathbb{E}_{ABC(\alpha, \sigma_{ABC})}\left[dx_\alpha^2 \right]$, which may be undesireable.
+
+In contrast, the first and second moments of $dx_\alpha$ are controlled to a specified degree of accuracy (Figure 4).
+The variances of each distribution of $dx_\alpha$ are close to their target value $0.25^2 = 0.0625$ (see variances next to histograms of Figure 4). 
+
+\end{document}
