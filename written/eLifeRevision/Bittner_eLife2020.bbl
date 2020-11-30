@@ -30,6 +30,13 @@ Kong-Fatt Wong and Xiao-Jing Wang.
   decisions.
 \newblock {\em Journal of Neuroscience}, 26(4):1314--1328, 2006.
 
+\bibitem{liepe2014framework}
+Juliane Liepe, Paul Kirk, Sarah Filippi, Tina Toni, Chris~P Barnes, and
+  Michael~PH Stumpf.
+\newblock A framework for parameter estimation and model selection from
+  experimental data in systems biology using approximate bayesian computation.
+\newblock {\em Nature protocols}, 9(2):439--456, 2014.
+
 \bibitem{kingma2013auto}
 Diederik~P Kingma and Max Welling.
 \newblock Auto-encoding variational bayes.
@@ -96,12 +103,38 @@ Liam Paninski and John~P Cunningham.
   cycle in large-scale neuroscience.
 \newblock {\em Current opinion in neurobiology}, 50:232--241, 2018.
 
+\bibitem{raue2009structural}
+Andreas Raue, Clemens Kreutz, Thomas Maiwald, Julie Bachmann, Marcel Schilling,
+  Ursula Klingm{\"u}ller, and Jens Timmer.
+\newblock Structural and practical identifiability analysis of partially
+  observed dynamical models by exploiting the profile likelihood.
+\newblock {\em Bioinformatics}, 25(15):1923--1929, 2009.
+
+\bibitem{gelman2013philosophy}
+Andrew Gelman and Cosma~Rohilla Shalizi.
+\newblock Philosophy and the practice of bayesian statistics.
+\newblock {\em British Journal of Mathematical and Statistical Psychology},
+  66(1):8--38, 2013.
+
+\bibitem{blei2014build}
+David~M Blei.
+\newblock Build, compute, critique, repeat: Data analysis with latent variable
+  models.
+\newblock 2014.
+
 \bibitem{transtrum2015perspective}
 Mark~K Transtrum, Benjamin~B Machta, Kevin~S Brown, Bryan~C Daniels,
   Christopher~R Myers, and James~P Sethna.
 \newblock Perspective: Sloppiness and emergent theories in physics, biology,
   and beyond.
 \newblock {\em The Journal of chemical physics}, 143(1):07B201\_1, 2015.
+
+\bibitem{tran2017hierarchical}
+Dustin Tran, Rajesh Ranganath, and David Blei.
+\newblock Hierarchical implicit models and likelihood-free variational
+  inference.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages
+  5523--5533, 2017.
 
 \bibitem{rezende2015variational}
 Danilo~Jimenez Rezende and Shakir Mohamed.
@@ -123,13 +156,6 @@ George Papamakarios, Theo Pavlakou, and Iain Murray.
 Gabriel Loaiza-Ganem, Yuanjun Gao, and John~P Cunningham.
 \newblock Maximum entropy flow networks.
 \newblock {\em International Conference on Learning Representations}, 2017.
-
-\bibitem{tran2017hierarchical}
-Dustin Tran, Rajesh Ranganath, and David Blei.
-\newblock Hierarchical implicit models and likelihood-free variational
-  inference.
-\newblock In {\em Advances in Neural Information Processing Systems}, pages
-  5523--5533, 2017.
 
 \bibitem{goldman2001global}
 Mark~S Goldman, Jorge Golowasch, Eve Marder, and LF~Abbott.
