@@ -36,11 +36,13 @@ parameters = [g_el, g_synA]
 model = Model(name, parameters)
 
 # Emergent property values.
-mu = np.array([freq])
+mu_std = 0.025
+mu = np.array([freq, mu_std**2])
 
+sigma_I = 2.5e-11
 dt = 0.025
-T = 300
-network_freq = NetworkFreq(dt, T)
+T = 200
+network_freq = NetworkFreq(dt, T, sigma_I, mu)
 
 model.set_eps(network_freq)
 

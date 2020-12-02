@@ -64,6 +64,7 @@ num_freqs = 101
 freqs = np.linspace(min_freq, max_freq, num_freqs, dtype=np.float32)[:,None]
 dFreq = freqs[1,0] - freqs[0,0]
 
+
 def get_Phi(dt, T):
     Fs = 1.0 / dt
     N = T - fft_start + 1 - (w - 1)
@@ -81,7 +82,7 @@ avg_filter = (1.0 / w) * tf.ones((w, 1, 1), dtype=DTYPE)
 #freqs = np.linspace(min_freq, max_freq, num_freqs, dtype=np.float32)[None,:]
 _x_range = np.arange(num_freqs)[None,:]
 
-def Simulate(dt, T):
+def Simulate(dt, T, sigma_I):
     Phi = get_Phi(dt, T)
     def simulate(g_el, g_synA):
         g_el = 1e-9*g_el[:,0]
@@ -137,7 +138,7 @@ def Simulate(dt, T):
             lambda_N = (phi_N) * tf.math.cosh((V_m - v_3) / (2 * v_4))
             tau_h = (272.0 - (-1499.0 / (1.0 + tf.exp((-V_m + v_7) / v_8)))) / 1000.0
 
-            dVmdt = (1.0 / C_m) * (-I_total + 0.*tf.random.normal(I_total.shape, 0., 1.))
+            dVmdt = (1.0 / C_m) * (-I_total + sigma_I*tf.random.normal(I_total.shape, 0., 1.))
             dNdt = lambda_N * (N_inf - N)
             dHdt = (H_inf - H) / tau_h
 
@@ -180,8 +181,8 @@ def Simulate(dt, T):
 
     return simulate
 
-def NetworkFreq(dt, T):
-    simulate = Simulate(dt, T)
+def NetworkFreq(dt, T, sigma_I, mu):
+    simulate = Simulate(dt, T, sigma_I)
     Phi = get_Phi(dt, T)
     def network_freq(g_el, g_synA):
         """Simulate the STG circuit given parameters z.
@@ -208,7 +209,106 @@ def NetworkFreq(dt, T):
 
         soft_argmax = tf.reduce_sum(tf.nn.softmax(BETA*tf.abs(V), axis=1)*_x_range, axis=1, keepdims=True)
         f_h = soft_argmax*dFreq + min_freq
-        #T_x = tf.concat((f_h, tf.square(f_h - mu[0])), 1)
-        return f_h
+        T_x = tf.concat((f_h, tf.square(f_h - mu[0])), 1)
+        return T_x
+
     return network_freq
 
+def Simulate_all(dt, T, sigma_I):
+    Phi = get_Phi(dt, T)
+    def simulate(g_el, g_synA):
+        g_el = 1e-9*g_el[:,0]
+        g_synA = 1e-9*g_synA[:,0]
+
+        # get number of batch samples
+        M = g_el.shape[0]
+        _zeros = tf.zeros((M,), dtype=DTYPE)
+
+
+        def f(x):
+            # x contains
+            V_m = x[:, :5]
+            N = x[:, 5:10]
+            H = x[:, 10:]
+
+            M_inf = 0.5 * (1.0 + tf.tanh((V_m - v_1) / v_2))
+            N_inf = 0.5 * (1.0 + tf.tanh((V_m - v_3) / v_4))
+            H_inf = 1.0 / (1.0 + tf.exp((V_m + v_5) / v_6))
+
+            S_inf = 1.0 / (1.0 + tf.exp((v_th - V_m) / v_9))
+
+            I_leak = g_leak * (V_m - V_leak)
+            I_Ca = g_Ca * M_inf * (V_m - V_Ca)
+            I_k = g_k * N * (V_m - V_k)
+            I_h = g_h * H * (V_m - V_h)
+
+            I_elec = tf.stack(
+                [
+                    _zeros,
+                    g_el * (V_m[:, 1] - V_m[:, 2]),
+                    g_el * (V_m[:, 2] - V_m[:, 1] + V_m[:, 2] - V_m[:, 4]),
+                    _zeros,
+                    g_el * (V_m[:, 4] - V_m[:, 2]),
+                ],
+                axis=1,
+            )
+            
+            I_syn = tf.stack(
+                [
+                    g_synB * S_inf[:, 1] * (V_m[:, 0] - V_syn),
+                    g_synB * S_inf[:, 0] * (V_m[:, 1] - V_syn),
+                    g_synA * S_inf[:, 0] * (V_m[:, 2] - V_syn)
+                    + g_synA * S_inf[:, 3] * (V_m[:, 2] - V_syn),
+                    g_synB * S_inf[:, 4] * (V_m[:, 3] - V_syn),
+                    g_synB * S_inf[:, 3] * (V_m[:, 4] - V_syn),
+                ],
+                axis=1,
+            )
+
+            I_total = I_leak + I_Ca + I_k + I_h + I_elec + I_syn
+
+            lambda_N = (phi_N) * tf.math.cosh((V_m - v_3) / (2 * v_4))
+            tau_h = (272.0 - (-1499.0 / (1.0 + tf.exp((-V_m + v_7) / v_8)))) / 1000.0
+
+            dVmdt = (1.0 / C_m) * (-I_total + sigma_I*tf.random.normal(I_total.shape, 0., 1.))
+            dNdt = lambda_N * (N_inf - N)
+            dHdt = (H_inf - H) / tau_h
+
+            dxdt = tf.concat((dVmdt, dNdt, dHdt), axis=1)
+            return dxdt
+
+        x0 = tf.constant(
+                [
+                    -0.04169771,
+                    -0.04319491,
+                    0.00883992,
+                    -0.06879824,
+                    0.03048103,
+                    0.00151316,
+                    0.19784773,
+                    0.56514935,
+                    0.12214069,
+                    0.35290397,
+                    0.08614699,
+                    0.04938177,
+                    0.05568701,
+                    0.07007949,
+                    0.05790969,
+                ],
+                dtype=DTYPE
+            )
+
+
+        x0 = tf.tile(x0[None,:], [M, 1])
+
+        x = x0
+        vs = [x]
+        for i in range(T):
+            dxdt = f(x)
+            x = x + dxdt * dt
+            vs.append(x)
+            
+        x_t = tf.concat(vs, axis=0)
+        return x_t
+
+    return simulate
