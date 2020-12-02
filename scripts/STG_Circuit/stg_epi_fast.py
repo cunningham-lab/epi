@@ -9,25 +9,25 @@ DTYPE = tf.float32
 
 # Parse script command-line parameters.
 parser = argparse.ArgumentParser()
+parser.add_argument('--freq', type=float, default=0.53) # frequency for mu
 parser.add_argument('--beta', type=float, default=4.) # aug lag hp
 parser.add_argument('--logc0', type=float, default=0.) # log10 of c_0
-parser.add_argument('--bnmom', type=float, default=.999) # log10 of c_0
 parser.add_argument('--random_seed', type=int, default=1)
 args = parser.parse_args()
 
+freq = args.freq
 beta = args.beta
 c0 = 10.**args.logc0
-bnmom = args.bnmom
 random_seed = args.random_seed
 
-sleep_dur = np.abs(args.logc0) + random_seed/5. + beta/3.
-print('short stagger sleep of', sleep_dur, flush=True)
-time.sleep(sleep_dur)
+#sleep_dur = np.abs(args.logc0) + random_seed/5. + beta/3.
+#print('short stagger sleep of', sleep_dur, flush=True)
+#time.sleep(sleep_dur)
 
 # 1. Specify the V1 model for EPI.
 D = 2 
-g_el = Parameter("g_el", 1, lb=0.1, ub=7.)
-g_synA = Parameter("g_synA", 1, lb=0.1, ub=10.)
+g_el = Parameter("g_el", 1, lb=4., ub=8.)
+g_synA = Parameter("g_synA", 1, lb=0.1, ub=4.)
 
 # Define model
 name = "STG"
@@ -35,7 +35,7 @@ parameters = [g_el, g_synA]
 model = Model(name, parameters)
 
 # Emergent property values.
-mu = np.array([0.53, 0.025**2])
+mu = np.array([freq])
 
 def network_freq(g_el, g_synA):
     """Simulate the STG circuit given parameters z.
@@ -224,10 +224,9 @@ def network_freq(g_el, g_synA):
     V_pow = tf.exp(50.*tf.abs(V))
     freq_id = V_pow / tf.expand_dims(tf.reduce_sum(V_pow, 1), 1)
 
-    f_h = tf.matmul(freq_id, freqs)  # (1 x M5)
-    T_x = tf.concat((f_h, tf.square(f_h - mu[0])), 1)
-
-    return T_x
+    f_h = tf.matmul(freq_id, freqs)
+    #T_x = tf.concat((f_h, tf.square(f_h - mu[0])), 1)
+    return f_h
 
 
 model.set_eps(network_freq)
@@ -238,11 +237,11 @@ q_theta, opt_data, epi_path, failed = model.epi(
     arch_type='coupling',
     num_stages=3,
     num_layers=2,
-    num_units=50,
+    num_units=25,
     post_affine=True,
     batch_norm=True,
-    bn_momentum=bnmom,
-    K=6,
+    bn_momentum=0.,
+    K=3,
     N=200,
     num_iters=2500,
     lr=1e-3,

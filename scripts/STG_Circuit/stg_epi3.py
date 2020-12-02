@@ -35,7 +35,7 @@ parameters = [g_el, g_synA, g_synB]
 model = Model(name, parameters)
 
 # Emergent property values.
-mu = np.array([0.53, 0.025**2])
+mu = np.array([0.53, 0.1**2])
 
 # sampling frequency
 T = 200
