@@ -245,7 +245,7 @@ class NormalizingFlow(tf.keras.Model):
     def _set_num_stages(self, num_stages):
         if type(num_stages) is not int:
             raise TypeError(format_type_err_msg(self, "num_stages", num_stages, int))
-        elif num_stages < 1:
+        elif num_stages < 0:
             raise ValueError(
                 "NormalizingFlow num_stages %d must be greater than 0." % num_stages
             )
@@ -292,8 +292,6 @@ class NormalizingFlow(tf.keras.Model):
             if type(bijector).__name__ == "BatchNormalization":
                 bijector.batchnorm.moving_mean.assign(np.zeros((self.D,)))
                 bijector.batchnorm.moving_variance.assign(np.ones((self.D,)))
-                print(bijector.batchnorm.moving_mean)
-                print(bijector.batchnorm.moving_variance)
         return None
 
     def _set_post_affine(self, post_affine):
