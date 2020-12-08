@@ -27,8 +27,8 @@ random_seed = args.random_seed
 
 # 1. Specify the V1 model for EPI.
 D = 2 
-g_el = Parameter("g_el", 1, lb=4., ub=8.)
-g_synA = Parameter("g_synA", 1, lb=0.1, ub=4.)
+g_el = Parameter("g_el", 1, lb=0.01, ub=8.)
+g_synA = Parameter("g_synA", 1, lb=0.01, ub=4.)
 
 # Define model
 name = "STG"
@@ -36,12 +36,12 @@ parameters = [g_el, g_synA]
 model = Model(name, parameters)
 
 # Emergent property values.
-mu_std = 0.025
+mu_std = 0.05
 mu = np.array([freq, mu_std**2])
 
-sigma_I = 2.5e-11
+sigma_I = 5e-13
 dt = 0.025
-T = 200
+T = 300
 network_freq = NetworkFreq(dt, T, sigma_I, mu)
 
 model.set_eps(network_freq)
@@ -50,15 +50,19 @@ model.set_eps(network_freq)
 q_theta, opt_data, epi_path, failed = model.epi(
     mu,
     arch_type='coupling',
-    num_stages=3,
-    num_layers=2,
-    num_units=25,
+    #num_stages=3, # changed
+    #num_layers=2, # changed
+    #num_units=50, # changed
+    num_stages=0, # changed
+    num_layers=1, # changed
+    num_units=1, # changed
     post_affine=True,
-    batch_norm=True,
+    #batch_norm=True,
+    batch_norm=False, # changed
     bn_momentum=0.,
-    K=3,
-    N=200,
-    num_iters=2500,
+    K=10,
+    N=400,
+    num_iters=5000,
     lr=1e-3,
     c0=c0,
     beta=beta,
