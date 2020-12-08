@@ -39,6 +39,12 @@ model = Model(name, parameters)
 mu_std = 0.05
 mu = np.array([freq, mu_std**2])
 
+init_type = 'abc'
+abc_std = mu_std
+init_params = {'num_keep':500,
+               'means':np.array([freq]),
+               'stds':np.array([abc_std,])}
+
 sigma_I = 5e-13
 dt = 0.025
 T = 300
@@ -68,6 +74,8 @@ q_theta, opt_data, epi_path, failed = model.epi(
     beta=beta,
     nu=0.5,
     random_seed=random_seed,
+    init_type=init_type,
+    init_params=init_params,
     verbose=True,
     stop_early=True,
     log_rate=50,
