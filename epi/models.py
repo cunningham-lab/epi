@@ -333,8 +333,9 @@ class Model(object):
             else:
                 stds = np.sqrt(mu[len(mu)//2:])
 
-            abc_fname = os.path.join("data", "abc", "M=%d_p=%.2f_std=%.3fabc.npz" % 
-                                    (num_keep, means[0], stds[0]))
+            hash_str = get_hash([nf.lb, nf.ub])
+            abc_fname = os.path.join("data", "abc", "M=%d_p=%.2f_std=%.3f_%s_abc.npz" % 
+                                    (num_keep, means[0], stds[0], hash_str))
             if os.path.exists(abc_fname):
                 print('Loading prev ABC.')
                 npzfile = np.load(abc_fname)
