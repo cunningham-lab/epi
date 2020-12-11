@@ -48,12 +48,12 @@
 \thispagestyle{plain}
 \begin{center}                  % Center the following lines
 {\Large Draft of new SC section} \\
-Sean Bittner \\
-November 25, 2020 \\
+Sean Bittner and Alex Piet \\
+December 11, 2020 \\
 \end{center}
 
 \section{Identifying neural mechanisms of flexible task switching} \label{results_SC}
-In a rapid task switching experiment \cite{duan2015requirement}, rats were explicitly cued on each trial to either orient towards a visual stimulus in the Pro (P) task or orient away from a visual stimulus in the Anti (A) task (Fig. \ref{fig:SC}a). 
+In a rapid task switching experiment \cite{duan2015requirement}, rats were explicitly cued on each trial to either orient towards a visual stimulus in the Pro (P) task or orient away from a visual stimulus in the Anti (A) task (Fig. \ref{fig:SC}A). 
 Neural recordings in the midbrain superior colliculus (SC) exhibited two populations of neurons that simultaneously represented both task context (Pro or Anti) and motor response (contralateral or ipsilateral to the recorded side): the Pro/Contra and Anti/Ipsi neurons \cite{duan2018collicular}.
 Duan et al. proposed a model of SC that, like the V1 model analyzed in the previous section, is a four-population dynamical system.  
 We analyzed this model, where the neuron-type populations are functionally-defined as the Pro- and Anti-populations in each hemisphere (left (L) and right (R)), their connectivity is parameterized geometrically  (Fig. \ref{fig:SC}B).
@@ -61,7 +61,7 @@ The input-output function of this model is chosen such that the population respo
 The dynamics evolve with timescale $\tau=0.09$ governed by connectivity weights $W$
 \begin{equation}
 \begin{split}
-\tau \frac{d\mathbf{u}}{dt} &= -\mathbf{u} + W\mathbf{x} + \mathbf{h} + \epsilon d\mathbf{B} \\
+\tau \frac{d\mathbf{u}}{dt} &= -\mathbf{u} + W\mathbf{x} + \mathbf{h} + d\mathbf{B} \\
 \mathbf{x} &= f(\mathbf{u})
 \end{split}
 \end{equation}
@@ -71,17 +71,17 @@ Here, we use EPI to determine the changes in network connectivity $\mathbf{z} = 
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.5]{figs/fig4.pdf}
+\includegraphics[scale=0.48]{figs/fig4.pdf}
 \end{center}
-\caption{\small EPI reveals changes in SC \cite{duan2018collicular} connectivity that control task accuracy.  
+\caption{\small 
 A. Rapid task switching behavioral paradigm (see text). 
 B. Model of superior colliculus (SC). Neurons: LP - left pro, RP - right pro, LA - left anti, RA - right anti. 
 Parameters: $sW$ - self, $hW$ - horizontal, $vW$ -vertical, $dW$ - diagonal weights.  
 Subscripts $P$ and $A$ of connectivity weights indicate Pro or Anti populations.
-C. The marginal EPI distributions of the Schur eigenvalues at each level of task accuracy.
-D. Simulations of SC networks with parameterizations indicated by the stars in panel C.  Shading  shows standard deviations across trials.
-E. The effect of delay period inactivation on accuracy versus Schur eigenvalues.
-F. Same as D with delay period inactivation.}
+C. The EPI parameter distribution of rapid task switching networks.  Black star indicates parameter choice u=of simulations.
+D. Simulations of an SC network from the EPI distribution with 75\% accuracy in each task.  Top row shows no inactivation during Pro and Anti trials, and bottom row shows simulations with delay period inactivation (opto strength 0.7).  Shading indicates standard deviation across trials.
+E. The effect of delay period inactivation on accuracy versus dynamics eigenvalues.
+}
 \label{fig:SC}
 \end{figure}
 
@@ -95,15 +95,23 @@ We formulate rapid task switching as an emergent property by stipulating that th
 \end{equation}
 A variance of $5\%$ performance in each task will confer a posterior producing performances ranging from about $65\%-85\%$, allowing us to examine the properties of connectivity that yield better performance.
 
-We ran EPI to obtain SC model connectivity parameters $z$ producing rapid task switching (Fig. \ref{fig:SC}C).
-To make sense of this inferred distribution, we followed the approach of Duan et al. by decomposing the connectivity matrix $W = V\Lambda V^{-1}$ in such a way (the Schur decomposition) that the basis vectors $v_i$ are the same for all $W$ (Fig. \ref{fig:SC_Eigs}A). 
+We ran EPI to obtain SC model connectivity parameters $z$ producing rapid task switching (Fig. \ref{fig:SC}C, Fig. \ref{fig:SX5}).
+Each parameter is predictive of accuracy in either task (Fig. \ref{fig:SX1}), and may have the same ($vW$ and $dW$) or opposite ($sW$ and $hW$) effects on $p_P$ and $p_A$.
+To make sense of this inferred distribution, we took the eigendecomposition of the symmetric connectivity matrices $W = V\Lambda V^{-1}$, which results in the same basis vectors $v_i$ for all $W$ parameterized by $z$ (Fig. \ref{fig:SX2}A). 
 These basis vectors have intuitive roles in processing for this task, and are accordingly named the \textit{all} mode - all neurons co-fluctuate, \textit{side} mode - one side dominates the other, \textit{task} mode - the Pro or Anti populations dominate the other, and \textit{diag} mode - Pro- and Anti-populations of opposite hemispheres dominate the opposite pair. 
-The corresponding eigenvalues (e.g. $\lambda_{\text{task}}$, which change according to $W$) indicate the degree to which activity along that mode is increased or decreased by $W$. 
+
+Smaller $\lambda_{\text{all}}$ and greater $\lambda_{\text{side}}$ predict greater accuracy in both tasks (Fig. \ref{fig:SX2}B) suggesting that wide separation between Left and Right populations at the end of stimulus presentation and fast decaying dynamics during the choice period yield better performance in both tasks.
+Since the Pro neurons receive a positive bias input $h_{P, bias}$, $\lambda_{\text{task}}$ is not as important to performance in the Pro task as in the Anti task (Fig. \ref{fig:SX2}B).
+The diagonal mode, hypothesized to be crucial for processing in the Anti task, was ultimately anticorrelated with $p_A$, 
+This suggests that $p_A$ increases with dynamics having stronger task and stimulus representations and faster decaying dynamics in alternate dimensions.
+
+In agreement with experimental results form Duan et al., we found that inactivation above nominal strength during the delay period consistently decreased performance in the Anti task, but had no consistent effect on the Pro task (Fig. \ref{fig:SX3}), e.g. (Fig. \ref{fig:SC}D, bottom).
+Interestingly, the trends in eigenvalues that result in greater $p_A$ increase the error from delay period inactivation in the Anti task ($p_A - p_{A, opto}$) (Fig. \ref{fig:SC}E.
+Despite these opposing effects, $p_A$ is uncorrelated with ($p_A - p_{A, opto}$), while $p_P$ is correlated (Fig. \ref{fig:SX4}).
+This shows that the degree of error introduced by delay period inactivation is controlled by the dynamical mechanisms controlling success in the Pro task (namely $\lambda_{\text{task}}$ and $\lambda_{\text{side}}$).
+Such comparable dynamics between the non-inactivated Pro task and the delay period inactivated Anti task are salient in simulations (Fig. \ref{fig:SC}D top-left and bottom-right).
 
 
-In agreement with experimental results form Duan et al., we found the optogenetic silencing during the delay period consistently decreased performance in the Anti task by 15-30\%, but had no consistent effect on the Pro task (Fig. \ref{fig:SC}E). 
-For example, both networks suffer a steep drop in accuracy in the Anti task with delay period inactivation (Fig. \ref{fig:SC}F).  
-Networks resilient to delay period inactivation had greater $\lambda_{\text{task}}$ and $\lambda_{\text{side}}$ and lower $\lambda_{\text{all}}$ and $\lambda_{\text{diag}}$ (Fig. \ref{fig:SC}E).
 
 \section{Supplementary}\label{methods_SC}
 \begin{equation}
@@ -137,7 +145,7 @@ There are rule-based inputs depending on the condition,
 \mathbf{h}_{\text{constant}} = I_{\text{constant}} [1, 1, 1, 1]^\top
 \end{equation}
 \begin{equation} 
-\mathbf{h}_{\text{P,bias}} = I_{\text{P,rule}} [1, 0, 1, 0]^\top
+\mathbf{h}_{\text{P,bias}} = I_{\text{P,bias}} [1, 0, 1, 0]^\top
 \end{equation}
 \begin{equation} \mathbf{h}_{\text{P,rule}}(t) = \begin{cases}
                            I_{\text{P,rule}} [1, 0, 1, 0]^\top,& \text{if } t\leq 1.2s \\
@@ -166,12 +174,49 @@ The input parameterization was fixed to $I_{\text{constant}} = 0.75$, $I_{\text{
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.9]{figs/figSX1.pdf}
+\includegraphics[scale=0.6]{figs/figSX5.pdf}
 \end{center}
-\caption{\small Sentence 1 .
-A. The Schur decomposition of the weight matrix $W = V\Lambda V^{-1}$ is a unique decomposition with orthogonal $V$ and upper triangular $\Lambda$. Schur modes: $v_{\text{all}}$, $v_{\text{task}}$, $v_{\text{side}}$, and $v_{\text{diag}}$.  
-B. Task accuracy vs. Schur eigenvalue.}
-\label{fig:SC_Eigs}
+\caption{\small The EPI parameter distribution of Fig. 1C with reference to a unity line.
+}
+\label{fig:SX5}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.85]{figs/figSX1.pdf}
+\end{center}
+\caption{\small Connectivity parameters of EPI distributions versus task accuracies.  $\beta$ is slope coefficient of linear regression, $r$ is correlation, and $p$ is the two-tailed p value.
+}
+\label{fig:SX1}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=1.3]{figs/figSX2.pdf}
+\end{center}
+\caption{\small 
+A. Invariant eigenvectors of connectivity matrix $W$.
+B. Eigenvalues of connectivities of EPI distribution versus task accuracies.}
+\label{fig:SX2}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.6]{figs/figSX4.pdf}
+\end{center}
+\caption{\small 
+Difference in performance of each task during inactivation.  Inactivation level ``opto strength" scales from no inactivation (0) to full inactivation (1).  We compare delay period inactivation $1.2 < t < 1.5$ (blue), choice period inactivation $1.5 < t$ (red), and total inactivation $0 \leq t \leq 1.8$ (purple).
+}
+\label{fig:SX3}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.75]{figs/figSX3.pdf}
+\end{center}
+\caption{\small Scatters of the effect of delay period inactivation in each task with task accuracy.  Plots are shown at an opto strength of 0.7.
+}
+\label{fig:SX4}
 \end{figure}
 
 %
