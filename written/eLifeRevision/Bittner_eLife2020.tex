@@ -231,8 +231,8 @@ Mathematically, we achieve this via constraints on the mean and variance of $\om
  %\end{equation}
 \begin{equation}\label{eq:EP}
 \begin{split}
-\mathcal{X} ~~:~~ \mathbb{E}_{\mathbf{z}}\left[T(\mathbf{x}; \mathbf{z})\right] &~~\triangleq~~  \mathbb{E}_{\mathbf{z}}\begin{bmatrix} \omega_{\text{f1}}(\mathbf{x}; \mathbf{z}) \\ \omega_{\text{f2}}(\mathbf{x}; \mathbf{z}) \\ \vdots \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.53 \\ 0.53 \\ \vdots \end{bmatrix} ~~\triangleq~~ \bm{\mu}  \\ 
- \text{Var}_{\mathbf{z}}\left[T(\mathbf{x}; \mathbf{z})\right] &~~\triangleq~~ \text{Var}_{\mathbf{z}}\begin{bmatrix} \omega_{\text{f1}}(\mathbf{x}; \mathbf{z}) \\ \omega_{\text{f2}}(\mathbf{x}; \mathbf{z}) \\ \vdots \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.025^2 \\ 0.025^2 \\ \vdots \end{bmatrix} ~~\triangleq~~ \bm{\sigma}^2 .
+\mathcal{X} ~~:~~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[T(\mathbf{x}; \mathbf{z})\right] &~~\triangleq~~  \mathbb{E}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{f1}}(\mathbf{x}; \mathbf{z}) \\ \omega_{\text{f2}}(\mathbf{x}; \mathbf{z}) \\ \vdots \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.53 \\ 0.53 \\ \vdots \end{bmatrix} ~~\triangleq~~ \bm{\mu}  \\ 
+ \text{Var}_{\mathbf{z},\mathbf{x}}\left[T(\mathbf{x}; \mathbf{z})\right] &~~\triangleq~~ \text{Var}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{f1}}(\mathbf{x}; \mathbf{z}) \\ \omega_{\text{f2}}(\mathbf{x}; \mathbf{z}) \\ \vdots \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.025^2 \\ 0.025^2 \\ \vdots \end{bmatrix} ~~\triangleq~~ \bm{\sigma}^2 .
 \end{split}
 \end{equation}
 
@@ -252,7 +252,7 @@ Then, mathematically, we must solve the following optimization program:
 \begin{equation} \label{eq:EPI}
 \begin{split}
 q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}) ~~=~~ &\argmax_{q_{\bm{\theta}} \in \mathcal{Q}} H(q_{\bm{\theta}}(\mathbf{z})) \\
-&\text{  s.t.  } ~\mathcal{X}:~~ \mathbb{E}_{\mathbf{z}}\left[T(\mathbf{x}; \mathbf{z})\right] = \bm{\mu}, \text{Var}_{\mathbf{z}}\left[T(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2 \\
+&\text{  s.t.  } ~\mathcal{X}:~~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[T(\mathbf{x}; \mathbf{z})\right] = \bm{\mu}, \text{Var}_{\mathbf{z},\mathbf{x}}\left[T(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2 \\
 \end{split}
 \end{equation}
 %where $T(\mathbf{x}), \bm{\mu}$ are defined as in Equation \ref{eq:EP}, and $p(\mathbf{x} | \mathbf{z})$ is the intractable distribution of data from the model, $\mathbf{x}$, given that model's parameters $\mathbf{z}$ (we access samples from this distribution by running the model forward).
@@ -328,7 +328,7 @@ These statements amount to the emergent property
 We maintain the notation $\mathcal{B}(\cdot)$ throughout the rest of the study as short hand for emergent property, which represents a different signature of computation in each application. 
 
 Using EPI, we inferred the distribution of $dh$ shown in Figure \ref{fig:V1_EPI}C producing $\mathcal{B}(\alpha, y)$.  
-Columns correspond to inferred distributions of excitatory ($\alpha=E$, red), parvalbumin ($\alpha=P$, blue), somatostatin ($\alpha=S$, red) and VIP ($\alpha=V$, green) neuron-type response increases, while each row corresponds to increase amounts of $y \in \{0.1, 0.5\}$.  For each pair of parameters, we show the two-dimensional marginal distribution of samples colored by $\log q_\theta(dh \mid \mathcal{B}(\alpha, y))$.  The inferred distributions immediately suggest four hypotheses: \\
+Columns correspond to inferred distributions of excitatory ($\alpha=E$, red), parvalbumin ($\alpha=P$, blue), somatostatin ($\alpha=S$, red) and VIP ($\alpha=V$, green) neuron-type response increases, while each row corresponds to increase amounts of $y \in \{0.1, 0.5\}$.  For each pair of parameters, we show the two-dimensional marginal distribution of samples colored by $\log q_{\bm{\theta}}(dh \mid \mathcal{B}(\alpha, y))$.  The inferred distributions immediately suggest four hypotheses: \\
 
 {\addtolength{\leftskip}{10 mm}
 H1: as is intuitive, each neuron-type's firing rate should be sensitive to that neuron-type's direct input (e.g. Fig. \ref{fig:V1_EPI}C H1 gray boxes indicate low variance in $dh_E$ when $\alpha=E$. Same observation in all inferred distributions); \\
@@ -348,7 +348,7 @@ Labels H1, H2, H3, and H4 indicate which curves confirm which hypotheses.}\label
 \end{figure}
 We evaluate these hypotheses by taking perturbations in individual neuron-type input $\delta h_\alpha$ away from the modes of the inferred distributions at $y=0.1$
 \begin{equation}
-dh^* = z^* = \argmax_{z} \log q_\theta(z \mid \mathcal{B}(\alpha, 0.1)).
+dh^* = z^* = \argmax_{z} \log q_{\bm{\theta}}(z \mid \mathcal{B}(\alpha, 0.1)).
 \end{equation}
 Here $\delta x_{\alpha}$ is the change in steady state response of the system with input $h = b + dh^* + \delta h_\alpha \hat{u}_\alpha$ compared to $h = b + dh^*$, where $\hat{u}_\alpha$ is a unit vector in the dimension of $\alpha$. 
 The EPI-generated  hypotheses are confirmed (for details, see Section \ref{methods_V1}): 
@@ -554,63 +554,341 @@ The software written for the current study is available from the corresponding a
 \section{Methods}
 
 \subsection{Emergent property inference (EPI)}\label{methods_EPI}
-Emergent property inference (EPI) learns distributions of theoretical model parameters that produce emergent properties of interest by combining ideas from maximum entropy flow networks (MEFNs) \cite{loaiza2017maximum} and likelihood-free variational inference (LFVI) \cite{tran2017hierarchical}.  
-Consider model parameterization $z$ and data $x$ which has an intractable likelihood $p(x \mid z)$ defined by a model simulator of which samples are available $x \sim p(x \mid z)$.  
-EPI optimizes a distribution $q_\theta(z)$ (itself parameterized by $\theta$) of model parameters $z$ to produce an emergent property of interest $\mathcal{B}$,
-\begin{equation}
-\mathcal{B} ~~\triangleq~~  \mathbb{E}_{z \sim q_\theta}\left[ \mathbb{E}_{x\sim p(x \mid z)}\left[T(x)\right] \right] = \mu.
+%Emergent property inference (EPI) learns distributions of theoretical model parameters that produce emergent properties of interest by combining ideas from maximum entropy flow networks (MEFNs) \cite{loaiza2017maximum} and likelihood-free variational inference (LFVI) \cite{tran2017hierarchical}.  
+%Consider model parameterization $\mathbf{z}$ and data $\mathbf{x}$ which has an intractable likelihood $p(\mathbf{x} \mid \mathbf{z})$ defined by a model simulator of which samples are available $\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z})$.  
+%EPI optimizes a distribution $q_{\bm{\theta}}(\mathbf{z})$ (itself parameterized by $\bm{\theta}$) of model parameters $\mathbf{z}$ to produce an emergent property of interest $\mathcal{B}$,
+%\begin{equation}
+%\mathcal{B} ~~\triangleq~~  \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}\left[ \mathbb{E}_{\mathbf{x}\sim p(\mathbf{x} \mid \mathbf{z})}\left[T(\mathbf{x})\right] \right] = \mu.
+%\end{equation}
+%Precisely, the emergent property statistics $T(\mathbf{x})$ must equal the emergent property values $\bm{\mu}$, in expectation over the EPI distribution of parameters $q_{\bm{\theta}}(\mathbf{z})$ and the distribution of simulated activity $p(\mathbf{x} \mid \mathbf{z})$.  
+%This is a viable way to represent emergent properties in theoretical models, as we have demonstrated in the main text, and enables the EPI optimization.Emergent property inference (EPI) learns distributions of theoretical model parameters that produce emergent properties of interest by combining ideas from maximum entropy flow networks (MEFNs) \cite{loaiza2017maximum} and likelihood-free variational inference (LFVI) \cite{tran2017hierarchical}.  
+Consider model parameterization $\mathbf{z}$ and data $\mathbf{x}$ which has an intractable likelihood $p(\mathbf{x} \mid \mathbf{z})$ defined by a model simulator of which samples are available $\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z})$.  
+EPI optimizes a distribution $q_{\bm{\theta}}(\mathbf{z})$ (itself parameterized by $\bm{\theta}$) of model parameters $\mathbf{z}$ to produce an emergent property of interest $\mathcal{X}$ defined by the means and variances of emergent property statistics $f(\mathbf{x}; \mathbf{z})$
+ \begin{equation}
+\mathcal{X}: \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\mu}, \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2.
 \end{equation}
-Precisely, the emergent property statistics $T(x)$ must equal the emergent property values $\mu$, in expectation over the EPI distribution of parameters $q_\theta(z)$ and the distribution of simulated activity $p(x \mid z)$.  
+Precisely, the emergent property statistics $f(\mathbf{x})$ must have means $\bm{\mu}$ and variances $\bm{\sigma}^2$  over the EPI distribution of parameters $q_{\bm{\theta}}(\mathbf{z})$ and stochasticity of the data given the parameters defined by the model $p(\mathbf{x} \mid \mathbf{z})$.  
 This is a viable way to represent emergent properties in theoretical models, as we have demonstrated in the main text, and enables the EPI optimization.
 
-With EPI, we use deep probability distributions to learn flexible approximations to model parameter distributions $q_\theta(z)$.
- In deep probability distributions, a simple random variable $w \sim q_0(w)$ is mapped deterministically via a sequence of deep neural network layers ($f_1$, .. $f_l$) parameterized by weights and biases $\theta$ to the support of the distribution of interest:
+%With EPI, we use deep probability distributions to learn flexible approximations to model parameter distributions $q_{\bm{\theta}}(\mathbf{z})$.
+% In deep probability distributions, a simple random variable $\mathbf{z}_0 \sim q_0(\mathbf{z}_0)$ is mapped deterministically via a sequence of deep neural network layers ($g_1$, .. $g_l$) parameterized by weights and biases $\bm{\theta}$ to the support of the distribution of interest:
+%\begin{equation}
+%\mathbf{z} = g_{\bm{\theta}}(\mathbf{z}_0) = g_l(..g_1(\mathbf{z}_0)) \sim q_{\bm{\theta}}(\mathbf{z}).
+%\end{equation}
+%Given a simulator defined by a theoretical model $\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z})$ and some emergent property of interest $\mathcal{X}$, $q_{\bm{\theta}}(\mathbf{z})$ is optimized via the neural network parameters $\bm{\theta}$ to find a maximally entropic distribution $q_{\bm{\theta}}^*$ within the deep variational family $\mathcal{Q}$ producing the emergent property:
+%\begin{equation} \label{eq:opt}
+%\begin{split}
+%q_{\bm{\theta}}^*(\mathbf{z}) &= \argmax_{q_{\bm{\theta}} \in Q} H(q_{\bm{\theta}}(\mathbf{z})) \\
+% &  \text{s.t.  } \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[T(\mathbf{x}; \mathbf{z})\right] = \bm{\mu}, \text{Var}_{\mathbf{z},\mathbf{x}}\left[T(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2. \\
+% \end{split}
+%\end{equation} 
+%Since we are optimizing parameters $\bm{\theta}$ of our deep probability distribution with respect to the entropy $H(q_{\bm{\theta}}(\mathbf{z}))$, we must take gradients with respect to the log probability density of samples from the deep probability distribution.  
+%Entropy of $q_{\bm{\theta}}(\mathbf{z})$ can be expressed as an expectation of the negative log density of parameter samples $\mathbf{z}$ over the randomness in the parameterless initial distribution $q_0$:
+%\begin{equation}
+%H(q_{\bm{\theta}}(\mathbf{z})) = \int - q_{\bm{\theta}}(\mathbf{z}) \log(q_{\bm{\theta}}(\mathbf{z})) d\mathbf{z} = \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}\left[-\log(q_{\bm{\theta}}(\mathbf{z})) \right] = \mathbb{E}_{w \sim q_0}\left[-\log(q_{\bm{\theta}}(f_{\bm{\theta}}(w))) \right].
+%\end{equation}
+%Thus, the gradient of the entropy of the deep probability distribution can be estimated as an average of gradients of the log density of samples $\mathbf{z}$:
+%\begin{equation}
+%\nabla_{\bm{\theta}} H(q_{\bm{\theta}}(\mathbf{z})) = \mathbb{E}_{w \sim q_0}\left[- \nabla_{\bm{\theta}} \log(q_{\bm{\theta}}(f_{\bm{\theta}}(w))) \right].
+%\end{equation}
+%In EPI, MEFNs are purposed towards variational learning of model parameter distributions.  
+%A closely related methodology, variational inference, uses optimization to approximate posterior distributions \cite{blei2017variational}.
+%Standard methods like stochastic gradient variational Bayes \cite{kingma2013auto} or black box variational inference \cite{ranganath2014black} simply do not work for inference in theoretical models of neural circuits, since they require tractable likelihoods $p(\mathbf{x} \mid \mathbf{z})$.
+%Work on likelihood-free variational inference (LFVI) \cite{tran2017hierarchical}, which like EPI seeks to do inference in models with intractable likelihoods, employs an addtional deep neural network as a ratio estimator, enabling an estimation of the optimization objective for variational inference.
+%Like LFVI, EPI can be framed as variational inference (see Section \ref{methods_VI}).
+%But, unlike LFVI, EPI uses a single deep network to learn a distribution and is optimized to produce an emergent property, rather than condition on data points.  
+%Optimizing the EPI objective is a technological challenge, the details of which we elaborate in Section \ref{methods_AL_opt}.  
+%Before going through those details, we ground this optimization in a toy example.
+
+With EPI, we use deep probability distributions to learn flexible approximations to model parameter distributions $q_{\bm{\theta}}(\mathbf{z})$.
+ In deep probability distributions, a simple random variable $\mathbf{z}_0 \sim q_0(\mathbf{z}_0)$ is mapped deterministically via a sequence of deep neural network layers ($g_1$, .. $g_l$) parameterized by weights and biases $\bm{\theta}$ to the support of the distribution of interest:
 \begin{equation}
-z = f_{\theta}(\omega) = f_l(..f_1(w)).
+\mathbf{z} = g_{\bm{\theta}}(\mathbf{z}_0) = g_l(..g_1(\mathbf{z}_0)) \sim q_{\bm{\theta}}(\mathbf{z}).
 \end{equation}
-Given a simulator defined by a theoretical model $x \sim p(x \mid z)$ and some emergent property of interest $\mathcal{B}$, $q_\theta(z)$ is optimized via the neural network parameters $\theta$ to find a maximally entropic distribution $q_{\theta}^*$ within the deep variational family $\mathcal{Q}$ producing the emergent property:
+Given a simulator defined by a theoretical model $\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z})$ and some emergent property of interest $\mathcal{X}$, $q_{\bm{\theta}}(\mathbf{z})$ is optimized via the neural network parameters $\bm{\theta}$ to find a maximally entropic distribution $q_{\bm{\theta}}^*$ within the deep variational family $\mathcal{Q}$ producing the emergent property:
 \begin{equation} \label{eq:opt}
 \begin{split}
-q_\theta^*(z) &= \argmax_{q_\theta \in Q} H(q_\theta(z)) \\
- &  \text{s.t.  } \mathbb{E}_{z \sim q_\theta}\left[ \mathbb{E}_{x\sim p(x \mid z)}\left[T(x)\right] \right] = \mu. \\
+q_{\bm{\theta}}^*(\mathbf{z}) &= \argmax_{q_{\bm{\theta}} \in Q} H(q_{\bm{\theta}}(\mathbf{z})) \\
+ &  \text{s.t.  } \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\mu}, \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2. \\
  \end{split}
 \end{equation} 
-Since we are optimizing parameters $\theta$ of our deep probability distribution with respect to the entropy $H(q_\theta(z))$, we must take gradients with respect to the log probability density of samples from the deep probability distribution.  
-Entropy of $q_\theta(z)$ can be expressed as an expectation of the negative log density of parameter samples $z$ over the randomness in the parameterless initial distribution $q_0$:
+Since we are optimizing parameters $\bm{\theta}$ of our deep probability distribution with respect to the entropy $H(q_{\bm{\theta}}(\mathbf{z}))$, we must take gradients with respect to the log probability density of samples from the deep probability distribution.  
+Entropy of $q_{\bm{\theta}}(\mathbf{z})$ can be expressed as an expectation of the negative log density of parameter samples $\mathbf{z}$ over the randomness in the parameterless initial distribution $q_0$:
 \begin{equation}
-H(q_\theta(z)) = \int - q_\theta(z) \log(q_\theta(z)) dz = \mathbb{E}_{z \sim q_\theta}\left[-\log(q_\theta(z)) \right] = \mathbb{E}_{w \sim q_0}\left[-\log(q_\theta(f_\theta(w))) \right].
+H(q_{\bm{\theta}}(\mathbf{z})) = \int - q_{\bm{\theta}}(\mathbf{z}) \log(q_{\bm{\theta}}(\mathbf{z})) d\mathbf{z} = \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}\left[-\log(q_{\bm{\theta}}(\mathbf{z})) \right] = \mathbb{E}_{\mathbf{z}_0 \sim q_0}\left[-\log(q_{\bm{\theta}}(g_{\bm{\theta}}(\mathbf{z}_0))) \right].
 \end{equation}
-Thus, the gradient of the entropy of the deep probability distribution can be estimated as an average of gradients of the log density of samples $z$:
+Thus, the gradient of the entropy of the deep probability distribution can be estimated as an average of gradients of the log density of samples $\mathbf{z}$:
 \begin{equation}
-\nabla_\theta H(q_\theta(z)) = \mathbb{E}_{w \sim q_0}\left[- \nabla_\theta \log(q_\theta(f_\theta(w))) \right].
+\nabla_{\bm{\theta}} H(q_{\bm{\theta}}(\mathbf{z})) = \mathbb{E}_{\mathbf{z}_0 \sim q_0}\left[- \nabla_{\bm{\theta}} \log(q_{\bm{\theta}}(g_{\bm{\theta}}(\mathbf{z}_0))) \right].
 \end{equation}
 In EPI, MEFNs are purposed towards variational learning of model parameter distributions.  
+
+% We note that, during our preparation and early presentation of this work \cite{bittner2019degenerate, bittner2019examining}, another work has arisen with broadly similar goals: bringing statistical inference to mechanistic models of neural circuits (\cite{nonnenmacher2018sbi, desitler2019statistical, gonccalves2019training}, preprint posted simultaneously with this preprint).
+%We are encouraged by this general problem being recognized by others in the community, and we emphasize that these works offer complementary neuroscientific contributions (different theoretical models of focus) and use different technical methodologies (ours is built on our prior work \cite{loaiza2017maximum}, theirs similarly \cite{LueckmannGoncalves_17}).
+%These distinct methodologies and scientific investigations emphasize the increased importance and timeliness of both works. 
+ 
+ \subsubsection{Related work}\label{methods_related}
+ 
+TODO: rewrite this whole section.
+
 A closely related methodology, variational inference, uses optimization to approximate posterior distributions \cite{blei2017variational}.
-Standard methods like stochastic gradient variational Bayes \cite{kingma2013auto} or black box variational inference \cite{ranganath2014black} simply do not work for inference in theoretical models of neural circuits, since they require tractable likelihoods $p(x \mid z)$.
+Standard methods like stochastic gradient variational Bayes \cite{kingma2013auto} or black box variational inference \cite{ranganath2014black} simply do not work for inference in theoretical models of neural circuits, since they require tractable likelihoods $p(\mathbf{x} \mid \mathbf{z})$.
 Work on likelihood-free variational inference (LFVI) \cite{tran2017hierarchical}, which like EPI seeks to do inference in models with intractable likelihoods, employs an addtional deep neural network as a ratio estimator, enabling an estimation of the optimization objective for variational inference.
 Like LFVI, EPI can be framed as variational inference (see Section \ref{methods_VI}).
 But, unlike LFVI, EPI uses a single deep network to learn a distribution and is optimized to produce an emergent property, rather than condition on data points.  
 Optimizing the EPI objective is a technological challenge, the details of which we elaborate in Section \ref{methods_AL_opt}.  
 Before going through those details, we ground this optimization in a toy example.
- 
  We note that, during our preparation and early presentation of this work \cite{bittner2019degenerate, bittner2019examining}, another work has arisen with broadly similar goals: bringing statistical inference to mechanistic models of neural circuits (\cite{nonnenmacher2018sbi, desitler2019statistical, gonccalves2019training}, preprint posted simultaneously with this preprint).
 We are encouraged by this general problem being recognized by others in the community, and we emphasize that these works offer complementary neuroscientific contributions (different theoretical models of focus) and use different technical methodologies (ours is built on our prior work \cite{loaiza2017maximum}, theirs similarly \cite{LueckmannGoncalves_17}).
 These distinct methodologies and scientific investigations emphasize the increased importance and timeliness of both works. 
 
+\subsubsection{Normalizing flows}\label{methods_NF}
+%Deep probability models typically consist of several layers of fully connected neural networks.  
+Deep probability distributions are comprised of multiple layers of fully connected neural networks.  
+%When each neural network layer is restricted to be a bijective function, the sample density can be calculated using the change of variables formula at each layer of the network.  For $\mathbf{z}' = g(\mathbf{z})$,
+When each neural network layer is restricted to be a bijective function, the sample density can be calculated using the change of variables formula at each layer of the network.  For $\mathbf{z}_i = g_i(\mathbf{z_{i-1}})$,
+%\begin{equation}
+%q(\mathbf{z}') = q(f^{-1}(\mathbf{z}')) \left| \det \frac{\partial f^{-1}(\mathbf{z}')}{\partial \mathbf{z}'} \right| = q(\mathbf{z}) \left| \det \frac{\partial f(\mathbf{z})}{\partial \mathbf{z}} \right|^{-1}.
+%\end{equation}
+\begin{equation}
+p(\mathbf{z}_i) = p(g_i^{-1}(\mathbf{z}_i)) \left| \det \frac{\partial g_i^{-1}(\mathbf{z}_i)}{\partial \mathbf{z}_i} \right| = p(\mathbf{z}_{i-1}) \left| \det \frac{\partial g_i(\mathbf{z}_{i-1})}{\partial \mathbf{z}_{i-1}} \right|^{-1}.
+\end{equation}
+
+However, this computation has cubic complexity in dimensionality for fully connected layers.  
+By restricting our layers to normalizing flows \cite{rezende2015variational} -- bijective functions with fast log determinant Jacobian computations, we can tractably optimize deep generative models with objectives that are a function of sample density, like entropy. 
+%Most of our analyses use either a planar flow \cite{rezende2015variational} or real NVP \cite{dinh2017density}, which have proven effective in our architecture searches.  
+%Planar flow architectures are specified by the number of planar bijection layers used, while real NVP architectures are specified by the number of masks, neural network layers per mask, units per layer, and batch normalization momentum parameter.
+TODO: (clean up) We use Real NVP because it's a coupling architecture, which is fast to run either forwards (probability with samples) and backwards (prrobability or hessian).
+Normalizing flow architectures for deep probability distributions used in EPI are specified by the number of masks, neural network layers per mask, units per layer, and batch normalization momentum parameter.
+
+\subsubsection{Augmented Lagrangian optimization}\label{methods_AL_opt}
+%To optimize $q_{\bm{\theta}}(\mathbf{z})$ in Equation \ref{eq:opt}, the constrained optimization is executed using the augmented Lagrangian method.  The following objective is minimized:
+%\begin{equation} \label{eq:AL}
+%L(\bm{\theta}; \eta, c) = -H(q_{\bm{\theta}}) + \eta^\top R(\bm{\theta}) + \frac{c}{2}||R(\bm{\theta})||^2
+%\end{equation}
+%where $R(\bm{\theta}) = \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}\left[ \mathbb{E}_{\mathbf{x}\sim p(\mathbf{x} \mid \mathbf{z})}\left[T(\mathbf{x}) - \bm{\mu} \right] \right]$, $\eta \in \mathbb{R}^m$ are the Lagrange multipliers where $m = |\bm{\mu}| = |T(\mathbf{x})|$,  and $c$ is the penalty coefficient. 
+%These Lagrange multipliers are closely related to the natural parameters of exponential families (see Section \ref{methods_VI}).
+%Deep neural network weights and biases $\bm{\theta}$ of the deep probability distribution are optimized according to Equation \ref{eq:AL} using the Adam optimizer with its standard parameterization \cite{kingma2014adam}.
+%$\eta$ is initialized to the zero vector and adapted following each augmented Lagrangian epoch, which is a period of optimization with fixed ($\eta$, $c$) for a given number of stochastic optimization iterations. 
+%A low value of $c$ is used initially, and conditionally increased after each epoch based on constraint error reduction.
+%For example, the initial value of $c$ was $c_0 = 10^{-3}$ during EPI with the oscillating 2D LDS (Fig. S1C).
+%The penalty coefficient is updated based on the result of a hypothesis test regarding the reduction in constraint violation.  
+%The p-value of $\mathbb{E}[||R(\bm{\theta}_{k+1})||] > \gamma \mathbb{E} \left[||R(\bm{\theta}_{k})|| \right]$ is computed, and $c_{k+1}$ is updated  to $\beta c_k$ with probability $1-p$.  
+%The other update rule is $\eta_{k+1} = \eta_k + c_k \frac{1}{n} \sum_{i=1}^n (T(\mathbf{x}^{(i)}) - \bm{\mu})$ given a batch size $n$.
+%Throughout the study, $\beta = 4.0$, $\gamma = 0.25$, and the batch size was a hyperparameter, which varied according to the application of EPI.
+To optimize $q_{\bm{\theta}}(\mathbf{z})$ in Equation \ref{eq:opt}, the constrained optimization is executed using the augmented Lagrangian method.  The following objective is minimized:
+\begin{equation} \label{eq:AL}
+L(\bm{\theta}; \bm{\eta}_{\text{opt}}, c) = -H(q_{\bm{\theta}}) + \bm{\eta}_{\text{opt}}^\top R(\bm{\theta}) + \frac{c}{2}||R(\bm{\theta})||^2
+\end{equation}
+where $R(\bm{\theta}) = \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}\left[ \mathbb{E}_{\mathbf{x}\sim p(\mathbf{x} \mid \mathbf{z})}\left[T(\mathbf{x}; \mathbf{z}) - \bm{\mu}_{\text{opt}} \right] \right]$, $\bm{\eta}_{\text{opt}} \in \mathbb{R}^m$ are the Lagrange multipliers where $m = |\bm{\mu}_{\text{opt}}| = |T(\mathbf{x}; \mathbf{z})|$,  and $c$ is the penalty coefficient. 
+These Lagrange multipliers are closely related to the natural parameters $\bm{\eta}$ of exponential families (see Section \ref{methods_VI}).
+Deep neural network weights and biases $\bm{\theta}$ of the deep probability distribution are optimized according to Equation \ref{eq:AL} using the Adam optimizer with its standard parameterization \cite{kingma2014adam}.
+$\bm{\eta}_{\text{opt}}$ is initialized to the zero vector and adapted following each augmented Lagrangian epoch, which is a period of optimization with fixed ($\bm{\eta}_{\text{opt}}$, $c$) for a given number of stochastic optimization iterations. 
+A low value of $c$ is used initially, and conditionally increased after each epoch based on constraint error reduction.
+For example, the initial value of $c$ was $c_0 = 10^{-3}$ during EPI with the oscillating 2D LDS (Fig. S1C).
+The penalty coefficient is updated based on the result of a hypothesis test regarding the reduction in constraint violation.  
+The p-value of $\mathbb{E}[||R(\bm{\theta}_{k+1})||] > \gamma \mathbb{E} \left[||R(\bm{\theta}_{k})|| \right]$ is computed, and $c_{k+1}$ is updated  to $\beta c_k$ with probability $1-p$.  
+The other update rule is $\bm{\eta}_{\text{opt},k+1} = \bm{\eta}_{\text{opt},k} + c_k \frac{1}{n} \sum_{i=1}^n (T(\mathbf{x}^{(i)}) - \bm{\mu})$ given a batch size $n$.
+Throughout the study, $\beta = 4.0$, $\gamma = 0.25$, and the batch size was a hyperparameter, which varied according to the application of EPI.
+
+The intention is that $c$ and $\bm{\eta}_{\text{opt}}$ start at values encouraging entropic growth early in optimization.  
+With each training epoch in which the update rule for $c$ is invoked by unsatisfactory constraint error reduction, the constraint satisfaction terms are increasingly weighted, resulting in a decreased entropy.
+This encourages the discovery of suitable regions of parameter space, and the subsequent refinement of the distribution to produce the emergent property.
+In the oscillating 2D LDS example, each augmented Lagrangian epoch ran for 2,000 iterations (Fig. S1C-D).
+Notice the initial entropic growth, and subsequent reduction upon each update of $\bm{\eta}_{\text{opt}}$ and $c$.
+The momentum parameters of the Adam optimizer were reset at the end of each augmented Lagrangian epoch.
+
+Rather than starting optimization from some $\bm{\theta}$ drawn from a randomized distribution, we found that initializing $q_{\bm{\theta}}(\mathbf{z})$ to approximate an isotropic Gaussian distribution conferred more stable, consistent optimization.  
+The parameters of the Gaussain initialization were chosen on an application-specific basis.  
+Throughout the study, we chose isotropic Gaussian initializations with mean $\bm{\mu}_{\text{init}}$ at the center of the distribution support and some standard deviation $\bm{\sigma}_{\text{init}}$, except for one case, where an initialization informed by random search was used (see Section \ref{methods_V1}).
+
+To assess whether EPI distribution $q_{\bm{\theta}}(\mathbf{z})$ produces the emergent property, we defined a hypothesis testing convergence criteria.  
+The algorithm has converged when a null hypothesis test of constraint violations $R(\bm{\theta})_i$ being zero is accepted for all constraints $i \in \{1, ..., m\}$ at a significance threshold $\alpha=0.05$.  
+This significance threshold is adjusted through Bonferroni correction according to the number of constraints $m$.  
+The p-values for each constraint are calculated according to a two-tailed nonparametric test, where 200 estimations of the sample mean $R(\bm{\theta})^i$ are made from $k$ resamplings of $\mathbf{z}$ from a finite sample of size $n$ taken at the end of the augmented Lagrangian epoch.
+$k$ is determined by a fraction of the batch size $\nu$, which varies according to the application.
+In the linear two-dimensional system example, we used a batch size of $n = 1000$ and set $\nu = 0.1$ resulting in convergence after the ninth epoch of optimization. (Fig. S1C-D black dotted line).
+
+When assessing the suitability of EPI for a particular modeling question, there are some important technical considerations. 
+First and foremost, as in any optimization problem, the defined emergent property should always be appropriately conditioned (constraints should not have wildly different units).  
+Furthermore, if the program is underconstrained (not enough constraints), the distribution grows (in entropy) unstably unless mapped to a finite support.  
+If overconstrained, there is no parameter set producing the emergent property, and EPI optimization will fail (appropriately).
+Next, one should consider the computational cost of the gradient calculations. 
+In the best circumstance, there is a simple, closed form expression (e.g. Section \ref{methods_2DLDS}) for the emergent property statistic given the model parameters.  
+On the other end of the spectrum, many forward simulation iterations may be required before a high quality measurement of the emergent property statistic is available  (e.g. Section \ref{methods_STG}).  
+In such cases, optimization will be expensive.
+
+
+\subsubsection{Maximum entropy distributions and exponential families}\label{methods_VI}
+%As we compare EPI to variational inference, it is important to consider that EPI is a maximum entropy method, and that maximum entropy methods have a fundamental relationship with exponential family distributions. 
+%A maximum entropy distribution of form:
+%\begin{equation} \label{eq:max_ent}
+%\begin{split}
+%p^*(\mathbf{z}) &= \argmax_{p \in \mathcal{P}} H(p(\mathbf{z})) \\
+% &  \text{s.t.  } \mathbb{E}_{\mathbf{z} \sim p}\left[T(\mathbf{z})\right] = \bm{\mu}. \\
+% \end{split}
+%\end{equation} 
+%will have probability density in the exponential family:
+%\begin{equation}
+%p^*(\mathbf{z}) \propto \exp(\bm{\eta}^\top T(\textbf{z})).
+%\end{equation}
+%The mappings between the mean parameterization $\bm{\mu}$ and the natural parameterization $\bm{\eta}$ are formally hard to identify \cite{wainwright2008graphical}.
+Maximum entropy distributions have a fundamental link to exponential family distributions. 
+A maximum entropy distribution of form:
+\begin{equation} \label{eq:max_ent}
+\begin{split}
+p^*(\mathbf{z}) &= \argmax_{p \in \mathcal{P}} H(p(\mathbf{z})) \\
+ &  \text{s.t.  } \mathbb{E}_{\mathbf{z} \sim p}\left[T(\mathbf{z})\right] = \bm{\mu}_{\text{opt}}. \\
+ \end{split}
+\end{equation} 
+will have probability density in the exponential family:
+\begin{equation}
+p^*(\mathbf{z}) \propto \exp(\bm{\eta}^\top T(\textbf{z})).
+\end{equation}
+The mappings between the mean parameterization $\bm{\mu}_{\text{opt}}$ and the natural parameterization $\bm{\eta}$ are formally hard to identify \cite{wainwright2008graphical}.
+
+In EPI, emergent properties are defined as statistics having a fixed mean and variance as in Equation \ref{eq:EP}
+ \begin{equation}
+\mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\mu}, \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2.
+\end{equation}
+The variance constraint is a second moment constraint on $f(\mathbf{x}; \mathbf{z})$
+ \begin{equation}
+\text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[\left( f(\mathbf{x}; \mathbf{z}) - \bm{\mu}\right) ^2\right]
+\end{equation}
+As a general maximum entropy distribution (Equation \ref{eq:max_ent}), the sufficient statistics vector contains both first and second order moments of $f(\mathbf{x}; \mathbf{z})$
+\begin{equation} \label{eq:moments}
+T(\mathbf{x}; \mathbf{z}) = \begin{bmatrix} f(\mathbf{x}; \mathbf{z}) \\ \left( f(\mathbf{x}; \mathbf{z}) - \bm{\mu} \right)^2 \end{bmatrix},
+\end{equation}
+which are constrained to the chosen means and variances
+\begin{equation}
+\bm{\mu}_{\text{opt}} = \begin{bmatrix} \bm{\mu} \\ \bm{\sigma}^2 \end{bmatrix}.
+\end{equation}
+
+\subsubsection{EPI as variational inference}\label{methods_exp_fam_lh}
+%Now that we have fully described the EPI method, we  consider its broader contextualization as a statistical method and its relation to Bayesian inference. 
+In Bayesian inference a prior belief about model parameters $\mathbf{z}$ is stated in a prior distribution $p(\mathbf{z})$, and the statistical model capturing the effect of $\mathbf{z}$ on observed data points $\mathbf{x}$ is formalized in the likelihood distribution $p(\mathbf{x} \mid \mathbf{z})$.
+In Bayesian inference, we obtain a posterior distribution $p(z \mid \mathbf{x})$, which captures how the data inform our knowledge of model parameters using Bayes' rule:
+\begin{equation}
+p(\mathbf{z} \mid \mathbf{x}) = \frac{p(\mathbf{x} \mid \mathbf{z}) p(\mathbf{z})}{p(\mathbf{x})}.
+\end{equation}
+The posterior distribution is analytically available when the prior is conjugate with the likelihood.
+However, conjugacy is rare in practice, and alternative methods, such as variational inference \cite{blei2017variational}, are utilized.
+
+%Now, consider the goal of doing variational inference with an exponential family posterior distribution $p(z \mid \mathbf{x})$.  
+%We use the following abbreviated notation to collect the base measure $b(z)$ and sufficient statistics $T(z)$ into $\tilde{T}(z)$ and likewise concatenate a 1 onto the end of the natural parameter $\tilde{\eta}(\mathbf{x})$.  
+%The log normalizing constant $A(\eta(\mathbf{x}))$ remains unchanged:
+%\begin{equation}
+%\begin{split}
+%p(z \mid \mathbf{x}) = b(z) \exp{\left( \eta(\mathbf{x})^\top T(z) - A(\eta(\mathbf{x})) \right)} = \exp{\left( \begin{bmatrix} \eta(\mathbf{x}) \\ 1 \end{bmatrix}^\top \begin{bmatrix} T(z) \\ b(z) \end{bmatrix} - A(\eta(\mathbf{x})) \right)} \\= \exp{\left(\tilde{\eta(\mathbf{x})}^\top \tilde{T}(z) - A(\eta(\mathbf{x})) \right)} 
+%\end{split}.
+%\end{equation}
+%Variational inference with an exponential family posterior distribution uses optimization to minimize the following divergence \cite{blei2017variational}:
+%\begin{equation}
+%q_{\bm{\theta}}^* = \argmin_{q_{\bm{\theta}} \in Q} KL(q_{\bm{\theta}} \mid \mid p(z \mid \mathbf{x})).
+%\end{equation}
+%$q_{\bm{\theta}}(z)$ is the variational approximation to the posterior with variational parameters $\bm{\theta}$.  
+%We can write this KL divergence in terms of entropy of the variational approximation:
+%\begin{equation}
+%KL(q_{\bm{\theta}} \mid \mid p(z \mid \mathbf{x})) = \mathbb{E}_{z \sim q_{\bm{\theta}}} \left[ \log (q_{\bm{\theta}}(z)) \right] - \mathbb{E}_{z \sim q_{\bm{\theta}}} \left[ \log (p(z \mid \mathbf{x})) \right]
+%\end{equation}
+%\begin{equation}
+% = -H(q_{\bm{\theta}}) - \mathbb{E}_{z \sim q_{\bm{\theta}}} \left[ \tilde{\eta}(\mathbf{x})^\top  \tilde{T}(z) - A(\eta(\mathbf{x})) \right].
+%\end{equation}
+%As far as the variational optimization is concerned, the log normalizing constant is independent of $q_{\bm{\theta}}(z)$, so it can be dropped
+%\begin{equation}
+%\argmin_{q_{\bm{\theta}} \in Q} KL(q_{\bm{\theta}} \mid \mid p(z \mid \mathbf{x})) =  \argmin_{q_{\bm{\theta}} \in Q} -H(q_{\bm{\theta}}) - \mathbb{E}_{z \sim q_{\bm{\theta}}} \left[ \tilde{\eta}(\mathbf{x})^\top  \tilde{T}(z) \right].
+%\end{equation}
+% Further, we can write the objective in terms of the first moment of the sufficient statistics $\bm{\mu} = \mathbb{E}_{z \sim p(z \mid \mathbf{x})}\left[T(z) \right]$:
+% \begin{equation}
+%=  \argmin_{q_{\bm{\theta}} \in Q} -H(q_{\bm{\theta}}) - \mathbb{E}_{z \sim q_{\bm{\theta}}} \left[ \tilde{\eta}(\mathbf{x})^\top \left(  \tilde{T}(z) -\bm{\mu} \right) \right] + \tilde{\eta}(\mathbf{x})^\top \bm{\mu},
+% \end{equation}
+%which simplifies to
+%  \begin{equation}
+%=  \argmin_{q_{\bm{\theta}} \in Q} -H(q_{\bm{\theta}}) - \mathbb{E}_{z \sim q_{\bm{\theta}}} \left[ \tilde{\eta}(\mathbf{x})^\top \left(  \tilde{T}(z) -\bm{\mu} \right) \right].
+% \end{equation}.
+%
+%In comparison, in emergent property inference (EPI), we solve the following problem:
+%\begin{equation}
+%q_{\bm{\theta}}^*(z) = \argmax_{q_{\bm{\theta}} \in Q} H(q_{\bm{\theta}}(z)),   \text{  s.t.  } \mathbb{E}_{z \sim q_{\bm{\theta}}}\left[ \mathbb{E}_{\mathbf{x}\sim p(\mathbf{x} \mid z)}\left[T(\mathbf{x})\right] \right] = \bm{\mu}.
+%\end{equation}
+%The Lagrangian objective (without augmentation) is
+%\begin{equation}
+%q_{\bm{\theta}}^* = \argmin_{q_{\bm{\theta}} \in Q} - H(q_{\bm{\theta}}) + \eta_{\text{opt}}^\top \left(\mathbb{E}_{z \sim q_{\bm{\theta}}} \left[\tilde{T}(z) \right] - \bm{\mu} \right).
+%\end{equation}
+%Thus, as the optimization proceeds, $\eta_{\text{opt}}^\top$ should converge to the natural parameter $\tilde{\eta}(\mathbf{x})$ through its adaptations in each epoch (see Section \ref{methods_AL_opt}). 
+%
+%We have shown that there is indeed a clear relationship between Bayesian inference and EPI.
+%Specifically, EPI is executing variational inference in an exponential family posterior,  whose sufficient statistics are the emergent property statistics and mean parameterization are the emergent property values.
+%However, in EPI we  have not specified a prior distribution, or collected data, which can inform us about model parameters.
+%Instead we have a mathematical specification of an emergent property, which the model must produce, and a maximum entropy selection principle.
+%Accordingly, we replace the notation of $p(\mathbf{z} \mid \mathbf{x})$ with $p(\mathbf{z} \mid \mathcal{B})$ conceptualizing an inferred distribution that obeys emergent property $\mathcal{B}$ (see Section \ref{methods_EPI}). 
+
+In variational inference, a posterior approximation $q_{\bm{\theta}}^*$ is chosen from within some variational family $\mathcal{Q}$
+\begin{equation}
+q_{\bm{\theta}}^*(\mathbf{z}) = \argmin_{q_{\bm{\theta}} \in Q} KL(q_{\bm{\theta}}(\mathbf{z}) \mid \mid p(\mathbf{z} \mid \mathbf{x})).
+\end{equation}
+The KL divergence can be written in terms of entropy of the variational approximation:
+\begin{equation}
+KL(q_{\bm{\theta}}(\mathbf{z})  \mid \mid p(\mathbf{z} \mid \mathbf{x})) = \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}} \left[ \log (q_{\bm{\theta}}(\mathbf{z})) \right] - \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}} \left[ \log (p(\mathbf{z} \mid \mathbf{x})) \right]
+\end{equation}
+\begin{equation}
+= -H(q_{\bm{\theta}}) - \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}} \left[ \log (p(\mathbf{x} \mid \mathbf{z}))  + \log(p(\mathbf{z})) - \log(p(\mathbf{x}))\right]
+\end{equation}
+Since the marginal distribution of the data $p(\mathbf{x})$ (or ``evidence") is independent of $\bm{\theta}$, variational inference is executed by optimizing the remaining expression.
+This is usually framed as maximizing the evidence lower bound (ELBO)
+\begin{equation}
+\argmin_{q_{\bm{\theta}} \in Q} KL(q_{\bm{\theta}} \mid \mid p(\mathbf{z} \mid \mathbf{x})) = \argmax_{q_{\bm{\theta}} \in Q} H(q_{\bm{\theta}}) + \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}} \left[ \log (p(\mathbf{x} \mid \mathbf{z}))  + \log(p(\mathbf{z}))\right].
+\end{equation}
+
+Now, consider the setting where we have chosen a uniform prior, and stipulate a mean-field gaussian likelihood on a chosen statistic of the data $f(\mathbf{x}; \mathbf{z})$
+\begin{equation}
+p(\mathbf{x} \mid \mathbf{z}) = \mathcal{N}(f(\mathbf{x}; \mathbf{z}) \mid \bm{\mu}_f, \Sigma_f),
+\end{equation}
+where $\Sigma_f = \text{diag}(\bm{\sigma}_f^2)$.
+The log likelihood is then proportional to a dot product of the natural parameter of this mean-field gaussian distribution and the first and second moment statistics.
+\begin{equation}
+\log p(\mathbf{x} \mid \mathbf{z}) \propto \bm{\eta}_f^\top T(\mathbf{x}, \mathbf{z}),
+\end{equation}
+where
+\begin{equation}
+\bm{\eta}_{f} = \begin{bmatrix} \frac{\bm{\mu}_f}{\bm{\sigma}_f^2} \\ \frac{-1}{2\bm{\sigma}_f^2} \end{bmatrix}, \text{ and}
+\end{equation}
+\begin{equation}
+T(\mathbf{x}; \mathbf{z}) = \begin{bmatrix} f(\mathbf{x}; \mathbf{z}) \\ \left( f(\mathbf{x}; \mathbf{z}) - \bm{\mu}_f \right)^2 \end{bmatrix}.
+\end{equation}
+The variational objective is then
+\begin{equation}
+\argmax_{q_{\bm{\theta}} \in Q} H(q_{\bm{\theta}}) + \bm{\eta}_f^\top \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}\left[ T(\mathbf{x}; \mathbf{z}) \right]
+\end{equation}
+
+Comparing this to the Lagrangian objective (without augmentation) of EPI, we see they are the same
+\begin{equation}
+\begin{split}
+q_{\bm{\theta}}^*(\mathbf{z}) &= \argmin_{q_{\bm{\theta}} \in Q} - H(q_{\bm{\theta}}) + \bm{\eta}_{\text{opt}}^\top \left(\mathbb{E}_{\mathbf{z}, \mathbf{x}} \left[T(\mathbf{x}; \mathbf{z}) \right] - \bm{\mu}_{\text{opt}} \right) \\
+ &= \argmin_{q_{\bm{\theta}} \in Q} - H(q_{\bm{\theta}}) + \bm{\eta}_{\text{opt}}^\top \mathbb{E}_{\mathbf{z}, \mathbf{x}} \left[T(\mathbf{x}; \mathbf{z}) \right].
+\end{split}
+\end{equation}
+where $T(\mathbf{x}; \mathbf{z})$ consists of the first and second moments of the emergent property statistic $f(\mathbf{x}; \mathbf{z})$ (Equation \ref{eq:moments}).
+Thus, EPI is implicitly executing variational inference with a uniform prior and a mean-field gaussian likelihood on the emergent property statistics.
+The data $\mathbf{x}$ used by this implicit variational inference program would be that generated by the adapting variational approximation $\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z}) q_{\bm{\theta}}(\mathbf{z})$, and the likelihood parameters $\bm{\eta}_{f}$ of EPI optimization epoch $k$ are predicated by $\bm{\eta}_{\text{opt},k}$ .
+However, in EPI we  have not specified a prior distribution, or collected data, which can inform us about model parameters.
+Instead we have a mathematical specification of an emergent property, which the model must produce, and a maximum entropy selection principle.
+Accordingly, we replace the notation of $p(\mathbf{z} \mid \mathbf{x})$ with $p(\mathbf{z} \mid \mathcal{X})$ conceptualizing an inferred distribution that obeys emergent property $\mathcal{X}$ (see Section \ref{methods_EPI}). 
+
 \subsubsection{Example: 2D LDS}\label{methods_2DLDS}
 To gain intuition for EPI, consider a two-dimensional linear dynamical system (2D LDS) model (Fig. S1A):
 \begin{equation} 
-\tau \frac{dx}{dt} = Ax
+\tau \frac{d\mathbf{x}}{dt} = A\mathbf{x}
 \end{equation}
 with
 \begin{equation}
 A = \begin{bmatrix} a_1 & a_2 \\ a_3 & a_4 \end{bmatrix}.
 \end{equation}
-To run EPI with the dynamics matrix elements as the free parameters $z = [ a_1, a_2, a_3, a_4]$ (fixing $\tau=1$), the emergent property statistics $T(x)$ were chosen to contain the first and second moments of the oscillatory frequency, $\frac{\text{imag}(\lambda_1)}{2 \pi}$, and the growth/decay factor, $\text{real}(\lambda_1)$, of the oscillating system. 
+To run EPI with the dynamics matrix elements as the free parameters $\mathbf{z} = [ a_1, a_2, a_3, a_4]$ (fixing $\tau=1$), the emergent property statistics $T(\mathbf{x})$ were chosen to contain the first and second moments of the oscillatory frequency, $\frac{\text{imag}(\lambda_1)}{2 \pi}$, and the growth/decay factor, $\text{real}(\lambda_1)$, of the oscillating system. 
  $\lambda_1$ is the eigenvalue of greatest real part when the imaginary component is zero, and alternatively of positive imaginary component when the eigenvalues are complex conjugate pairs.  
 To learn the distribution of real entries of $A$ that produce a band of oscillating systems around 1Hz, we formalized this emergent property as $\text{real}(\lambda_1)$ having mean zero with variance $0.25^2$, and the oscillation frequency $2 \pi \text{imag}(\lambda_1)$ having mean $\omega = 1$ Hz with variance (0.1Hz)$^2$:
 \begin{equation}
- \mathbb{E}\left[T(x) \right] ~~ \triangleq ~~ \mathbb{E} \begin{bmatrix} \text{real}(\lambda_1) \\ \text{imag}(\lambda_1) \\ (\text{real}(\lambda_1)-0)^2  \\ (\text{imag}(\lambda_1)-2 \pi \omega)^2 \end{bmatrix} = \begin{bmatrix} 0.0 \\ 2 \pi \omega \\ 0.25^2 \\ (2 \pi 0.1)^2 \end{bmatrix} ~~ \triangleq ~~ \mu.
+ \mathbb{E}\left[T(\mathbf{x}) \right] ~~ \triangleq ~~ \mathbb{E} \begin{bmatrix} \text{real}(\lambda_1) \\ \text{imag}(\lambda_1) \\ (\text{real}(\lambda_1)-0)^2  \\ (\text{imag}(\lambda_1)-2 \pi \omega)^2 \end{bmatrix} = \begin{bmatrix} 0.0 \\ 2 \pi \omega \\ 0.25^2 \\ (2 \pi 0.1)^2 \end{bmatrix} ~~ \triangleq ~~ \bm{\mu}.
  \end{equation} 
 \begin{figure}
 \begin{center}
@@ -626,13 +904,13 @@ At the beginning of each augmented Lagrangian epoch, the emergent property momen
 \end{flushleft}
 \end{figure}
 
-Unlike the models we presented in the main text, this model admits an analytical form for the mean emergent property statistics given parameter $z$, since the eigenvalues can be calculated using the quadratic formula: 
+Unlike the models we presented in the main text, this model admits an analytical form for the mean emergent property statistics given parameter $\mathbf{z}$, since the eigenvalues can be calculated using the quadratic formula: 
 \begin{equation}
 \lambda = \frac{(\frac{a_1 + a_4}{\tau}) \pm \sqrt{(\frac{a_1+a_4}{\tau})^2 + 4(\frac{a_2 a_3 - a_1 a_4}{\tau})}}{2}.
 \end{equation}
 
-Importantly, even though $\mathbb{E}_{x\sim p(x \mid z)}\left[T(x)\right]$ is calculable directly via a closed form function and does not require simulation, we cannot derive the distribution $q^*_\theta$ directly.  
-This fact is due to the formally hard problem of the backward mapping: finding the natural parameters $\eta$ from the mean parameters $\mu$ of an exponential family distribution \cite{wainwright2008graphical}.  
+Importantly, even though $\mathbb{E}_{\mathbf{x}\sim p(\mathbf{x} \mid \mathbf{z})}\left[T(\mathbf{x})\right]$ is calculable directly via a closed form function and does not require simulation, we cannot derive the distribution $q^*_{\bm{\theta}}$ directly.  
+This fact is due to the formally hard problem of the backward mapping: finding the natural parameters $\eta$ from the mean parameters $\bm{\mu}$ of an exponential family distribution \cite{wainwright2008graphical}.  
 Instead, we used EPI to approximate this distribution (Fig. S1B). We used a real-NVP normalizing flow architecture with four masks, two neural network layers of 15 units per mask, with batch normalization momentum 0.99, mapped onto a support of $z_i \in \left[-10, 10 \right]$. (see Section \ref{methods_NF}).
 
 Even this relatively simple system has nontrivial (though intuitively sensible) structure in the parameter distribution.  
@@ -665,8 +943,8 @@ When $\tau=1$ and $a_1 a_4 > a_2 a_3$ (center of distribution above), we have th
 \begin{equation}
 \text{imag}(\lambda_1)^2 = a_1 a_4 - a_2 a_3
 \end{equation}
-Since we constrained $\mathbb{E}_{z \sim q_\theta}\left[\text{imag}(\lambda)\right] = 2 \pi$ (with $\omega=1$), we can plot contours of the equation $\text{imag}(\lambda_1)^2 = a_1 a_4 - a_2 a_3 = (2 \pi)^2$ for various $a_1 a_4$ (Fig. S2B). 
-With $\sigma_{1,4} = \mathbb{E}_{z \sim q_\theta}(|a_1 a_4 - E_{q_\theta}[a_1 a_4]|)$, we show the contours as $a_1 a_4 = 0$ (black), $a_1 a_4 = -\sigma_{1,4}$ (black dotted), and $a_1 a_4 = -2\sigma_{1,4}$ (grey dotted). 
+Since we constrained $\mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}\left[\text{imag}(\lambda)\right] = 2 \pi$ (with $\omega=1$), we can plot contours of the equation $\text{imag}(\lambda_1)^2 = a_1 a_4 - a_2 a_3 = (2 \pi)^2$ for various $a_1 a_4$ (Fig. S2B). 
+With $\sigma_{1,4} = \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}(|a_1 a_4 - E_{q_{\bm{\theta}}}[a_1 a_4]|)$, we show the contours as $a_1 a_4 = 0$ (black), $a_1 a_4 = -\sigma_{1,4}$ (black dotted), and $a_1 a_4 = -2\sigma_{1,4}$ (grey dotted). 
 This validates the curved structure of the inferred distribution learned through EPI.  
 We took steps in negative standard deviation of $a_1 a_4$ (dotted and gray lines), since there are few positive values $a_1 a_4$ in the learned distribution.  
 Subtler combinations of model and emergent property will have more complexity, further motivating the use of EPI for understanding these systems.  
@@ -677,140 +955,10 @@ As we expect, the distribution results in samples of two-dimensional linear syst
 \includegraphics[scale=0.5]{figures/figS3/figS3.pdf}
 \end{center}
 \begin{flushleft}
-{\small Fig. S3: Sampled dynamical systems $z \sim q_\theta(z)$ and their simulated activity from $x(0) = [\frac{\sqrt{2}}{2}, -\frac{\sqrt{2}}{2}]$ colored by log probability. A. Each dimension of the simulated trajectories throughout time.  
+{\small Fig. S3: Sampled dynamical systems $\mathbf{z} \sim q_{\bm{\theta}}(\mathbf{z})$ and their simulated activity from $\mathbf{x}(0) = [\frac{\sqrt{2}}{2}, -\frac{\sqrt{2}}{2}]$ colored by log probability. A. Each dimension of the simulated trajectories throughout time.  
 B  The simulated trajectories in phase space.}
 \end{flushleft}
 \end{figure}
-
-\subsubsection{Augmented Lagrangian optimization}\label{methods_AL_opt}
-To optimize $q_\theta(z)$ in Equation \ref{eq:opt}, the constrained optimization is executed using the augmented Lagrangian method.  The following objective is minimized:
-\begin{equation} \label{eq:AL}
-L(\theta; \eta, c) = -H(q_\theta) + \eta^\top R(\theta) + \frac{c}{2}||R(\theta)||^2
-\end{equation}
-where $R(\theta) = \mathbb{E}_{z \sim q_\theta}\left[ \mathbb{E}_{x\sim p(x \mid z)}\left[T(x) - \mu \right] \right]$, $\eta \in \mathbb{R}^m$ are the Lagrange multipliers where $m = |\mu| = |T(x)|$,  and $c$ is the penalty coefficient. 
-These Lagrange multipliers are closely related to the natural parameters of exponential families (see Section \ref{methods_VI}).
-Deep neural network weights and biases $\theta$ of the deep probability distribution are optimized according to Equation \ref{eq:AL} using the Adam optimizer with its standard parameterization \cite{kingma2014adam}.
-$\eta$ is initialized to the zero vector and adapted following each augmented Lagrangian epoch, which is a period of optimization with fixed ($\eta$, $c$) for a given number of stochastic optimization iterations. 
-A low value of $c$ is used initially, and conditionally increased after each epoch based on constraint error reduction.
-For example, the initial value of $c$ was $c_0 = 10^{-3}$ during EPI with the oscillating 2D LDS (Fig. S1C).
-The penalty coefficient is updated based on the result of a hypothesis test regarding the reduction in constraint violation.  
-The p-value of $\mathbb{E}[||R(\theta_{k+1})||] > \gamma \mathbb{E} \left[||R(\theta_{k})|| \right]$ is computed, and $c_{k+1}$ is updated  to $\beta c_k$ with probability $1-p$.  
-The other update rule is $\eta_{k+1} = \eta_k + c_k \frac{1}{n} \sum_{i=1}^n (T(x^{(i)}) - \mu)$ given a batch size $n$.
-Throughout the study, $\beta = 4.0$, $\gamma = 0.25$, and the batch size was a hyperparameter, which varied according to the application of EPI.
-
-The intention is that $c$ and $\eta$ start at values encouraging entropic growth early in optimization.  
-With each training epoch in which the update rule for $c$ is invoked by unsatisfactory constraint error reduction, the constraint satisfaction terms are increasingly weighted, resulting in a decreased entropy.
-This encourages the discovery of suitable regions of parameter space, and the subsequent refinement of the distribution to produce the emergent property.
-In the oscillating 2D LDS example, each augmented Lagrangian epoch ran for 2,000 iterations (Fig. S1C-D).
-Notice the initial entropic growth, and subsequent reduction upon each update of $\eta$ and $c$.
-The momentum parameters of the Adam optimizer were reset at the end of each augmented Lagrangian epoch.
-
-Rather than starting optimization from some $\theta$ drawn from a randomized distribution, we found that initializing $q_\theta(z)$ to approximate an isotropic Gaussian distribution conferred more stable, consistent optimization.  
-The parameters of the Gaussain initialization were chosen on an application-specific basis.  
-Throughout the study, we chose isotropic Gaussian initializations with mean $\mu_{\text{init}}$ at the center of the distribution support and some standard deviation $\sigma_{\text{init}}$, except for one case, where an initialization informed by random search was used (see Section \ref{methods_V1}).
-
-To assess whether EPI distribution $q_\theta(z)$ produces the emergent property, we defined a hypothesis testing convergence criteria.  
-The algorithm has converged when a null hypothesis test of constraint violations $R(\theta)_i$ being zero is accepted for all constraints $i \in \{1, ..., m\}$ at a significance threshold $\alpha=0.05$.  
-This significance threshold is adjusted through Bonferroni correction according to the number of constraints $m$.  
-The p-values for each constraint are calculated according to a two-tailed nonparametric test, where 200 estimations of the sample mean $R(\theta)^i$ are made from $k$ resamplings of $z$ from a finite sample of size $n$ taken at the end of the augmented Lagrangian epoch.
-$k$ is determined by a fraction of the batch size $\nu$, which varies according to the application.
-In the linear two-dimensional system example, we used a batch size of $n = 1000$ and set $\nu = 0.1$ resulting in convergence after the ninth epoch of optimization. (Fig. S1C-D black dotted line).
-
-When assessing the suitability of EPI for a particular modeling question, there are some important technical considerations. 
-First and foremost, as in any optimization problem, the defined emergent property should always be appropriately conditioned (constraints should not have wildly different units).  
-Furthermore, if the program is underconstrained (not enough constraints), the distribution grows (in entropy) unstably unless mapped to a finite support.  
-If overconstrained, there is no parameter set producing the emergent property, and EPI optimization will fail (appropriately).
-Next, one should consider the computational cost of the gradient calculations. 
-In the best circumstance, there is a simple, closed form expression (e.g. Section \ref{methods_2DLDS}) for the emergent property statistic given the model parameters.  
-On the other end of the spectrum, many forward simulation iterations may be required before a high quality measurement of the emergent property statistic is available  (e.g. Section \ref{methods_STG}).  
-In such cases, optimization will be expensive.
-
-\subsubsection{Normalizing flows}\label{methods_NF}
-Deep probability models typically consist of several layers of fully connected neural networks.  
-When each neural network layer is restricted to be a bijective function, the sample density can be calculated using the change of variables formula at each layer of the network.  For $z' = f(z)$,
-
-\begin{equation}
-q(z') = q(f^{-1}(z')) \left| \det \frac{\partial f^{-1}(z')}{\partial z'} \right| = q(z) \left| \det \frac{\partial f(z)}{\partial z} \right|^{-1}.
-\end{equation}
-
-However, this computation has cubic complexity in dimensionality for fully connected layers.  
-By restricting our layers to normalizing flows \cite{rezende2015variational} -- bijective functions with fast log determinant Jacobian computations, we can tractably optimize deep generative models with objectives that are a function of sample density, like entropy. 
-Most of our analyses use either a planar flow \cite{rezende2015variational} or real NVP \cite{dinh2017density}, which have proven effective in our architecture searches.  
-Planar flow architectures are specified by the number of planar bijection layers used, while real NVP architectures are specified by the number of masks, neural network layers per mask, units per layer, and batch normalization momentum parameter.
-
-
-\subsubsection{Emergent property inference as variational inference in an exponential family}\label{methods_VI}
-Now that we have fully described the EPI method, we  consider its broader contextualization as a statistical method and its relation to Bayesian inference. 
-In Bayesian inference a prior belief about model parameters $z$ is formalized into a prior distribution $p(z)$, and the statistical model capturing the effect of $z$ on observed data points $x$ is formalized in the likelihood distribution $p(x \mid z)$.
-In Bayesian inference, we obtain a posterior distribution $p(z \mid x)$, which captures how the data inform our knowledge of model parameters using Bayes' rule:
-\begin{equation}
-p(z \mid x) = \frac{p(x \mid z) p(z)}{p(x)}.
-\end{equation}
-The posterior distribution is analytically available when the prior is conjugate with the likelihood.
-However, conjugacy is rare in practice, and alternative methods, such as variational inference \cite{blei2017variational}, are utilized.
-
-As we compare EPI to variational inference, it is important to consider that EPI is a maximum entropy method, and that maximum entropy methods have a fundamental relationship with exponential family distributions. 
-A maximum entropy distribution of form:
-\begin{equation}
-\begin{split}
-p^*(z) &= \argmax_{p \in \mathcal{P}} H(p(z)) \\
- &  \text{s.t.  } \mathbb{E}_{z \sim p}\left[T(z)\right] = \mu. \\
- \end{split}
-\end{equation} 
-will have probability density in the exponential family:
-\begin{equation}
-p^*(z) \propto \exp(\eta^\top T(z)).
-\end{equation}
-The mappings between the mean parameterization $\mu$ and the natural parameterization $\eta$ are formally hard to identify \cite{wainwright2008graphical}.
-
-Now, consider the goal of doing variational inference with an exponential family posterior distribution $p(z \mid x)$.  
-We use the following abbreviated notation to collect the base measure $b(z)$ and sufficient statistics $T(z)$ into $\tilde{T}(z)$ and likewise concatenate a 1 onto the end of the natural parameter $\tilde{\eta}(x)$.  
-The log normalizing constant $A(\eta(x))$ remains unchanged:
-\begin{equation}
-\begin{split}
-p(z \mid x) = b(z) \exp{\left( \eta(x)^\top T(z) - A(\eta(x)) \right)} = \exp{\left( \begin{bmatrix} \eta(x) \\ 1 \end{bmatrix}^\top \begin{bmatrix} T(z) \\ b(z) \end{bmatrix} - A(\eta(x)) \right)} \\= \exp{\left(\tilde{\eta(x)}^\top \tilde{T}(z) - A(\eta(x)) \right)} 
-\end{split}.
-\end{equation}
-Variational inference with an exponential family posterior distribution uses optimization to minimize the following divergence \cite{blei2017variational}:
-\begin{equation}
-q_\theta^* = \argmin_{q_\theta \in Q} KL(q_\theta \mid \mid p(z \mid x)).
-\end{equation}
-$q_\theta(z)$ is the variational approximation to the posterior with variational parameters $\theta$.  
-We can write this KL divergence in terms of entropy of the variational approximation:
-\begin{equation}
-KL(q_\theta \mid \mid p(z \mid x)) = \mathbb{E}_{z \sim q_\theta} \left[ \log (q_\theta(z)) \right] - \mathbb{E}_{z \sim q_\theta} \left[ \log (p(z \mid x)) \right]
-\end{equation}
-\begin{equation}
- = -H(q_\theta) - \mathbb{E}_{z \sim q_\theta} \left[ \tilde{\eta}(x)^\top  \tilde{T}(z) - A(\eta(x)) \right].
-\end{equation}
-As far as the variational optimization is concerned, the log normalizing constant is independent of $q_\theta(z)$, so it can be dropped
-\begin{equation}
-\argmin_{q_\theta \in Q} KL(q_\theta \mid \mid p(z \mid x)) =  \argmin_{q_\theta \in Q} -H(q_\theta) - \mathbb{E}_{z \sim q_\theta} \left[ \tilde{\eta}(x)^\top  \tilde{T}(z) \right].
-\end{equation}
- Further, we can write the objective in terms of the first moment of the sufficient statistics $\mu = \mathbb{E}_{z \sim p(z \mid x)}\left[T(z) \right]$:
- \begin{equation}
-=  \argmin_{q_\theta \in Q} -H(q_\theta) - \mathbb{E}_{z \sim q_\theta} \left[ \tilde{\eta}(x)^\top \left(  \tilde{T}(z) -\mu \right) \right] + \tilde{\eta}(x)^\top \mu,
- \end{equation}
-which simplifies to
-  \begin{equation}
-=  \argmin_{q_\theta \in Q} -H(q_\theta) - \mathbb{E}_{z \sim q_\theta} \left[ \tilde{\eta}(x)^\top \left(  \tilde{T}(z) -\mu \right) \right].
- \end{equation}.
-
-In comparison, in emergent property inference (EPI), we solve the following problem:
-\begin{equation}
-q_\theta^*(z) = \argmax_{q_\theta \in Q} H(q_\theta(z)),   \text{  s.t.  } \mathbb{E}_{z \sim q_\theta}\left[ \mathbb{E}_{x\sim p(x \mid z)}\left[T(x)\right] \right] = \mu.
-\end{equation}
-The Lagrangian objective (without augmentation) is
-\begin{equation}
-q_\theta^* = \argmin_{q_\theta \in Q} - H(q_\theta) + \eta_{\text{opt}}^\top \left(\mathbb{E}_{z \sim q_\theta} \left[\tilde{T}(z) \right] - \mu \right).
-\end{equation}
-Thus, as the optimization proceeds, $\eta_{\text{opt}}^\top$ should converge to the natural parameter $\tilde{\eta}(x)$ through its adaptations in each epoch (see Section \ref{methods_AL_opt}). 
-
-We have shown that there is indeed a clear relationship between Bayesian inference and EPI.
-Specifically, EPI is executing variational inference in an exponential family posterior,  whose sufficient statistics are the emergent property statistics and mean parameterization are the emergent property values.
-However, in EPI we  have not specified a prior distribution, or collected data, which can inform us about model parameters.
-Instead we have a mathematical specification of an emergent property, which the model must produce, and a maximum entropy selection principle.
-Accordingly, we replace the notation of $p(z \mid x)$ with $p(z \mid \mathcal{B})$ conceptualizing an inferred distribution that obeys emergent property $\mathcal{B}$ (see Section \ref{methods_EPI}). 
 
 \subsection{Theoretical models}\label{methods_theoretical_models}
 In this study, we used emergent property inference to examine several models relevant to theoretical neuroscience.  
@@ -895,17 +1043,17 @@ The optimization converged after four epochs (Fig. S4).
 {\small Fig. S4: EPI optimization of the STG model producing network syncing. 
 A. Entropy throughout optimization. 
 B. The first moment emergent property statistics converge to the emergent property values at 10,000 iterations, following the fourth augmented Lagrangian epoch of 2,500 iterations.  
-Since $q_\theta(z)$ failed to produce enough samples yielding $\omega_{\text{f1}}(x)$ less than $0.53$Hz, the convergence criteria were not satisfied after the third epoch at 7,500 iterations.    
+Since $q_{\bm{\theta}}(z)$ failed to produce enough samples yielding $\omega_{\text{f1}}(x)$ less than $0.53$Hz, the convergence criteria were not satisfied after the third epoch at 7,500 iterations.    
 C. The second moment emergent property statistics converge to the emergent property values.}
 \end{flushleft}
 \end{figure}
 
 For EPI in Fig 2C, we used a real NVP architecture with four masks and two layers of 10 units per mask, and batch normalization momentum of 0.99 mapped onto a support of $z = [g_{\text{el}}, g_{\text{synA}}] \in [4,8] \times [0,4]$. 
-We used an augmented Lagrangian coefficient of $c_0 = 10^{2}$, a batch size $n=300$, set $\nu = 0.1$, and initialized $q_\theta(z)$ to produce an isotropic 
+We used an augmented Lagrangian coefficient of $c_0 = 10^{2}$, a batch size $n=300$, set $\nu = 0.1$, and initialized $q_{\bm{\theta}}(z)$ to produce an isotropic 
 Gaussian with mean $\mu_{\text{init}} = [6, 2]$ with standard deviation $\sigma_{\text{init}} = 0.5$.
 
 We calculated the Hessian at the mode of the inferred EPI distribution.  
-The Hessian of a probability model is the second order gradient of the log probability density $\log q_\theta(z)$ with respect to the parameters $z$:  $\frac{\partial^2 \log q_\theta(z)}{\partial z \partial z^\top}$.  
+The Hessian of a probability model is the second order gradient of the log probability density $\log q_{\bm{\theta}}(z)$ with respect to the parameters $z$:  $\frac{\partial^2 \log q_{\bm{\theta}}(z)}{\partial z \partial z^\top}$.  
 With EPI, we can examine the Hessian, which is analytically available throughout distribution, to indicate the dimensions of parameter space that are sensitive (high magnitude eigenvalue), and which are degenerate (low magnitude eigenvalue) with respect to the emergent property produced. 
 In Figure \ref{fig:STG}B, the eigenvectors of the Hessian $v_1$ and $v_2$ are shown evaluated at the mode of the distribution.  
 The length of the arrows is inversely proportional to the square root of absolute value of their eigenvalues $\lambda_1 = -10.8$ and $\lambda_2 = -2.27$.
@@ -990,7 +1138,7 @@ We use the following notation to indicate that the emergent property statistics 
 \mathbb{E} \begin{bmatrix} dx_{\alpha,ss} \\ (dx_{\alpha,ss} - y)^2 \end{bmatrix} = \begin{bmatrix} y \\ 0.01^2 \end{bmatrix}.
 \end{equation}
 
-In the final analysis for this model, we sweep the input one neuron at a time away from the mode of each inferred distributions $dh^* = z^* = \argmax_{z} \log q_\theta(z \mid \mathcal{B}(\alpha, 0.1)$.
+In the final analysis for this model, we sweep the input one neuron at a time away from the mode of each inferred distributions $dh^* = z^* = \argmax_{z} \log q_{\bm{\theta}}(z \mid \mathcal{B}(\alpha, 0.1)$.
 The differential responses $\delta x_{\alpha,ss}$ are examined at perturbed inputs  $h = b + dh^* + \delta h_\alpha \hat{u}_\alpha$ where $\hat{u}_\alpha$ is a unit vector in the dimension of $\alpha$ and $\delta x$ is evaluated at 101 equally spaced samples of $\delta h_\alpha$ from -15 to 15.
 
 We measured the linear regression slope between neuron-types of $\delta x$ and $\delta h$ to confirm the hypotheses H1-H3 (H4 is simply observing the nonmonotonicity) and report the p values for tests of non-zero slope.
@@ -1070,7 +1218,7 @@ To produce an accuracy rate of $p_{LP}$ in the Left, Pro condition, let $\hat{p}
  \end{equation}
  where stimulus $s \in \{L, R\}$, cue $c \in \{P, A\}$, and $\sigma dB_j$ is the Gaussian noise on trial $j$.
 As with the V1 model, we only consider steady state responses of $x$, so $x_\alpha$ is used from here on to denote the steady state activity at the end of the trial.
-For the first emergent property statistic, the average over EPI samples (from $q_\theta(z)$) is set to the desired value $p_{LP}$:
+For the first emergent property statistic, the average over EPI samples (from $q_{\bm{\theta}}(z)$) is set to the desired value $p_{LP}$:
 \begin{equation}
 \mathbb{E}_{z_i \sim q_\phi} \left[ \mathbb{E}_{\sigma dB} \left[ x_{LP,\text{ss}} \mid s=L, c=P, z=z_i \right] \right] = \mathbb{E}_{z_i \sim q_\phi} \left[ \hat{p}_i \right] = p_{LP}.
 \end{equation}
@@ -1110,7 +1258,7 @@ This pathology was avoided using an inequality constraint prohibiting parameter 
 
 \begin{table}[h]
 \begin{tabular}{l|l|l|l|l}
-$\lambda$  & $\hat{p}$ & $q_\theta(z)$ & $r$ & p-value \\ \hline
+$\lambda$  & $\hat{p}$ & $q_{\bm{\theta}}(z)$ & $r$ & p-value \\ \hline
 $\lambda_{\text{task}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(60\%))$ & $1.24 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
 $\lambda_{\text{task}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(70\%))$ & $7.56 \times 10^{-01}$ & $p<10^{-4}$ \\ \hline
 $\lambda_{\text{task}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(80\%))$ & $4.59 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
@@ -1135,11 +1283,11 @@ $\lambda_{\text{side}}$ & $\hat{p}_A$ & $q(z \mid \mathcal{B}(80\%))$ & $-2.74 \
 \end{table}
 
 For each accuracy level $p$, we ran EPI for 10 different random seeds  using an architecture of 10 planar flows with a  support of $z \in \mathbb{R}^8$.   
-We used an augmented Lagrangian coefficient of $c_0 = 10^2$, a batch size $n=300$, and set $\nu = 0.5$, and initialized $q_\theta(z)$ to produce an isotropic Gaussian of zero mean with standard deviation $\sigma_{\text{init}} = 1$.
+We used an augmented Lagrangian coefficient of $c_0 = 10^2$, a batch size $n=300$, and set $\nu = 0.5$, and initialized $q_{\bm{\theta}}(z)$ to produce an isotropic Gaussian of zero mean with standard deviation $\sigma_{\text{init}} = 1$.
 The EPI distributions shown in Fig. \ref{fig:SC} are the converged distributions with maximum entropy across random seeds.
 
 We report significant correlations $r$ and their p-values from Figure \ref{fig:SC}E in Table 1.  
-Correlations were measured from 5,000 samples of $q_\theta(z \mid \mathcal{B}(p))$ and p-values are reported for one-tailed tests, since we hypothesized a positive correlation between task accuracies $p_P$ or $p_A$ and $\lambda_{\text{task}}$, and a negative correlation between task accuracies $p_P$ and $p_A$ and $\lambda_{\text{side}}$.
+Correlations were measured from 5,000 samples of $q_{\bm{\theta}}(z \mid \mathcal{B}(p))$ and p-values are reported for one-tailed tests, since we hypothesized a positive correlation between task accuracies $p_P$ or $p_A$ and $\lambda_{\text{task}}$, and a negative correlation between task accuracies $p_P$ and $p_A$ and $\lambda_{\text{side}}$.
 
 \subsubsection{Rank-1 RNN}\label{methods_LRRNN}
 Extensive research on random fully-connected recurrent neural networks has resulted in foundational theories of their activity \cite{sompolinsky1988chaos, brunel2000dynamics}.
@@ -1195,7 +1343,7 @@ l(t) = \frac{\Delta_0(t)^2-\Delta_\infty(t)^2}{2} \\
 Then, the chaotic variance, which is necessary for the Gaussian posterior conditioning example, is simply calculated via $\Delta_T = \Delta_0 - \Delta_\infty$.
 
 We ran EPI using a real NVP architecture of two masks and two layers per mask with 10 units mapped to a support of $z = [g, M_m, M_n] \in [0,5] \times [-5,5] \times[-5,5]$ with no batch normalization. 
-We used an augmented Lagrangian coefficient of $c_0 = 1$, a batch size $n=300$, set $\nu = 0.15$, and initialized $q_\theta(z)$ to produce an isotropic Gaussian with mean $\mu_{\text{init}} = [2.5, 0, 0]$ with standard deviation $\sigma_{\text{init}} = 2.0$.
+We used an augmented Lagrangian coefficient of $c_0 = 1$, a batch size $n=300$, set $\nu = 0.15$, and initialized $q_{\bm{\theta}}(z)$ to produce an isotropic Gaussian with mean $\mu_{\text{init}} = [2.5, 0, 0]$ with standard deviation $\sigma_{\text{init}} = 2.0$.
 The EPI distribution shown in Fig. \ref{fig:RNN} is the converged distributions with maximum entropy across five random seeds.
 
 To examine the effect of product $M_m M_n$ on the posterior mean, $\mu_{\text{post}}$ we took perturbations in $M_m M_n$ away from two representative parameters  $z_1$ and $z_2$ in 21 equally space increments from -1 to 1.  
