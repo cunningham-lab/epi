@@ -150,32 +150,32 @@ The novel scientific insights offered by EPI contextualize and clarify the previ
 \subsection{Motivating emergent property inference of theoretical models} \label{results_motivating}
 
 %Consideration of the typical workflow of theoretical modeling clarifies the need for emergent property inference.  
-Consideration of the typical workflow of theoretical modeling clarifies the need for emergent property inference (Fig. \ref{fig:STG}A).  
+Consideration of the typical workflow of theoretical modeling clarifies the need for emergent property inference.  
 First, one designs or chooses an existing model that, it is hypothesized, captures the computation of interest. 
 To ground this process in a well-known example, consider the stomatogastric ganglion (STG) of crustaceans, a small neural circuit which generates multiple rhythmic muscle activation patterns for digestion \cite{marder2002cellular}.
 Despite full knowledge of STG connectivity and a precise characterization of its rhythmic pattern generation, biophysical models of the STG have complicated relationships between circuit parameters and neural activity \cite{goldman2001global, prinz2004similar}.
 %A model of the STG \cite{gutierrez2013multiple} is shown schematically in Figure \ref{fig:STG}A, and note that the behavior of this model will be critically dependent on its parameterization -- the choices of conductance parameters $z = [g_{\text{el}}, g_{\text{synA}}]$.
-A subcircuit model of the STG \cite{gutierrez2013multiple} is shown schematically in Figure \ref{fig:STG}C, and note that the behavior of this model will be critically dependent on its parameterization -- the choices of conductance parameters $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}]$.
+A subcircuit model of the STG \cite{gutierrez2013multiple} is shown schematically in Figure \ref{fig:STG}A, and note that the behavior of this model will be critically dependent on its parameterization -- the choices of conductance parameters $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}]$.
 Specifically, the two fast neurons ($f1$ and $f2$) mutually inhibit one another, and oscillate at a faster frequency than the mutually inhibiting slow neurons ($s1$ and $s2$).  
 The hub neuron (hub) couples with either the fast or slow population or both.  
 
 %Second, once the model is selected, one defines the emergent property, the measurable signal of scientific interest.  
-Second, once the model is selected, one defines the emergent property, the measurable behavior of scientific interest.  
+Second, once the model is selected, one defines the emergent phenomena of scientific interest.
 %To continue our running STG example, one such emergent property is the phenomenon of \emph{network syncing} -- in certain parameter regimes, the frequency of the hub neuron matches that of the fast and slow populations at an intermediate frequency.
-To continue our running STG example, one such emergent property is the phenomenon of \emph{unified intermediacy} -- in certain parameter regimes, the frequency of all neurons match at an intermediate firing rate.
-This emergent property is shown in Figure \ref{fig:STG}D at a frequency of 0.53Hz.
+In the STG example, we are concerned with neural spiking frequency, which emerges from the dynamics of the circuit model \ref{fig:STG}B.
+%One such emergent property is the phenomenon of \emph{unified intermediacy} -- in certain parameter regimes, the frequency of all neurons match at an intermediate firing rate.
+An interesting emergent property of this stochastic model is when the hub neuron fires at an intermediate frequency between the intrinsic spiking rates of the fast and slow populations.
+%This emergent property is shown in Figure \ref{fig:STG}D at a frequency of 0.53Hz.
+This emergent property is shown in Figure \ref{fig:STG}C at an average frequency of 0.55Hz.
 
 %Third, qualitative parameter analysis ensues: since precise mathematical analysis is intractable in this model, a brute force sweep of parameters is done \cite{gutierrez2013multiple}.
-Third, qualitative parameter analysis ensues: since mathematical analysis of frequency is intractable in this model, a brute force sweep of parameters is done \cite{gutierrez2013multiple}.  
-Subsequently, a qualitative description is formulated to describe the different parameter configurations that lead to the emergent property.  
-In this last step lies the opportunity for a precise quantification of the emergent property as a statistical feature of the model. 
- Once we have such a methodology, we can infer a probability distribution over parameter configurations that produce this emergent property.
+%Subsequently, a qualitative description is formulated to describe the different parameter configurations that lead to the emergent property.  
+%In this last step lies the opportunity for a precise quantification of the emergent property as a statistical feature of the model. 
+% Once we have such a methodology, we can infer a probability distribution over parameter configurations that produce this emergent property.
+Third, parameter analyses ensue: brute-force parameter sweeps, ABC sampling, and sensitivity analyses are all routinely used to reason about what parameter configurations lead to an emergent property.
+In this last step lies the opportunity for a precise quantification of the emergent property as a statistical feature of the model.
+Once we have such a methodology, we can infer a probability distribution over parameter configurations that produce this emergent property.
 
-\begin{figure}
-\begin{center}
-\includegraphics[scale=0.32]{figures/fig1/fig1.pdf}
-\end{center}
-\caption{\small Emergent property inference (EPI) in the stomatogastric ganglion.  
 %A. For a choice of model (STG) and emergent property (network syncing), emergent property inference (EPI, gray box) learns a distribution of the model parameters $z = \left[g_{\text{el}}, g_{\text{synA}} \right]$ producing network syncing.  
 %In the STG model, jagged connections indicate electrical coupling having electrical conductance $g_{\text{el}}$. 
 %Other connections in the diagram are inhibitory synaptic projections having strength $g_{\text{synA}}$ onto the hub neuron, and $g_{\text{synB}}=5$nS for mutual inhibitory connections.  
@@ -189,41 +189,61 @@ In this last step lies the opportunity for a precise quantification of the emerg
 %$v_1$ is sensitive to network syncing ($p<10^{-4}$), while $v_2$ is not ($p=0.67$) (see Section \ref{methods_STG}).  
 %C. Deep probability distributions map a latent random variable $\mathbf{w}$ through a deep neural network with weights and biases $\bm{\theta}$ to parameters $\mathbf{z} = f_{\bm{\theta}}(\mathbf{w})$ distributed as $q_{\bm{\theta}}(\mathbf{z})$. 
 %D. EPI optimization: To learn the EPI distribution $q_{\bm{\theta}}(\mathbf{z})$ of model parameters that produce an emergent property, the emergent property statistics $T(\mathbf{x})$ are set in expectation over model parameter samples $\mathbf{z} \sim q_{\bm{\theta}}(\mathbf{z})$ and model simulations $\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z})$ to emergent property values $\bm{\mu}$.
-A. For a choice of model (STG) and emergent property (unified intermediacy), emergent property inference (EPI) learns a distribution of the model parameters $\mathbf{z} = \left[g_{\text{el}}, g_{\text{synA}} \right]$ producing unified intermediacy.
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.32]{figures/fig1/fig1.pdf}
+\caption{\small Emergent property inference (EPI) in the stomatogastric ganglion.  
+\textbf{A}. Conductance-based biophysical model of the STG subcircuit.
 In the STG model, jagged connections indicate electrical coupling having electrical conductance $g_{\text{el}}$. 
 Other connections in the diagram are inhibitory synaptic projections having strength $g_{\text{synA}}$ onto the hub neuron, and $g_{\text{synB}}=5$nS for mutual inhibitory connections.  
-Deep probability distributions map a simple random variable $\mathbf{w}$ through a deep neural network with weights and biases $\bm{\theta}$ to parameters $\mathbf{z} = f_{\bm{\theta}}(\mathbf{w})$ distributed as $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$. 
-B. The EPI distribution of STG model parameters producing network syncing.  
+Parameters are represented by the vector $\mathbf{z}$ and data by the vector $\mathbf{x}$.
+\textbf{B}. Simulated activity form the STG model at $g_{\text{el}} = 4.5$nS and $g_{\text{synA}} = 3$nS.
+\textbf{C}. The emergent property of unified intermediacy, in which all neurons are firing close to the same intermediate frequency.
+Simulated activity traces are colored by log probability density of their generating parameters in the EPI-inferred distribution. 
+\textbf{D}. For a choice of model and emergent property, emergent property inference (EPI) learns a distribution of the model parameters $\mathbf{z} = \left[g_{\text{el}}, g_{\text{synA}} \right]$ producing middle hub frequency.
+Deep probability distributions map a simple random variable $\mathbf{z}_0$ through a deep neural network with weights and biases $\bm{\theta}$ to parameters $\mathbf{z} = g_{\bm{\theta}}(\mathbf{z}_0)$ distributed as $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$. 
+\textbf{E}. The EPI distribution of STG model parameters producing network syncing.  
 Samples are colored by log probability density.  
-Distribution contours of emergent property value error are shown at levels of $2.5 \times 10^{-5}$, $5 \times 10^{-5}$, $1 \times 10^{-4}$, $2 \times 10^{-4}$, and $4 \times 10^{-4}$ (dark to light gray).  
+Distribution contours of emergent property value error are shown at levels of $2.5 \times 10^{-5}$, $5 \times 10^{-5}$, $1 \times 10^{-4}$, $2 \times 10^{-4}$, and $4 \times 10^{-4}$ (dark to light gray). 
 Eigenvectors of the Hessian at the mode of the inferred distribution are indicated as $\mathbf{v}_1$ (solid) and $\mathbf{v}_2$ (dashed) with lengths scaled by the square root of the absolute value of their eigenvalues.  
-Simulated activity is shown for three samples (stars)in panel D. 
-$v_1$ is sensitive to network syncing ($p<10^{-4}$), while $v_2$ is not ($p=0.67$) (see Section \ref{methods_STG}).  
-D. The emergent property of unified intermediacy, in which all neurons are firing close to the same intermediate frequency.
-Simulated activity traces are colored by log probability density of their generating parameters in the EPI-inferred distribution. }
- \label{fig:STG}
+Simulated activity is shown for three samples (stars). 
+%(Inset) Sensitivity of the system with respect to network syncing along all dimensions of parameter space away from the mode.  
+$v_1$ is sensitive to network syncing ($p<10^{-4}$), while $v_2$ is not ($p=0.67$) (see Section \ref{methods_STG}). 
+\textbf{F} Simulations from parameters in E.  
+(Top) The predictive distribution of the posterior obeys the constraints stipulated by the emergent property.
+(Bottom) Simulations at the starred parameter values.
+ }
+\end{center}
+\label{fig:STG}
 \end{figure}
 
 
 %Before presenting technical details (in the following section), let us understand emergent property inference schematically:  EPI (Fig. \ref{fig:STG}A gray box) takes, as input, the model and the specified emergent property, and as its output, produces the parameter distribution shown in Figure \ref{fig:STG}B.
-Before presenting technical details (in the following section), let us understand emergent property inference schematically:  EPI (Fig. \ref{fig:STG}A) takes, as input, the model and the specified emergent property, and as its output, produces the parameter distribution.  
+Before presenting technical details (in the following section), let us understand emergent property inference schematically:  EPI (Fig. \ref{fig:STG}D) takes, as input, the model and the specified emergent property, and as its output, produces the parameter distribution  EPI (Fig. \ref{fig:STG}E).  
 This distribution -- represented for clarity as samples from the distribution -- is then a scientifically meaningful and mathematically tractable object.  
-%In the STG model, this distribution can be specifically queried to reveal the prototypical parameter configuration for network syncing (the mode; Figure \ref{fig:STG}B yellow star), and how network syncing decays based on changes away from the mode.
-In the STG model, this distribution can be specifically queried to reveal the prototypical parameter configuration for unified intermediacy (the mode; Fig. \ref{fig:STG}B, yellow star), and how it decays based on changes away from the mode.
+In the STG model, this distribution can be specifically queried to reveal the prototypical parameter configuration for network syncing (the mode; Figure \ref{fig:STG}E yellow star), and how network syncing decays based on changes away from the mode.
 The eigenvectors (of the Hessian of the distribution at the mode) quantitatively formalize the robustness of unified intermediacy (Fig. \ref{fig:STG}B solid ($v_1$) and dashed  ($v_2$) black arrows).
-Indeed, samples equidistant from the mode along these EPI-identified dimensions of sensitivity ($v_1$) and degeneracy ($v_2$) agree with error contours (Fig. \ref{fig:STG}B contours) and have diminished or preserved network syncing, respectively (Fig. \ref{fig:STG}D activity traces, Fig. S TODO) (see Section \ref{methods_STG}).
+Indeed, samples equidistant from the mode along these EPI-identified dimensions of sensitivity ($v_1$) and degeneracy ($v_2$) agree with error contours (Fig. \ref{fig:STG}B contours) and have diminished or preserved network syncing, respectively (Fig. \ref{fig:STG}F activity traces, Fig. S TODO) (see Section \ref{methods_STG}).
 
 \subsection{A deep generative modeling approach to emergent property inference} \label{results_dgm}
 Emergent property inference (EPI) systematizes the three-step procedure of the previous section.
-First, we consider the model as a coupled set of differential (and potentially stochastic) equations \cite{gutierrez2013multiple}.  
+%First, we consider the model as a coupled set of differential (and potentially stochastic) equations \cite{gutierrez2013multiple}.  
+First, we consider the model as a coupled set of stochastic differential equations \cite{gutierrez2013multiple}.  
 In the running STG example, the model activity $\mathbf{x} = \left[ x_{\text{f1}}, x_{\text{f2}}, x_{\text{hub}}, x_{\text{s1}}, x_{\text{s2}} \right]$ is the membrane potential for each neuron, which evolves according to the biophysical conductance-based equation:
-\begin{equation} C_m \frac{d\mathbf{x}}{dt} = -\mathbf{h}(\mathbf{x}; \mathbf{z}) = - \left[ \mathbf{h}_{leak}(\mathbf{x}; \mathbf{z}) + \mathbf{h}_{Ca}(\mathbf{x}; \mathbf{z}) + \mathbf{h}_K(\mathbf{x}; \mathbf{z}) + \mathbf{h}_{hyp}(\mathbf{x}; \mathbf{z}) + \mathbf{h}_{elec}(\mathbf{x}; \mathbf{z}) + \mathbf{h}_{syn}(\mathbf{x}; \mathbf{z})\right] 
+\begin{equation} 
+\begin{split}
+C_m \frac{d\mathbf{x}(t)}{dt} = -\mathbf{h}(\mathbf{x}(t); \mathbf{z}) = - [ &\mathbf{h}_{leak}(\mathbf{x}(t); \mathbf{z}) + \mathbf{h}_{Ca}(\mathbf{x}(t); \mathbf{z}) + \mathbf{h}_K(\mathbf{x}(t); \mathbf{z}) \\
+ & + \mathbf{h}_{hyp}(\mathbf{x}(t); \mathbf{z}) + \mathbf{h}_{elec}(\mathbf{x}(t); \mathbf{z}) + \mathbf{h}_{syn}(\mathbf{x}(t); \mathbf{z})] 
+ \end{split}
 \end{equation} 
 where $C_m$=1nF, and $\mathbf{h}_{\text{leak}}$, $\mathbf{h}_{Ca}$, $\mathbf{h}_K$, $\mathbf{h}_{\text{hyp}}$, $\mathbf{h}_{\text{elec}}$, and $\mathbf{h}_{\text{syn}}$ are the leak, calcium, potassium, hyperpolarization, electrical, and synaptic currents, all of which have their own complicated dependence on $\mathbf{x}$ and $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}]$ (see Section \ref{methods_STG}).
 
-Second, we define the emergent property, which as above is network syncing: oscillation of the entire population at an intermediate frequency of our choosing (Figure \ref{fig:STG}A bottom).
-Quantifying this phenomenon is straightforward: we define network syncing to be that each neuron's spiking frequency -- denoted $\omega_{\text{f1}}(\mathbf{x})$, $\omega_{\text{f2}}(\mathbf{x})$, etc. -- is close to an intermediate frequency of 0.53Hz.  
-Mathematically, we achieve this via constraints on the mean and variance of $\omega_\alpha(\mathbf{x})$ for each neuron $\alpha \in \{ \text{f1}, \text{f2}, \text{hub}, \text{s1}, \text{s2} \}$:
+%Second, we define the emergent property, which as above is network syncing: oscillation of the entire population at an intermediate frequency of our choosing (Figure \ref{fig:STG}A bottom).
+Second, we define the emergent property, which as above is middle ``hub neuron frequency": oscillation of the hub neuron at an intermediate frequency (Figure \ref{fig:STG}C).
+%Quantifying this phenomenon is straightforward: we define network syncing to be that each neuron's spiking frequency -- denoted $\omega_{\text{f1}}(\mathbf{x})$, $\omega_{\text{f2}}(\mathbf{x})$, etc. -- is close to an intermediate frequency of 0.53Hz.  
+%Mathematically, we achieve this via constraints on the mean and variance of $\omega_\alpha(\mathbf{x})$ for each neuron $\alpha \in \{ \text{f1}, \text{f2}, \text{hub}, \text{s1}, \text{s2} \}$:
+Quantifying this phenomenon is straightforward: we stipulate that the hub neuron's spiking frequency -- denoted $\omega_{\text{hub}}(\mathbf{x})$is close to an intermediate frequency of 0.55Hz.  
+Mathematically, we achieve this via constraints on the mean and variance of the hub neuron spiking frequency.
 
 %\begin{equation}\label{eq:EP}
  %\mathbb{E}\left[T(x) \right] ~~\triangleq~~ \mathbb{E}\begin{bmatrix} \omega_{\text{f1}}(x) \\ \vdots \\ (\omega_{\text{f1}}(x) - 0.53)^2 \\ \vdots \end{bmatrix} ~~=~~  
@@ -231,17 +251,17 @@ Mathematically, we achieve this via constraints on the mean and variance of $\om
  %\end{equation}
 \begin{equation}\label{eq:EP}
 \begin{split}
-\mathcal{X} ~~:~~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[T(\mathbf{x}; \mathbf{z})\right] &~~\triangleq~~  \mathbb{E}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{f1}}(\mathbf{x}; \mathbf{z}) \\ \omega_{\text{f2}}(\mathbf{x}; \mathbf{z}) \\ \vdots \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.53 \\ 0.53 \\ \vdots \end{bmatrix} ~~\triangleq~~ \bm{\mu}  \\ 
- \text{Var}_{\mathbf{z},\mathbf{x}}\left[T(\mathbf{x}; \mathbf{z})\right] &~~\triangleq~~ \text{Var}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{f1}}(\mathbf{x}; \mathbf{z}) \\ \omega_{\text{f2}}(\mathbf{x}; \mathbf{z}) \\ \vdots \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.025^2 \\ 0.025^2 \\ \vdots \end{bmatrix} ~~\triangleq~~ \bm{\sigma}^2 .
+\mathcal{X} ~~:~~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] &~~\triangleq~~  \mathbb{E}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.55 \end{bmatrix} ~~\triangleq~~ \bm{\mu}  \\ 
+ \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] &~~\triangleq~~ \text{Var}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.025^2 \end{bmatrix} ~~\triangleq~~ \bm{\sigma}^2 .
 \end{split}
 \end{equation}
 
 %which completes the quantification of the emergent property.
-The emergent property statistics $T(\mathbf{x}; \mathbf{z})$ along with their constrained means $\bm{\mu}$ and variances $\bm{\sigma}^2$ define the emergent property denoted $\mathcal{X}$.
+The emergent property statistic $f(\mathbf{x}; \mathbf{z}) = \omega_{\text{hub}}(\mathbf{x}; \mathbf{z})$ along with its constrained mean $\bm{\mu}$ and variance $\bm{\sigma}^2$ define the emergent property denoted $\mathcal{X}$.
 
 Third, we perform emergent property inference: we find a distribution over parameter configurations $\mathbf{z}$, and insist that samples from this distribution produce the emergent property; in other words, they obey the constraints introduced in Equation \ref{eq:EP}.  
 This distribution will be chosen from a family of probability distributions $\mathcal{Q} = \left\{ q_{\bm{\theta}}(\mathbf{z}) : \bm{\theta} \in \Theta \right\}$, defined by a deep generative distribution of the normalizing flow class \cite{rezende2015variational, dinh2016density, papamakarios2017masked} -- neural networks which transform a simple distribution into a suitably complicated distribution (as is needed here).  
-This deep distribution is represented in Figure \ref{fig:STG}B (see Section \ref{methods_EPI}).  
+This deep distribution is represented in Figure \ref{fig:STG}C (see Section \ref{methods_EPI}).  
 Then, mathematically, we must solve the following optimization program: 
 %\begin{equation} \label{eq:EPI}
 %\begin{split}
@@ -252,11 +272,11 @@ Then, mathematically, we must solve the following optimization program:
 \begin{equation} \label{eq:EPI}
 \begin{split}
 q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}) ~~=~~ &\argmax_{q_{\bm{\theta}} \in \mathcal{Q}} H(q_{\bm{\theta}}(\mathbf{z})) \\
-&\text{  s.t.  } ~\mathcal{X}:~~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[T(\mathbf{x}; \mathbf{z})\right] = \bm{\mu}, \text{Var}_{\mathbf{z},\mathbf{x}}\left[T(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2 \\
+&\text{  s.t.  } ~\mathcal{X}:~~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\mu}, \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2 \\
 \end{split}
 \end{equation}
 %where $T(\mathbf{x}), \bm{\mu}$ are defined as in Equation \ref{eq:EP}, and $p(\mathbf{x} | \mathbf{z})$ is the intractable distribution of data from the model, $\mathbf{x}$, given that model's parameters $\mathbf{z}$ (we access samples from this distribution by running the model forward).
-where $T(\mathbf{x}, \mathbf{z}), \bm{\mu}$, and $\bm{\sigma}$ are defined as in Equation \ref{eq:EP}.
+where $f(\mathbf{x}, \mathbf{z}), \bm{\mu}$, and $\bm{\sigma}$ are defined as in Equation \ref{eq:EP}.
 %The purpose of each element in this program is detailed in Figure \ref{fig:STG}D.
 Finally, we recognize that many distributions in $\mathcal{Q}$ will respect the emergent property constraints, so we select that which has maximum entropy.
 This principle, captured in Equation \ref{eq:EPI} by the primal objective $H$, identifies parameter distributions with minimal assumptions beyond some chosen structure \cite{jaynes1957information, elsayed2017structure, loaiza2017maximum, savin2017maximum}.
@@ -271,7 +291,8 @@ Further validation of EPI is available in the supplementary materials, where we 
 
 In relation to broader methodology, inspection of the EPI objective reveals a natural relationship to posterior inference.
 %Specifically, EPI executes variational inference in an exponential family model, the sufficient statistics and mean parameter of which are defined by the emergent property statistics and values, respectively (see Section \ref{methods_VI}).
-Specifically, EPI executes variational inference in an exponential family model, the sufficient statistics and mean parameter of which are defined by $T(\mathbf{x})$, $\bm{\mu}$ and $\bm{\sigma}$ (see Section \ref{methods_VI}).
+%Specifically, EPI executes variational inference in an exponential family model, the sufficient statistics and mean parameter of which are defined by $f(\mathbf{x})$, $\bm{\mu}$ and $\bm{\sigma}$ (see Section \ref{methods_VI}).
+Specifically, EPI (TODO insert interpretation).
 %Equipped with this method, we may examine structure in such inferred distributions or make comparisons between inferred distributions at graded values of emergent property statistics.
 Equipped with this method, we may examine structure in posterior distributions or make comparisons between posteriors conditioned at different levels of the same emergent property statistic.
 We now prove out the value of EPI by using it to investigate and produce novel insights about three prominent models in neuroscience.
