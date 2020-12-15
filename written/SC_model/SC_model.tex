@@ -49,7 +49,7 @@
 \begin{center}                  % Center the following lines
 {\Large Draft of new SC section} \\
 Sean Bittner and Alex Piet \\
-December 11, 2020 \\
+December 14, 2020 \\
 \end{center}
 
 \section{Identifying neural mechanisms of flexible task switching} \label{results_SC}
@@ -58,6 +58,7 @@ Neural recordings in the midbrain superior colliculus (SC) exhibited two populat
 Duan et al. proposed a model of SC that, like the V1 model analyzed in the previous section, is a four-population dynamical system.  
 We analyzed this model, where the neuron-type populations are functionally-defined as the Pro- and Anti-populations in each hemisphere (left (L) and right (R)), their connectivity is parameterized geometrically  (Fig. \ref{fig:SC}B).
 The input-output function of this model is chosen such that the population responses $\mathbf{x} = [x_{LP}, x_{LA}, x_{RP}, x_{RA}]^\top$ are bounded from 0 to 1 as a function $f$ of a dynamically evolving internal variable $\mathbf{u}$.
+\textbf{The model responds to the side with greater Pro neuron activation; e.g. the reponse is left if $x_{LP} > x_{RP}$ at the end of the trial.}
 The dynamics evolve with timescale $\tau=0.09$ governed by connectivity weights $W$
 \begin{equation}
 \begin{split}
@@ -86,7 +87,7 @@ E. The effect of delay period inactivation on accuracy versus dynamics eigenvalu
 \end{figure}
 
 We define rapid task switching behavior as accurate execution of each task.  Inferred models should not exhibit fully random responses (50\%), or perfect performance (100\%), since perfection is never attained by even the best trained rats.
-We formulate rapid task switching as an emergent property by stipulating that the average accuracy in the Pro task $p_P(\mathbf{x}, \mathbf{z})$ and Anti task $p_A(\mathbf{x}, \mathbf{z})$ be $75\%$ with variance $5\%^2$.
+\textbf{We formulate rapid task switching as an emergent property by stipulating that the average accuracy in the Pro task $p_P(\mathbf{x}, \mathbf{z})$ and Anti task $p_A(\mathbf{x}, \mathbf{z})$ be $75\%$ with variance $5\%^2$.}
 \begin{equation}\label{eq:EP}
 \begin{split}
 \mathcal{X} ~~:~~ \mathbb{E}_{\mathbf{z}}\begin{bmatrix} p_P(\mathbf{x}; \mathbf{z}) \\ p_A(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~  \begin{bmatrix} 75\% \\ 75\% \end{bmatrix}  \\ 
@@ -105,10 +106,11 @@ Since the Pro neurons receive a positive bias input $h_{P, bias}$, $\lambda_{\te
 The diagonal mode, hypothesized to be crucial for processing in the Anti task, was ultimately anticorrelated with $p_A$, 
 This suggests that $p_A$ increases with dynamics having stronger task and stimulus representations and faster decaying dynamics in alternate dimensions.
 
-In agreement with experimental results form Duan et al., we found that inactivation above nominal strength during the delay period consistently decreased performance in the Anti task, but had no consistent effect on the Pro task (Fig. \ref{fig:SX3}), e.g. (Fig. \ref{fig:SC}D, bottom).
+\textbf{In agreement with experimental results form Duan et al., we found that inactivation above nominal strength during the delay period consistently decreased performance in the Anti task, but had no consistent effect on the Pro task (Fig. \ref{fig:SX3}), e.g. (Fig. \ref{fig:SC}D, bottom).
+This difference in resiliency across tasks to delay perturbation is a prediction made by the inferred EPI distribution, rather than an emergent property that was conditioned upon.}
 Interestingly, the trends in eigenvalues that result in greater $p_A$ increase the error from delay period inactivation in the Anti task ($p_A - p_{A, opto}$) (Fig. \ref{fig:SC}E.
 Despite these opposing effects, $p_A$ is uncorrelated with ($p_A - p_{A, opto}$), while $p_P$ is correlated (Fig. \ref{fig:SX4}).
-This shows that the degree of error introduced by delay period inactivation is controlled by the dynamical mechanisms controlling success in the Pro task (namely $\lambda_{\text{task}}$ and $\lambda_{\text{side}}$).
+\textbf{This shows that the connectivity mechanisms that decrease $p_A$ during delay period inactivation are the same mechanisms producing greater $p_P$ during no activation (namely $\lambda_{\text{task}}$ and $\lambda_{\text{side}}$).}
 Such comparable dynamics between the non-inactivated Pro task and the delay period inactivated Anti task are salient in simulations (Fig. \ref{fig:SC}D top-left and bottom-right).
 
 
