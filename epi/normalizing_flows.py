@@ -214,6 +214,7 @@ class NormalizingFlow(tf.keras.Model):
             if i < self.num_stages - 1:
                 permutation_i = self.permutations[i]
                 x = permutation_i(x)
+                sum_ldj += permutation_i.forward_log_det_jacobian(x, event_ndims=1)
                 if self.batch_norm:
                     batch_norm_i = self.batch_norms[i]
                     sum_ldj += batch_norm_i.forward_log_det_jacobian(x, event_ndims=1)
