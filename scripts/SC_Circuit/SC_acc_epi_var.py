@@ -60,8 +60,8 @@ q_theta, opt_data, epi_path, failed = model.epi(
     num_units=50,
     post_affine=True,
     batch_norm=True,
-    bn_momentum=0.99,
-    K=4,
+    bn_momentum=0.0,
+    K=15,
     N=M,
     num_iters=2000,
     lr=1e-3,
@@ -73,7 +73,7 @@ q_theta, opt_data, epi_path, failed = model.epi(
     #init_params=init_params,
     verbose=True,
     stop_early=True,
-    log_rate=50,
+    log_rate=100,
     save_movie_data=True,
 )
 

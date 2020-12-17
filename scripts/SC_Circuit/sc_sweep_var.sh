@@ -2,15 +2,18 @@
 
 # This shell script does it linearly, but could you run each of these 
 # python scripts independently on different instances?
-for beta in 2. 4.
+for p in 0.75
 do
-  for logc0 in 3
+  for beta in 4.
   do
-    for bnmom in 0.99
+    for logc0 in 2
     do
-      for rs in 1 2
+      for mu_std in 0.05
       do
-        sbatch cpu_SC_acc_diff.sh $beta $logc0 $bnmom $rs
+        for rs in 1 2 3 4
+        do
+          sbatch cpu_SC_acc_epi_var.sh $p $beta $logc0 $mu_std $rs
+        done
       done
     done
   done

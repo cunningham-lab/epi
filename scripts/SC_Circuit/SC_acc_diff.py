@@ -23,12 +23,11 @@ c0 = 10.**args.logc0
 bnmom = args.bnmom
 random_seed = args.random_seed
 
-M = 200
-N = 100
+M = 100
 
 # 1. Specify the V1 model for EPI.
-lb = -20.
-ub = 20.
+lb = -1.
+ub = 1.
 
 sW_P = Parameter("sW_P", 1, lb=lb, ub=ub)
 sW_A = Parameter("sW_A", 1, lb=lb, ub=ub)
