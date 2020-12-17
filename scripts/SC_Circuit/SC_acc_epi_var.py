@@ -12,6 +12,7 @@ DTYPE = tf.float32
 parser = argparse.ArgumentParser()
 parser.add_argument('--p', type=float, default=0.5) # neuron type
 parser.add_argument('--beta', type=float, default=4.) # aug lag hp
+parser.add_argument('--elemwise_fn', type=str, default="affine") # aug lag hp
 parser.add_argument('--logc0', type=float, default=0.) # log10 of c_0
 parser.add_argument('--mu_std', type=float, default=0.1) 
 parser.add_argument('--random_seed', type=int, default=1)
@@ -19,6 +20,7 @@ args = parser.parse_args()
 
 p = args.p
 AL_beta = args.beta
+elemwise_fn = args.elemwise_fn
 c0 = 10.**args.logc0
 mu_std = args.mu_std
 random_seed = args.random_seed
@@ -58,8 +60,9 @@ q_theta, opt_data, epi_path, failed = model.epi(
     num_stages=3,
     num_layers=2,
     num_units=50,
-    post_affine=True,
-    batch_norm=True,
+    elemwise_fn=elemwise_fn,
+    post_affine=False,
+    batch_norm=False,
     bn_momentum=0.0,
     K=15,
     N=M,

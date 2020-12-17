@@ -6,13 +6,16 @@ for p in 0.75
 do
   for beta in 4.
   do
-    for logc0 in 2
+    for elemwise_fn in affine spline
     do
-      for mu_std in 0.05
+      for logc0 in 2
       do
-        for rs in 1 2 3 4
+        for mu_std in 0.05
         do
-          sbatch cpu_SC_acc_epi_var.sh $p $beta $logc0 $mu_std $rs
+          for rs in 1
+          do
+            sbatch cpu_SC_acc_epi_var.sh $p $beta $elemwise_fn $logc0 $mu_std $rs
+          done
         done
       done
     done
