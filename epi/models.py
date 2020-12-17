@@ -1048,6 +1048,7 @@ class Model(object):
             "num_stages": nf.num_stages,
             "num_layers": nf.num_layers,
             "num_units": nf.num_units,
+            "elemwise_fn": nf.elemwise_fn,
             "batch_norm": nf.batch_norm,
             "bn_momentum": nf.bn_momentum,
             "post_affine": nf.post_affine,
@@ -1126,6 +1127,7 @@ class Model(object):
             num_stages=arch["num_stages"],
             num_layers=arch["num_layers"],
             num_units=arch["num_units"],
+            elemwise_fn="spline",
             batch_norm=arch["batch_norm"],
             bn_momentum=arch["bn_momentum"],
             post_affine=arch["post_affine"],
@@ -1365,7 +1367,7 @@ class Distribution(object):
         del z  # Get rid of dummy variable.
         return hess_z.numpy()
 
-    @tf.function
+    #@tf.function
     def _hessian(self, z):
         with tf.GradientTape(persistent=True) as tape:
             log_q_z = self.nf.trans_dist.log_prob(z)
