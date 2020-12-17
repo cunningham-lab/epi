@@ -206,6 +206,7 @@ class Model(object):
         num_stages=3,
         num_layers=2,
         num_units=None,
+        elemwise_fn="affine",
         batch_norm=True,
         bn_momentum=0.,
         post_affine=False,
@@ -289,6 +290,7 @@ class Model(object):
             num_stages=num_stages,
             num_layers=num_layers,
             num_units=num_units,
+            elemwise_fn=elemwise_fn,
             batch_norm=batch_norm,
             bn_momentum=bn_momentum,
             post_affine=post_affine,
@@ -333,8 +335,9 @@ class Model(object):
             else:
                 stds = np.sqrt(mu[len(mu)//2:])
 
-            abc_fname = os.path.join("data", "abc", "M=%d_p=%.2f_std=%.3fabc.npz" % 
-                                    (num_keep, means[0], stds[0]))
+            hash_str = get_hash([nf.lb, nf.ub])
+            abc_fname = os.path.join("data", "abc", "M=%d_p=%.2f_std=%.3f_%s_abc.npz" % 
+                                    (num_keep, means[0], stds[0], hash_str))
             if os.path.exists(abc_fname):
                 print('Loading prev ABC.')
                 npzfile = np.load(abc_fname)
@@ -1079,6 +1082,7 @@ class Model(object):
             "num_stages": nf.num_stages,
             "num_layers": nf.num_layers,
             "num_units": nf.num_units,
+            "elemwise_fn": nf.elemwise_fn,
             "batch_norm": nf.batch_norm,
             "bn_momentum": nf.bn_momentum,
             "post_affine": nf.post_affine,
@@ -1158,6 +1162,7 @@ class Model(object):
             num_stages=arch["num_stages"],
             num_layers=arch["num_layers"],
             num_units=arch["num_units"],
+            elemwise_fn="spline",
             batch_norm=arch["batch_norm"],
             bn_momentum=arch["bn_momentum"],
             post_affine=arch["post_affine"],
@@ -1400,7 +1405,7 @@ class Distribution(object):
         del z  # Get rid of dummy variable.
         return hess_z.numpy()
 
-    @tf.function
+    #@tf.function
     def _hessian(self, z):
         with tf.GradientTape(persistent=True) as tape:
             log_q_z = self.nf.trans_dist.log_prob(z)
