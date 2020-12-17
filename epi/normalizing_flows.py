@@ -102,7 +102,7 @@ class NormalizingFlow(tf.keras.Model):
         num_layers,
         num_units,
         elemwise_fn="affine",
-        num_bins=None,
+        num_bins=32,
         batch_norm=True,
         bn_momentum=0.0,
         post_affine=True,
