@@ -69,7 +69,7 @@ def SSSN_sim_traj(eps):
         return x_t
     return _SSSN_sim_traj
 
-def SSSN_sim(eps):
+def SSSN_sim(eps, N=1):
     sigma_eps = eps*np.array([1., 1., 1., 1.], np.float32)
     sigma_eps = sigma_eps[None,None,:,None]
     def _SSSN_sim(h):
@@ -143,6 +143,18 @@ def SSSN_sim_sigma_c1(sigma):
         
     x_ss = euler_sim_stoch(f, y_init, dt, T)
     return x_ss
+
+def ISN_coeff(dh, H):
+    sssn_sim = SSSN_sim(0.)
+    h = H + dh
+    h_E = h[:,0]
+
+    r_ss = sssn_sim(h)
+    u_E = tf.linalg.matvec(r_ss[:,0,:4], W_mat[0,:])
+    u_E = u_E + h_E
+    u_E = tf.nn.relu(u_E)
+    isn_coeff = 1.-2.*(u_E)*W_mat[0,0]
+    return isn_coeff
 
 """def SSSN_sim_tfp(h):
     h = h[:,None,:,None]
