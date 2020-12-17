@@ -584,6 +584,40 @@ class Model(object):
                             dfs.append(df)
         return pd.concat(dfs)
 
+    def get_max_H(self, mu, nu, paths=None):
+        epi_df = self.get_epi_df()
+        if paths is None:
+            paths = epi_df['path'].unique()
+        
+        best_Hs = []
+        convergeds = []
+        best_ks = []
+        for i, path in enumerate(paths):
+            print('checking convergence', i)
+            epi_df2 = epi_df[epi_df['path'] == path]
+            df_row = epi_df2.iloc[0]
+            init = df_row['init']
+            init_params = {"mu":init["mu"], "Sigma":init["Sigma"]}
+            nf = self._df_row_to_nf(df_row)
+            aug_lag_hps = self._df_row_to_al_hps(df_row)
+            best_k, converged, best_H = self.get_convergence_epoch(
+                    init_params, nf, mu, aug_lag_hps, alpha=0.05, nu=nu)
+            best_Hs.append(best_H)
+            convergeds.append(converged)
+            best_ks.append(best_k)
+
+        bestHs = np.array(best_Hs)
+        best_ks = np.array(best_ks)
+
+        best_Hs = np.array([x if x is not None else np.nan for x in best_Hs])
+        ind = np.nanargmax(best_Hs)
+
+        best_k = int(best_ks[ind])
+        path = paths[ind]
+        best_H = best_Hs[ind]
+
+        return path, best_k
+
     def epi_opt_movie(self, path):
         """Generate video of EPI optimization.
 
@@ -1104,11 +1138,12 @@ class Model(object):
         # if final index is set, this EPI opt has been run before.
         return epi_path, exists
 
-    def get_epi_dist(self, df_row):
+    def get_epi_dist(self, df_row, k=None):
         init = df_row["init"]
         ep = df_row["EP"]
 
-        k = int(df_row["k"])
+        if k is None:
+            k = int(df_row["k"])
         init_params = {"mu":init["mu"], "Sigma":init["Sigma"]}
         nf = self._df_row_to_nf(df_row)
         mu = ep["mu"]
@@ -1174,8 +1209,11 @@ class Model(object):
         return q_theta
 
     def get_convergence_epoch(
-        self, init_params, nf, mu, aug_lag_hps, alpha=0.05, nu=0.1, mu_test=None
+        self, init_params, nf, mu, aug_lag_hps, alpha=0.05, nu=0.1, mu_test=None, sampling_seed=0,
     ):
+
+        np.random.seed(sampling_seed)
+        tf.random.set_seed(sampling_seed)
 
         if mu_test is not None:
             _mu = np_column_vec(mu_test).astype(np.float32).T
