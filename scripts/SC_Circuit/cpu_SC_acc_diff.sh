@@ -6,4 +6,4 @@
 #SBATCH --mem-per-cpu=50gb
 
 source activate epi
-python3 SC_acc_epi.py --p $1 --beta $2 --logc0 $3 --bnmom $4 --random_seed $5
+python3 SC_acc_diff.py --beta $1 --logc0 $2 --bnmom $3 --random_seed $4
