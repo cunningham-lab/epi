@@ -250,7 +250,7 @@ Mathematically, we achieve this via constraints on the mean and variance of the 
  %\mathbb{E}\left[T(x) \right] ~~\triangleq~~ \mathbb{E}\begin{bmatrix} \omega_{\text{f1}}(x) \\ \vdots \\ (\omega_{\text{f1}}(x) - 0.53)^2 \\ \vdots \end{bmatrix} ~~=~~  
  %\begin{bmatrix} 0.53 \\ \vdots \\ 0.025^2 \\ \vdots \end{bmatrix} ~~\triangleq~~ \mu,
  %\end{equation}
-\begin{equation}\label{eq:EP}
+\begin{equation}\label{eq:EP_STG}
 \begin{split}
 \mathcal{X} ~~:~~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] &~~\triangleq~~  \mathbb{E}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.55 \end{bmatrix} ~~\triangleq~~ \bm{\mu}  \\ 
  \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] &~~\triangleq~~ \text{Var}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.025^2 \end{bmatrix} ~~\triangleq~~ \bm{\sigma}^2 .
@@ -260,7 +260,7 @@ Mathematically, we achieve this via constraints on the mean and variance of the 
 %which completes the quantification of the emergent property.
 The emergent property statistic $f(\mathbf{x}; \mathbf{z}) = \omega_{\text{hub}}(\mathbf{x}; \mathbf{z})$ along with its constrained mean $\bm{\mu}$ and variance $\bm{\sigma}^2$ define the emergent property denoted $\mathcal{X}$.
 
-Third, we perform emergent property inference: we find a distribution over parameter configurations $\mathbf{z}$, and insist that samples from this distribution produce the emergent property; in other words, they obey the constraints introduced in Equation \ref{eq:EP}.  
+Third, we perform emergent property inference: we find a distribution over parameter configurations $\mathbf{z}$, and insist that samples from this distribution produce the emergent property; in other words, they obey the constraints introduced in Equation \ref{eq:EP_STG}.  
 This distribution will be chosen from a family of probability distributions $\mathcal{Q} = \left\{ q_{\bm{\theta}}(\mathbf{z}) : \bm{\theta} \in \Theta \right\}$, defined by a deep generative distribution of the normalizing flow class \cite{rezende2015variational, dinh2016density, papamakarios2017masked} -- neural networks which transform a simple distribution into a suitably complicated distribution (as is needed here).  
 This deep distribution is represented in Figure \ref{fig:STG}C (see Section \ref{methods_EPI}).  
 Then, mathematically, we must solve the following optimization program: 
@@ -769,7 +769,7 @@ p^*(\mathbf{z}) \propto \exp(\bm{\eta}^\top T(\textbf{z})).
 \end{equation}
 The mappings between the mean parameterization $\bm{\mu}_{\text{opt}}$ and the natural parameterization $\bm{\eta}$ are formally hard to identify \cite{wainwright2008graphical}.
 
-In EPI, emergent properties are defined as statistics having a fixed mean and variance as in Equation \ref{eq:EP}
+In EPI, emergent properties are defined as statistics having a fixed mean and variance as in Equation \ref{eq:EP_STG}
  \begin{equation}
 \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\mu}, \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2.
 \end{equation}
@@ -782,7 +782,7 @@ As a general maximum entropy distribution (Equation \ref{eq:max_ent}), the suffi
 T(\mathbf{x}; \mathbf{z}) = \begin{bmatrix} f(\mathbf{x}; \mathbf{z}) \\ \left( f(\mathbf{x}; \mathbf{z}) - \bm{\mu} \right)^2 \end{bmatrix},
 \end{equation}
 which are constrained to the chosen means and variances
-\begin{equation}
+\begin{equation} \label{eq:mu_opt}
 \bm{\mu}_{\text{opt}} = \begin{bmatrix} \bm{\mu} \\ \bm{\sigma}^2 \end{bmatrix}.
 \end{equation}
 
@@ -987,22 +987,123 @@ In this study, we used emergent property inference to examine several models rel
 Here, we provide the details of each model  and the related analyses.
 
 \subsubsection{Stomatogastric ganglion}\label{methods_STG}
-We analyze how the parameters $z = [ g_{\text{el}}, g_{\text{synA}}]$ govern the emergent phenomena of network syncing in a model of the stomatogastric ganglion (STG) \cite{gutierrez2013multiple} shown in Figure \ref{fig:STG}A with activity $x = \left[ x_{\text{f1}}, x_{\text{f2}}, x_{\text{hub}}, x_{\text{s1}}, x_{\text{s2}} \right]$, using the same hyperparameter choices as Gutierrez et al.
-Each neuron's membrane potential $x_\alpha(t)$ for $\alpha \in \{ \text{f1}, \text{f2}, \text{hub}, \text{s1}, \text{s2} \}$ is the solution of the following differential equation:
-\begin{equation} C_m \frac{dx_\alpha}{dt} = - \left[ h_{leak}(x; z) + h_{Ca}(x; z) + h_K(x; z) + h_{hyp}(x; z) + h_{elec}(x; z) + h_{syn}(x; z)\right].
+%We analyze how the parameters $\mathbf{z} = [ g_{\text{el}}, g_{\text{synA}}]$ govern the emergent phenomena of network syncing in a model of the stomatogastric ganglion (STG) \cite{gutierrez2013multiple} shown in Figure \ref{fig:STG}A with activity $\mathbf{x} = \left[ x_{\text{f1}}, x_{\text{f2}}, x_{\text{hub}}, x_{\text{s1}}, x_{\text{s2}} \right]$, using the same hyperparameter choices as Gutierrez et al.
+%Each neuron's membrane potential $x_\alpha(t)$ for $\alpha \in \{ \text{f1}, \text{f2}, \text{hub}, \text{s1}, \text{s2} \}$ is the solution of the following differential equation:
+%\begin{equation} C_m \frac{dx_\alpha}{dt} = - \left[ h_{leak}(\mathbf{x}; \mathbf{z}) + h_{Ca}(\mathbf{x}; \mathbf{z}) + h_K(\mathbf{x}; \mathbf{z}) + h_{hyp}(\mathbf{x}; \mathbf{z}) + h_{elec}(\mathbf{x}; \mathbf{z}) + h_{syn}(\mathbf{x}; \mathbf{z})\right].
+%\end{equation} 
+%The membrane potential of each neuron is affected by the leak, calcium, potassium, hyperpolarization, electrical and synaptic currents, respectively, which are functions of  all membrane potentials and the conductance parameters $\mathbf{z}$.  
+%The capacitance of the cell membrane was set to $C_m = 1nF$. Specifically, the currents are the difference in the neuron's membrane potential and that current type's reversal potential multiplied by a conductance:
+%\begin{equation}  h_{leak}(\mathbf{x}; \mathbf{z}) = g_{leak} (x_\alpha - V_{leak}) 
+%\end{equation} 
+%\begin{equation}  h_{elec}(\mathbf{x}; \mathbf{z}) = g_{\text{el}} (x_\alpha^{post} - x_\alpha^{pre})
+%\end{equation} 
+%\begin{equation}  h_{syn}(\mathbf{x}; \mathbf{z}) = g_{syn} S_\infty^{pre} (x_\alpha^{post} - V_{syn}) \end{equation} 
+%\begin{equation}  h_{Ca}(\mathbf{x}; \mathbf{z}) = g_{Ca} M_\infty (x_\alpha - V_{Ca}) 
+%\end{equation} 
+%\begin{equation}  h_K(\mathbf{x}; \mathbf{z}) = g_K N (x_\alpha - V_K) 
+%\end{equation} 
+%\begin{equation}  h_{hyp}(\mathbf{x}; \mathbf{z}) = g_h H(x_\alpha - V_{hyp}).
+%\end{equation} 
+%The reversal potentials were set to $V_{leak} = -40mV$, $V_{Ca} = 100mV$, $V_K = -80mV$, $V_{hyp} = -20mV$, and $V_{syn} = -75mV$.  
+%The other conductance parameters were fixed to $g_{leak} = 1 \times 10^{-4} \mu S$. $g_{Ca}$, $g_{K}$, and $g_{hyp}$ had different values based on fast, intermediate (hub) or slow neuron.  
+%The fast conductances had values $g_{Ca} = 1.9 \times 10^{-2}$, $ g_K = 3.9 \times 10^{-2} $, and $ g_{hyp} = 2.5 \times 10^{-2} $.  
+%The intermediate conductances had values $g_{Ca} = 1.7 \times 10^{-2}$, $ g_K = 1.9 \times 10^{-2} $, and $ g_{hyp} = 8.0 \times 10^{-3} $.  
+%Finally, the slow conductances had values $g_{Ca} = 8.5 \times 10^{-3}$, $ g_K = 1.5 \times 10^{-2} $, and $ g_{hyp} = 1.0 \times 10^{-2} $.
+%
+%Furthermore, the Calcium, Potassium, and hyperpolarization channels have time-dependent gating dynamics dependent on steady-state gating variables $M_\infty$, $N_\infty$ and $H_\infty$, respectively:
+%\begin{equation}  M_{\infty} = 0.5 \left( 1 + \tanh \left( \frac{x_\alpha - v_1}{v_2} \right) \right) \end{equation}
+%\begin{equation}  \frac{dN}{dt} = \lambda_N (N_\infty - N)  \end{equation}
+%\begin{equation}  N_\infty = 0.5 \left( 1 + \tanh \left( \frac{x_\alpha - v_3}{v_4} \right) \right) \end{equation}
+%\begin{equation}  \lambda_N = \phi_N \cosh \left( \frac{x_\alpha - v_3}{2 v_4} \right) \end{equation}
+%\begin{equation}  \frac{dH}{dt} = \frac{\left( H_\infty - H \right)}{\tau_h} \end{equation}
+%\begin{equation}  H_\infty = \frac{1}{1 + \exp \left( \frac{x_\alpha + v_5}{v_6} \right)} \end{equation}
+%\begin{equation}  \tau_h = 272 - \left( \frac{-1499}{1 + \exp \left( \frac{-x_\alpha + v_7}{v_8} \right)} \right).
+% \end{equation}
+%where we set $v_1 = 0mV$, $v_2  = 20mV$, $v_3 = 0mV$, $v_4 = 15mV$, $v_5 = 78.3mV$,
+%$v_6 = 10.5mV$, $v_7 = -42.2mV$, $v_8 = 87.3mV$, $v_9 = 5mV$, and $v_{th} = -25mV$.  
+%
+%Finally, there is a synaptic gating variable as well:
+%\begin{equation} S_\infty = \frac{1}{1 + \exp \left( \frac{v_{th} - x_\alpha}{v_9} \right)} .
+%\end{equation}
+%When the dynamic gating variables are considered, this is actually a 15-dimensional nonlinear dynamical system.
+%
+%In order to measure the frequency of the hub neuron during EPI, the STG model was simulated for $T = 200$ time steps of $dt = 25ms$.  
+%In EPI, since gradients are taken through the simulation process, the number of time steps are kept modest if possible. 
+%The chosen $dt$ and $T$ were the most computationally convenient choices yielding accurate frequency measurement.  
+%Poor resolution afforded by the discrete Fourier transform motivated the use of an alternative basis of complex exponentials to measure spiking frequency.  
+%Instead, we used a basis of complex exponentials with frequencies from 0.0-1.0 Hz at 0.01Hz resolution, $\Phi = \left[ 0.0, 0.01, ..., 1.0 \right]^\top$
+%
+%Another consideration was that the frequency spectra of the neuron membrane potentials had several peaks.  
+%High-frequency sub-threshold activity obscured the maximum frequency measurement in the complex exponential basis.  
+%Accordingly, subthreshold activity was set to zero, and the whole signal was low-pass filtered with a moving average window of length 20.  
+%The signal was subsequently mean centered.  
+%After this preprocessing, the maximum frequency in the filter bank accurately reflected the firing frequency.
+%
+%Finally, to differentiate through the maximum frequency identification, we used a sum-of-powers normalization.  
+%Let $\mathcal{X}_\alpha \in \mathcal{C}^{|\Phi|}$ be the complex exponential filter bank dot products with the signal $x_\alpha \in \mathbb{R}^{N}$, where $\alpha \in \{ \text{f1}, \text{f2}, \text{hub}, \text{s1}, \text{s2} \}$.  
+%The ``frequency identification" vector is 
+%\begin{equation}
+%v_\alpha = \frac{|\mathcal{X}_\alpha|^\beta}{\sum_{k=1}^N |\mathcal{X}_\alpha(k)|^\beta}.
+%\end{equation}
+%The frequency is then calculated as $\omega_\alpha = v_\alpha^\top \Phi$ with $\beta = 100$.
+%
+%Network syncing, like all other emergent properties in this work, are defined by the emergent property statistics and values.  
+%The emergent property statistics are the first and second moments of the firing frequencies. 
+%The first moments were set to 0.53Hz, and the second moments were set to 0.025Hz$^2$:
+%\begin{equation}
+%E \begin{bmatrix} \omega_{\text{f1}} \\ \omega_{\text{f2}} \\ \omega_{\text{hub}} \\ \omega_{\text{s1}} \\ \omega_{\text{s2}} \\ (\omega_{\text{f1}} - 0.53)^2 \\ (\omega_{\text{f2}} - 0.53)^2 \\ (\omega_{\text{hub}} - 0.53)^2 \\ (\omega_{\text{s1}} - 0.53)^2 \\ (\omega_{\text{s2}} - 0.53)^2  \end{bmatrix} = \begin{bmatrix} 0.53 \\ 0.53 \\ 0.53 \\ 0.53 \\ 0.53 \\ 0.025^2 \\ 0.025^2 \\ 0.025^2 \\ 0.025^2 \\ 0.025^2 \end{bmatrix}
+%\end{equation}
+%for the EPI distribution shown in Fig. \ref{fig:STG}B.
+%Throughout optimization, the augmented Lagrangian parameters $\eta$ and $c$, were updated after each epoch of 2,500 iterations (see Section \ref{methods_AL_opt}).  
+%The optimization converged after four epochs (Fig. S4).
+%
+%\begin{figure}
+%\begin{center}
+%\includegraphics[scale=0.6]{figures/figS4/figS4.pdf}
+%\end{center}
+%\begin{flushleft}
+%{\small Fig. S4: EPI optimization of the STG model producing network syncing. 
+%A. Entropy throughout optimization. 
+%B. The first moment emergent property statistics converge to the emergent property values at 10,000 iterations, following the fourth augmented Lagrangian epoch of 2,500 iterations.  
+%Since $q_{\bm{\theta}}(\mathbf{z})$ failed to produce enough samples yielding $\omega_{\text{f1}}(\mathbf{x})$ less than $0.53$Hz, the convergence criteria were not satisfied after the third epoch at 7,500 iterations.    
+%C. The second moment emergent property statistics converge to the emergent property values.}
+%\end{flushleft}
+%\end{figure}
+%
+%For EPI in Fig 2C, we used a real NVP architecture with four masks and two layers of 10 units per mask, and batch normalization momentum of 0.99 mapped onto a support of $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}] \in [4,8] \times [0,4]$. 
+%We used an augmented Lagrangian coefficient of $c_0 = 10^{2}$, a batch size $n=300$, set $\nu = 0.1$, and initialized $q_{\bm{\theta}}(\mathbf{z})$ to produce an isotropic 
+%Gaussian with mean $\mu_{\text{init}} = [6, 2]$ with standard deviation $\sigma_{\text{init}} = 0.5$.
+%
+%We calculated the Hessian at the mode of the inferred EPI distribution.  
+%The Hessian of a probability model is the second order gradient of the log probability density $\log q_{\bm{\theta}}(\mathbf{z})$ with respect to the parameters $\mathbf{z}$:  $\frac{\partial^2 \log q_{\bm{\theta}}(\mathbf{z})}{\partial \mathbf{z} \partial \mathbf{z}^\top}$.  
+%With EPI, we can examine the Hessian, which is analytically available throughout distribution, to indicate the dimensions of parameter space that are sensitive (high magnitude eigenvalue), and which are degenerate (low magnitude eigenvalue) with respect to the emergent property produced. 
+%In Figure \ref{fig:STG}B, the eigenvectors of the Hessian $v_1$ and $v_2$ are shown evaluated at the mode of the distribution.  
+%The length of the arrows is inversely proportional to the square root of absolute value of their eigenvalues $\lambda_1 = -10.8$ and $\lambda_2 = -2.27$.
+%We quantitatively measured the sensitivity of the model with respect to network syncing along the eigenvectors of the Hessian (Fig. \ref{fig:STG}B, inset).
+%Sensitivity was measured as the slope coefficient of linear regression fit to network syncing error (the sum of squared differences of each neuron's frequency from 0.53Hz) as a function of parametric perturbation magnitude (maximum 0.25) away from the mode along both orientations indicated by the eigenvector with 100 equally spaced samples.
+%The sensitivity slope coefficient of eigenvector $v_1$ with respect to network syncing was significant ($\beta = 4.82 \times 10^{-2}$, $p<10^{-4}$).
+%In contrast, eigenvector $v_2$ did not identify a dimension of parameter space significantly sensitive to network syncing ($\beta = 8.65 \times 10^{-4}$ with $p=.67$).
+%These sensitivities were compared to all other dimensions of parameter space (100 equally spaced angles from 0 to $\pi$), revealing that the Hessian eigenvectors indeed identified the directions of greatest sensitivity and degeneracy (Fig. \ref{fig:STG}B, inset).
+%The contours of Figure \ref{fig:STG} were calculated as error in $T(\mathbf{x})$ from $\mu$ in both the first and second moment emergent property statistics.
+
+We analyze how the parameters $\mathbf{z} = [ g_{\text{el}}, g_{\text{synA}}]$ govern the emergent phenomena of intermediate hub frequency in a model of the stomatogastric ganglion (STG) \cite{gutierrez2013multiple} shown in Figure \ref{fig:STG}A with activity $\mathbf{x} = \left[ x_{\text{f1}}, x_{\text{f2}}, x_{\text{hub}}, x_{\text{s1}}, x_{\text{s2}} \right]$, using the same hyperparameter choices as Gutierrez et al.
+Each neuron's membrane potential $x_\alpha(t)$ for $\alpha \in \{ \text{f1}, \text{f2}, \text{hub}, \text{s1}, \text{s2} \}$ is the solution of the following stochastic differential equation:
+\begin{equation} C_m \frac{dx_\alpha}{dt} = - \left[ h_{leak}(\mathbf{x}; \mathbf{z}) + h_{Ca}(\mathbf{x}; \mathbf{z}) + h_K(\mathbf{x}; \mathbf{z}) + h_{hyp}(\mathbf{x}; \mathbf{z}) + h_{elec}(\mathbf{x}; \mathbf{z}) + h_{syn}(\mathbf{x}; \mathbf{z})\right] + dB.
 \end{equation} 
-The membrane potential of each neuron is affected by the leak, calcium, potassium, hyperpolarization, electrical and synaptic currents, respectively, which are functions of  all membrane potentials and the conductance parameters $z$.  
+The input current of each neuron is the sum of the leak, calcium, potassium, hyperpolarization, electrical and synaptic currents as well as gaussian noise $dB$.
+Each current component is a function of all membrane potentials and the conductance parameters $\mathbf{z}$.
+
 The capacitance of the cell membrane was set to $C_m = 1nF$. Specifically, the currents are the difference in the neuron's membrane potential and that current type's reversal potential multiplied by a conductance:
-\begin{equation}  h_{leak}(x; z) = g_{leak} (x_\alpha - V_{leak}) 
+\begin{equation}  h_{leak}(\mathbf{x}; \mathbf{z}) = g_{leak} (x_\alpha - V_{leak}) 
 \end{equation} 
-\begin{equation}  h_{elec}(x; z) = g_{\text{el}} (x_\alpha^{post} - x_\alpha^{pre})
+\begin{equation}  h_{elec}(\mathbf{x}; \mathbf{z}) = g_{\text{el}} (x_\alpha^{post} - x_\alpha^{pre})
 \end{equation} 
-\begin{equation}  h_{syn}(x; z) = g_{syn} S_\infty^{pre} (x_\alpha^{post} - V_{syn}) \end{equation} 
-\begin{equation}  h_{Ca}(x; z) = g_{Ca} M_\infty (x_\alpha - V_{Ca}) 
+\begin{equation}  h_{syn}(\mathbf{x}; \mathbf{z}) = g_{syn} S_\infty^{pre} (x_\alpha^{post} - V_{syn}) \end{equation} 
+\begin{equation}  h_{Ca}(\mathbf{x}; \mathbf{z}) = g_{Ca} M_\infty (x_\alpha - V_{Ca}) 
 \end{equation} 
-\begin{equation}  h_K(x; z) = g_K N (x_\alpha - V_K) 
+\begin{equation}  h_K(\mathbf{x}; \mathbf{z}) = g_K N (x_\alpha - V_K) 
 \end{equation} 
-\begin{equation}  h_{hyp}(x; z) = g_h H(x_\alpha - V_{hyp}).
+\begin{equation}  h_{hyp}(\mathbf{x}; \mathbf{z}) = g_h H(x_\alpha - V_{hyp}).
 \end{equation} 
 The reversal potentials were set to $V_{leak} = -40mV$, $V_{Ca} = 100mV$, $V_K = -80mV$, $V_{hyp} = -20mV$, and $V_{syn} = -75mV$.  
 The other conductance parameters were fixed to $g_{leak} = 1 \times 10^{-4} \mu S$. $g_{Ca}$, $g_{K}$, and $g_{hyp}$ had different values based on fast, intermediate (hub) or slow neuron.  
@@ -1025,66 +1126,73 @@ $v_6 = 10.5mV$, $v_7 = -42.2mV$, $v_8 = 87.3mV$, $v_9 = 5mV$, and $v_{th} = -25m
 Finally, there is a synaptic gating variable as well:
 \begin{equation} S_\infty = \frac{1}{1 + \exp \left( \frac{v_{th} - x_\alpha}{v_9} \right)} .
 \end{equation}
-When the dynamic gating variables are considered, this is actually a 15-dimensional nonlinear dynamical system.
+When the dynamic gating variables are considered, this is actually a 15-dimensional nonlinear dynamical system.  Gaussian noise of variance $\epsilon^2 = (1 \times 10^{-12})^2$ amps makes the model stochastic, and introduces variability in frequency at each parameterization $\mathbf{z}$.
 
-In order to measure the frequency of the hub neuron during EPI, the STG model was simulated for $T = 200$ time steps of $dt = 25ms$.  
-In EPI, since gradients are taken through the simulation process, the number of time steps are kept modest if possible. 
+In order to measure the frequency of the hub neuron during EPI, the STG model was simulated for $T = 300$ time steps of $dt = 25ms$.  
 The chosen $dt$ and $T$ were the most computationally convenient choices yielding accurate frequency measurement.  
-Poor resolution afforded by the discrete Fourier transform motivated the use of an alternative basis of complex exponentials to measure spiking frequency.  
-Instead, we used a basis of complex exponentials with frequencies from 0.0-1.0 Hz at 0.01Hz resolution, $\Phi = \left[ 0.0, 0.01, ..., 1.0 \right]^\top$
-
-Another consideration was that the frequency spectra of the neuron membrane potentials had several peaks.  
-High-frequency sub-threshold activity obscured the maximum frequency measurement in the complex exponential basis.  
-Accordingly, subthreshold activity was set to zero, and the whole signal was low-pass filtered with a moving average window of length 20.  
-The signal was subsequently mean centered.  
-After this preprocessing, the maximum frequency in the filter bank accurately reflected the firing frequency.
-
-Finally, to differentiate through the maximum frequency identification, we used a sum-of-powers normalization.  
-Let $\mathcal{X}_\alpha \in \mathcal{C}^{|\Phi|}$ be the complex exponential filter bank dot products with the signal $x_\alpha \in \mathbb{R}^{N}$, where $\alpha \in \{ \text{f1}, \text{f2}, \text{hub}, \text{s1}, \text{s2} \}$.  
-The ``frequency identification" vector is 
+We used a basis of complex exponentials with frequencies from 0.0-1.0 Hz at 0.01Hz resolution to measure frequency from simulated time series
 \begin{equation}
-v_\alpha = \frac{|\mathcal{X}_\alpha|^\beta}{\sum_{k=1}^N |\mathcal{X}_\alpha(k)|^\beta}.
+\Phi = \left[ 0.0, 0.01, ..., 1.0 \right]^\top..
 \end{equation}
-The frequency is then calculated as $\omega_\alpha = v_\alpha^\top \Phi$ with $\beta = 100$.
 
-Network syncing, like all other emergent properties in this work, are defined by the emergent property statistics and values.  
-The emergent property statistics are the first and second moments of the firing frequencies. 
-The first moments were set to 0.53Hz, and the second moments were set to 0.025Hz$^2$:
+To measure spiking frequency, we processed simulated membrane potentials with a relu (spike extraction) and low-pass filter with averaging window of size 20, then took the frequency with the maximum absolute value of the complex exponential basis coefficients of the processed time-series.  The first 20 temporal samples of the simulation are ignored to account for initial transients.
+
+To differentiate through the maximum frequency identification, we used a soft-argmax
+Let $X_\alpha \in \mathcal{C}^{|\Phi|}$ be the complex exponential filter bank dot products with the signal $x_\alpha \in \mathbb{R}^{N}$, where $\alpha \in \{ \text{f1}, \text{f2}, \text{hub}, \text{s1}, \text{s2} \}$.  
+The soft-argmax is then calculated using temperature parameter $\beta=100$
 \begin{equation}
-E \begin{bmatrix} \omega_{\text{f1}} \\ \omega_{\text{f2}} \\ \omega_{\text{hub}} \\ \omega_{\text{s1}} \\ \omega_{\text{s2}} \\ (\omega_{\text{f1}} - 0.53)^2 \\ (\omega_{\text{f2}} - 0.53)^2 \\ (\omega_{\text{hub}} - 0.53)^2 \\ (\omega_{\text{s1}} - 0.53)^2 \\ (\omega_{\text{s2}} - 0.53)^2  \end{bmatrix} = \begin{bmatrix} 0.53 \\ 0.53 \\ 0.53 \\ 0.53 \\ 0.53 \\ 0.025^2 \\ 0.025^2 \\ 0.025^2 \\ 0.025^2 \\ 0.025^2 \end{bmatrix}
+\psi_\alpha = \text{softmax}(\beta|X_\alpha|\odot i),
 \end{equation}
-for the EPI distribution shown in Fig. \ref{fig:STG}B.
-Throughout optimization, the augmented Lagrangian parameters $\eta$ and $c$, were updated after each epoch of 2,500 iterations (see Section \ref{methods_AL_opt}).  
-The optimization converged after four epochs (Fig. S4).
+where $i = [0, 1, ..., 100]$.
+The frequency is then calculated as 
+\begin{equation}
+\omega_\alpha = 0.01\psi_\alpha \text{Hz}.
+\end{equation}
+
+Intermediate hub frequency, like all other emergent properties in this work, is defined by the mean and variance of the emergent property statistics.
+In this case, we have one statistic, hub neuron frequency, where the mean was chosen to be 0.55Hz, and variance was chosen to be (0.025Hz)$^2$ to capture variation in frequency between 0.5Hz and 0.6Hz (Equation \ref{eq:EP_STG}).
+As a maximum entropy distribution, $T(\mathbf{x}, \mathbf{z})$ is comprised of both these first and second moments of the hub neuron frequency (as in Equations \ref{eq:moments} and \ref{eq:mu_opt})
+\begin{equation} 
+T(\mathbf{x}; \mathbf{z}) = \begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) \\ \left( \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) - 0.55 \right)^2 \end{bmatrix},
+\end{equation}
+\begin{equation} 
+\bm{\mu}_{\text{opt}} = \begin{bmatrix} 0.55 \\ 0.025^2 \end{bmatrix}.
+\end{equation}
+Throughout optimization, the augmented Lagrangian parameters $\eta$ and $c$, were updated after each epoch of 5,000 iterations(see Section \ref{methods_AL_opt}).  
+The optimization converged after five epochs (Fig. S4).
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.45]{figures/figS4/figS4.pdf}
+\includegraphics[scale=0.6]{figures/figS4/figS4.pdf}
 \end{center}
 \begin{flushleft}
 {\small Fig. S4: EPI optimization of the STG model producing network syncing. 
 A. Entropy throughout optimization. 
 B. The first moment emergent property statistics converge to the emergent property values at 10,000 iterations, following the fourth augmented Lagrangian epoch of 2,500 iterations.  
-Since $q_{\bm{\theta}}(z)$ failed to produce enough samples yielding $\omega_{\text{f1}}(x)$ less than $0.53$Hz, the convergence criteria were not satisfied after the third epoch at 7,500 iterations.    
+Since $q_{\bm{\theta}}(\mathbf{z})$ failed to produce enough samples yielding $\omega_{\text{f1}}(\mathbf{x})$ less than $0.53$Hz, the convergence criteria were not satisfied after the third epoch at 7,500 iterations.    
 C. The second moment emergent property statistics converge to the emergent property values.}
 \end{flushleft}
 \end{figure}
 
-For EPI in Fig 2C, we used a real NVP architecture with four masks and two layers of 10 units per mask, and batch normalization momentum of 0.99 mapped onto a support of $z = [g_{\text{el}}, g_{\text{synA}}] \in [4,8] \times [0,4]$. 
-We used an augmented Lagrangian coefficient of $c_0 = 10^{2}$, a batch size $n=300$, set $\nu = 0.1$, and initialized $q_{\bm{\theta}}(z)$ to produce an isotropic 
-Gaussian with mean $\mu_{\text{init}} = [6, 2]$ with standard deviation $\sigma_{\text{init}} = 0.5$.
+For EPI in Fig \ref{fig:STG}E, we used a real NVP architecture with three coupling layers of affine transformations parameterized by two-layer neural networks of 25 units per layer.
+The initial distribution was a standard isotropic gaussian $z_0 \sim \mathcal{N}(\mathbf{0}, I)$ mapped to a support of $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}] \in [4,8] \times [0.01,4]$. 
+We did not include $g_{\text{synA}} < 0.01$, since conductances that low make the circuit simulations numerically unstable.
+We used an augmented Lagrangian coefficient of $c_0 = 10^{5}$, a batch size $n=400$, set $\nu = 0.25$, and initialized $q_{\bm{\theta}}(\mathbf{z})$ to produce a gaussian approximation to samples returned from an initial ABC search.
+This initialization had much greater entropy and a different emergent property than the the returned EPI posterior.
 
-We calculated the Hessian at the mode of the inferred EPI distribution.  
-The Hessian of a probability model is the second order gradient of the log probability density $\log q_{\bm{\theta}}(z)$ with respect to the parameters $z$:  $\frac{\partial^2 \log q_{\bm{\theta}}(z)}{\partial z \partial z^\top}$.  
-With EPI, we can examine the Hessian, which is analytically available throughout distribution, to indicate the dimensions of parameter space that are sensitive (high magnitude eigenvalue), and which are degenerate (low magnitude eigenvalue) with respect to the emergent property produced. 
-In Figure \ref{fig:STG}B, the eigenvectors of the Hessian $v_1$ and $v_2$ are shown evaluated at the mode of the distribution.  
-The length of the arrows is inversely proportional to the square root of absolute value of their eigenvalues $\lambda_1 = -10.8$ and $\lambda_2 = -2.27$.
-We quantitatively measured the sensitivity of the model with respect to network syncing along the eigenvectors of the Hessian (Fig. \ref{fig:STG}B, inset).
-Sensitivity was measured as the slope coefficient of linear regression fit to network syncing error (the sum of squared differences of each neuron's frequency from 0.53Hz) as a function of parametric perturbation magnitude (maximum 0.25) away from the mode along both orientations indicated by the eigenvector with 100 equally spaced samples.
-The sensitivity slope coefficient of eigenvector $v_1$ with respect to network syncing was significant ($\beta = 4.82 \times 10^{-2}$, $p<10^{-4}$).
-In contrast, eigenvector $v_2$ did not identify a dimension of parameter space significantly sensitive to network syncing ($\beta = 8.65 \times 10^{-4}$ with $p=.67$).
-These sensitivities were compared to all other dimensions of parameter space (100 equally spaced angles from 0 to $\pi$), revealing that the Hessian eigenvectors indeed identified the directions of greatest sensitivity and degeneracy (Fig. \ref{fig:STG}B, inset).
-The contours of Figure \ref{fig:STG} were calculated as error in $T(x)$ from $\mu$ in both the first and second moment emergent property statistics.
+TODO write about specifics of the Hessian analysis.
+%We calculated the Hessian at the mode of the inferred EPI distribution.  
+%The Hessian of a probability model is the second order gradient of the log probability density $\log q_{\bm{\theta}}(\mathbf{z})$ with respect to the parameters $\mathbf{z}$:  $\frac{\partial^2 \log q_{\bm{\theta}}(\mathbf{z})}{\partial \mathbf{z} \partial \mathbf{z}^\top}$.  
+%With EPI, we can examine the Hessian, which is analytically available throughout distribution, to indicate the dimensions of parameter space that are sensitive (high magnitude eigenvalue), and which are degenerate (low magnitude eigenvalue) with respect to the emergent property produced. 
+%In Figure \ref{fig:STG}B, the eigenvectors of the Hessian $v_1$ and $v_2$ are shown evaluated at the mode of the distribution.  
+%The length of the arrows is inversely proportional to the square root of absolute value of their eigenvalues $\lambda_1 = -10.8$ and $\lambda_2 = -2.27$.
+%We quantitatively measured the sensitivity of the model with respect to network syncing along the eigenvectors of the Hessian (Fig. \ref{fig:STG}B, inset).
+%Sensitivity was measured as the slope coefficient of linear regression fit to network syncing error (the sum of squared differences of each neuron's frequency from 0.53Hz) as a function of parametric perturbation magnitude (maximum 0.25) away from the mode along both orientations indicated by the eigenvector with 100 equally spaced samples.
+%The sensitivity slope coefficient of eigenvector $v_1$ with respect to network syncing was significant ($\beta = 4.82 \times 10^{-2}$, $p<10^{-4}$).
+%In contrast, eigenvector $v_2$ did not identify a dimension of parameter space significantly sensitive to network syncing ($\beta = 8.65 \times 10^{-4}$ with $p=.67$).
+%These sensitivities were compared to all other dimensions of parameter space (100 equally spaced angles from 0 to $\pi$), revealing that the Hessian eigenvectors indeed identified the directions of greatest sensitivity and degeneracy (Fig. \ref{fig:STG}B, inset).
+%The contours of Figure \ref{fig:STG} were calculated as error in $T(\mathbf{x})$ from $\mu$ in both the first and second moment emergent property statistics.
+
 
 \subsubsection{Primary visual cortex}\label{methods_V1}
 The dynamics of each neural populations average rate
@@ -1160,7 +1268,7 @@ We use the following notation to indicate that the emergent property statistics 
 \mathbb{E} \begin{bmatrix} dx_{\alpha,ss} \\ (dx_{\alpha,ss} - y)^2 \end{bmatrix} = \begin{bmatrix} y \\ 0.01^2 \end{bmatrix}.
 \end{equation}
 
-In the final analysis for this model, we sweep the input one neuron at a time away from the mode of each inferred distributions $dh^* = z^* = \argmax_{z} \log q_{\bm{\theta}}(z \mid \mathcal{B}(\alpha, 0.1)$.
+In the final analysis for this model, we sweep the input one neuron at a time away from the mode of each inferred distributions $dh^* = \mathbf{z}^* = \argmax_{\mathbf{z}} \log q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{B}(\alpha, 0.1)$.
 The differential responses $\delta x_{\alpha,ss}$ are examined at perturbed inputs  $h = b + dh^* + \delta h_\alpha \hat{u}_\alpha$ where $\hat{u}_\alpha$ is a unit vector in the dimension of $\alpha$ and $\delta x$ is evaluated at 101 equally spaced samples of $\delta h_\alpha$ from -15 to 15.
 
 We measured the linear regression slope between neuron-types of $\delta x$ and $\delta h$ to confirm the hypotheses H1-H3 (H4 is simply observing the nonmonotonicity) and report the p values for tests of non-zero slope.
