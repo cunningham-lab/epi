@@ -233,14 +233,13 @@ First, we consider the model as a coupled set of stochastic differential equatio
 In the running STG example, the model activity $\mathbf{x} = \left[ x_{\text{f1}}, x_{\text{f2}}, x_{\text{hub}}, x_{\text{s1}}, x_{\text{s2}} \right]$ is the membrane potential for each neuron, which evolves according to the biophysical conductance-based equation:
 \begin{equation} 
 \begin{split}
-C_m \frac{d\mathbf{x}(t)}{dt} = -\mathbf{h}(\mathbf{x}(t); \mathbf{z}) = - [ &\mathbf{h}_{leak}(\mathbf{x}(t); \mathbf{z}) + \mathbf{h}_{Ca}(\mathbf{x}(t); \mathbf{z}) + \mathbf{h}_K(\mathbf{x}(t); \mathbf{z}) \\
- & + \mathbf{h}_{hyp}(\mathbf{x}(t); \mathbf{z}) + \mathbf{h}_{elec}(\mathbf{x}(t); \mathbf{z}) + \mathbf{h}_{syn}(\mathbf{x}(t); \mathbf{z})] 
+C_m \frac{d\mathbf{x}(t)}{dt} = -\mathbf{h}(\mathbf{x}(t); \mathbf{z}) + d\mathbf{B}
  \end{split}
 \end{equation} 
-where $C_m$=1nF, and $\mathbf{h}_{\text{leak}}$, $\mathbf{h}_{Ca}$, $\mathbf{h}_K$, $\mathbf{h}_{\text{hyp}}$, $\mathbf{h}_{\text{elec}}$, and $\mathbf{h}_{\text{syn}}$ are the leak, calcium, potassium, hyperpolarization, electrical, and synaptic currents, all of which have their own complicated dependence on $\mathbf{x}$ and $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}]$ (see Section \ref{methods_STG}).
+where $C_m$=1nF, and $\mathbf{h}$ is a sum of the leak, calcium, potassium, hyperpolarization, electrical, and synaptic currents, all of which have their own complicated dependence on $\mathbf{x}$ and $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}]$, and $d\mathbf{B}$ is white gaussian noise (see Section \ref{methods_STG}).
 
 %Second, we define the emergent property, which as above is network syncing: oscillation of the entire population at an intermediate frequency of our choosing (Figure \ref{fig:STG}A bottom).
-Second, we define the emergent property, which as above is middle ``hub neuron frequency": oscillation of the hub neuron at an intermediate frequency (Figure \ref{fig:STG}C).
+Second, we define the emergent property, which as above is ``intermediate hub  frequency" (Figure \ref{fig:STG}C).
 %Quantifying this phenomenon is straightforward: we define network syncing to be that each neuron's spiking frequency -- denoted $\omega_{\text{f1}}(\mathbf{x})$, $\omega_{\text{f2}}(\mathbf{x})$, etc. -- is close to an intermediate frequency of 0.53Hz.  
 %Mathematically, we achieve this via constraints on the mean and variance of $\omega_\alpha(\mathbf{x})$ for each neuron $\alpha \in \{ \text{f1}, \text{f2}, \text{hub}, \text{s1}, \text{s2} \}$:
 Quantifying this phenomenon is straightforward: we stipulate that the hub neuron's spiking frequency -- denoted $\omega_{\text{hub}}(\mathbf{x})$is close to an intermediate frequency of 0.55Hz.  
@@ -393,58 +392,117 @@ In the remainder of the study, we focus on using EPI to understand models of mor
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Identifying neural mechanisms of flexible task switching} \label{results_SC}
-In a rapid task switching experiment \cite{duan2015requirement}, rats were explicitly cued on each trial to either orient towards a visual stimulus in the Pro (P) task or orient away from a visual stimulus in the Anti (A) task (Fig. \ref{fig:SC}a). 
+%In a rapid task switching experiment \cite{duan2015requirement}, rats were explicitly cued on each trial to either orient towards a visual stimulus in the Pro (P) task or orient away from a visual stimulus in the Anti (A) task (Fig. \ref{fig:SC}a). 
+%Neural recordings in the midbrain superior colliculus (SC) exhibited two populations of neurons that simultaneously represented both task context (Pro or Anti) and motor response (contralateral or ipsilateral to the recorded side): the Pro/Contra and Anti/Ipsi neurons \cite{duan2018collicular}.
+%Duan et al. proposed a model of SC that, like the V1 model analyzed in the previous section, is a four-population dynamical system.  
+%We analyzed this model, where the neuron-type populations are functionally-defined as the Pro- and Anti-populations in each hemisphere (left (L) and right (R)), their connectivity is parameterized geometrically  (Fig. \ref{fig:SC}B).
+%The input-output function of this model is chosen such that the population responses $x = [x_{LP}, x_{LA}, x_{RP}, x_{RA}]^\top$ are bounded from 0 to 1 giving rise to high (1) or low (0) responses at the end of the trial:
+%\begin{equation}
+%x_\alpha =\left(\frac{1}{2}\tanh\left(\frac{u_\alpha - \epsilon}{\zeta}\right)+ \frac{1}{2} \right)
+%\end{equation}
+%where $\epsilon = 0.05$ and $\zeta = 0.5$.  
+%The dynamics evolve with timescale $\tau=0.09$ via an internal variable $u$ governed by connectivity weights $W$
+%\begin{equation}
+%\tau \frac{du}{dt} = -u + Wx + h + \sigma dB
+%\end{equation}
+%with gaussian noise of variance $\sigma^2$ = 1.
+%The input $h$ is comprised of a cue-dependent input to the Pro or Anti populations, a stimulus orientation input to either the Left or Right populations, and a choice-period input to the entire network (see Section \ref{methods_SC}).
+%Here, we use EPI to determine the changes in network connectivity $z = [ sW_P, sW_A, vW_{PA}, vW_{AP}, dW_{PA}, dW_{AP}, hW_P, hW_A]$ resulting in greater levels of rapid task switching accuracy.
+%
+%\begin{figure}
+%\begin{center}
+%\includegraphics[scale=0.5]{figures/fig4/fig4.pdf}
+%\end{center}
+%\caption{\small EPI reveals changes in SC \cite{duan2018collicular} connectivity that control task accuracy.  
+%A. Rapid task switching behavioral paradigm (see text). 
+%B. Model of superior colliculus (SC). Neurons: LP - left pro, RP - right pro, LA - left anti, RA - right anti. 
+%Parameters: $sW$ - self, $hW$ - horizontal, $vW$ -vertical, $dW$ - diagonal weights.  
+%Subscripts $P$ and $A$ of connectivity weights indicate Pro or Anti populations, and e.g. $vW_{PA}$ is a vertical weight from an Anti to a Pro population.  
+%C. The Schur decomposition of the weight matrix $W = V\Lambda V^{-1}$ is a unique decomposition with orthogonal $V$ and upper triangular $\Lambda$. Schur modes: $v_{\text{all}}$, $v_{\text{task}}$, $v_{\text{side}}$, and $v_{\text{diag}}$.  
+%D. The marginal EPI distributions of the Schur eigenvalues at each level of task accuracy.
+%E. The correlation of Schur eigenvalue with task performance in each learned EPI distribution.}
+%\label{fig:SC}
+%\end{figure}
+%
+%To quantify the emergent property of rapid task switching at various levels of accuracy, we considered the requirements of this model in this behavioral paradigm.
+%At the end of successful trials, the response of the Pro population in the hemisphere of the correct choice must have a value near 1, while the Pro population in the opposite hemisphere must have a value near 0.
+%Constraining a population response $x_\alpha \in \left[0,1\right]$ to be either 0 or 1 can be achieved by requiring that it has Bernoulli variance (see Section \ref{methods_SC}).
+%Thus, we can formulate rapid task switching at a level of accuracy $p \in \left[0, 1\right]$ in both tasks in terms of the average steady response of the Pro population $\hat{p}$ of the correct choice,  the error in Bernoulli variance of that Pro neuron $\sigma^2_{\text{err}}$, and the average difference in Pro neuron responses $d$ in both Pro and Anti trials:
+%\begin{equation}
+%\mathcal{B}(p) ~~\triangleq~~ \mathbb{E}\begin{bmatrix} \hat{p}_P \\ \hat{p}_A \\ (\hat{p}_P-p)^2 \\ (\hat{p}_A - p)^2 \\ \sigma^2_{P,err} \\ \sigma^2_{A,err} \\ d_P \\ d_A \end{bmatrix} = \begin{bmatrix} p \\ p \\ 0.15^2 \\ 0.15^2 \\ 0 \\ 0 \\ 1 \\ 1 \end{bmatrix}.
+%\end{equation}
+%Thus, $\mathcal{B}(p)$ denotes Bernoulli, winner-take-all responses between Pro neurons in a model executing rapid task switching near accuracy level $p$.
+%
+%We used EPI to learn distributions of the SC weight matrix parameters $z$ conditioned on of various levels of rapid task switching accuracy $\mathcal{B}(p)$ for $p \in \{50\%, 60\%, 70\%, 80\%, 90\%\}$.
+%To make sense of these inferred distributions, we followed the approach of Duan et al. by decomposing the connectivity matrix $W = V\Lambda V^{-1}$ in such a way (the Schur decomposition) that the basis vectors $v_i$ are the same for all $W$ (Fig. \ref{fig:SC}C). 
+%These basis vectors have intuitive roles in processing for this task, and are accordingly named the \textit{all} mode - all neurons co-fluctuate, \textit{side} mode - one side dominates the other, \textit{task} mode - the Pro or Anti populations dominate the other, and \textit{diag} mode - Pro- and Anti-populations of opposite hemispheres dominate the opposite pair. 
+%The corresponding eigenvalues (e.g. $\lambda_{\text{task}}$, which change according to $W$) indicate the degree to which activity along that mode is increased or decreased by $W$. 
+%
+%We found that for greater task accuracies, the task mode eigenvalue increases, indicating the importance of $W$ to the task representation (Fig. \ref{fig:SC}D, purple; adjacent distributions from 60\% to 90\% have  $p<10^{-4}$, Mann-Whitney test with 50 estimates and 100 samples).
+%Stepping from random chance (50\%) networks to marginally task-performing (60\%) networks, there is a marked decrease of the side mode eigenvalues (Fig. \ref{fig:SC}D, orange; $p<10^{-4}$).  
+%Such side mode suppression relative to $50\%$ remains in the models achieving greater accuracy, revealing its importance towards task performance.
+%There were no interesting trends with task accuracy in the all or diag mode (hence not shown in Fig. \ref{fig:SC}). 
+%Importantly, we can conclude from our methodology that side mode suppression in $W$ allows rapid task switching, and that greater task-mode representations in $W$ increase accuracy.  
+%These hypotheses are confirmed by forward simulation of the SC model (Fig. \ref{fig:SC}E, see Section \ref{methods_SC}) suggesting experimentally testable predictions: increase in rapid task switching performance should be correlated with changes in effective connectivity corresponding to an increase in task mode and decrease in side mode eigenvalues.
+
+In a rapid task switching experiment \cite{duan2015requirement}, rats were explicitly cued on each trial to either orient towards a visual stimulus in the Pro (P) task or orient away from a visual stimulus in the Anti (A) task (Fig. \ref{fig:SC}A). 
 Neural recordings in the midbrain superior colliculus (SC) exhibited two populations of neurons that simultaneously represented both task context (Pro or Anti) and motor response (contralateral or ipsilateral to the recorded side): the Pro/Contra and Anti/Ipsi neurons \cite{duan2018collicular}.
 Duan et al. proposed a model of SC that, like the V1 model analyzed in the previous section, is a four-population dynamical system.  
 We analyzed this model, where the neuron-type populations are functionally-defined as the Pro- and Anti-populations in each hemisphere (left (L) and right (R)), their connectivity is parameterized geometrically  (Fig. \ref{fig:SC}B).
-The input-output function of this model is chosen such that the population responses $x = [x_{LP}, x_{LA}, x_{RP}, x_{RA}]^\top$ are bounded from 0 to 1 giving rise to high (1) or low (0) responses at the end of the trial:
+The input-output function of this model is chosen such that the population responses $\mathbf{x} = [x_{LP}, x_{LA}, x_{RP}, x_{RA}]^\top$ are bounded from 0 to 1 as a function $f$ of a dynamically evolving internal variable $\mathbf{u}$.
+The model responds to the side with greater Pro neuron activation; e.g. the reponse is left if $x_{LP} > x_{RP}$ at the end of the trial.
+The dynamics evolve with timescale $\tau=0.09$ governed by connectivity weights $W$
 \begin{equation}
-x_\alpha =\left(\frac{1}{2}\tanh\left(\frac{u_\alpha - \epsilon}{\zeta}\right)+ \frac{1}{2} \right)
+\begin{split}
+\tau \frac{d\mathbf{u}}{dt} &= -\mathbf{u} + W\mathbf{x} + \mathbf{h} + d\mathbf{B} \\
+\mathbf{x} &= f(\mathbf{u})
+\end{split}
 \end{equation}
-where $\epsilon = 0.05$ and $\zeta = 0.5$.  
-The dynamics evolve with timescale $\tau=0.09$ via an internal variable $u$ governed by connectivity weights $W$
-\begin{equation}
-\tau \frac{du}{dt} = -u + Wx + h + \sigma dB
-\end{equation}
-with gaussian noise of variance $\sigma^2$ = 1.
-The input $h$ is comprised of a cue-dependent input to the Pro or Anti populations, a stimulus orientation input to either the Left or Right populations, and a choice-period input to the entire network (see Section \ref{methods_SC}).
-Here, we use EPI to determine the changes in network connectivity $z = [ sW_P, sW_A, vW_{PA}, vW_{AP}, dW_{PA}, dW_{AP}, hW_P, hW_A]$ resulting in greater levels of rapid task switching accuracy.
+with white noise of variance $\epsilon^2 = 0.2^2$.
+The input $\mathbf{h}$ is comprised of a cue-dependent input to the Pro or Anti populations, a stimulus orientation input to either the Left or Right populations, and a choice-period input to the entire network (see Section \ref{methods_SC}).
+Here, we use EPI to determine the changes in network connectivity $\mathbf{z} = [sW, vW, dW, hW]^{\top}$ resulting in execution of rapid task switching behavior.
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.5]{figures/fig4/fig4.pdf}
+\includegraphics[scale=0.48]{figures/fig4/fig4.pdf}
 \end{center}
-\caption{\small EPI reveals changes in SC \cite{duan2018collicular} connectivity that control task accuracy.  
+\caption{\small 
 A. Rapid task switching behavioral paradigm (see text). 
 B. Model of superior colliculus (SC). Neurons: LP - left pro, RP - right pro, LA - left anti, RA - right anti. 
 Parameters: $sW$ - self, $hW$ - horizontal, $vW$ -vertical, $dW$ - diagonal weights.  
-Subscripts $P$ and $A$ of connectivity weights indicate Pro or Anti populations, and e.g. $vW_{PA}$ is a vertical weight from an Anti to a Pro population.  
-C. The Schur decomposition of the weight matrix $W = V\Lambda V^{-1}$ is a unique decomposition with orthogonal $V$ and upper triangular $\Lambda$. Schur modes: $v_{\text{all}}$, $v_{\text{task}}$, $v_{\text{side}}$, and $v_{\text{diag}}$.  
-D. The marginal EPI distributions of the Schur eigenvalues at each level of task accuracy.
-E. The correlation of Schur eigenvalue with task performance in each learned EPI distribution.}
+Subscripts $P$ and $A$ of connectivity weights indicate Pro or Anti populations.
+C. The EPI parameter distribution of rapid task switching networks.  Black star indicates parameter choice u=of simulations.
+D. Simulations of an SC network from the EPI distribution with 75\% accuracy in each task.  Top row shows no inactivation during Pro and Anti trials, and bottom row shows simulations with delay period inactivation (opto strength 0.7).  Shading indicates standard deviation across trials.
+E. Difference in performance of each task during inactivation.  Inactivation level ``opto strength" scales from no inactivation (0) to full inactivation (1).  We compare delay period inactivation $1.2 < t < 1.5$ (blue), choice period inactivation $1.5 < t$ (red), and total inactivation $0 \leq t \leq 1.8$ (purple).
+F. The effect of delay period inactivation on Anti accuracy versus dynamics eigenvalues.
+}
 \label{fig:SC}
 \end{figure}
 
-To quantify the emergent property of rapid task switching at various levels of accuracy, we considered the requirements of this model in this behavioral paradigm.
-At the end of successful trials, the response of the Pro population in the hemisphere of the correct choice must have a value near 1, while the Pro population in the opposite hemisphere must have a value near 0.
-Constraining a population response $x_\alpha \in \left[0,1\right]$ to be either 0 or 1 can be achieved by requiring that it has Bernoulli variance (see Section \ref{methods_SC}).
-Thus, we can formulate rapid task switching at a level of accuracy $p \in \left[0, 1\right]$ in both tasks in terms of the average steady response of the Pro population $\hat{p}$ of the correct choice,  the error in Bernoulli variance of that Pro neuron $\sigma^2_{\text{err}}$, and the average difference in Pro neuron responses $d$ in both Pro and Anti trials:
-\begin{equation}
-\mathcal{B}(p) ~~\triangleq~~ \mathbb{E}\begin{bmatrix} \hat{p}_P \\ \hat{p}_A \\ (\hat{p}_P-p)^2 \\ (\hat{p}_A - p)^2 \\ \sigma^2_{P,err} \\ \sigma^2_{A,err} \\ d_P \\ d_A \end{bmatrix} = \begin{bmatrix} p \\ p \\ 0.15^2 \\ 0.15^2 \\ 0 \\ 0 \\ 1 \\ 1 \end{bmatrix}.
+We define rapid task switching behavior as accurate execution of each task.  Inferred models should not exhibit fully random responses (50\%), or perfect performance (100\%), since perfection is never attained by even the best trained rats.
+We formulate rapid task switching as an emergent property by stipulating that the average accuracy in the Pro task $p_P(\mathbf{x}, \mathbf{z})$ and Anti task $p_A(\mathbf{x}, \mathbf{z})$ be $75\%$ with variance $5\%^2$.
+\begin{equation}\label{eq:EP}
+\begin{split}
+\mathcal{X} ~~:~~ \mathbb{E}_{\mathbf{z}}\begin{bmatrix} p_P(\mathbf{x}; \mathbf{z}) \\ p_A(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~  \begin{bmatrix} 75\% \\ 75\% \end{bmatrix}  \\ 
+ \text{Var}_{\mathbf{z}}\begin{bmatrix} p_P(\mathbf{x}; \mathbf{z}) \\ p_A(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~  \begin{bmatrix} 5\%^2 \\ 5\%^2  \end{bmatrix}
+\end{split}
 \end{equation}
-Thus, $\mathcal{B}(p)$ denotes Bernoulli, winner-take-all responses between Pro neurons in a model executing rapid task switching near accuracy level $p$.
+A variance of $5\%$ performance in each task will confer a posterior producing performances ranging from about $65\%-85\%$, allowing us to examine the properties of connectivity that yield better performance.
 
-We used EPI to learn distributions of the SC weight matrix parameters $z$ conditioned on of various levels of rapid task switching accuracy $\mathcal{B}(p)$ for $p \in \{50\%, 60\%, 70\%, 80\%, 90\%\}$.
-To make sense of these inferred distributions, we followed the approach of Duan et al. by decomposing the connectivity matrix $W = V\Lambda V^{-1}$ in such a way (the Schur decomposition) that the basis vectors $v_i$ are the same for all $W$ (Fig. \ref{fig:SC}C). 
+We ran EPI to obtain SC model connectivity parameters $z$ producing rapid task switching (Fig. \ref{fig:SC}C).
+Some parameters were predictive of accuracy while others were not (Fig. \ref{fig:SC1}), and often had different effects on $p_P$ and $p_A$.
+To make sense of this inferred distribution, we took the eigendecomposition of the symmetric connectivity matrices $W = V\Lambda V^{-1}$, which results in the same basis vectors $v_i$ for all $W$ parameterized by $z$ (Fig. \ref{fig:SC2}A). 
 These basis vectors have intuitive roles in processing for this task, and are accordingly named the \textit{all} mode - all neurons co-fluctuate, \textit{side} mode - one side dominates the other, \textit{task} mode - the Pro or Anti populations dominate the other, and \textit{diag} mode - Pro- and Anti-populations of opposite hemispheres dominate the opposite pair. 
-The corresponding eigenvalues (e.g. $\lambda_{\text{task}}$, which change according to $W$) indicate the degree to which activity along that mode is increased or decreased by $W$. 
 
-We found that for greater task accuracies, the task mode eigenvalue increases, indicating the importance of $W$ to the task representation (Fig. \ref{fig:SC}D, purple; adjacent distributions from 60\% to 90\% have  $p<10^{-4}$, Mann-Whitney test with 50 estimates and 100 samples).
-Stepping from random chance (50\%) networks to marginally task-performing (60\%) networks, there is a marked decrease of the side mode eigenvalues (Fig. \ref{fig:SC}D, orange; $p<10^{-4}$).  
-Such side mode suppression relative to $50\%$ remains in the models achieving greater accuracy, revealing its importance towards task performance.
-There were no interesting trends with task accuracy in the all or diag mode (hence not shown in Fig. \ref{fig:SC}). 
-Importantly, we can conclude from our methodology that side mode suppression in $W$ allows rapid task switching, and that greater task-mode representations in $W$ increase accuracy.  
-These hypotheses are confirmed by forward simulation of the SC model (Fig. \ref{fig:SC}E, see Section \ref{methods_SC}) suggesting experimentally testable predictions: increase in rapid task switching performance should be correlated with changes in effective connectivity corresponding to an increase in task mode and decrease in side mode eigenvalues.
+Greater $\lambda_{\text{task}}$, $\lambda_{\text{side}}$, and $\lambda_{\text{diag}}$ all produce greater Pro accuracy.
+This shows that strong task representations and hemispheral dominance in the dynamics result in better execution of the Pro task.
+By visualizing these four variables together by $p_A$ (Fig. \ref{fig:SC3}B), we see that low $\lambda_{\text{task}}$ and $\lambda_{\text{diag}}$ producing strong Anti accuracy also have high $\lambda_{\text{side}}$ and $\lambda_{\text{all}}$.
+Thus, stronger hemispheral dominance, relaxed task and diag mode dynamics, and slower circuit-wide decay result in greater Anti accuracy.
+
+In agreement with experimental results form Duan et al., we found that inactivation above nominal strength during the delay period consistently decreased performance in the Anti task, but had no consistent effect on the Pro task (Fig. \ref{fig:SC}E) e.g. (Fig. \ref{fig:SC}D, bottom).
+This difference in resiliency across tasks to delay perturbation is a prediction made by the inferred EPI distribution, rather than an emergent property that was conditioned upon.
+Even though $p_P$ and $p_A$ are anticorrelated in the EPI posterior ($r=-0.15$, $p=3.68 \times 10^-12$), greater $p_P$ and $p_A$ both result in decreased resiliency to delay perturbation in the Anti task (Fig. \ref{fig:SC4}).
+Ultimately, lower $\lambda_{\text{side}}$ and $\lambda_{\text{all}}$ and greater $\lambda_{\text{task}}$ produce networks more robust to delay perturbation (Fig. \ref{fig:SC}F)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Linking RNN connectivity to error} \label{results_RNN}
@@ -914,16 +972,17 @@ To learn the distribution of real entries of $A$ that produce a band of oscillat
  \end{equation} 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.58]{figures/figS1/figS1.pdf}
+\includegraphics[scale=0.58]{figures/figLDS1/figLDS1.pdf}
 \end{center}
 \begin{flushleft}
-{\small Fig. S1: A. Two-dimensional linear dynamical system model, where real entries of the dynamics matrix $A$ are the parameters.  
+\caption{\small (LDS1): A. Two-dimensional linear dynamical system model, where real entries of the dynamics matrix $A$ are the parameters.  
 B. The EPI distribution for a two-dimensional linear dynamical system with $\tau=1$ that produces an average of 1Hz oscillations with some small amount of variance.  Dashed lines indicate the parameter axes. 
 C. Entropy throughout the optimization.  
 At the beginning of each augmented Lagrangian epoch (2,000 iterations), the entropy dipped due to the shifted optimization manifold where emergent property constraint satisfaction is increasingly weighted.  
 D. Emergent property moments throughout optimization.  
 At the beginning of each augmented Lagrangian epoch, the emergent property moments adjust closer to their constraints.}
 \end{flushleft}
+\label{fig:LDS1}
 \end{figure}
 
 Unlike the models we presented in the main text, this model admits an analytical form for the mean emergent property statistics given parameter $\mathbf{z}$, since the eigenvalues can be calculated using the quadratic formula: 
@@ -945,12 +1004,13 @@ Intuitively, the parameters equivalent with respect to emergent property statist
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.5]{figures/figS2/figS2.pdf}
+\includegraphics[scale=0.5]{figures/figLDS2/figLDS2.pdf}
 \end{center}
 \begin{flushleft}
-{\small Fig. S2: A. Probability contours in the $a_1$-$a_4$ plane were derived from the relationship to emergent property statistic of growth/decay factor $\text{real}(\lambda_1)$. 
+\caption{\small (LDS2): A. Probability contours in the $a_1$-$a_4$ plane were derived from the relationship to emergent property statistic of growth/decay factor $\text{real}(\lambda_1)$. 
 B. Probability contours in the $a_2$-$a_3$ plane were derived from the emergent property statistic of oscillation frequency $2\pi \text{imag}(\lambda_1)$.}
 \end{flushleft}
+\label{fig:LDS2}
 \end{figure}
 
 To explain the bimodality of the EPI distribution, we examined the imaginary component of $\lambda_1$.  When $\text{real}(\lambda_1) = \frac{a_1 + a_4}{2} = 0$, we have
@@ -974,12 +1034,13 @@ As we expect, the distribution results in samples of two-dimensional linear syst
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.5]{figures/figS3/figS3.pdf}
+\includegraphics[scale=0.5]{figures/figLDS3/figLDS3.pdf}
 \end{center}
 \begin{flushleft}
-{\small Fig. S3: Sampled dynamical systems $\mathbf{z} \sim q_{\bm{\theta}}(\mathbf{z})$ and their simulated activity from $\mathbf{x}(0) = [\frac{\sqrt{2}}{2}, -\frac{\sqrt{2}}{2}]$ colored by log probability. A. Each dimension of the simulated trajectories throughout time.  
+\caption{\small (LDS3): Sampled dynamical systems $\mathbf{z} \sim q_{\bm{\theta}}(\mathbf{z})$ and their simulated activity from $\mathbf{x}(0) = [\frac{\sqrt{2}}{2}, -\frac{\sqrt{2}}{2}]$ colored by log probability. A. Each dimension of the simulated trajectories throughout time.  
 B  The simulated trajectories in phase space.}
 \end{flushleft}
+\label{fig:LDS3}
 \end{figure}
 
 \subsection{Theoretical models}\label{methods_theoretical_models}
@@ -1163,15 +1224,14 @@ The optimization converged after five epochs (Fig. S4).
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.6]{figures/figS4/figS4.pdf}
+\includegraphics[scale=0.6]{figures/figSTG1/figSTG1.pdf}
 \end{center}
 \begin{flushleft}
-{\small Fig. S4: EPI optimization of the STG model producing network syncing. 
+\caption{\small (STG1): EPI optimization of the STG model producing network syncing. 
 A. Entropy throughout optimization. 
-B. The first moment emergent property statistics converge to the emergent property values at 10,000 iterations, following the fourth augmented Lagrangian epoch of 2,500 iterations.  
-Since $q_{\bm{\theta}}(\mathbf{z})$ failed to produce enough samples yielding $\omega_{\text{f1}}(\mathbf{x})$ less than $0.53$Hz, the convergence criteria were not satisfied after the third epoch at 7,500 iterations.    
-C. The second moment emergent property statistics converge to the emergent property values.}
+B. The emergent property statistic means and variances converge to their constraints at 25,000 iterations following the fifth augmented Lagrangian epoch.}
 \end{flushleft}
+\label{fig:STG1}
 \end{figure}
 
 For EPI in Fig \ref{fig:STG}E, we used a real NVP architecture with three coupling layers of affine transformations parameterized by two-layer neural networks of 25 units per layer.
@@ -1289,135 +1349,276 @@ The EPI distributions shown in Fig. \ref{fig:V1_EPI} are the converged distribut
 We set the parameters of the Gaussian initialization $\mu_\text{init}$ and $\Sigma_\text{init}$ to the mean and covariance of random samples $z^{(i)} \sim \mathcal{U}(-5, 5)$ that produced emergent property statistic $dx_{\alpha,ss}$ within a bound $\epsilon$ of the emergent property value $y$. $\epsilon=0.01$ was set to be one standard deviation of the emergent property value according to the emergent property value $0.01^2$ of the variance emergent property statistic.  
 
 \subsubsection{Superior colliculus}\label{methods_SC}
+%In the model of Duan et al \cite{duan2018collicular}, there are four total units: two in each hemisphere corresponding to the Pro/Contra and Anti/Ipsi populations.  
+%They are denoted as left Pro (LP), left Anti (LA), right Pro (RP) and right Anti (RA).  
+%Each unit has an activity ($x_\alpha$) and internal variable ($u_\alpha$) related by
+%\begin{equation}
+%x_\alpha =\left(\frac{1}{2}\tanh\left(\frac{u_\alpha - \epsilon}{\zeta}\right)+ \frac{1}{2} \right)
+%\end{equation}
+%where $\alpha \in \{LP, LA, RA, RP\}$ $\epsilon = 0.05$ and $\zeta = 0.5$ control the position and shape of the nonlinearity, respectively.
+%
+%We order the elements of $x$ and $u$ in the following manner
+%\begin{equation}
+%x = \begin{bmatrix} x_{LP} \\ x_{LA} \\ x_{RP} \\ x_{RA} \end{bmatrix} \hspace{2cm} u = \begin{bmatrix} u_{LP} \\ u_{LA} \\ u_{RP} \\ u_{RA} \end{bmatrix}.
+%\end{equation}
+%
+% The internal variables follow dynamics:
+%\begin{equation}
+%\tau \frac{du}{dt} = -u + Wx + h + \sigma dB
+%\end{equation}
+%with time constant $\tau = 0.09s$ and Gaussian noise $\sigma dB$ controlled by the magnitude of $\sigma=1.0$.  The weight matrix has 8 parameters $sW_P$, $sW_A$, $vW_{PA}$, $vW_{AP}$, $hW_P$, $hW_A$, $dW_{PA}$, and $dW_{AP}$ (Fig. 4B):
+%\begin{equation}
+%W = \begin{bmatrix} sW_P & vW_{PA} & hW_P & dW_{PA}  \\ vW_{AP}  & sW_A & dW_{AP}  & hW_A \\ hW_P & dW_{PA}  & sW_P & vW_{PA}  \\ dW_{AP}  & hW_A & vW_{AP}  & sW_A \end{bmatrix}.
+%\end{equation}
+%
+%The system receives five inputs throughout each trial, which has a total length of 1.8s.
+%\begin{equation}
+%h = h_{\text{rule}} + h_{\text{choice-period}} + h_{\text{light}}.
+%\end{equation}
+%
+%There are rule-based inputs depending on the condition,
+%\begin{equation}h_{\text{P,rule}}(t) = \begin{cases}
+%                           I_{\text{P,rule}} [1, 0, 1, 0]^\top,& \text{if } t\leq 1.2s \\
+%                            0,              & \text{otherwise}
+%                         \end{cases}
+%\end{equation}
+%\begin{equation} h_{\text{A,rule}}(t) = \begin{cases}
+%                           I_{\text{A,rule}} [0, 1, 0, 1]^\top,& \text{if } t\leq 1.2s \\
+%                            0,              & \text{otherwise}
+%                         \end{cases}
+%\end{equation}
+%a choice-period input,
+%\begin{equation} h_{\text{choice}}(t) = \begin{cases}
+%                           I_{\text{choice}} [1, 1, 1, 1]^\top,& \text{if } t > 1.2s \\
+%                            0,              & \text{otherwise}
+%                         \end{cases}
+%\end{equation}
+%and an input to the right or left-side depending on where the light stimulus is delivered.     
+%\begin{equation}  h_{\text{light}}(t) = \begin{cases}
+%                           I_{\text{light}} [1, 1, 0, 0]^\top,& \text{if } t > 1.2s \text{ and Left} \\
+%                           I_{\text{light}} [0, 0, 1, 1]^\top,& \text{if } t > 1.2s \text{ and Right} \\
+%                            0,              & t \leq 1.2s
+%                         \end{cases} .
+%\end{equation}
+%The input parameterization was fixed to $I_{\text{P,rule}} = 10 $,  $I_{\text{A,rule}} = 10$,  $I_{\text{choice}} = 2$,  and $I_{\text{light}} = 1$.
+%
+%To produce an accuracy rate of $p_{LP}$ in the Left, Pro condition, let $\hat{p}_i$ be the empirical average steady state response (final $x_{LP}$ at end of task) over M=500 Gaussian noise draws for a given SC model parameterization $z_i$:
+%\begin{equation}
+% \hat{p}_i = \mathbb{E}_{\sigma dB} \left[ x_{LP} \mid s=L, c=P, z=z_i \right] = \frac{1}{M}\sum_{j=1}^M x_{LP}(s=L, c=P, z=z_i, \sigma dB_j)
+% \end{equation}
+% where stimulus $s \in \{L, R\}$, cue $c \in \{P, A\}$, and $\sigma dB_j$ is the Gaussian noise on trial $j$.
+%As with the V1 model, we only consider steady state responses of $x$, so $x_\alpha$ is used from here on to denote the steady state activity at the end of the trial.
+%For the first emergent property statistic, the average over EPI samples (from $q_{\bm{\theta}}(z)$) is set to the desired value $p_{LP}$:
+%\begin{equation}
+%\mathbb{E}_{z_i \sim q_\phi} \left[ \mathbb{E}_{\sigma dB} \left[ x_{LP,\text{ss}} \mid s=L, c=P, z=z_i \right] \right] = \mathbb{E}_{z_i \sim q_\phi} \left[ \hat{p}_i \right] = p_{LP}.
+%\end{equation}
+%
+%For the next emergent property statistic, we ask that the variance of the steady state responses across Gaussian draws, is the Bernoulli variance for the empirical rate $\hat{p}_i$:
+%\begin{equation}
+%\mathbb{E}_{z \sim q\phi} \left[ \sigma^2_{err} \right] = 0
+%\end{equation}
+%where the Bernoulli variance error $\sigma^2_{err}$ for the Pro task, left condition is
+%\begin{equation}
+%\sigma^2_{err} = Var_{\sigma dB} \left[ x_{LP} \mid s=L, c=P, z=z_i \right] - \hat{p}_i(1 - \hat{p}_i).
+%\end{equation}
+%
+%We have an additional constraint that the Pro neuron on the opposite hemisphere should have the opposite value (0 and 1).  We can enforce this with another constraint:
+%\begin{equation}
+%\mathbb{E}_{z \sim q\phi} \left[ d_P \right] = 1,
+%\end{equation}
+%where the distance between Pro neuron steady states $d_P$ in the Pro condition is
+%\begin{equation}
+%d_P =  \mathbb{E}_{\sigma dB} \left[ (x_{LP} - x_{RP})^2  \mid s=L, c=P, z=z_i \right]
+%\end{equation}
+%The emergent property statistics only need to be measured during the Left stimulus condition of the Pro and Anti tasks, since the network is symmetrically parameterized.
+%In total, the emergent property of rapid task switching at accuracy level $p$ was defined as
+%\begin{equation}
+%\mathcal{B}(p) ~~\triangleq~~ \mathbb{E}\begin{bmatrix} \hat{p}_P \\ \hat{p}_A \\ (\hat{p}_P-p)^2 \\ (\hat{p}_A - p)^2 \\ \sigma^2_{P,err} \\ \sigma^2_{A,err} \\ d_P \\ d_A \end{bmatrix} = \begin{bmatrix} p \\ p \\ 0.15^2 \\ 0.15^2 \\ 0 \\ 0 \\ 1 \\ 1 \end{bmatrix}.
+%\end{equation}
+%
+%Since the maximum variance of a random variable bounded from 0 to 1 is the Bernoulli variance $\hat{p}(1-\hat{p})$, and the maximum squared difference between to variables bounded from 0 to 1 is 1, we do not need to control the second moment of these test statistics. 
+%These variables are dynamical system states and can only exponentially decay (or saturate) to 0 (or 1), so the Bernoulli variance error and squared difference constraints cannot be satisfied exactly in simulation.  
+%This is important to be mindful of when evaluating the convergence criteria.  
+%Instead of using our usual hypothesis testing criteria for convergence to the emergent property, we set a slack variable threshold only for these technically infeasible emergent property values to 0.05.
+%
+%Using EPI to learn distributions of dynamical systems producing Bernoulli responses at a given rate (with small variance around that rate) was more challenging than expected.  
+%There is a pathology in this optimization setup, where the learned distribution of weights is bimodal attributing a fraction $p$ of the samples to an expansive mode (which always sends $x_{LP}$ to 1), and a fraction $1-p$ to a decaying mode (which always sends $x_{LP}$ to 0).  
+%This pathology was avoided using an inequality constraint prohibiting parameter samples that resulted in low variance of responses across noise.
+%
+%
+%\begin{table}[h]
+%\begin{tabular}{l|l|l|l|l}
+%$\lambda$  & $\hat{p}$ & $q_{\bm{\theta}}(z)$ & $r$ & p-value \\ \hline
+%$\lambda_{\text{task}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(60\%))$ & $1.24 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
+%$\lambda_{\text{task}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(70\%))$ & $7.56 \times 10^{-01}$ & $p<10^{-4}$ \\ \hline
+%$\lambda_{\text{task}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(80\%))$ & $4.59 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
+%$\lambda_{\text{task}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(90\%))$ & $3.76 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
+%
+%$\lambda_{\text{task}}$ & $\hat{p}_A$ & $q(z \mid \mathcal{B}(60\%))$ & $4.80 \times 10^{-02}$ & $p<.01$ \\ \hline
+%$\lambda_{\text{task}}$ & $\hat{p}_A$ & $q(z \mid \mathcal{B}(70\%))$ & $2.08 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
+%$\lambda_{\text{task}}$ & $\hat{p}_A$ & $q(z \mid \mathcal{B}(80\%))$ & $4.84 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
+%$\lambda_{\text{task}}$ & $\hat{p}_A$ & $q(z \mid \mathcal{B}(90\%))$ & $4.25 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
+%
+%$\lambda_{\text{side}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(50\%))$ & $-7.57 \times 10^{-02}$ & $p<10^{-4}$  \\ \hline
+%$\lambda_{\text{side}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(60\%))$ & $-6.73 \times 10^{-02}$ & $p<10^{-4}$  \\ \hline
+%$\lambda_{\text{side}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(70\%))$ & $-4.86 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
+%$\lambda_{\text{side}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(80\%))$ & $-1.43 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
+%$\lambda_{\text{side}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(90\%))$ & $-1.93 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
+%
+%$\lambda_{\text{side}}$ & $\hat{p}_A$ & $q(z \mid \mathcal{B}(60\%))$ & $-7.60 \times 10^{-02}$ & $p<10^{-4}$  \\ \hline
+%$\lambda_{\text{side}}$ & $\hat{p}_A$ & $q(z \mid \mathcal{B}(70\%))$ & $-2.73 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
+%$\lambda_{\text{side}}$ & $\hat{p}_A$ & $q(z \mid \mathcal{B}(80\%))$ & $-2.74 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
+%\end{tabular}
+%\caption{\small Table of significant correlation values from Fig. \ref{fig:SC}E.}
+%\end{table}
+%
+%For each accuracy level $p$, we ran EPI for 10 different random seeds  using an architecture of 10 planar flows with a  support of $z \in \mathbb{R}^8$.   
+%We used an augmented Lagrangian coefficient of $c_0 = 10^2$, a batch size $n=300$, and set $\nu = 0.5$, and initialized $q_{\bm{\theta}}(z)$ to produce an isotropic Gaussian of zero mean with standard deviation $\sigma_{\text{init}} = 1$.
+%The EPI distributions shown in Fig. \ref{fig:SC} are the converged distributions with maximum entropy across random seeds.
+%
+%We report significant correlations $r$ and their p-values from Figure \ref{fig:SC}E in Table 1.  
+%Correlations were measured from 5,000 samples of $q_{\bm{\theta}}(z \mid \mathcal{B}(p))$ and p-values are reported for one-tailed tests, since we hypothesized a positive correlation between task accuracies $p_P$ or $p_A$ and $\lambda_{\text{task}}$, and a negative correlation between task accuracies $p_P$ and $p_A$ and $\lambda_{\text{side}}$.
+
 In the model of Duan et al \cite{duan2018collicular}, there are four total units: two in each hemisphere corresponding to the Pro/Contra and Anti/Ipsi populations.  
 They are denoted as left Pro (LP), left Anti (LA), right Pro (RP) and right Anti (RA).  
 Each unit has an activity ($x_\alpha$) and internal variable ($u_\alpha$) related by
 \begin{equation}
-x_\alpha =\left(\frac{1}{2}\tanh\left(\frac{u_\alpha - \epsilon}{\zeta}\right)+ \frac{1}{2} \right)
+x_\alpha = \left(\frac{1}{2}\tanh\left(\frac{u_\alpha - a}{b}\right)+ \frac{1}{2} \right)
 \end{equation}
-where $\alpha \in \{LP, LA, RA, RP\}$ $\epsilon = 0.05$ and $\zeta = 0.5$ control the position and shape of the nonlinearity, respectively.
+where $\alpha \in \{LP, LA, RA, RP\}$, $a = 0.05$ and $b = 0.5$ control the position and shape of the nonlinearity, respectively.
 
-We order the elements of $x$ and $u$ in the following manner
+We order the neural populations of $x$ and $u$ in the following manner
 \begin{equation}
-x = \begin{bmatrix} x_{LP} \\ x_{LA} \\ x_{RP} \\ x_{RA} \end{bmatrix} \hspace{2cm} u = \begin{bmatrix} u_{LP} \\ u_{LA} \\ u_{RP} \\ u_{RA} \end{bmatrix}.
-\end{equation}
-
- The internal variables follow dynamics:
-\begin{equation}
-\tau \frac{du}{dt} = -u + Wx + h + \sigma dB
-\end{equation}
-with time constant $\tau = 0.09s$ and Gaussian noise $\sigma dB$ controlled by the magnitude of $\sigma=1.0$.  The weight matrix has 8 parameters $sW_P$, $sW_A$, $vW_{PA}$, $vW_{AP}$, $hW_P$, $hW_A$, $dW_{PA}$, and $dW_{AP}$ (Fig. 4B):
-\begin{equation}
-W = \begin{bmatrix} sW_P & vW_{PA} & hW_P & dW_{PA}  \\ vW_{AP}  & sW_A & dW_{AP}  & hW_A \\ hW_P & dW_{PA}  & sW_P & vW_{PA}  \\ dW_{AP}  & hW_A & vW_{AP}  & sW_A \end{bmatrix}.
+\mathbf{x} = \begin{bmatrix} x_{LP} \\ x_{LA} \\ x_{RP} \\ x_{RA} \end{bmatrix} \hspace{2cm} \mathbf{u} = \begin{bmatrix} u_{LP} \\ u_{LA} \\ u_{RP} \\ u_{RA} \end{bmatrix},
 \end{equation}
 
-The system receives five inputs throughout each trial, which has a total length of 1.8s.
+which evolve according to
 \begin{equation}
-h = h_{\text{rule}} + h_{\text{choice-period}} + h_{\text{light}}.
+\tau \frac{d\mathbf{u}}{dt} = -\mathbf{u} + W\mathbf{x} + \mathbf{h} + \sigma d\mathbf{B}.
+\end{equation}
+with time constant $\tau = 0.09s$, step size 24ms and Gaussian noise $dB$of variance $\sigma^2=0.2$.  
+The weight matrix has 4 parameters $sW$, $vW$, $hW$, and $dW$:
+\begin{equation}
+W = \begin{bmatrix} sW & vW & hW & dW \\ vW & sW & dW  & hW \\ hW & dW & sW & vW \\ dW  & hW & vW  & sW \end{bmatrix}.
 \end{equation}
 
-There are rule-based inputs depending on the condition,
-\begin{equation}h_{\text{P,rule}}(t) = \begin{cases}
+The circuit receives four different inputs throughout each trial, which has a total length of 1.8s.
+\begin{equation}
+\mathbf{h} = \mathbf{h}_{\text{constant}}  + \mathbf{h}_{\text{P,bias}} + \mathbf{h}_{\text{rule}} +  \mathbf{h}_{\text{choice-period}} + \mathbf{h}_{\text{light}}.
+\end{equation}
+
+There is a constant input to every population,
+\begin{equation}\mathbf{h}_{\text{constant}} = I_{\text{constant}} [1, 1, 1, 1]\top,
+\end{equation}
+ a bias to the Pro populations
+\begin{equation}\mathbf{h}_{\text{P,bias}} = I_{\text{P,bias}} [1, 0, 1, 0]\top,
+\end{equation}
+rule-based input depending on the condition
+\begin{equation}\mathbf{h}_{\text{P,rule}}(t) = \begin{cases}
                            I_{\text{P,rule}} [1, 0, 1, 0]^\top,& \text{if } t\leq 1.2s \\
                             0,              & \text{otherwise}
                          \end{cases}
 \end{equation}
-\begin{equation} h_{\text{A,rule}}(t) = \begin{cases}
+\begin{equation} \mathbf{h}_{\text{A,rule}}(t) = \begin{cases}
                            I_{\text{A,rule}} [0, 1, 0, 1]^\top,& \text{if } t\leq 1.2s \\
                             0,              & \text{otherwise}
-                         \end{cases}
+                         \end{cases},
 \end{equation}
-a choice-period input,
-\begin{equation} h_{\text{choice}}(t) = \begin{cases}
+a choice-period input
+\begin{equation} \mathbf{h}_{\text{choice}}(t) = \begin{cases}
                            I_{\text{choice}} [1, 1, 1, 1]^\top,& \text{if } t > 1.2s \\
                             0,              & \text{otherwise}
-                         \end{cases}
+                         \end{cases},
 \end{equation}
-and an input to the right or left-side depending on where the light stimulus is delivered.     
-\begin{equation}  h_{\text{light}}(t) = \begin{cases}
-                           I_{\text{light}} [1, 1, 0, 0]^\top,& \text{if } t > 1.2s \text{ and Left} \\
-                           I_{\text{light}} [0, 0, 1, 1]^\top,& \text{if } t > 1.2s \text{ and Right} \\
-                            0,              & t \leq 1.2s
-                         \end{cases} .
+and an input to the right or left-side depending on where the light stimulus is delivered    
+\begin{equation}  \mathbf{h}_{\text{light}}(t) = \begin{cases}
+                           I_{\text{light}} [1, 1, 0, 0]^\top,& \text{if } 1.2s < t < 1.5s \text{ and Left} \\
+                           I_{\text{light}} [0, 0, 1, 1]^\top,& \text{if } 1.2s < t < 1.5s \text{ and Right} \\
+                            0,              & \text{otherwise}
+                         \end{cases}.
 \end{equation}
-The input parameterization was fixed to $I_{\text{P,rule}} = 10 $,  $I_{\text{A,rule}} = 10$,  $I_{\text{choice}} = 2$,  and $I_{\text{light}} = 1$.
+The input parameterization was fixed to $I_{\text{constant}} = 0.75$, $I_{\text{P,bias}} = 0.5 $, $I_{\text{P,rule}} = 0.6$,  $I_{\text{A,rule}} = 0.6$,  $I_{\text{choice}} = 0.25$,  and $I_{\text{light}} = 0.5$.
 
-To produce an accuracy rate of $p_{LP}$ in the Left, Pro condition, let $\hat{p}_i$ be the empirical average steady state response (final $x_{LP}$ at end of task) over M=500 Gaussian noise draws for a given SC model parameterization $z_i$:
+The accuracies of $p_P$ and $p_A$ are calculated as
 \begin{equation}
- \hat{p}_i = \mathbb{E}_{\sigma dB} \left[ x_{LP} \mid s=L, c=P, z=z_i \right] = \frac{1}{M}\sum_{j=1}^M x_{LP}(s=L, c=P, z=z_i, \sigma dB_j)
- \end{equation}
- where stimulus $s \in \{L, R\}$, cue $c \in \{P, A\}$, and $\sigma dB_j$ is the Gaussian noise on trial $j$.
-As with the V1 model, we only consider steady state responses of $x$, so $x_\alpha$ is used from here on to denote the steady state activity at the end of the trial.
-For the first emergent property statistic, the average over EPI samples (from $q_{\bm{\theta}}(z)$) is set to the desired value $p_{LP}$:
-\begin{equation}
-\mathbb{E}_{z_i \sim q_\phi} \left[ \mathbb{E}_{\sigma dB} \left[ x_{LP,\text{ss}} \mid s=L, c=P, z=z_i \right] \right] = \mathbb{E}_{z_i \sim q_\phi} \left[ \hat{p}_i \right] = p_{LP}.
+p_P(\mathbf{x}; \mathbf{z}) = \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z})}\left[\Theta[x_{LP}(t=1.8s) - x_{RP}(t=1.8s)]\right]
 \end{equation}
-
-For the next emergent property statistic, we ask that the variance of the steady state responses across Gaussian draws, is the Bernoulli variance for the empirical rate $\hat{p}_i$:
+and 
 \begin{equation}
-\mathbb{E}_{z \sim q\phi} \left[ \sigma^2_{err} \right] = 0
+p_A(\mathbf{x}; \mathbf{z}) = \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z})}\left[\Theta[x_{RP}(t=1.8s) - x_{LP}(t=1.8s)]\right]
 \end{equation}
-where the Bernoulli variance error $\sigma^2_{err}$ for the Pro task, left condition is
+given that the stimulus is on the left side, where $\Theta$ is the Heaviside step function.
+
+The Heaviside step function is approximated as
 \begin{equation}
-\sigma^2_{err} = Var_{\sigma dB} \left[ x_{LP} \mid s=L, c=P, z=z_i \right] - \hat{p}_i(1 - \hat{p}_i).
+\Theta(\mathbf{x}) = \text{sigmoid}(\beta \mathbf{x}),
 \end{equation}
+where $\beta = 100$.
 
-We have an additional constraint that the Pro neuron on the opposite hemisphere should have the opposite value (0 and 1).  We can enforce this with another constraint:
-\begin{equation}
-\mathbb{E}_{z \sim q\phi} \left[ d_P \right] = 1,
+As a maximum entropy distribution, $T(\mathbf{x}, \mathbf{z})$ is comprised of both these first and second moments of the accuracy in each task (as in Equations \ref{eq:moments} and \ref{eq:mu_opt})
+\begin{equation} 
+T(\mathbf{x}; \mathbf{z}) = \begin{bmatrix} p(\mathbf{x}; \mathbf{z})_P \\ p(\mathbf{x}; \mathbf{z})_A \\ \left(p(\mathbf{x}; \mathbf{z})_P - 75\% \right)^2 \\ \left(p(\mathbf{x}; \mathbf{z})_A - 75\% \right)^2 \end{bmatrix},
 \end{equation}
-where the distance between Pro neuron steady states $d_P$ in the Pro condition is
-\begin{equation}
-d_P =  \mathbb{E}_{\sigma dB} \left[ (x_{LP} - x_{RP})^2  \mid s=L, c=P, z=z_i \right]
+\begin{equation} 
+\bm{\mu}_{\text{opt}} = \begin{bmatrix} 75\% \\ 75\% \\ 5\%^2 \\ 5\%^2 \end{bmatrix}.
 \end{equation}
-The emergent property statistics only need to be measured during the Left stimulus condition of the Pro and Anti tasks, since the network is symmetrically parameterized.
-In total, the emergent property of rapid task switching at accuracy level $p$ was defined as
-\begin{equation}
-\mathcal{B}(p) ~~\triangleq~~ \mathbb{E}\begin{bmatrix} \hat{p}_P \\ \hat{p}_A \\ (\hat{p}_P-p)^2 \\ (\hat{p}_A - p)^2 \\ \sigma^2_{P,err} \\ \sigma^2_{A,err} \\ d_P \\ d_A \end{bmatrix} = \begin{bmatrix} p \\ p \\ 0.15^2 \\ 0.15^2 \\ 0 \\ 0 \\ 1 \\ 1 \end{bmatrix}.
-\end{equation}
+Throughout optimization, the augmented Lagrangian parameters $\eta$ and $c$, were updated after each epoch of 2,000 iterations(see Section \ref{methods_AL_opt}).  
+The optimization converged after six epochs (Fig. \ref{fig:SC5}).
 
-Since the maximum variance of a random variable bounded from 0 to 1 is the Bernoulli variance $\hat{p}(1-\hat{p})$, and the maximum squared difference between to variables bounded from 0 to 1 is 1, we do not need to control the second moment of these test statistics. 
-These variables are dynamical system states and can only exponentially decay (or saturate) to 0 (or 1), so the Bernoulli variance error and squared difference constraints cannot be satisfied exactly in simulation.  
-This is important to be mindful of when evaluating the convergence criteria.  
-Instead of using our usual hypothesis testing criteria for convergence to the emergent property, we set a slack variable threshold only for these technically infeasible emergent property values to 0.05.
-
-Using EPI to learn distributions of dynamical systems producing Bernoulli responses at a given rate (with small variance around that rate) was more challenging than expected.  
-There is a pathology in this optimization setup, where the learned distribution of weights is bimodal attributing a fraction $p$ of the samples to an expansive mode (which always sends $x_{LP}$ to 1), and a fraction $1-p$ to a decaying mode (which always sends $x_{LP}$ to 0).  
-This pathology was avoided using an inequality constraint prohibiting parameter samples that resulted in low variance of responses across noise.
+For EPI in Fig \label{fig:SC}C, we used a real NVP architecture with three coupling layers of affine transformations parameterized by two-layer neural networks of 50 units per layer.
+The initial distribution was a standard isotropic gaussian $z_0 \sim \mathcal{N}(\mathbf{0}, I)$ mapped to a support of $\mathbf{z}_i \in [-5, 5]$. 
+We used an augmented Lagrangian coefficient of $c_0 = 10^{2}$, a batch size $n=100$, set $\nu = 0.5$, and initialized $q_{\bm{\theta}}(\mathbf{z})$ to produce an isotropic gaussian with mean 0 and variance $2.5^2$.
+Accuracies were estimated over 200 trials of random gaussian noise, which was sampled independently for each drawn parameter $\mathbf{z}$ and each iteration of the EPI optimization.
 
 
-\begin{table}[h]
-\begin{tabular}{l|l|l|l|l}
-$\lambda$  & $\hat{p}$ & $q_{\bm{\theta}}(z)$ & $r$ & p-value \\ \hline
-$\lambda_{\text{task}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(60\%))$ & $1.24 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
-$\lambda_{\text{task}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(70\%))$ & $7.56 \times 10^{-01}$ & $p<10^{-4}$ \\ \hline
-$\lambda_{\text{task}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(80\%))$ & $4.59 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
-$\lambda_{\text{task}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(90\%))$ & $3.76 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.85]{figures/figSC1/figSC1.pdf}
+\end{center}
+\caption{\small (SC1): Connectivity parameters of EPI distributions versus task accuracies.  $\beta$ is slope coefficient of linear regression, $r$ is correlation, and $p$ is the two-tailed p value.
+}
+\label{fig:SC1}
+\end{figure}
 
-$\lambda_{\text{task}}$ & $\hat{p}_A$ & $q(z \mid \mathcal{B}(60\%))$ & $4.80 \times 10^{-02}$ & $p<.01$ \\ \hline
-$\lambda_{\text{task}}$ & $\hat{p}_A$ & $q(z \mid \mathcal{B}(70\%))$ & $2.08 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
-$\lambda_{\text{task}}$ & $\hat{p}_A$ & $q(z \mid \mathcal{B}(80\%))$ & $4.84 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
-$\lambda_{\text{task}}$ & $\hat{p}_A$ & $q(z \mid \mathcal{B}(90\%))$ & $4.25 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
+\begin{figure}
+\begin{center}
+\includegraphics[scale=1.3]{figures/figSC2/figSC2.pdf}
+\end{center}
+\caption{\small (SC2):  
+A. Invariant eigenvectors of connectivity matrix $W$.
+B. Eigenvalues of connectivities of EPI distribution versus task accuracies.}
+\label{fig:SC2}
+\end{figure}
 
-$\lambda_{\text{side}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(50\%))$ & $-7.57 \times 10^{-02}$ & $p<10^{-4}$  \\ \hline
-$\lambda_{\text{side}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(60\%))$ & $-6.73 \times 10^{-02}$ & $p<10^{-4}$  \\ \hline
-$\lambda_{\text{side}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(70\%))$ & $-4.86 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
-$\lambda_{\text{side}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(80\%))$ & $-1.43 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
-$\lambda_{\text{side}}$ & $\hat{p}_P$ & $q(z \mid \mathcal{B}(90\%))$ & $-1.93 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.6]{figures/figSC3/figSC3.pdf}
+\end{center}
+\caption{\small (SC3): 
+A. Connectitivy eigenvalues of EPI parameter distribution colored by Pro task accuracy. 
+B. Same for Anti task.
+}
+\label{fig:SC3}
+\end{figure}
 
-$\lambda_{\text{side}}$ & $\hat{p}_A$ & $q(z \mid \mathcal{B}(60\%))$ & $-7.60 \times 10^{-02}$ & $p<10^{-4}$  \\ \hline
-$\lambda_{\text{side}}$ & $\hat{p}_A$ & $q(z \mid \mathcal{B}(70\%))$ & $-2.73 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
-$\lambda_{\text{side}}$ & $\hat{p}_A$ & $q(z \mid \mathcal{B}(80\%))$ & $-2.74 \times 10^{-01}$ & $p<10^{-4}$  \\ \hline
-\end{tabular}
-\caption{\small Table of significant correlation values from Fig. \ref{fig:SC}E.}
-\end{table}
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.75]{figures/figSC4/figSC4.pdf}
+\end{center}
+\caption{\small (SC4):  Scatters of the effect of delay period inactivation in each task with task accuracy.  Plots are shown at an opto strength of 0.8.
+}
+\label{fig:SC4}
+\end{figure}
 
-For each accuracy level $p$, we ran EPI for 10 different random seeds  using an architecture of 10 planar flows with a  support of $z \in \mathbb{R}^8$.   
-We used an augmented Lagrangian coefficient of $c_0 = 10^2$, a batch size $n=300$, and set $\nu = 0.5$, and initialized $q_{\bm{\theta}}(z)$ to produce an isotropic Gaussian of zero mean with standard deviation $\sigma_{\text{init}} = 1$.
-The EPI distributions shown in Fig. \ref{fig:SC} are the converged distributions with maximum entropy across random seeds.
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.6]{figures/figSC5/figSC5.pdf}
+\end{center}
+\caption{\small (SC5): Caption...
+}
+\label{fig:SC5}
+\end{figure}
 
-We report significant correlations $r$ and their p-values from Figure \ref{fig:SC}E in Table 1.  
-Correlations were measured from 5,000 samples of $q_{\bm{\theta}}(z \mid \mathcal{B}(p))$ and p-values are reported for one-tailed tests, since we hypothesized a positive correlation between task accuracies $p_P$ or $p_A$ and $\lambda_{\text{task}}$, and a negative correlation between task accuracies $p_P$ and $p_A$ and $\lambda_{\text{side}}$.
 
 \subsubsection{Rank-1 RNN}\label{methods_LRRNN}
 Extensive research on random fully-connected recurrent neural networks has resulted in foundational theories of their activity \cite{sompolinsky1988chaos, brunel2000dynamics}.
@@ -1489,12 +1690,12 @@ We used the same theoretical equations and task setups described in their study.
 
 %TODO explain the density network architectures used.
 
-\begin{figure}
-\begin{center}
-\includegraphics[scale=0.5]{figures/figS5/figS5.pdf}
-\end{center}
-{\small Fig. S5: A. EPI for rank-1 networks doing noisy discrimination. B. EPI for rank-2 networks doing context-dependent discrimination.  See \cite{mastrogiuseppe2018linking} for theoretical equations and task description.}
-\end{figure}
+%\begin{figure}
+%\begin{center}
+%\includegraphics[scale=0.5]{figures/figS5/figS5.pdf}
+%\end{center}
+%{\small Fig. S5: A. EPI for rank-1 networks doing noisy discrimination. B. EPI for rank-2 networks doing context-dependent discrimination.  See \cite{mastrogiuseppe2018linking} for theoretical equations and task description.}
+%\end{figure}
 
 \end{document}
 

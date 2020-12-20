@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  19 DEC 2020 16:49
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  20 DEC 2020 10:49
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -590,7 +590,11 @@ Package: bm 2016/02/27 v1.2a Bold Symbol Support (DPC/FMi)
 LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 142.
 LaTeX Info: Redefining \bm on input line 208.
 )
-(./Bittner_eLife2020.aux)
+(./Bittner_eLife2020.aux
+
+LaTeX Warning: Label `fig:SC' multiply defined.
+
+)
 \openout1 = `Bittner_eLife2020.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 37.
@@ -687,48 +691,45 @@ File: figures/fig1/fig1.pdf Graphic file (type pdf)
 <use figures/fig1/fig1.pdf>
 Package pdftex.def Info: figures/fig1/fig1.pdf used on input line 194.
 (pdftex.def)             Requested size: 468.07184pt x 217.54419pt.
- [5] [6 <./figures/fig1/fig1.pdf>]
-
-LaTeX Warning: Reference `eq:EP' on page 7 undefined on input line 280.
-
-[7] <figures/fig2/fig2.pdf, id=151, 872.81883pt x 706.44328pt>
+ [5] [6 <./figures/fig1/fig1.pdf>] [7]
+<figures/fig2/fig2.pdf, id=151, 872.81883pt x 706.44328pt>
 File: figures/fig2/fig2.pdf Graphic file (type pdf)
 
 <use figures/fig2/fig2.pdf>
-Package pdftex.def Info: figures/fig2/fig2.pdf used on input line 306.
+Package pdftex.def Info: figures/fig2/fig2.pdf used on input line 305.
 (pdftex.def)             Requested size: 471.31516pt x 381.4737pt.
 
-Overfull \hbox (1.8447pt too wide) in paragraph at lines 306--307
+Overfull \hbox (1.8447pt too wide) in paragraph at lines 305--306
  [] 
  []
 
 [8] [9 <./figures/fig2/fig2.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 352--354
+Underfull \hbox (badness 10000) in paragraph at lines 351--353
 
  []
 
 [10]
-Underfull \hbox (badness 1132) in paragraph at lines 369--369
+Underfull \hbox (badness 1132) in paragraph at lines 368--368
 []\OT1/cmr/m/n/10.95 Figure 3: Con-firm-ing
  []
 
 
-Underfull \hbox (badness 1852) in paragraph at lines 369--369
+Underfull \hbox (badness 1852) in paragraph at lines 368--368
 \OT1/cmr/m/n/10.95 ses in V1. A. Dif-
  []
 
 
-Underfull \hbox (badness 4266) in paragraph at lines 369--369
+Underfull \hbox (badness 4266) in paragraph at lines 368--368
 \OT1/cmr/m/n/10.95 changes in in-di-vid-ual
  []
 
 
-Underfull \hbox (badness 3930) in paragraph at lines 369--369
+Underfull \hbox (badness 3930) in paragraph at lines 368--368
 \OT1/cmr/m/n/10.95 La-bels H1, H2, H3,
  []
 
 
-Underfull \hbox (badness 4518) in paragraph at lines 369--369
+Underfull \hbox (badness 4518) in paragraph at lines 368--368
 \OT1/cmr/m/n/10.95 curves con-firm which
  []
 
@@ -736,89 +737,89 @@ Underfull \hbox (badness 4518) in paragraph at lines 369--369
 File: figures/fig3/fig3.pdf Graphic file (type pdf)
 
 <use figures/fig3/fig3.pdf>
-Package pdftex.def Info: figures/fig3/fig3.pdf used on input line 369.
+Package pdftex.def Info: figures/fig3/fig3.pdf used on input line 368.
 (pdftex.def)             Requested size: 175.36449pt x 319.2558pt.
 
-Underfull \hbox (badness 1132) in paragraph at lines 369--369
+Underfull \hbox (badness 1132) in paragraph at lines 368--368
 []\OT1/cmr/m/n/10.95 Figure 3: Con-firm-ing
  []
 
 
-Underfull \hbox (badness 1852) in paragraph at lines 369--369
+Underfull \hbox (badness 1852) in paragraph at lines 368--368
 \OT1/cmr/m/n/10.95 ses in V1. A. Dif-
  []
 
 
-Underfull \hbox (badness 4266) in paragraph at lines 369--369
+Underfull \hbox (badness 4266) in paragraph at lines 368--368
 \OT1/cmr/m/n/10.95 changes in in-di-vid-ual
  []
 
 
-Underfull \hbox (badness 3930) in paragraph at lines 369--369
+Underfull \hbox (badness 3930) in paragraph at lines 368--368
 \OT1/cmr/m/n/10.95 La-bels H1, H2, H3,
  []
 
 
-Underfull \hbox (badness 4518) in paragraph at lines 369--369
+Underfull \hbox (badness 4518) in paragraph at lines 368--368
 \OT1/cmr/m/n/10.95 curves con-firm which
  []
 
 File: figures/fig3/fig3.pdf Graphic file (type pdf)
 <use figures/fig3/fig3.pdf>
-Package pdftex.def Info: figures/fig3/fig3.pdf used on input line 369.
+Package pdftex.def Info: figures/fig3/fig3.pdf used on input line 368.
 (pdftex.def)             Requested size: 175.36449pt x 319.2558pt.
 
-Underfull \hbox (badness 1132) in paragraph at lines 369--369
+Underfull \hbox (badness 1132) in paragraph at lines 368--368
 []\OT1/cmr/m/n/10.95 Figure 3: Con-firm-ing
  []
 
 
-Underfull \hbox (badness 1852) in paragraph at lines 369--369
+Underfull \hbox (badness 1852) in paragraph at lines 368--368
 \OT1/cmr/m/n/10.95 ses in V1. A. Dif-
  []
 
 
-Underfull \hbox (badness 4266) in paragraph at lines 369--369
+Underfull \hbox (badness 4266) in paragraph at lines 368--368
 \OT1/cmr/m/n/10.95 changes in in-di-vid-ual
  []
 
 
-Underfull \hbox (badness 3930) in paragraph at lines 369--369
+Underfull \hbox (badness 3930) in paragraph at lines 368--368
 \OT1/cmr/m/n/10.95 La-bels H1, H2, H3,
  []
 
 
-Underfull \hbox (badness 4518) in paragraph at lines 369--369
+Underfull \hbox (badness 4518) in paragraph at lines 368--368
 \OT1/cmr/m/n/10.95 curves con-firm which
  []
 
 File: figures/fig3/fig3.pdf Graphic file (type pdf)
 <use figures/fig3/fig3.pdf>
-Package pdftex.def Info: figures/fig3/fig3.pdf used on input line 369.
+Package pdftex.def Info: figures/fig3/fig3.pdf used on input line 368.
 (pdftex.def)             Requested size: 175.36449pt x 319.2558pt.
  [11 <./figures/fig3/fig3.pdf>] [12]
-<figures/fig4/fig4.pdf, id=289, 979.47026pt x 888.73131pt>
+<figures/fig4/fig4.pdf, id=289, 979.47026pt x 903.00963pt>
 File: figures/fig4/fig4.pdf Graphic file (type pdf)
 
 <use figures/fig4/fig4.pdf>
-Package pdftex.def Info: figures/fig4/fig4.pdf used on input line 415.
-(pdftex.def)             Requested size: 489.73393pt x 444.36456pt.
+Package pdftex.def Info: figures/fig4/fig4.pdf used on input line 467.
+(pdftex.def)             Requested size: 470.14038pt x 433.4397pt.
 
-Overfull \hbox (20.26347pt too wide) in paragraph at lines 415--416
+Overfull \hbox (0.66992pt too wide) in paragraph at lines 467--468
  [] 
  []
 
 [13] [14 <./figures/fig4/fig4.pdf>]
-Overfull \hbox (5.3038pt too wide) in paragraph at lines 451--454
+Overfull \hbox (5.3038pt too wide) in paragraph at lines 509--512
 \OT1/cmr/m/n/10.95 So far, each model we have stud-ied was de-signed from fun-d
 a-men-tal bio-phys-i-cal prin-ci-ples, genetically-
  []
 
-[15] <figures/fig5/fig5.pdf, id=381, 577.51556pt x 668.6822pt>
+[15] <figures/fig5/fig5.pdf, id=375, 577.51556pt x 668.6822pt>
 File: figures/fig5/fig5.pdf Graphic file (type pdf)
 
 <use figures/fig5/fig5.pdf>
-Package pdftex.def Info: figures/fig5/fig5.pdf used on input line 471.
+Package pdftex.def Info: figures/fig5/fig5.pdf used on input line 529.
 (pdftex.def)             Requested size: 433.1356pt x 501.5104pt.
  [16] [17 <./figures/fig5/fig5.pdf>] [18] [19]
 [20] (./Bittner_eLife2020.bbl [21] [22] [23] [24]
@@ -827,7 +828,7 @@ Underfull \hbox (badness 2735) in paragraph at lines 273--276
 l of v1. avail-able from:
  []
 
-[25] [26] [27]
+[25] [26]
 LaTeX Font Info:    Try loading font information for OMS+cmr on input line 466.
 
  (/usr/local/texlive/2016/texmf-dist/tex/latex/base/omscmr.fd
@@ -837,71 +838,118 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/it' in size <10.95> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 466.
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 466.
-)
-[28] [29] [30] [31] [32] [33] [34] [35]
-<figures/figS1/figS1.pdf, id=500, 826.92036pt x 674.18274pt>
-File: figures/figS1/figS1.pdf Graphic file (type pdf)
 
-<use figures/figS1/figS1.pdf>
-Package pdftex.def Info: figures/figS1/figS1.pdf used on input line 917.
+[27]) [28] [29] [30] [31] [32] [33] [34] [35]
+<figures/figLDS1/figLDS1.pdf, id=495, 826.92036pt x 674.18274pt>
+File: figures/figLDS1/figLDS1.pdf Graphic file (type pdf)
+
+<use figures/figLDS1/figLDS1.pdf>
+Package pdftex.def Info: figures/figLDS1/figLDS1.pdf used on input line 975.
 (pdftex.def)             Requested size: 479.61415pt x 391.02626pt.
 
-Overfull \hbox (10.14369pt too wide) in paragraph at lines 917--918
+Overfull \hbox (10.14369pt too wide) in paragraph at lines 975--976
  [] 
  []
 
-<figures/figS2/figS2.pdf, id=501, 839.39096pt x 411.52243pt>
-File: figures/figS2/figS2.pdf Graphic file (type pdf)
+<figures/figLDS2/figLDS2.pdf, id=496, 839.39096pt x 411.52243pt>
+File: figures/figLDS2/figLDS2.pdf Graphic file (type pdf)
 
-<use figures/figS2/figS2.pdf>
-Package pdftex.def Info: figures/figS2/figS2.pdf used on input line 948.
+<use figures/figLDS2/figLDS2.pdf>
+Package pdftex.def Info: figures/figLDS2/figLDS2.pdf used on input line 1007.
 (pdftex.def)             Requested size: 419.69446pt x 205.76071pt.
- [36] [37 <./figures/figS1/figS1.pdf>]
-<figures/figS3/figS3.pdf, id=544, 869.19629pt x 341.97662pt>
-File: figures/figS3/figS3.pdf Graphic file (type pdf)
+ [36] [37 <./figures/figLDS1/figLDS1.pdf>]
+<figures/figLDS3/figLDS3.pdf, id=540, 869.19629pt x 341.97662pt>
+File: figures/figLDS3/figLDS3.pdf Graphic file (type pdf)
 
-<use figures/figS3/figS3.pdf>
-Package pdftex.def Info: figures/figS3/figS3.pdf used on input line 977.
+<use figures/figLDS3/figLDS3.pdf>
+Package pdftex.def Info: figures/figLDS3/figLDS3.pdf used on input line 1037.
 (pdftex.def)             Requested size: 434.59708pt x 170.98788pt.
- [38 <./figures/figS2/figS2.pdf>] [39 <./figures/figS3/figS3.pdf>] [40]
-<figures/figS4/figS4.pdf, id=606, 998.45122pt x 289.47447pt>
-File: figures/figS4/figS4.pdf Graphic file (type pdf)
+ [38 <./figures/figLDS2/figLDS2.pdf>] [39 <./figures/figLDS3/figLDS3.pdf>] [40]
 
-<use figures/figS4/figS4.pdf>
-Package pdftex.def Info: figures/figS4/figS4.pdf used on input line 1166.
-(pdftex.def)             Requested size: 599.07536pt x 173.686pt.
+<figures/figSTG1/figSTG1.pdf, id=601, 756.75925pt x 257.17479pt>
+File: figures/figSTG1/figSTG1.pdf Graphic file (type pdf)
 
-Overfull \hbox (129.6049pt too wide) in paragraph at lines 1166--1167
- [] 
- []
-
-[41] [42 <./figures/figS4/figS4.pdf>] [43]
-Underfull \hbox (badness 10000) in paragraph at lines 1277--1282
+<use figures/figSTG1/figSTG1.pdf>
+Package pdftex.def Info: figures/figSTG1/figSTG1.pdf used on input line 1227.
+(pdftex.def)             Requested size: 454.05904pt x 154.30605pt.
+ [41] [42 <./figures/figSTG1/figSTG1.pdf>]
+[43]
+Underfull \hbox (badness 10000) in paragraph at lines 1337--1342
  
  []
 
-[44] [45] [46] [47] [48] [49]
-Overfull \hbox (9.58643pt too wide) in paragraph at lines 1458--1458
+[44] [45] [46]
+
+pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./figures/figSC1/figSC1.pdf)
+: PDF inclusion: found PDF version <1.6>, but at most version <1.5> allowed
+<figures/figSC1/figSC1.pdf, id=653, 568.37442pt x 297.73936pt>
+File: figures/figSC1/figSC1.pdf Graphic file (type pdf)
+
+<use figures/figSC1/figSC1.pdf>
+Package pdftex.def Info: figures/figSC1/figSC1.pdf used on input line 1576.
+(pdftex.def)             Requested size: 483.12054pt x 253.07964pt.
+
+Overfull \hbox (13.65009pt too wide) in paragraph at lines 1576--1577
+ [] 
+ []
+
+
+
+pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./figures/figSC2/figSC2.pdf)
+: PDF inclusion: found PDF version <1.6>, but at most version <1.5> allowed
+<figures/figSC2/figSC2.pdf, id=654, 349.77074pt x 244.87785pt>
+File: figures/figSC2/figSC2.pdf Graphic file (type pdf)
+
+<use figures/figSC2/figSC2.pdf>
+Package pdftex.def Info: figures/figSC2/figSC2.pdf used on input line 1585.
+(pdftex.def)             Requested size: 454.7019pt x 318.34116pt.
+
+
+pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./figures/figSC3/figSC3.pdf)
+: PDF inclusion: found PDF version <1.6>, but at most version <1.5> allowed
+<figures/figSC3/figSC3.pdf, id=655, 744.8608pt x 322.81505pt>
+File: figures/figSC3/figSC3.pdf Graphic file (type pdf)
+
+<use figures/figSC3/figSC3.pdf>
+Package pdftex.def Info: figures/figSC3/figSC3.pdf used on input line 1595.
+(pdftex.def)             Requested size: 446.91992pt x 193.69052pt.
+
+
+pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./figures/figSC4/figSC4.pdf)
+: PDF inclusion: found PDF version <1.6>, but at most version <1.5> allowed
+<figures/figSC4/figSC4.pdf, id=656, 385.03548pt x 380.48248pt>
+File: figures/figSC4/figSC4.pdf Graphic file (type pdf)
+
+<use figures/figSC4/figSC4.pdf>
+Package pdftex.def Info: figures/figSC4/figSC4.pdf used on input line 1606.
+(pdftex.def)             Requested size: 288.7759pt x 285.36115pt.
+
+<figures/figSC5/figSC5.pdf, id=657, 756.75925pt x 257.17479pt>
+File: figures/figSC5/figSC5.pdf Graphic file (type pdf)
+
+<use figures/figSC5/figSC5.pdf>
+Package pdftex.def Info: figures/figSC5/figSC5.pdf used on input line 1615.
+(pdftex.def)             Requested size: 454.05904pt x 154.30605pt.
+ [47] [48 <./figures/figSC1/figSC1.pdf>]
+[49 <./figures/figSC2/figSC2.pdf> <./figures/figSC3/figSC3.pdf
+
+pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./figures/figSC3/figSC3.pdf)
+: PDF inclusion: multiple pdfs with page group included in a single page
+>] [50 <./figures/figSC4/figSC4.pdf> <./figures/figSC5/figSC5.pdf>]
+Overfull \hbox (9.58643pt too wide) in paragraph at lines 1659--1659
 [] 
  []
 
-[50] <figures/figS5/figS5.pdf, id=671, 604.34682pt x 1095.71358pt>
-File: figures/figS5/figS5.pdf Graphic file (type pdf)
+[51] [52] (./Bittner_eLife2020.aux)
 
-<use figures/figS5/figS5.pdf>
-Package pdftex.def Info: figures/figS5/figS5.pdf used on input line 1494.
-(pdftex.def)             Requested size: 302.17267pt x 547.85545pt.
- [51] [52 <./figures/figS5/figS5.pdf>]
-(./Bittner_eLife2020.aux)
-
-LaTeX Warning: There were undefined references.
+LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 14863 strings out of 493014
- 285817 string characters out of 6133351
- 331632 words of memory out of 5000000
- 18072 multiletter control sequences out of 15000+600000
+ 14893 strings out of 493014
+ 286530 string characters out of 6133351
+ 330786 words of memory out of 5000000
+ 18094 multiletter control sequences out of 15000+600000
  17476 words of font info for 65 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  62i,24n,56p,2950b,436s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -929,10 +977,10 @@ ive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texliv
 e/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive
 /2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/tex
 live/2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Bittner_eLife2020.pdf (52 pages, 5425433 bytes).
+Output written on Bittner_eLife2020.pdf (52 pages, 8068845 bytes).
 PDF statistics:
- 775 PDF objects out of 1000 (max. 8388607)
- 359 compressed objects within 4 object streams
+ 877 PDF objects out of 1000 (max. 8388607)
+ 418 compressed objects within 5 object streams
  0 named destinations out of 1000 (max. 500000)
- 63 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 83 words of extra memory for PDF output out of 10000 (max. 10000000)
 
