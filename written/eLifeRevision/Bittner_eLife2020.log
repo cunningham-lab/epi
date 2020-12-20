@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  20 DEC 2020 10:49
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  20 DEC 2020 10:51
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -936,7 +936,7 @@ Package pdftex.def Info: figures/figSC5/figSC5.pdf used on input line 1615.
 pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./figures/figSC3/figSC3.pdf)
 : PDF inclusion: multiple pdfs with page group included in a single page
 >] [50 <./figures/figSC4/figSC4.pdf> <./figures/figSC5/figSC5.pdf>]
-Overfull \hbox (9.58643pt too wide) in paragraph at lines 1659--1659
+Overfull \hbox (9.58643pt too wide) in paragraph at lines 1661--1661
 [] 
  []
 
@@ -977,7 +977,7 @@ ive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texliv
 e/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive
 /2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/tex
 live/2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Bittner_eLife2020.pdf (52 pages, 8068845 bytes).
+Output written on Bittner_eLife2020.pdf (52 pages, 8069077 bytes).
 PDF statistics:
  877 PDF objects out of 1000 (max. 8388607)
  418 compressed objects within 5 object streams
