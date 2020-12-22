@@ -48,7 +48,7 @@ model = Model(name, parameters)
 
 dt = 0.0005
 T = 150
-N = 50
+N = 100
 
 fano = get_Fano_sigma(alpha, W_mat, h, N=N, dt=dt, T=T, T_ss=T-50, mu=ff_mean)
 model.set_eps(fano)
@@ -66,9 +66,9 @@ q_theta, opt_data, epi_path, failed = model.epi(
     post_affine=False,
     batch_norm=False,
     bn_momentum=0.0,
-    K=2,
+    K=6,
     N=M,
-    num_iters=200,
+    num_iters=1000,
     lr=1e-3,
     c0=c0,
     beta=beta,
@@ -76,7 +76,7 @@ q_theta, opt_data, epi_path, failed = model.epi(
     random_seed=random_seed,
     verbose=True,
     stop_early=True,
-    log_rate=1,
+    log_rate=100,
     save_movie_data=True,
 )
 
