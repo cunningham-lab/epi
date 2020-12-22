@@ -18,6 +18,7 @@ from epi.util import (
     get_hash,
     set_dir_index,
     get_dir_index,
+    dbg_check, 
 )
 import matplotlib.pyplot as plt
 from matplotlib import animation
@@ -411,9 +412,23 @@ class Model(object):
             H_grad = tape.gradient(neg_H, params)
             lagrange_grad = tape.gradient(lagrange_dot, params)
             aug_grad = unbiased_aug_grad(R1s, R2, params, tape)
+            """dbg_check(cost, 'cost')
+            for ii, (p, g1, g2, g3) in enumerate(zip(params, H_grad, lagrange_grad, aug_grad)):
+                dbg_check(p, '%d param' % ii) 
+                dbg_check(g1, '%d g1' % ii) 
+                dbg_check(g2, '%d g2' % ii) 
+                dbg_check(g3, '%d g3' % ii) """
+
             gradients = [
                 g1 + g2 + c * g3 for g1, g2, g3 in zip(H_grad, lagrange_grad, aug_grad)
             ]
+            MAX_NORM = 1e10
+            gradients = [tf.clip_by_norm(g, MAX_NORM) for g in gradients]
+            """for ii, g in enumerate(gradients):
+                dbg_check(g, '%d g' % ii) 
+                print('max', tf.reduce_max(g))
+                print('min', tf.reduce_min(g))"""
+
             optimizer.apply_gradients(zip(gradients, params))
             return cost, H, R, z, log_q_z
 
@@ -1406,7 +1421,7 @@ class Distribution(object):
         del z  # Get rid of dummy variable.
         return hess_z.numpy()
 
-    #@tf.function
+    @tf.function
     def _hessian(self, z):
         with tf.GradientTape(persistent=True) as tape:
             log_q_z = self.nf.trans_dist.log_prob(z)

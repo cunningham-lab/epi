@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import os
 from scipy.io import loadmat
+from epi.util import dbg_check
 #import tensorflow_probability as tfp
 
 neuron_inds = {'E':0, 'P':1, 'S':2, 'V':3}
@@ -19,6 +20,12 @@ def euler_sim_stoch(f, x_init, dt, T):
         x = x + f(x) * dt
     return x[:, :, :, 0]
 
+def tf_ceil(x, max):
+    return max-tf.nn.relu(max-x)
+
+def tf_floor(x, min):
+    return min+tf.nn.relu(x-min)
+
 def euler_sim_stoch_traj(f, x_init, dt, T):
     x = x_init
     xs = [x_init]
@@ -27,6 +34,19 @@ def euler_sim_stoch_traj(f, x_init, dt, T):
         xs.append(x)
     return tf.concat(xs, axis=3)
 
+def euler_sim_stoch_traj_bound(f, x_init, dt, T, min=None, max=None):
+    x = x_init
+    xs = [x_init]
+    for t in range(T):
+        x = x + f(x) * dt
+        if min is not None:
+            x = tf_floor(x, min)
+        if max is not None:
+            x = tf_ceil(x, max)
+        xs.append(x)
+    return tf.concat(xs, axis=3)
+
+ind = 1070
 ind = 1070
 W_mat = load_SSSN_variable('W', ind=ind)
 HB = load_SSSN_variable('hb', ind=ind)
@@ -44,8 +64,7 @@ tau_noise = tau_noise[None,None,:,None]
 
 # Dim is [M,N,|r|,T]
 def SSSN_sim_traj(sigma_eps, W_mat, N=1, dt=0.0005, T=150):
-    sigma_eps = sigma_eps*np.array([1., 1., 1., 1.], np.float32)
-    sigma_eps = sigma_eps[None,None,:,None]
+    sigma_eps = sigma_eps[:,None,:,None]
     def _SSSN_sim_traj(h):
         h = h[:,None,:,None]
         W = W_mat[None,None,:,:]
@@ -66,6 +85,7 @@ def SSSN_sim_traj(sigma_eps, W_mat, N=1, dt=0.0005, T=150):
             return tf.concat((dx, deps), axis=2)
 
         x_t = euler_sim_stoch_traj(f, y_init, dt, T)
+        #x_t = euler_sim_stoch_traj_bound(f, y_init, dt, T, None, 1000)
         return x_t
     return _SSSN_sim_traj
 
@@ -136,14 +156,19 @@ def get_drdh(alpha, eps, W_mat, N=1, dt=0.0005, T=150, delta_step=0.01):
         return T_x
     return _drdh
 
-def get_Fano(alpha, eps, W_mat, N=100, dt=0.0005, T=150, T_ss=100, mu=0.01, k=100.):
+FANO_EPS = 1e-6
+def get_Fano(alpha, sigma_eps, W_mat, N=100, dt=0.0005, T=150, T_ss=100, mu=0.01, k=100.):
     alpha_ind = neuron_inds[alpha]
-    sssn_sim_traj = SSSN_sim_traj(eps, W_mat, N=N, dt=dt, T=T)
+    sssn_sim_traj = SSSN_sim_traj(sigma_eps, W_mat, N=N, dt=dt, T=T)
     def Fano(h):
         x_t = k*sssn_sim_traj(h)[:,:,alpha_ind,T_ss:]
+        #dbg_check(x_t, 'x_t')
         _means = tf.math.reduce_mean(x_t, axis=2)
         _vars = tf.square(tf.math.reduce_std(x_t, axis=2))
-        fano = _vars / _means 
+        #dbg_check(_means, 'means')
+        #dbg_check(_vars, 'vars')
+        fano = _vars / (_means+FANO_EPS) 
+        #dbg_check(fano, 'fano')
         vars_mean = tf.reduce_mean(fano, axis=1)
         T_x = tf.stack((vars_mean, tf.square(vars_mean - mu)), axis=1)
         return T_x
