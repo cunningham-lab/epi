@@ -8,7 +8,8 @@ from epi.SSSN import SSSN_sim, SSSN_sim, load_SSSN_variable, get_Fano_sigma
 # Parse script command-line parameters.
 parser = argparse.ArgumentParser()
 parser.add_argument('--alpha', type=str, default='E') # neuron type
-parser.add_argument('--lim', type=float, default=1.) # neuron type
+parser.add_argument('--ind', type=int, default=62) # neuron type
+parser.add_argument('--lim', type=float, default=None) # neuron type
 parser.add_argument('--ff_mean', type=float, default=1.) # neuron type
 parser.add_argument('--ff_std', type=float, default=0.025) # neuron type
 parser.add_argument('--beta', type=float, default=4.) # aug lag hp
@@ -17,6 +18,7 @@ parser.add_argument('--random_seed', type=int, default=1)
 args = parser.parse_args()
 
 alpha = args.alpha
+ind = args.ind
 lim = args.lim
 ff_mean = args.ff_mean
 ff_std = args.ff_std
@@ -24,7 +26,14 @@ beta = args.beta
 c0 = 10.**args.logc0
 random_seed = args.random_seed
 
-ind = 62
+if lim is not None:
+    if ind == 49:
+        lim = 0.05
+    elif ind == 62:
+        lim = 0.005
+    else:
+        raise NotImplementedError()
+
 contrast = 0.5
 W_mat = load_SSSN_variable('W', ind=ind)
 hb = load_SSSN_variable('hb', ind=ind).numpy()
@@ -38,11 +47,11 @@ M = 100
 # 1. Specify the V1 model for EPI.
 D = 4
 lb = np.zeros((D,))
-ub = 0.005*np.ones((D,))
+ub = lim*np.ones((D,))
 sigma_eps = Parameter("sigma_eps", D, lb=lb, ub=ub)
 
 # Define model
-name = "SSSN_ff_sigma_%s_%.2E_%.2E" % (alpha, ff_mean, ff_std)
+name = "SSSN_ff_sigma_%s_%.2E_%.2E_ind=%d" % (alpha, ff_mean, ff_std, ind)
 parameters = [sigma_eps]
 model = Model(name, parameters)
 
