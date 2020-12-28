@@ -110,7 +110,8 @@ def SSSN_sim_traj_sigma(h, W_mat, N=1, dt=0.0005, T=150):
 
             return tf.concat((dx, deps), axis=2)
 
-        x_t = euler_sim_stoch_traj(f, y_init, dt, T)
+        #x_t = euler_sim_stoch_traj(f, y_init, dt, T)
+        x_t = euler_sim_stoch_traj_bound(f, y_init, dt, T, None, 1000)
         return x_t
     return _SSSN_sim_traj
 
