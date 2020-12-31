@@ -56,11 +56,11 @@ Peculiarities of SNPE (density estimation approach, two deep networks) make scal
 
 \textbf{Rank-2 RNN}: The model we use is a rank-2 RNN with N neurons:
 \begin{equation*}
-U = \begin{bmatrix} u_1 & u_2 \end{bmatrix}, V = \begin{bmatrix} v_1 & v_2 \end{bmatrix}, J = UV^\top, \text{\hspace{2cm}}
-u_1, u_2, v_1, v_2 \in \left[-1, 1 \right]^N
-\end{equation*}
-\begin{equation*}
+\begin{split}
+U = \begin{bmatrix} u_1 & u_2 \end{bmatrix}, V = \begin{bmatrix} v_1 & v_2 \end{bmatrix} \\ J = UV^\top + g\chi \\
+u_1, u_2, v_1, v_2 \in \left[-1, 1 \right]^N,~~ g = 0.01 \\
 \tau \dot{r} = -r + Jr
+\end{split}
 \end{equation*}
 From \cite{bondanelli2020coding}, we know necessary and sufficient conditions for RNNs to exhibit stable amplification.  These two conditions are on the maximal real eigenvalue of $J$ ($\text{real}(\lambda_1)$) and the maximal eigenvalue of $J^s = \frac{J + J\top}{2} (\lambda^s_1)$:
 \[\text{real}(\lambda_1) < 1, \lambda^s_1 > 1\]
@@ -79,26 +79,35 @@ Networks with $\text{real}(\lambda_1) = 0.5 \pm 0.5$ and $\lambda_1^s = 1.5 \pm 
 $\epsilon = 0.5$, $l2$ distance, and  $x_0 = \begin{bmatrix} \text{real}(\lambda_1) \\ \lambda^s_1 \end{bmatrix} = \begin{bmatrix} 0.5 \\ 1.5 \end{bmatrix}$
 \end{center}
 
-\clearpage
-
 \section{Results}
 SMC-ABC was run with \href{https://pyabc.readthedocs.io/en/latest/index.html}{pyabc} package.  SNPE was run with \href{http://www.mackelab.org/delfi/}{delfi} package.  EPI was run with revision branch of \href{https://github.com/cunningham-lab/epi/tree/revision}{epi} package.  All methods use a uniform prior form -1 to 1 for each parameter.
 
 \begin{figure}[h]
 \begin{center}
-\includegraphics[scale=.4]{epi_both.png} \\
+\includegraphics[scale=.5]{figs/epi_both.png} \\
 \end{center}
 \caption{\small EPI scales with $z$ to high dimensions. 
-Square - algorithm never converged across all experiments.
 Convergence definitions: 
 EPI (blue) - satisfies all moment constraints, 
-SNPE (orange)- produces at least 1/10,000 parameter samples in the bounds of emergent property (mean +- 0.5), 
+SNPE (orange)- produces at least 2/$n_{\text{train}}$ parameter samples are in the bounds of emergent property (mean +- 0.5), 
 and SMC-ABC (red) - 100 particles with $\epsilon < 0.5$ are produced.}
 \end{figure}
 
+\textbf{Figure 1 points}:
+\begin{enumerate}
+\item EPI is capable of scaling to high dimensional parameter spaces.
+\item SMC has many hyperparameters, of which pyABC selects automatically by running some initial diagnostics upon initialization.
+In concurrence with the literacture, SMC-ABC fails to converge around 25-30 dimensions, since it's proposal samples never get close enough to the target statistics.
+\item We searched over many SNPE hyperparameter choices: $n_{\text{train}} \in [2,000, 10,000, 100,000]$ is the number of simulations run per training epoch, and $n_{\text{mades}} \in [2, 3]$ is the number of masked autoregressive density estimators in the deep parameter distribution architecture.  
+The greater $n_{\text{train}}$, the longer each epoch will take, but the more likely SNPE may converge during that epoch.
+Greater $n_{\text{mades}}$ increases the flexibility of the deep parameter distribution of SNPE, but slows optimization.
+For the timing plot, we show the fastest among all of these choices, and for the convergence plot, we show the best convergence among all of these choices.
+During optimization, we used $n_{\text{atom}}$=100 atomic proposals as is recommended.
+\end{enumerate}
+
 \begin{figure}[h]
 \begin{center}
-\includegraphics[scale=.3]{EPI_scaling3.png}
+\includegraphics[scale=.75]{figs/StableAmplification_convergence.pdf}
 \caption{\small Emergent property fidelity.  Top row: Posterior predictive distributions of EPI (blue), SNPE (orange), and SMC-ABC (red). 
 Gray star indicates emergent property mean, and gray dashed lines indicate two standard deviations corresponding to the variance constraint.
 For $N <= 6$ where SMC-ABC converges, samples are not diverse (path degeneracies).  
@@ -108,6 +117,13 @@ Almost all EPI networks, few SNPE networks, and all SMC-ABC networks exhibit sta
 There is little variation in SMC-ABC network simulations.}
 \end{center}
 \end{figure}
+
+\textbf{Figure 2 points}:
+\begin{enumerate}
+\item EPI consistently produces the same distribution posterior predictive independent of the dimensionality.
+\item SMC produces a limited variety of parameters due to the nature of its proposal generation algorithm, yet all parameters obtained produce stable amplification.
+\item SNPE's posterior predictive distribution is not necessarily close to the conditioning point, and is very dependent on dimensionality.
+\end{enumerate}
 
 \bibliography{epi_scaling}
 \bibliographystyle{unsrt}
