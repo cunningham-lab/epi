@@ -39,16 +39,17 @@
 
 \thispagestyle{plain}
 {\Large Interrogating theoretical models of neural computation with deep inference} \\
-Sean R. Bittner$^{1}$, Agostina Palmigiano$^{1}$, Alex T. Piet$^{2,3}$, Chunyu A. Duan$^{4}$, Carlos D. Brody$^{2,3,5}$, \\
-Kenneth D. Miller$^{1}$, and John P. Cunningham$^{6}$.
+Sean R. Bittner$^{1}$, Agostina Palmigiano$^{1}$, Alex T. Piet$^{2,3,4}$, Chunyu A. Duan$^{5}$, Carlos D. Brody$^{2,3,6}$, \\
+Kenneth D. Miller$^{1}$, and John P. Cunningham$^{7}$.
 
 {\small
 $^{1}$Department of Neuroscience, Columbia University, \\
 $^{2}$Princeton Neuroscience Institute, \\
 $^{3}$Princeton University, \\
-$^{4}$Institute of Neuroscience, Chinese Academy of Sciences, \\
-$^{5}$Howard Hughes Medical Institute, \\
-$^{6}$Department of Statistics, Columbia University
+$^{4}$Allen Institute for Brain Science, \\
+$^{5}$Institute of Neuroscience, Chinese Academy of Sciences, \\
+$^{6}$Howard Hughes Medical Institute, \\
+$^{7}$Department of Statistics, Columbia University
 }
 
 \linenumbers
@@ -60,10 +61,11 @@ When analytic derivation of the relationship between model parameters and comput
 %Historically, the gold standard has been to analytically derive the relationship between model parameters and computational properties.  
 %However, this enterprise quickly becomes infeasible as biologically realistic constraints are included into the model increasing its complexity, often resulting in \emph{ad hoc} approaches to understanding the relationship between model and computation.
 We bring the use of deep generative models for probabilistic inference to bear on this problem, learning distributions of parameters that produce the specified properties of computation.
-By learning parameter distributions that produce computations -- an emergent property, we introduce a novel methodology for exploratory analyses and hypothesis testing that is particularly well-suited to the stochastic dynamical systems models predominant in our field of theoretical neuroscience.
+By learning parameter distributions that produce computations -- an emergent property, we introduce a novel methodology that is particularly well-suited to the stochastic dynamical systems models predominant in our field of theoretical neuroscience.
 %Importantly, the techniques we introduce offer a principled means to understand the implications of model parameter choices on computational properties of interest.  
 We motivate this methodology with a worked example analyzing sensitivity in the stomatogastric ganglion.  
-We then use it to go beyond linear theory of neuron-type input-responsivity in a model of primary visual cortex, gain a mechanistic understanding of rapid task switching in superior colliculus models, and attribute error to connectivity properties in recurrent neural networks solving a simple mathematical task.
+%We then use it to go beyond linear theory of neuron-type input-responsivity in a model of primary visual cortex, gain a mechanistic understanding of rapid task switching in superior colliculus models, and attribute error to connectivity properties in recurrent neural networks solving a simple mathematical task.
+We then use it to reveal the key factors of variability in a model of primary visual cortex, gain a mechanistic understanding of rapid task switching in superior colliculus models, and scale inference of large low-rank RNN's exhibiting stable amplification.
 While much use of deep learning in theoretical neuroscience focuses on drawing analogies between optimized neural architectures and the brain, this work illustrates how we can further leverage the power of deep learning towards solving inverse problems in theoretical neuroscience.
 %More generally, this work suggests a departure from realism vs tractability considerations, towards the use of modern machine learning for sophisticated interrogation of biologically relevant models.
 
@@ -99,7 +101,7 @@ These works have used deep neural networks to expand the expressivity and accura
 Existing approaches to the inverse problem in theoretical neuroscience fall short in three key ways. 
 First, theoretical models of neural computation aim to reflect a complex biological reality, and as a result, such models lack tractable likelihoods.
 Thus, standard approaches from statistical inference are unavailable.
-The parameter sets obtained from likelihood-free ABC lack a formalized link to Bayesian inference (except in the unrealistic $0$-distance scenario), lack parameter probabilities, and only confer sensitivity analyses of an alternative likelihood to the simulator-defined likelihood of ABC \cite{raue2009structural}.
+The parameter sets obtained from likelihood-free ABC lack a formalized link to Bayesian inference (except in the unrealistic $0$-distance scenario), and lack parameter probabilities.
 Second is the undesirable trade-off between the flexibility and tractability of the approximated posterior distribution.
 While sampling-based approaches like ABC and Markov chain Monte Carlo (MCMC) can produce flexible posterior approximations, they must be run continually for increasing samples.
 While VAE approaches can result in tractable posterior sampling and sensitivity measurements post-optimization, existing approaches have relied on simplified classes of distributions, which restrict the flexibility of the posterior approximation.
@@ -133,13 +135,15 @@ Taken together, emergent property inference (EPI) provides a methodology for inf
 We use a classic example of parametric degeneracy in a biological system, the stomatogastric ganglion \cite{goldman2001global}, to motivate and clarify the technical details of EPI.
 
 Equipped with this methodology, we then investigated three models of current importance in theoretical neuroscience.
-These models were chosen to demonstrate generality through ranges of biological realism (from conductance-based biophysics to recurrent neural networks), neural system function (from pattern generation to abstract cognitive function), and network scale (from four to infinite neurons).
+These models were chosen to demonstrate generality through ranges of biological realism (from conductance-based biophysics to recurrent neural networks), neural system function (from pattern generation to abstract cognitive function), and network scale (from four to 100 neurons).
 %First, we use EPI to produce a set of verifiable hypotheses of input-responsivity in a four neuron-type dynamical model of primary visual cortex; we then validate these hypotheses in the model.
-First, we use EPI to elucidate the mechanisms of inhibition stabilization with varying contrast in a stochastic nonlinear dynamical model of primary visual cortex with inhibitory multiplicity.
+First, we use EPI to understand the characteristics of noise that govern Fano factor in a stochastic four neuron-type model of primary visual cortex.
 %Second, we demonstrated how the systematic application of EPI to levels of task performance can generate experimentally testable hypotheses regarding connectivity in superior colliculus.  
-Second, we discover connectivity patterns in superior colliculus resulting in resilience to optogenetic perturbation by using EPI to condition on rapid task switching.
-Third, we use EPI to uncover the sources of error in a low-rank recurrent neural network executing a simple mathematical task.  
-The novel scientific insights offered by EPI contextualize and clarify the previous studies exploring these models \cite{gutierrez2013multiple, litwin2016inhibitory, duan2018collicular, mastrogiuseppe2018linking}, and more generally, these results point to the value of deep inference for the interrogation of biologically relevant models.
+Second, we discover connectivity patterns in superior colliculus resilient to optogenetic perturbation by using EPI to condition on rapid task switching.
+The novel scientific insights offered by EPI contextualize and clarify the previous studies exploring these models \cite{litwin2016inhibitory, duan2018collicular}.
+%Third, we use EPI to uncover the sources of error in a low-rank recurrent neural network executing a simple mathematical task.  
+Third, we emphasize the methodological advancement of EPI by inferring high-dimensional distributions of RNN connectivities exhibiting stable amplification.
+These results point to the value of deep inference for the interrogation of biologically relevant models.
 
 %-------------------
 
@@ -196,31 +200,31 @@ Once we have such a methodology, we can infer a probability distribution over pa
 \textbf{A}. Conductance-based biophysical model of the STG subcircuit.
 In the STG model, jagged connections indicate electrical coupling having electrical conductance $g_{\text{el}}$. 
 Other connections in the diagram are inhibitory synaptic projections having strength $g_{\text{synA}}$ onto the hub neuron, and $g_{\text{synB}}=5$nS for mutual inhibitory connections.  
-Parameters are represented by the vector $\mathbf{z}$ and data by the vector $\mathbf{x}$.
-\textbf{B}. Simulated activity form the STG model at $g_{\text{el}} = 4.5$nS and $g_{\text{synA}} = 3$nS.
-\textbf{C}. The emergent property of unified intermediacy, in which all neurons are firing close to the same intermediate frequency.
-Simulated activity traces are colored by log probability density of their generating parameters in the EPI-inferred distribution. 
-\textbf{D}. For a choice of model and emergent property, emergent property inference (EPI) learns a distribution of the model parameters $\mathbf{z} = \left[g_{\text{el}}, g_{\text{synA}} \right]$ producing middle hub frequency.
+Parameters are represented by the vector $\mathbf{z}$ and membrane potentials by the vector $\mathbf{x}$.
+The evolution of this model's activity $\mathbf{x}(t)$ is predicated by differential equations.
+\textbf{B}. Spiking frequency $\omega(\mathbf{x}; \mathbf{z})$ is an emergent property statistic. Spiking frequency is measured from simulated activity of the STG model at parameter choices of $g_{\text{el}} = 4.5$nS and $g_{\text{synA}} = 3$nS.
+\textbf{C}. The emergent property of intermediate hub frequency, in which the hb neuron fires at a rate between the fast and slow frequencies.
+Simulated activity traces are colored by log probability density of their generating parameters in the EPI-inferred distribution (Panel E).
+\textbf{D}. For a choice of model and emergent property, emergent property inference (EPI) learns a distribution of the model parameters $\mathbf{z} = \left[g_{\text{el}}, g_{\text{synA}} \right]$ producing intermediate hub frequency.
 Deep probability distributions map a simple random variable $\mathbf{z}_0$ through a deep neural network with weights and biases $\bm{\theta}$ to parameters $\mathbf{z} = g_{\bm{\theta}}(\mathbf{z}_0)$ distributed as $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$. 
-\textbf{E}. The EPI distribution of STG model parameters producing network syncing.  
+\textbf{E}. The EPI distribution of STG model parameters producing intermediate hub frequency.
 Samples are colored by log probability density.  
 Distribution contours of hub neuron frequency from mean of .55 Hz are shown at levels of $.525$, $.53$, ... $.575$ Hz (dark to light gray away from mean).
 Frequencies are averages over the stochasticity of the model.
 Eigenvectors of the Hessian at the mode of the inferred distribution are indicated as $\mathbf{v}_1$ (solid) and $\mathbf{v}_2$ (dashed) with lengths scaled by the square root of the absolute value of their eigenvalues.  
 Simulated activity is shown for three samples (stars). 
 %(Inset) Sensitivity of the system with respect to network syncing along all dimensions of parameter space away from the mode.  
-$v_1$ is sensitive to network syncing ($p<10^{-4}$), while $v_2$ is not ($p=0.67$) (see Section \ref{methods_STG}). 
 \textbf{F} Simulations from parameters in E.  
 (Top) The predictive distribution of the posterior obeys the constraints stipulated by the emergent property.
 (Bottom) Simulations at the starred parameter values.
  }
 \end{center}
-\label{fig:STG}
+\label{fig:STG_EPI}
 \end{figure}
 
 
 %Before presenting technical details (in the following section), let us understand emergent property inference schematically:  EPI (Fig. \ref{fig:STG}A gray box) takes, as input, the model and the specified emergent property, and as its output, produces the parameter distribution shown in Figure \ref{fig:STG}B.
-Before presenting technical details (in the following section), let us understand emergent property inference schematically:  EPI (Fig. \ref{fig:STG}D) takes, as input, the model and the specified emergent property, and as its output, produces the parameter distribution  EPI (Fig. \ref{fig:STG}E).  
+Before presenting technical details (in the following section), let us understand emergent property inference schematically:  EPI (Fig. \ref{fig:STG_EPI}D) takes, as input, the model and the specified emergent property, and as its output, produces the parameter distribution  EPI (Fig. \ref{fig:STG}E).  
 This distribution -- represented for clarity as samples from the distribution -- is then a scientifically meaningful and mathematically tractable object.  
 In the STG model, this distribution can be specifically queried to reveal the prototypical parameter configuration for network syncing (the mode; Figure \ref{fig:STG}E yellow star), and how network syncing decays based on changes away from the mode.
 The eigenvectors (of the Hessian of the distribution at the mode) quantitatively formalize the robustness of unified intermediacy (Fig. \ref{fig:STG}B solid ($v_1$) and dashed  ($v_2$) black arrows).
