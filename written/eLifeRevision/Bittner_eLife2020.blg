@@ -1,10 +1,8 @@
-This is BibTeX, Version 0.99d (TeX Live 2020)
-Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+This is BibTeX, Version 0.99d (TeX Live 2016)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: Bittner_eLife2020.aux
 The style file: unsrt.bst
 Database file #1: eLife2020.bib
-Warning--entry type for "allen2018layer" isn't style-file defined
---line 292 of file eLife2020.bib
 Repeated entry---line 1107 of file eLife2020.bib
  : @article{liepe2014framework
  :                            ,
@@ -17,43 +15,43 @@ Warning--empty journal in blei2014build
 Warning--empty journal in Chen2019
 You've used 79 entries,
             1791 wiz_defined-function locations,
-            874 strings with 19196 characters,
-and the built_in function-call counts, 20124 in all, are:
-= -- 1750
-> -- 1053
+            876 strings with 19246 characters,
+and the built_in function-call counts, 20227 in all, are:
+= -- 1764
+> -- 1056
 < -- 14
-+ -- 380
-- -- 301
-* -- 1453
-:= -- 3188
-add.period$ -- 236
++ -- 381
+- -- 302
+* -- 1470
+:= -- 3207
+add.period$ -- 237
 call.type$ -- 79
 change.case$ -- 79
 chr.to.int$ -- 0
 cite$ -- 81
-duplicate$ -- 873
-empty$ -- 1825
-format.name$ -- 301
-if$ -- 4430
+duplicate$ -- 877
+empty$ -- 1829
+format.name$ -- 302
+if$ -- 4449
 int.to.chr$ -- 0
 int.to.str$ -- 79
-missing$ -- 78
-newline$ -- 397
+missing$ -- 79
+newline$ -- 398
 num.names$ -- 79
-pop$ -- 187
+pop$ -- 183
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 470
+skip$ -- 466
 stack$ -- 0
-substring$ -- 1414
+substring$ -- 1433
 swap$ -- 239
 text.length$ -- 14
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 2
-while$ -- 192
+while$ -- 194
 width$ -- 81
-write$ -- 848
+write$ -- 852
 (There were 2 error messages)

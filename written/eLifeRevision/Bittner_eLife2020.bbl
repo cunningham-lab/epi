@@ -103,13 +103,6 @@ Liam Paninski and John~P Cunningham.
   cycle in large-scale neuroscience.
 \newblock {\em Current opinion in neurobiology}, 50:232--241, 2018.
 
-\bibitem{raue2009structural}
-Andreas Raue, Clemens Kreutz, Thomas Maiwald, Julie Bachmann, Marcel Schilling,
-  Ursula Klingm{\"u}ller, and Jens Timmer.
-\newblock Structural and practical identifiability analysis of partially
-  observed dynamical models by exploiting the profile likelihood.
-\newblock {\em Bioinformatics}, 25(15):1923--1929, 2009.
-
 \bibitem{gelman2013philosophy}
 Andrew Gelman and Cosma~Rohilla Shalizi.
 \newblock Philosophy and the practice of bayesian statistics.
@@ -162,12 +155,6 @@ Mark~S Goldman, Jorge Golowasch, Eve Marder, and LF~Abbott.
 \newblock Global structure, robustness, and modulation of neuronal models.
 \newblock {\em Journal of Neuroscience}, 21(14):5229--5238, 2001.
 
-\bibitem{gutierrez2013multiple}
-Gabrielle~J Gutierrez, Timothy O'Leary, and Eve Marder.
-\newblock Multiple mechanisms switch an electrically coupled, synaptically
-  inhibited neuron between competing rhythmic oscillators.
-\newblock {\em Neuron}, 77(5):845--858, 2013.
-
 \bibitem{litwin2016inhibitory}
 Ashok Litwin-Kumar, Robert Rosenbaum, and Brent Doiron.
 \newblock Inhibitory stabilization and visual coding in cortical circuits with
@@ -180,12 +167,6 @@ Chunyu~A Duan, Marino Pagan, Alex~T Piet, Charles~D Kopec, Athena Akrami,
 \newblock Collicular circuits for flexible sensorimotor routing.
 \newblock {\em bioRxiv}, page 245613, 2018.
 
-\bibitem{mastrogiuseppe2018linking}
-Francesca Mastrogiuseppe and Srdjan Ostojic.
-\newblock Linking connectivity, dynamics, and computations in low-rank
-  recurrent neural networks.
-\newblock {\em Neuron}, 99(3):609--623, 2018.
-
 \bibitem{marder2002cellular}
 Eve Marder and Vatsala Thirumalai.
 \newblock Cellular, synaptic and network effects of neuromodulation.
@@ -195,6 +176,12 @@ Eve Marder and Vatsala Thirumalai.
 Astrid~A Prinz, Dirk Bucher, and Eve Marder.
 \newblock Similar network activity from disparate circuit parameters.
 \newblock {\em Nature neuroscience}, 7(12):1345, 2004.
+
+\bibitem{gutierrez2013multiple}
+Gabrielle~J Gutierrez, Timothy O'Leary, and Eve Marder.
+\newblock Multiple mechanisms switch an electrically coupled, synaptically
+  inhibited neuron between competing rhythmic oscillators.
+\newblock {\em Neuron}, 77(5):845--858, 2013.
 
 \bibitem{jaynes1957information}
 Edwin~T Jaynes.
@@ -212,6 +199,11 @@ Cristina Savin and Ga{\v{s}}per Tka{\v{c}}ik.
 \newblock Maximum entropy models as a tool for building precise neural
   controls.
 \newblock {\em Current opinion in neurobiology}, 46:120--126, 2017.
+
+\bibitem{goldman2009memory}
+Mark~S Goldman.
+\newblock Memory without feedback in a neural network.
+\newblock {\em Neuron}, 61(4):621--634, 2009.
 
 \bibitem{murphy2009balanced}
 Brendan~K Murphy and Kenneth~D Miller.
@@ -269,18 +261,19 @@ Guang Chen, Carl~Van Vreeswijk, David Hansel, and David Hansel.
   optogenetic manipulation}.
 \newblock 2019.
 
-\bibitem{allen2018layer}
-(2018) Allen~Institute for Brain~Science.
-\newblock Layer 4 model of v1. available from:
-  https://portal.brain-map.org/explore/models/l4-mv1.
+\bibitem{hennequin2018dynamical}
+Guillaume Hennequin, Yashar Ahmadian, Daniel~B Rubin, M{\'a}t{\'e} Lengyel, and
+  Kenneth~D Miller.
+\newblock The dynamical regime of sensory cortex: stable dynamics around a
+  single stimulus-tuned attractor account for patterns of noise variability.
+\newblock {\em Neuron}, 98(4):846--860, 2018.
 
-\bibitem{billeh2019systematic}
-Yazan~N Billeh, Binghuang Cai, Sergey~L Gratiy, Kael Dai, Ramakrishnan Iyer,
-  Nathan~W Gouwens, Reza Abbasi-Asl, Xiaoxuan Jia, Joshua~H Siegle, Shawn~R
-  Olsen, et~al.
-\newblock Systematic integration of structural and functional data into
-  multi-scale models of mouse primary visual cortex.
-\newblock {\em bioRxiv}, page 662189, 2019.
+\bibitem{palmigiano2020structure}
+Agostina Palmigiano, Francesco Fumarola, Daniel~P Mossing, Nataliya
+  Kraynyukova, Hillel Adesnik, and Kenneth Miller.
+\newblock Structure and variability of optogenetic responses identify the
+  operating regime of cortex.
+\newblock {\em bioRxiv}, 2020.
 
 \bibitem{duan2015requirement}
 Chunyu~A Duan, Jeffrey~C Erlich, and Carlos~D Brody.
@@ -299,6 +292,12 @@ David Sussillo and Omri Barak.
 \newblock Opening the black box: low-dimensional dynamics in high-dimensional
   recurrent neural networks.
 \newblock {\em Neural computation}, 25(3):626--649, 2013.
+
+\bibitem{mastrogiuseppe2018linking}
+Francesca Mastrogiuseppe and Srdjan Ostojic.
+\newblock Linking connectivity, dynamics, and computations in low-rank
+  recurrent neural networks.
+\newblock {\em Neuron}, 99(3):609--623, 2018.
 
 \bibitem{kass2001spike}
 Robert~E Kass and Val{\'e}rie Ventura.
@@ -460,22 +459,24 @@ Jan-Matthis Lueckmann, Pedro~J Goncalves, Giacomo Bassetto, Kaan {\"O}cal,
 \newblock In {\em Advances in Neural Information Processing Systems}, pages
   1289--1299, 2017.
 
+\bibitem{kingma2014adam}
+Diederik~P Kingma and Jimmy Ba.
+\newblock Adam: A method for stochastic optimization.
+\newblock {\em International Conference on Learning Representations}, 2015.
+
 \bibitem{wainwright2008graphical}
 Martin~J Wainwright, Michael~I Jordan, et~al.
 \newblock Graphical models, exponential families, and variational inference.
 \newblock {\em Foundations and Trends{\textregistered} in Machine Learning},
   1(1--2):1--305, 2008.
 
-\bibitem{kingma2014adam}
-Diederik~P Kingma and Jimmy Ba.
-\newblock Adam: A method for stochastic optimization.
-\newblock {\em International Conference on Learning Representations}, 2015.
-
-\bibitem{dinh2017density}
-Laurent Dinh, Jascha Sohl-Dickstein, and Samy Bengio.
-\newblock Density estimation using real nvp.
-\newblock {\em Proceedings of the 5th International Conference on Learning
-  Representations}, 2017.
+\bibitem{billeh2019systematic}
+Yazan~N Billeh, Binghuang Cai, Sergey~L Gratiy, Kael Dai, Ramakrishnan Iyer,
+  Nathan~W Gouwens, Reza Abbasi-Asl, Xiaoxuan Jia, Joshua~H Siegle, Shawn~R
+  Olsen, et~al.
+\newblock Systematic integration of structural and functional data into
+  multi-scale models of mouse primary visual cortex.
+\newblock {\em bioRxiv}, page 662189, 2019.
 
 \bibitem{brunel2000dynamics}
 Nicolas Brunel.
