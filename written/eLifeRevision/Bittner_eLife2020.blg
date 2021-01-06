@@ -3,55 +3,48 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: Bittner_eLife2020.aux
 The style file: unsrt.bst
 Database file #1: eLife2020.bib
-Repeated entry---line 1107 of file eLife2020.bib
- : @article{liepe2014framework
- :                            ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 1136 of file eLife2020.bib
- : @article{liepe2014framework
- :                            ,
-I'm skipping whatever remains of this entry
+Warning--I didn't find a database entry for "bondanelli2020coding"
 Warning--empty journal in blei2014build
 Warning--empty journal in Chen2019
-You've used 79 entries,
+You've used 72 entries,
             1791 wiz_defined-function locations,
-            876 strings with 19246 characters,
-and the built_in function-call counts, 20227 in all, are:
-= -- 1764
-> -- 1056
-< -- 14
-+ -- 381
-- -- 302
-* -- 1470
-:= -- 3207
-add.period$ -- 237
-call.type$ -- 79
-change.case$ -- 79
+            851 strings with 17720 characters,
+and the built_in function-call counts, 18321 in all, are:
+= -- 1611
+> -- 936
+< -- 11
++ -- 338
+- -- 266
+* -- 1366
+:= -- 2914
+add.period$ -- 216
+call.type$ -- 72
+change.case$ -- 72
 chr.to.int$ -- 0
-cite$ -- 81
-duplicate$ -- 877
-empty$ -- 1829
-format.name$ -- 302
-if$ -- 4449
+cite$ -- 74
+duplicate$ -- 771
+empty$ -- 1665
+format.name$ -- 266
+if$ -- 4010
 int.to.chr$ -- 0
-int.to.str$ -- 79
-missing$ -- 79
-newline$ -- 398
-num.names$ -- 79
-pop$ -- 183
+int.to.str$ -- 72
+missing$ -- 72
+newline$ -- 363
+num.names$ -- 72
+pop$ -- 151
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 466
+skip$ -- 395
 stack$ -- 0
-substring$ -- 1433
-swap$ -- 239
-text.length$ -- 14
+substring$ -- 1369
+swap$ -- 194
+text.length$ -- 11
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 2
-while$ -- 194
-width$ -- 81
-write$ -- 852
-(There were 2 error messages)
+while$ -- 179
+width$ -- 74
+write$ -- 778
+(There were 3 warnings)

@@ -281,24 +281,6 @@ Chunyu~A Duan, Jeffrey~C Erlich, and Carlos~D Brody.
   control of behavior in the rat.
 \newblock {\em Neuron}, 86(6):1491--1503, 2015.
 
-\bibitem{barak2017recurrent}
-Omri Barak.
-\newblock Recurrent neural networks as versatile tools of neuroscience
-  research.
-\newblock {\em Current opinion in neurobiology}, 46:1--6, 2017.
-
-\bibitem{sussillo2013opening}
-David Sussillo and Omri Barak.
-\newblock Opening the black box: low-dimensional dynamics in high-dimensional
-  recurrent neural networks.
-\newblock {\em Neural computation}, 25(3):626--649, 2013.
-
-\bibitem{mastrogiuseppe2018linking}
-Francesca Mastrogiuseppe and Srdjan Ostojic.
-\newblock Linking connectivity, dynamics, and computations in low-rank
-  recurrent neural networks.
-\newblock {\em Neuron}, 99(3):609--623, 2018.
-
 \bibitem{kass2001spike}
 Robert~E Kass and Val{\'e}rie Ventura.
 \newblock A spike-train probability model.
@@ -400,64 +382,51 @@ Rodrigo Echeveste, Laurence Aitchison, Guillaume Hennequin, and M{\'a}t{\'e}
   sampling-based probabilistic inference.
 \newblock {\em bioRxiv}, page 696088, 2019.
 
+\bibitem{mastrogiuseppe2018linking}
+Francesca Mastrogiuseppe and Srdjan Ostojic.
+\newblock Linking connectivity, dynamics, and computations in low-rank
+  recurrent neural networks.
+\newblock {\em Neuron}, 99(3):609--623, 2018.
+
 \bibitem{richards2019deep}
 Blake~A Richards and et~al.
 \newblock A deep learning framework for neuroscience.
 \newblock {\em Nature Neuroscience}, 2019.
 
-\bibitem{blei2017variational}
-David~M Blei, Alp Kucukelbir, and Jon~D McAuliffe.
-\newblock Variational inference: A review for statisticians.
-\newblock {\em Journal of the American Statistical Association},
-  112(518):859--877, 2017.
+\bibitem{karlsson2012efficient}
+Johan Karlsson, Milena Anguelova, and Mats Jirstrand.
+\newblock An efficient method for structural identifiability analysis of large
+  dynamic systems.
+\newblock {\em IFAC Proceedings Volumes}, 45(16):941--946, 2012.
 
-\bibitem{ranganath2014black}
-Rajesh Ranganath, Sean Gerrish, and David Blei.
-\newblock Black box variational inference.
-\newblock In {\em Artificial Intelligence and Statistics}, pages 814--822,
-  2014.
+\bibitem{chen2018neural}
+Ricky~TQ Chen, Yulia Rubanova, Jesse Bettencourt, and David~K Duvenaud.
+\newblock Neural ordinary differential equations.
+\newblock In {\em Advances in neural information processing systems}, pages
+  6571--6583, 2018.
 
-\bibitem{bittner2019degenerate}
-Sean~R Bittner, Agostina Palmigiano, Kenneth~D Miller, and John~P Cunningham.
-\newblock Degenerate solution networks for theoretical neuroscience.
-\newblock {\em Computational and Systems Neuroscience Meeting (COSYNE), Lisbon,
-  Portugal}, 2019.
+\bibitem{li2020scalable}
+Xuechen Li, Ting-Kam~Leonard Wong, Ricky~TQ Chen, and David Duvenaud.
+\newblock Scalable gradients for stochastic differential equations.
+\newblock {\em arXiv preprint arXiv:2001.01328}, 2020.
 
-\bibitem{bittner2019examining}
-Sean~R Bittner, Alex~T Piet, Chunyu~A Duan, Agostina Palmigiano, Kenneth~D
-  Miller, Carlos~D Brody, and John~P Cunningham.
-\newblock Examining models in theoretical neuroscience with degenerate solution
-  networks.
-\newblock {\em Bernstein Conference 2019, Berlin, Germany}, 2019.
+\bibitem{raue2009structural}
+Andreas Raue, Clemens Kreutz, Thomas Maiwald, Julie Bachmann, Marcel Schilling,
+  Ursula Klingm{\"u}ller, and Jens Timmer.
+\newblock Structural and practical identifiability analysis of partially
+  observed dynamical models by exploiting the profile likelihood.
+\newblock {\em Bioinformatics}, 25(15):1923--1929, 2009.
 
-\bibitem{nonnenmacher2018sbi}
-Marcel Nonnenmacher, Pedro~J Goncalves, Giacomo Bassetto, Jan-Matthis
-  Lueckmann, and Jakob~H Macke.
-\newblock Robust statistical inference for simulation-based models in
-  neuroscience.
-\newblock In {\em Bernstein Conference 2018, Berlin, Germany}, 2018.
+\bibitem{raman2017delineating}
+Dhruva~V Raman, James Anderson, and Antonis Papachristodoulou.
+\newblock Delineating parameter unidentifiabilities in complex models.
+\newblock {\em Physical Review E}, 95(3):032314, 2017.
 
-\bibitem{desitler2019statistical}
-Deistler Michael, , Pedro~J Goncalves, Kaan Oecal, and Jakob~H Macke.
-\newblock Statistical inference for analyzing sloppiness in neuroscience
-  models.
-\newblock In {\em Bernstein Conference 2019, Berlin, Germany}, 2019.
-
-\bibitem{gonccalves2019training}
-Pedro~J Gon{\c{c}}alves, Jan-Matthis Lueckmann, Michael Deistler, Marcel
-  Nonnenmacher, Kaan {\"O}cal, Giacomo Bassetto, Chaitanya Chintaluri,
-  William~F Podlaski, Sara~A Haddad, Tim~P Vogels, et~al.
-\newblock Training deep neural density estimators to identify mechanistic
-  models of neural dynamics.
-\newblock {\em bioRxiv}, page 838383, 2019.
-
-\bibitem{LueckmannGoncalves_17}
-Jan-Matthis Lueckmann, Pedro~J Goncalves, Giacomo Bassetto, Kaan {\"O}cal,
-  Marcel Nonnenmacher, and Jakob~H Macke.
-\newblock Flexible statistical inference for mechanistic models of neural
-  dynamics.
-\newblock In {\em Advances in Neural Information Processing Systems}, pages
-  1289--1299, 2017.
+\bibitem{saccomani2003parameter}
+Maria~Pia Saccomani, Stefania Audoly, and Leontina D'Angi{\`o}.
+\newblock Parameter identifiability of nonlinear systems: the role of initial
+  conditions.
+\newblock {\em Automatica}, 39(4):619--632, 2003.
 
 \bibitem{kingma2014adam}
 Diederik~P Kingma and Jimmy Ba.
@@ -470,30 +439,10 @@ Martin~J Wainwright, Michael~I Jordan, et~al.
 \newblock {\em Foundations and Trends{\textregistered} in Machine Learning},
   1(1--2):1--305, 2008.
 
-\bibitem{billeh2019systematic}
-Yazan~N Billeh, Binghuang Cai, Sergey~L Gratiy, Kael Dai, Ramakrishnan Iyer,
-  Nathan~W Gouwens, Reza Abbasi-Asl, Xiaoxuan Jia, Joshua~H Siegle, Shawn~R
-  Olsen, et~al.
-\newblock Systematic integration of structural and functional data into
-  multi-scale models of mouse primary visual cortex.
-\newblock {\em bioRxiv}, page 662189, 2019.
-
-\bibitem{brunel2000dynamics}
-Nicolas Brunel.
-\newblock Dynamics of sparsely connected networks of excitatory and inhibitory
-  spiking neurons.
-\newblock {\em Journal of computational neuroscience}, 8(3):183--208, 2000.
-
-\bibitem{jaeger2004harnessing}
-Herbert Jaeger and Harald Haas.
-\newblock Harnessing nonlinearity: Predicting chaotic systems and saving energy
-  in wireless communication.
-\newblock {\em science}, 304(5667):78--80, 2004.
-
-\bibitem{sussillo2009generating}
-David Sussillo and Larry~F Abbott.
-\newblock Generating coherent patterns of activity from chaotic neural
-  networks.
-\newblock {\em Neuron}, 63(4):544--557, 2009.
+\bibitem{blei2017variational}
+David~M Blei, Alp Kucukelbir, and Jon~D McAuliffe.
+\newblock Variational inference: A review for statisticians.
+\newblock {\em Journal of the American Statistical Association},
+  112(518):859--877, 2017.
 
 \end{thebibliography}
