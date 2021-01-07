@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  6 JAN 2021 10:12
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  7 JAN 2021 17:24
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -679,13 +679,16 @@ LaTeX Font Info:    Try loading font information for U+msb on input line 42.
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
-{/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] [3]
- [4]
-<figures/fig1/fig1.pdf, id=28, 1462.6946pt x 679.81174pt>
+{/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+
+LaTeX Warning: Citation `granot2013stimulus' on page 2 undefined on input line 
+88.
+
+[2] [3] [4] <figures/fig1/fig1.pdf, id=27, 1462.6946pt x 679.81174pt>
 File: figures/fig1/fig1.pdf Graphic file (type pdf)
 
 <use figures/fig1/fig1.pdf>
-Package pdftex.def Info: figures/fig1/fig1.pdf used on input line 198.
+Package pdftex.def Info: figures/fig1/fig1.pdf used on input line 201.
 (pdftex.def)             Requested size: 468.07184pt x 217.54419pt.
  [5] [6 <./figures/fig1/fig1.pdf>] [7]
 
@@ -695,28 +698,28 @@ F inclusion: found PDF version <1.6>, but at most version <1.5> allowed
 File: figures/fig2/fig2.pdf Graphic file (type pdf)
 
 <use figures/fig2/fig2.pdf>
-Package pdftex.def Info: figures/fig2/fig2.pdf used on input line 315.
+Package pdftex.def Info: figures/fig2/fig2.pdf used on input line 318.
 (pdftex.def)             Requested size: 412.91133pt x 436.26418pt.
 
 
-LaTeX Warning: Float too large for page by 12.14586pt on input line 336.
+LaTeX Warning: Float too large for page by 12.14586pt on input line 339.
 
 [8] [9 <./figures/fig2/fig2.pdf>] [10] [11]
 <figures/fig3/fig3.pdf, id=257, 979.47026pt x 903.00963pt>
 File: figures/fig3/fig3.pdf Graphic file (type pdf)
 
 <use figures/fig3/fig3.pdf>
-Package pdftex.def Info: figures/fig3/fig3.pdf used on input line 467.
+Package pdftex.def Info: figures/fig3/fig3.pdf used on input line 470.
 (pdftex.def)             Requested size: 470.14038pt x 433.4397pt.
 
-Overfull \hbox (0.66992pt too wide) in paragraph at lines 467--468
+Overfull \hbox (0.66992pt too wide) in paragraph at lines 470--471
  [] 
  []
 
 [12] [13 <./figures/fig3/fig3.pdf>]
 
 LaTeX Warning: Citation `bondanelli2020coding' on page 14 undefined on input li
-ne 525.
+ne 528.
 
 [14]
 
@@ -726,98 +729,98 @@ F inclusion: found PDF version <1.6>, but at most version <1.5> allowed
 File: figures/fig4/fig4.pdf Graphic file (type pdf)
 
 <use figures/fig4/fig4.pdf>
-Package pdftex.def Info: figures/fig4/fig4.pdf used on input line 553.
+Package pdftex.def Info: figures/fig4/fig4.pdf used on input line 556.
 (pdftex.def)             Requested size: 511.7534pt x 408.94464pt.
 
-Overfull \hbox (42.28294pt too wide) in paragraph at lines 553--554
+Overfull \hbox (42.28294pt too wide) in paragraph at lines 556--557
  [] 
  []
 
 [15] [16 <./figures/fig4/fig4.pdf>] [17] (./Bittner_eLife2020.bbl [18] [19]
-[20] [21] [22] [23]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 439.
+[20] [21] [22] [23] [24]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 485.
 
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/it' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 439.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 485.
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 439.
-) [24] [25]
-[26] [27] [28] [29]
-<figures/figLDS1/figLDS1.pdf, id=449, 826.92036pt x 674.18274pt>
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 485.
+) [25] [26]
+[27] [28] [29] [30]
+<figures/figLDS1/figLDS1.pdf, id=452, 826.92036pt x 674.18274pt>
 File: figures/figLDS1/figLDS1.pdf Graphic file (type pdf)
 
 <use figures/figLDS1/figLDS1.pdf>
-Package pdftex.def Info: figures/figLDS1/figLDS1.pdf used on input line 904.
+Package pdftex.def Info: figures/figLDS1/figLDS1.pdf used on input line 907.
 (pdftex.def)             Requested size: 479.61415pt x 391.02626pt.
 
-Overfull \hbox (10.14369pt too wide) in paragraph at lines 904--905
+Overfull \hbox (10.14369pt too wide) in paragraph at lines 907--908
  [] 
  []
 
-[30] [31 <./figures/figLDS1/figLDS1.pdf>]
-<figures/figLDS2/figLDS2.pdf, id=492, 839.39096pt x 411.52243pt>
+[31] [32 <./figures/figLDS1/figLDS1.pdf>]
+<figures/figLDS2/figLDS2.pdf, id=495, 839.39096pt x 411.52243pt>
 File: figures/figLDS2/figLDS2.pdf Graphic file (type pdf)
 
 <use figures/figLDS2/figLDS2.pdf>
-Package pdftex.def Info: figures/figLDS2/figLDS2.pdf used on input line 936.
+Package pdftex.def Info: figures/figLDS2/figLDS2.pdf used on input line 939.
 (pdftex.def)             Requested size: 419.69446pt x 205.76071pt.
- [32 <./figures/figLDS2/figLDS2.pdf>]
-<figures/figLDS3/figLDS3.pdf, id=524, 869.19629pt x 341.97662pt>
+ [33 <./figures/figLDS2/figLDS2.pdf>]
+<figures/figLDS3/figLDS3.pdf, id=527, 869.19629pt x 341.97662pt>
 File: figures/figLDS3/figLDS3.pdf Graphic file (type pdf)
 
 <use figures/figLDS3/figLDS3.pdf>
-Package pdftex.def Info: figures/figLDS3/figLDS3.pdf used on input line 966.
+Package pdftex.def Info: figures/figLDS3/figLDS3.pdf used on input line 969.
 (pdftex.def)             Requested size: 434.59708pt x 170.98788pt.
- [33 <./figures/figLDS3/figLDS3.pdf>] [34]
-[35] [36] [37]
-<figures/figSTG1/figSTG1.pdf, id=566, 756.75925pt x 257.17479pt>
+ [34 <./figures/figLDS3/figLDS3.pdf>] [35]
+[36] [37] [38]
+<figures/figSTG1/figSTG1.pdf, id=569, 756.75925pt x 257.17479pt>
 File: figures/figSTG1/figSTG1.pdf Graphic file (type pdf)
 
 <use figures/figSTG1/figSTG1.pdf>
-Package pdftex.def Info: figures/figSTG1/figSTG1.pdf used on input line 1314.
+Package pdftex.def Info: figures/figSTG1/figSTG1.pdf used on input line 1317.
 (pdftex.def)             Requested size: 454.05904pt x 154.30605pt.
- [38] [39 <./figures/figSTG1/figSTG1.pdf>]
-[40]
+ [39] [40 <./figures/figSTG1/figSTG1.pdf>]
+[41]
 
 pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./figures/figV1_1/figV1_1.pd
 f): PDF inclusion: found PDF version <1.6>, but at most version <1.5> allowed
-<figures/figV1_1/figV1_1.pdf, id=608, 423.74812pt x 687.16827pt>
+<figures/figV1_1/figV1_1.pdf, id=611, 423.74812pt x 687.16827pt>
 File: figures/figV1_1/figV1_1.pdf Graphic file (type pdf)
 
 <use figures/figV1_1/figV1_1.pdf>
-Package pdftex.def Info: figures/figV1_1/figV1_1.pdf used on input line 1401.
+Package pdftex.def Info: figures/figV1_1/figV1_1.pdf used on input line 1404.
 (pdftex.def)             Requested size: 211.87354pt x 343.5833pt.
 
 
 pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./figures/figV1_2/figV1_2.pd
 f): PDF inclusion: found PDF version <1.6>, but at most version <1.5> allowed
-<figures/figV1_2/figV1_2.pdf, id=609, 270.25365pt x 235.36833pt>
+<figures/figV1_2/figV1_2.pdf, id=612, 270.25365pt x 235.36833pt>
 File: figures/figV1_2/figV1_2.pdf Graphic file (type pdf)
 
 <use figures/figV1_2/figV1_2.pdf>
-Package pdftex.def Info: figures/figV1_2/figV1_2.pdf used on input line 1417.
+Package pdftex.def Info: figures/figV1_2/figV1_2.pdf used on input line 1420.
 (pdftex.def)             Requested size: 135.12648pt x 117.68387pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[41 <./figures/figV1_1/figV1_1.pdf>] [42 <./figures/figV1_2/figV1_2.pdf>]
-[43]
+[42 <./figures/figV1_1/figV1_1.pdf>] [43 <./figures/figV1_2/figV1_2.pdf>]
+[44]
 
 pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./figures/figSC1/figSC1.pdf)
 : PDF inclusion: found PDF version <1.6>, but at most version <1.5> allowed
-<figures/figSC1/figSC1.pdf, id=680, 568.37442pt x 297.73936pt>
+<figures/figSC1/figSC1.pdf, id=683, 568.37442pt x 297.73936pt>
 File: figures/figSC1/figSC1.pdf Graphic file (type pdf)
 
 <use figures/figSC1/figSC1.pdf>
-Package pdftex.def Info: figures/figSC1/figSC1.pdf used on input line 1650.
+Package pdftex.def Info: figures/figSC1/figSC1.pdf used on input line 1653.
 (pdftex.def)             Requested size: 483.12054pt x 253.07964pt.
 
-Overfull \hbox (13.65009pt too wide) in paragraph at lines 1650--1651
+Overfull \hbox (13.65009pt too wide) in paragraph at lines 1653--1654
  [] 
  []
 
@@ -825,58 +828,55 @@ Overfull \hbox (13.65009pt too wide) in paragraph at lines 1650--1651
 
 pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./figures/figSC2/figSC2.pdf)
 : PDF inclusion: found PDF version <1.6>, but at most version <1.5> allowed
-<figures/figSC2/figSC2.pdf, id=681, 349.77074pt x 244.87785pt>
+<figures/figSC2/figSC2.pdf, id=684, 349.77074pt x 244.87785pt>
 File: figures/figSC2/figSC2.pdf Graphic file (type pdf)
 
 <use figures/figSC2/figSC2.pdf>
-Package pdftex.def Info: figures/figSC2/figSC2.pdf used on input line 1659.
+Package pdftex.def Info: figures/figSC2/figSC2.pdf used on input line 1662.
 (pdftex.def)             Requested size: 454.7019pt x 318.34116pt.
 
 
 pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./figures/figSC3/figSC3.pdf)
 : PDF inclusion: found PDF version <1.6>, but at most version <1.5> allowed
-<figures/figSC3/figSC3.pdf, id=682, 744.8608pt x 322.81505pt>
+<figures/figSC3/figSC3.pdf, id=685, 744.8608pt x 322.81505pt>
 File: figures/figSC3/figSC3.pdf Graphic file (type pdf)
 
 <use figures/figSC3/figSC3.pdf>
-Package pdftex.def Info: figures/figSC3/figSC3.pdf used on input line 1669.
+Package pdftex.def Info: figures/figSC3/figSC3.pdf used on input line 1672.
 (pdftex.def)             Requested size: 446.91992pt x 193.69052pt.
 
 
 pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./figures/figSC4/figSC4.pdf)
 : PDF inclusion: found PDF version <1.6>, but at most version <1.5> allowed
-<figures/figSC4/figSC4.pdf, id=683, 385.03548pt x 380.48248pt>
+<figures/figSC4/figSC4.pdf, id=686, 385.03548pt x 380.48248pt>
 File: figures/figSC4/figSC4.pdf Graphic file (type pdf)
 
 <use figures/figSC4/figSC4.pdf>
-Package pdftex.def Info: figures/figSC4/figSC4.pdf used on input line 1680.
+Package pdftex.def Info: figures/figSC4/figSC4.pdf used on input line 1683.
 (pdftex.def)             Requested size: 288.7759pt x 285.36115pt.
 
-<figures/figSC5/figSC5.pdf, id=684, 756.75925pt x 257.17479pt>
+<figures/figSC5/figSC5.pdf, id=687, 756.75925pt x 257.17479pt>
 File: figures/figSC5/figSC5.pdf Graphic file (type pdf)
 
 <use figures/figSC5/figSC5.pdf>
-Package pdftex.def Info: figures/figSC5/figSC5.pdf used on input line 1689.
+Package pdftex.def Info: figures/figSC5/figSC5.pdf used on input line 1692.
 (pdftex.def)             Requested size: 454.05904pt x 154.30605pt.
- [44] [45 <./figures/figSC1/figSC1.pdf>]
-[46 <./figures/figSC2/figSC2.pdf> <./figures/figSC3/figSC3.pdf
+ [45] [46 <./figures/figSC1/figSC1.pdf>]
+[47 <./figures/figSC2/figSC2.pdf> <./figures/figSC3/figSC3.pdf
 
 pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./figures/figSC3/figSC3.pdf)
 : PDF inclusion: multiple pdfs with page group included in a single page
->] [47 <./figures/figSC4/figSC4.pdf> <./figures/figSC5/figSC5.pdf>]
+>] [48 <./figures/figSC4/figSC4.pdf> <./figures/figSC5/figSC5.pdf>]
 (./Bittner_eLife2020.aux)
 
 LaTeX Warning: There were undefined references.
 
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
  ) 
 Here is how much of TeX's memory you used:
- 14887 strings out of 493014
- 286417 string characters out of 6133351
- 333866 words of memory out of 5000000
- 18086 multiletter control sequences out of 15000+600000
+ 14896 strings out of 493014
+ 286597 string characters out of 6133351
+ 335459 words of memory out of 5000000
+ 18095 multiletter control sequences out of 15000+600000
  17476 words of font info for 65 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  62i,24n,56p,3419b,429s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -905,10 +905,10 @@ ve/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive
 016/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/20
 16/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texliv
 e/2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Bittner_eLife2020.pdf (47 pages, 9012753 bytes).
+Output written on Bittner_eLife2020.pdf (48 pages, 9014809 bytes).
 PDF statistics:
- 900 PDF objects out of 1000 (max. 8388607)
- 402 compressed objects within 5 object streams
+ 903 PDF objects out of 1000 (max. 8388607)
+ 404 compressed objects within 5 object streams
  0 named destinations out of 1000 (max. 500000)
  88 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -30,6 +30,138 @@ Kong-Fatt Wong and Xiao-Jing Wang.
   decisions.
 \newblock {\em Journal of Neuroscience}, 26(4):1314--1328, 2006.
 
+\bibitem{foster1993significance}
+WR~Foster, LH~Ungar, and JS~Schwaber.
+\newblock Significance of conductances in hodgkin-huxley models.
+\newblock {\em Journal of neurophysiology}, 70(6):2502--2518, 1993.
+
+\bibitem{prinz2004similar}
+Astrid~A Prinz, Dirk Bucher, and Eve Marder.
+\newblock Similar network activity from disparate circuit parameters.
+\newblock {\em Nature neuroscience}, 7(12):1345--1352, 2004.
+
+\bibitem{achard2006complex}
+Pablo Achard and Erik De~Schutter.
+\newblock Complex parameter landscape for a complex neuron model.
+\newblock {\em PLoS computational biology}, 2(7):e94, 2006.
+
+\bibitem{o2014cell}
+Timothy O'Leary, Alex~H Williams, Alessio Franci, and Eve Marder.
+\newblock Cell types, network homeostasis, and pathological compensation from a
+  biologically plausible ion channel expression model.
+\newblock {\em Neuron}, 82(4):809--821, 2014.
+
+\bibitem{alonso2019visualization}
+Leandro~M Alonso and Eve Marder.
+\newblock Visualization of currents in neural models with similar behavior and
+  different conductance densities.
+\newblock {\em Elife}, 8:e42722, 2019.
+
+\bibitem{kass2001spike}
+Robert~E Kass and Val{\'e}rie Ventura.
+\newblock A spike-train probability model.
+\newblock {\em Neural computation}, 13(8):1713--1720, 2001.
+
+\bibitem{brown1998statistical}
+Emery~N Brown, Loren~M Frank, Dengda Tang, Michael~C Quirk, and Matthew~A
+  Wilson.
+\newblock A statistical paradigm for neural spike train decoding applied to
+  position prediction from ensemble firing patterns of rat hippocampal place
+  cells.
+\newblock {\em Journal of Neuroscience}, 18(18):7411--7425, 1998.
+
+\bibitem{paninski2004maximum}
+Liam Paninski.
+\newblock Maximum likelihood estimation of cascade point-process neural
+  encoding models.
+\newblock {\em Network: Computation in Neural Systems}, 15(4):243--262, 2004.
+
+\bibitem{truccolo2005point}
+Wilson Truccolo, Uri~T Eden, Matthew~R Fellows, John~P Donoghue, and Emery~N
+  Brown.
+\newblock A point process framework for relating neural spiking activity to
+  spiking history, neural ensemble, and extrinsic covariate effects.
+\newblock {\em Journal of neurophysiology}, 93(2):1074--1089, 2005.
+
+\bibitem{schneidman2006weak}
+Elad Schneidman, Michael~J Berry, Ronen Segev, and William Bialek.
+\newblock Weak pairwise correlations imply strongly correlated network states
+  in a neural population.
+\newblock {\em Nature}, 440(7087):1007--1012, 2006.
+
+\bibitem{druckmann2007novel}
+Shaul Druckmann, Yoav Banitt, Albert~A Gidon, Felix Sch{\"u}rmann, Henry
+  Markram, and Idan Segev.
+\newblock A novel multiple objective optimization framework for constraining
+  conductance-based neuron models by experimental data.
+\newblock {\em Frontiers in neuroscience}, 1:1, 2007.
+
+\bibitem{turner2007maximum}
+Richard Turner and Maneesh Sahani.
+\newblock A maximum-likelihood interpretation for slow feature analysis.
+\newblock {\em Neural computation}, 19(4):1022--1038, 2007.
+
+\bibitem{byron2009gaussian}
+M~Yu Byron, John~P Cunningham, Gopal Santhanam, Stephen~I Ryu, Krishna~V
+  Shenoy, and Maneesh Sahani.
+\newblock Gaussian-process factor analysis for low-dimensional single-trial
+  analysis of neural population activity.
+\newblock In {\em Advances in neural information processing systems}, pages
+  1881--1888, 2009.
+
+\bibitem{macke2011empirical}
+Jakob~H Macke, Lars Buesing, John~P Cunningham, Byron~M Yu, Krishna~V Shenoy,
+  and Maneesh Sahani.
+\newblock Empirical models of spiking in neural populations.
+\newblock {\em Advances in neural information processing systems},
+  24:1350--1358, 2011.
+
+\bibitem{park2011bayesian}
+Il~Memming Park and Jonathan~W Pillow.
+\newblock Bayesian spike-triggered covariance analysis.
+\newblock In {\em Advances in neural information processing systems}, pages
+  1692--1700, 2011.
+
+\bibitem{latimer2015single}
+Kenneth~W Latimer, Jacob~L Yates, Miriam~LR Meister, Alexander~C Huk, and
+  Jonathan~W Pillow.
+\newblock Single-trial spike trains in parietal cortex reveal discrete steps
+  during decision-making.
+\newblock {\em Science}, 349(6244):184--187, 2015.
+
+\bibitem{lakshminarasimhan2018dynamic}
+Kaushik~J Lakshminarasimhan, Marina Petsalis, Hyeshin Park, Gregory~C
+  DeAngelis, Xaq Pitkow, and Dora~E Angelaki.
+\newblock A dynamic bayesian observer model reveals origins of bias in visual
+  path integration.
+\newblock {\em Neuron}, 99(1):194--206, 2018.
+
+\bibitem{duncker2019learning}
+Lea Duncker, Gergo Bohner, Julien Boussard, and Maneesh Sahani.
+\newblock Learning interpretable continuous-time models of latent stochastic
+  dynamical systems.
+\newblock {\em Proceedings of the 36th International Conference on Machine
+  Learning}, 2019.
+
+\bibitem{ladenbauer2019inferring}
+Josef Ladenbauer, Sam McKenzie, Daniel~Fine English, Olivier Hagens, and Srdjan
+  Ostojic.
+\newblock Inferring and validating mechanistic models of neural microcircuits
+  based on spike-train data.
+\newblock {\em Nature Communications}, 10(4933), 2019.
+
+\bibitem{paninski2018neural}
+Liam Paninski and John~P Cunningham.
+\newblock Neural data science: accelerating the experiment-analysis-theory
+  cycle in large-scale neuroscience.
+\newblock {\em Current opinion in neurobiology}, 50:232--241, 2018.
+
+\bibitem{sisson2007sequential}
+Scott~A Sisson, Yanan Fan, and Mark~M Tanaka.
+\newblock Sequential monte carlo without likelihoods.
+\newblock {\em Proceedings of the National Academy of Sciences},
+  104(6):1760--1765, 2007.
+
 \bibitem{liepe2014framework}
 Juliane Liepe, Paul Kirk, Sarah Filippi, Tina Toni, Chris~P Barnes, and
   Michael~PH Stumpf.
@@ -96,12 +228,6 @@ Eleanor Batty, Matthew Whiteway, Shreya Saxena, Dan Biderman, Taiga Abe, Simon
 \newblock Behavenet: nonlinear embedding and bayesian neural decoding of
   behavioral videos.
 \newblock {\em Advances in Neural Information Processing Systems}, 2019.
-
-\bibitem{paninski2018neural}
-Liam Paninski and John~P Cunningham.
-\newblock Neural data science: accelerating the experiment-analysis-theory
-  cycle in large-scale neuroscience.
-\newblock {\em Current opinion in neurobiology}, 50:232--241, 2018.
 
 \bibitem{gelman2013philosophy}
 Andrew Gelman and Cosma~Rohilla Shalizi.
@@ -171,11 +297,6 @@ Chunyu~A Duan, Marino Pagan, Alex~T Piet, Charles~D Kopec, Athena Akrami,
 Eve Marder and Vatsala Thirumalai.
 \newblock Cellular, synaptic and network effects of neuromodulation.
 \newblock {\em Neural Networks}, 15(4-6):479--493, 2002.
-
-\bibitem{prinz2004similar}
-Astrid~A Prinz, Dirk Bucher, and Eve Marder.
-\newblock Similar network activity from disparate circuit parameters.
-\newblock {\em Nature neuroscience}, 7(12):1345, 2004.
 
 \bibitem{gutierrez2013multiple}
 Gabrielle~J Gutierrez, Timothy O'Leary, and Eve Marder.
@@ -280,81 +401,6 @@ Chunyu~A Duan, Jeffrey~C Erlich, and Carlos~D Brody.
 \newblock Requirement of prefrontal and midbrain regions for rapid executive
   control of behavior in the rat.
 \newblock {\em Neuron}, 86(6):1491--1503, 2015.
-
-\bibitem{kass2001spike}
-Robert~E Kass and Val{\'e}rie Ventura.
-\newblock A spike-train probability model.
-\newblock {\em Neural computation}, 13(8):1713--1720, 2001.
-
-\bibitem{brown1998statistical}
-Emery~N Brown, Loren~M Frank, Dengda Tang, Michael~C Quirk, and Matthew~A
-  Wilson.
-\newblock A statistical paradigm for neural spike train decoding applied to
-  position prediction from ensemble firing patterns of rat hippocampal place
-  cells.
-\newblock {\em Journal of Neuroscience}, 18(18):7411--7425, 1998.
-
-\bibitem{paninski2004maximum}
-Liam Paninski.
-\newblock Maximum likelihood estimation of cascade point-process neural
-  encoding models.
-\newblock {\em Network: Computation in Neural Systems}, 15(4):243--262, 2004.
-
-\bibitem{truccolo2005point}
-Wilson Truccolo, Uri~T Eden, Matthew~R Fellows, John~P Donoghue, and Emery~N
-  Brown.
-\newblock A point process framework for relating neural spiking activity to
-  spiking history, neural ensemble, and extrinsic covariate effects.
-\newblock {\em Journal of neurophysiology}, 93(2):1074--1089, 2005.
-
-\bibitem{druckmann2007novel}
-Shaul Druckmann, Yoav Banitt, Albert~A Gidon, Felix Sch{\"u}rmann, Henry
-  Markram, and Idan Segev.
-\newblock A novel multiple objective optimization framework for constraining
-  conductance-based neuron models by experimental data.
-\newblock {\em Frontiers in neuroscience}, 1:1, 2007.
-
-\bibitem{byron2009gaussian}
-M~Yu Byron, John~P Cunningham, Gopal Santhanam, Stephen~I Ryu, Krishna~V
-  Shenoy, and Maneesh Sahani.
-\newblock Gaussian-process factor analysis for low-dimensional single-trial
-  analysis of neural population activity.
-\newblock In {\em Advances in neural information processing systems}, pages
-  1881--1888, 2009.
-
-\bibitem{park2011bayesian}
-Il~Memming Park and Jonathan~W Pillow.
-\newblock Bayesian spike-triggered covariance analysis.
-\newblock In {\em Advances in neural information processing systems}, pages
-  1692--1700, 2011.
-
-\bibitem{latimer2015single}
-Kenneth~W Latimer, Jacob~L Yates, Miriam~LR Meister, Alexander~C Huk, and
-  Jonathan~W Pillow.
-\newblock Single-trial spike trains in parietal cortex reveal discrete steps
-  during decision-making.
-\newblock {\em Science}, 349(6244):184--187, 2015.
-
-\bibitem{lakshminarasimhan2018dynamic}
-Kaushik~J Lakshminarasimhan, Marina Petsalis, Hyeshin Park, Gregory~C
-  DeAngelis, Xaq Pitkow, and Dora~E Angelaki.
-\newblock A dynamic bayesian observer model reveals origins of bias in visual
-  path integration.
-\newblock {\em Neuron}, 99(1):194--206, 2018.
-
-\bibitem{duncker2019learning}
-Lea Duncker, Gergo Bohner, Julien Boussard, and Maneesh Sahani.
-\newblock Learning interpretable continuous-time models of latent stochastic
-  dynamical systems.
-\newblock {\em Proceedings of the 36th International Conference on Machine
-  Learning}, 2019.
-
-\bibitem{ladenbauer2019inferring}
-Josef Ladenbauer, Sam McKenzie, Daniel~Fine English, Olivier Hagens, and Srdjan
-  Ostojic.
-\newblock Inferring and validating mechanistic models of neural microcircuits
-  based on spike-train data.
-\newblock {\em Nature Communications}, 10(4933), 2019.
 
 \bibitem{kraynyukova2018stabilized}
 Nataliya Kraynyukova and Tatjana Tchumatchenko.

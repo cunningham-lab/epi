@@ -79,13 +79,16 @@ The inverse problem is crucial for reasoning about likely parameter values, uniq
 
 Consider the idealized practice: one carefully designs a model and analytically derives how model parameters govern the computation.
 Seminal examples of this gold standard (which often adopt approaches from statistical physics) include our field's understanding of memory capacity in associative neural networks \cite{hopfield1982neural}, chaos and autocorrelation timescales in random neural networks \cite{sompolinsky1988chaos}, the paradoxical effect \cite{tsodyks1997paradoxical}, and decision making \cite{wong2006recurrent}.
-Unfortunately, as circuit models include more biological realism, theory via analytical derivation becomes intractable.  
+Unfortunately, as circuit models include more biological realism, theory via analytical derivation becomes intractable.
 %This creates an unfavorable tradeoff.  On the one hand, one may tractably analyze systems of equations with unrealistic assumptions (for example symmetry or gaussianity), mathematically formalizing how parameters affect computation in a too-simple model.  
 %On the other hand, one may choose a more biologically accurate, scientifically relevant model at the cost of \emph{ad hoc} approaches to analysis (such as simply examining simulated activity), potentially resulting in bad inference of parameters and thus erroneous scientific predictions or conclusions.
-Alternatively, statistical inference can be run to obtain model parameters likely to produce some model output, and local sensitivity analyses can be performed at inferred parameter values.
+Alternatively, we can gain insight into these complex models by identifying all of the parameters consistent with the emergent phenomena of interest.
+By examining the structure of the full space of possible parameters, scientists can reason about the sensitivity and robustness of the model with respect to different parameter combinations \cite{foster1993significance, prinz2004similar, achard2006complex, o2014cell, alonso2019visualization}.
+
+The preferred formalism for parameter identification in science, statistical inference, has been used to great success in neuroscience through the stipulation of statistical generative models \cite{kass2001spike, brown1998statistical, paninski2004maximum, truccolo2005point, schneidman2006weak, druckmann2007novel, turner2007maximum, byron2009gaussian, macke2011empirical, park2011bayesian, granot2013stimulus, latimer2015single, lakshminarasimhan2018dynamic, duncker2019learning, ladenbauer2019inferring} (see review, \cite{paninski2018neural}). 
 %Exact Bayesian inference is rarely tractable, so Markov chain Monte Carlo (MCMC) and variation inference (VI) techniques are used in practice.
-Since most neural circuit models stipulate a noisy system of differential equations that can only be sampled or realized through forward simulation, they lack the explicit likelihood central to the probabilistic modeling toolkit.
-Therefore, the most popular approaches to the inverse problem have been likelihood-free methods such as approximate Bayesian computation (ABC) \cite{liepe2014framework}, in which a set of reasonable parameters estimates is obtained via simulation and rejection.
+However, most neural circuit models in theoretical neuroscience stipulate a noisy system of differential equations that can only be sampled or realized through forward simulation; they lack the explicit likelihood central to the probabilistic modeling toolkit.
+Therefore, the most popular approaches to the inverse problem have been likelihood-free methods such as approximate Bayesian computation (ABC) \cite{sisson2007sequential, liepe2014framework}, in which a set of reasonable parameters estimates is obtained via simulation and rejection.
 
 % now transition to deep ML...
 %Of course, this same tradeoff has been confronted in many scientific fields characterized by the need to do inference in complex models.
@@ -100,11 +103,11 @@ These works have used deep neural networks to expand the expressivity and accura
 % What's wrong with existing methodology:
 Existing approaches to the inverse problem in theoretical neuroscience fall short in three key ways. 
 First, theoretical models of neural computation aim to reflect a complex biological reality, and as a result, such models lack tractable likelihoods.
-Thus, standard approaches from statistical inference are unavailable.
-The parameter sets obtained from likelihood-free ABC lack a formalized link to Bayesian inference (except in the unrealistic $0$-distance scenario), and lack parameter probabilities.
-Second is the undesirable trade-off between the flexibility and tractability of the approximated posterior distribution.
-While sampling-based approaches like ABC and Markov chain Monte Carlo (MCMC) can produce flexible posterior approximations, they must be run continually for increasing samples.
-While VAE approaches can result in tractable posterior sampling and sensitivity measurements post-optimization, existing approaches have relied on simplified classes of distributions, which restrict the flexibility of the posterior approximation.
+Neuroscientists therefore resort to using approximate Bayesian computation, which requires a rejection heuristic, scales poorly, and only obtains sets of non-rejected parameters lacking probabilities.
+Second, is the undesirable trade-off between the flexibility and sampling speed of the approximated posterior distributions.
+Sampling-based approaches to statistical inference (e.g. ABC and Markov chain Monte Carlo (MCMC)) have flexibility in approximation, but must be executed continually for increasing samples.
+While variational approaches often result in fast sampling and sensitivity measurements post-optimization, existing approaches have relied on simplified classes of distributions.  
+These simple distributions (e.g. mean-field gaussians) restrict the flexibility of the posterior approximation.
 And third, one can never assume what inferred model parameters may predict.
 This is well understood when considering Box's loop and the role of posterior predictive checks in the development and critique of scientific models \cite{gelman2013philosophy, blei2014build}.
 Uncertainty about the properties of inferred model predictions introduce a conceptual degree of freedom to the inverse problem that may be unnecessary and undesirable given the scientific motivation.
@@ -135,7 +138,7 @@ Taken together, emergent property inference (EPI) provides a methodology for inf
 We use a classic example of parametric degeneracy in a biological system, the stomatogastric ganglion \cite{goldman2001global}, to motivate and clarify the technical details of EPI.
 
 Equipped with this methodology, we then investigated three models of current importance in theoretical neuroscience.
-These models were chosen to demonstrate generality through ranges of biological realism (from conductance-based biophysics to recurrent neural networks), neural system function (from pattern generation to abstract cognitive function), and network scale (from four to hundreds of neurons).
+These models were chosen to demonstrate generality through ranges of biological realism (from conductance-based biophysics to recurrent neural networks), neural system function (from pattern generation to decision making), and network scale (from four to hundreds of neurons).
 %First, we use EPI to produce a set of verifiable hypotheses of input-responsivity in a four neuron-type dynamical model of primary visual cortex; we then validate these hypotheses in the model.
 First, we use EPI to understand the characteristics of noise that govern Fano factor in a stochastic four neuron-type model of primary visual cortex.
 %Second, we demonstrated how the systematic application of EPI to levels of task performance can generate experimentally testable hypotheses regarding connectivity in superior colliculus.  
