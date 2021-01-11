@@ -1,4 +1,4 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{100}
 
 \bibitem{abbott2008theoretical}
 Larry~F Abbott.
@@ -121,6 +121,12 @@ Il~Memming Park and Jonathan~W Pillow.
 \newblock Bayesian spike-triggered covariance analysis.
 \newblock In {\em Advances in neural information processing systems}, pages
   1692--1700, 2011.
+
+\bibitem{granot2013stimulus}
+Einat Granot-Atedgi, Ga{\v{s}}per Tka{\v{c}}ik, Ronen Segev, and Elad
+  Schneidman.
+\newblock Stimulus-dependent maximum entropy models of neural population codes.
+\newblock {\em PLoS Comput Biol}, 9(3):e1002922, 2013.
 
 \bibitem{latimer2015single}
 Kenneth~W Latimer, Jacob~L Yates, Miriam~LR Meister, Alexander~C Huk, and
@@ -259,11 +265,6 @@ Dustin Tran, Rajesh Ranganath, and David Blei.
 Danilo~Jimenez Rezende and Shakir Mohamed.
 \newblock Variational inference with normalizing flows.
 \newblock {\em International Conference on Machine Learning}, 2015.
-
-\bibitem{dinh2016density}
-Laurent Dinh, Jascha Sohl-Dickstein, and Samy Bengio.
-\newblock Density estimation using real nvp.
-\newblock {\em arXiv preprint arXiv:1605.08803}, 2016.
 
 \bibitem{papamakarios2017masked}
 George Papamakarios, Theo Pavlakou, and Iain Murray.
@@ -439,6 +440,125 @@ Blake~A Richards and et~al.
 \newblock A deep learning framework for neuroscience.
 \newblock {\em Nature Neuroscience}, 2019.
 
+\bibitem{mlynarski2020statistical}
+Wiktor M{\l}ynarski, Michal Hled{\'\i}k, Thomas~R Sokolowski, and Ga{\v{s}}per
+  Tka{\v{c}}ik.
+\newblock Statistical analysis and optimality of neural systems.
+\newblock {\em bioRxiv}, page 848374, 2020.
+
+\bibitem{saul1998mean}
+Lawrence Saul and Michael Jordan.
+\newblock A mean field learning algorithm for unsupervised neural networks.
+\newblock In {\em Learning in graphical models}, pages 541--554. Springer,
+  1998.
+
+\bibitem{metropolis1953equation}
+Nicholas Metropolis, Arianna~W Rosenbluth, Marshall~N Rosenbluth, Augusta~H
+  Teller, and Edward Teller.
+\newblock Equation of state calculations by fast computing machines.
+\newblock {\em The journal of chemical physics}, 21(6):1087--1092, 1953.
+
+\bibitem{hastings1970monte}
+W~Keith Hastings.
+\newblock Monte carlo sampling methods using markov chains and their
+  applications.
+\newblock 1970.
+
+\bibitem{girolami2011riemann}
+Mark Girolami and Ben Calderhead.
+\newblock Riemann manifold langevin and hamiltonian monte carlo methods.
+\newblock {\em Journal of the Royal Statistical Society: Series B (Statistical
+  Methodology)}, 73(2):123--214, 2011.
+
+\bibitem{golightly2011bayesian}
+Andrew Golightly and Darren~J Wilkinson.
+\newblock Bayesian parameter inference for stochastic biochemical network
+  models using particle markov chain monte carlo.
+\newblock {\em Interface focus}, 1(6):807--820, 2011.
+
+\bibitem{cranmer2020frontier}
+Kyle Cranmer, Johann Brehmer, and Gilles Louppe.
+\newblock The frontier of simulation-based inference.
+\newblock {\em Proceedings of the National Academy of Sciences}, 2020.
+
+\bibitem{beaumont2002approximate}
+Mark~A Beaumont, Wenyang Zhang, and David~J Balding.
+\newblock Approximate bayesian computation in population genetics.
+\newblock {\em Genetics}, 162(4):2025--2035, 2002.
+
+\bibitem{marjoram2003markov}
+Paul Marjoram, John Molitor, Vincent Plagnol, and Simon Tavar{\'e}.
+\newblock Markov chain monte carlo without likelihoods.
+\newblock {\em Proceedings of the National Academy of Sciences},
+  100(26):15324--15328, 2003.
+
+\bibitem{bittner2019degenerate}
+Sean~R Bittner, Agostina Palmigiano, Kenneth~D Miller, and John~P Cunningham.
+\newblock Degenerate solution networks for theoretical neuroscience.
+\newblock {\em Computational and Systems Neuroscience Meeting (COSYNE), Lisbon,
+  Portugal}, 2019.
+
+\bibitem{bittner2019examining}
+Sean~R Bittner, Alex~T Piet, Chunyu~A Duan, Agostina Palmigiano, Kenneth~D
+  Miller, Carlos~D Brody, and John~P Cunningham.
+\newblock Examining models in theoretical neuroscience with degenerate solution
+  networks.
+\newblock {\em Bernstein Conference 2019, Berlin, Germany}, 2019.
+
+\bibitem{nonnenmacher2018sbi}
+Marcel Nonnenmacher, Pedro~J Goncalves, Giacomo Bassetto, Jan-Matthis
+  Lueckmann, and Jakob~H Macke.
+\newblock Robust statistical inference for simulation-based models in
+  neuroscience.
+\newblock In {\em Bernstein Conference 2018, Berlin, Germany}, 2018.
+
+\bibitem{desitler2019statistical}
+Deistler Michael, , Pedro~J Goncalves, Kaan Oecal, and Jakob~H Macke.
+\newblock Statistical inference for analyzing sloppiness in neuroscience
+  models.
+\newblock In {\em Bernstein Conference 2019, Berlin, Germany}, 2019.
+
+\bibitem{gonccalves2019training}
+Pedro~J Gon{\c{c}}alves, Jan-Matthis Lueckmann, Michael Deistler, Marcel
+  Nonnenmacher, Kaan {\"O}cal, Giacomo Bassetto, Chaitanya Chintaluri,
+  William~F Podlaski, Sara~A Haddad, Tim~P Vogels, et~al.
+\newblock Training deep neural density estimators to identify mechanistic
+  models of neural dynamics.
+\newblock {\em bioRxiv}, page 838383, 2019.
+
+\bibitem{LueckmannGoncalves_17}
+Jan-Matthis Lueckmann, Pedro~J Goncalves, Giacomo Bassetto, Kaan {\"O}cal,
+  Marcel Nonnenmacher, and Jakob~H Macke.
+\newblock Flexible statistical inference for mechanistic models of neural
+  dynamics.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages
+  1289--1299, 2017.
+
+\bibitem{papamakarios2019sequential}
+George Papamakarios, David Sterratt, and Iain Murray.
+\newblock Sequential neural likelihood: Fast likelihood-free inference with
+  autoregressive flows.
+\newblock In {\em The 22nd International Conference on Artificial Intelligence
+  and Statistics}, pages 837--848. PMLR, 2019.
+
+\bibitem{hermans2020likelihood}
+Joeri Hermans, Volodimir Begy, and Gilles Louppe.
+\newblock Likelihood-free mcmc with amortized approximate ratio estimators.
+\newblock In {\em International Conference on Machine Learning}, pages
+  4239--4248. PMLR, 2020.
+
+\bibitem{wainwright2008graphical}
+Martin~J Wainwright, Michael~I Jordan, et~al.
+\newblock Graphical models, exponential families, and variational inference.
+\newblock {\em Foundations and Trends{\textregistered} in Machine Learning},
+  1(1--2):1--305, 2008.
+
+\bibitem{bittner2019approximating}
+Sean~R Bittner and John~P Cunningham.
+\newblock Approximating exponential family models (not single distributions)
+  with a two-network architecture.
+\newblock {\em arXiv preprint arXiv:1903.07515}, 2019.
+
 \bibitem{karlsson2012efficient}
 Johan Karlsson, Milena Anguelova, and Mats Jirstrand.
 \newblock An efficient method for structural identifiability analysis of large
@@ -474,16 +594,35 @@ Maria~Pia Saccomani, Stefania Audoly, and Leontina D'Angi{\`o}.
   conditions.
 \newblock {\em Automatica}, 39(4):619--632, 2003.
 
+\bibitem{papamakarios2019normalizing}
+George Papamakarios, Eric Nalisnick, Danilo~Jimenez Rezende, Shakir Mohamed,
+  and Balaji Lakshminarayanan.
+\newblock Normalizing flows for probabilistic modeling and inference.
+\newblock {\em arXiv preprint arXiv:1912.02762}, 2019.
+
+\bibitem{dinh2017density}
+Laurent Dinh, Jascha Sohl-Dickstein, and Samy Bengio.
+\newblock Density estimation using real nvp.
+\newblock {\em Proceedings of the 5th International Conference on Learning
+  Representations}, 2017.
+
+\bibitem{kingma2018glow}
+Durk~P Kingma and Prafulla Dhariwal.
+\newblock Glow: Generative flow with invertible 1x1 convolutions.
+\newblock In {\em Advances in neural information processing systems}, pages
+  10215--10224, 2018.
+
+\bibitem{kingma2016improved}
+Durk~P Kingma, Tim Salimans, Rafal Jozefowicz, Xi~Chen, Ilya Sutskever, and Max
+  Welling.
+\newblock Improved variational inference with inverse autoregressive flow.
+\newblock {\em Advances in neural information processing systems},
+  29:4743--4751, 2016.
+
 \bibitem{kingma2014adam}
 Diederik~P Kingma and Jimmy Ba.
 \newblock Adam: A method for stochastic optimization.
 \newblock {\em International Conference on Learning Representations}, 2015.
-
-\bibitem{wainwright2008graphical}
-Martin~J Wainwright, Michael~I Jordan, et~al.
-\newblock Graphical models, exponential families, and variational inference.
-\newblock {\em Foundations and Trends{\textregistered} in Machine Learning},
-  1(1--2):1--305, 2008.
 
 \bibitem{blei2017variational}
 David~M Blei, Alp Kucukelbir, and Jon~D McAuliffe.
