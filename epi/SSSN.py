@@ -1,10 +1,12 @@
-import tensorflow as tf
+import tensorflow as tf 
 import numpy as np
 import os
 from scipy.io import loadmat
 from epi.util import dbg_check
+import matplotlib.pyplot as plt
 #import tensorflow_probability as tfp
 
+FANO_EPS = 1e-6
 neuron_inds = {'E':0, 'P':1, 'S':2, 'V':3}
 
 def load_SSSN_variable(v, ind=0):
@@ -63,14 +65,17 @@ tau_noise = 0.005*np.array([1., 1., 1., 1.], np.float32)
 tau_noise = tau_noise[None,None,:,None]
 
 # Dim is [M,N,|r|,T]
-def SSSN_sim_traj(sigma_eps, W_mat, N=1, dt=0.0005, T=150):
+def SSSN_sim_traj(sigma_eps, W_mat, N=1, dt=0.0005, T=150, x_init=None):
     sigma_eps = sigma_eps[:,None,:,None]
-    def _SSSN_sim_traj(h):
+    def _SSSN_sim_traj(h, x_init=x_init):
         h = h[:,None,:,None]
         W = W_mat[None,None,:,:]
 
         _x_shape = tf.ones((h.shape[0], N, 4, 1), dtype=tf.float32)
-        x_init = tf.random.uniform((h.shape[0], N, 4, 1), 0.1, 0.25)
+        if x_init is None:
+            x_init = tf.random.uniform((h.shape[0], N, 4, 1), 0.1, 0.25)
+        else:
+            x_init = x_init[:,:,:,None]
         eps_init = 0.*_x_shape
         y_init = tf.concat((x_init, eps_init), axis=2)
 
@@ -157,53 +162,63 @@ def get_drdh(alpha, eps, W_mat, N=1, dt=0.0005, T=150, delta_step=0.01):
         return T_x
     return _drdh
 
-FANO_EPS = 1e-6
 def get_Fano(alpha, sigma_eps, W_mat, N=100, dt=0.0005, T=150, T_ss=100, mu=0.01, k=100.):
-    alpha_ind = neuron_inds[alpha]
+    if not (alpha == 'all'):
+        alpha_ind = neuron_inds[alpha]
+
     sssn_sim_traj = SSSN_sim_traj(sigma_eps, W_mat, N=N, dt=dt, T=T)
     def Fano(h):
-        x_t = k*sssn_sim_traj(h)[:,:,alpha_ind,T_ss:]
-        #dbg_check(x_t, 'x_t')
-        _means = tf.math.reduce_mean(x_t, axis=2)
-        _vars = tf.square(tf.math.reduce_std(x_t, axis=2))
-        #dbg_check(_means, 'means')
-        #dbg_check(_vars, 'vars')
+        if (alpha == 'all'):
+            x_t = k*sssn_sim_traj(h)[:,:,:4,T_ss:]
+        else:
+            x_t = k*sssn_sim_traj(h)[:,:,alpha_ind,T_ss:]
+        _means = tf.math.reduce_mean(x_t, axis=-1)
+        _vars = tf.square(tf.math.reduce_std(x_t, axis=-1))
         fano = _vars / (_means+FANO_EPS) 
-        #dbg_check(fano, 'fano')
         vars_mean = tf.reduce_mean(fano, axis=1)
-        T_x = tf.stack((vars_mean, tf.square(vars_mean - mu)), axis=1)
+        if (alpha == 'all'):
+            T_x = tf.concat((vars_mean, tf.square(vars_mean - mu)), axis=1)
+        else:
+            T_x = tf.stack((vars_mean, tf.square(vars_mean - mu)), axis=1)
         return T_x
     return Fano
 
-def get_Fano_sigma(alpha, W_mat, h, N=100, dt=0.0005, T=150, T_ss=100, mu=0.01):
-    alpha_ind = neuron_inds[alpha]
+def get_Fano_sigma(alpha, W_mat, h, N=100, dt=0.0005, T=150, T_ss=100, mu=0.01, k=100.):
+    if not (alpha == 'all'):
+        alpha_ind = neuron_inds[alpha]
+
     sssn_sim_traj = SSSN_sim_traj_sigma(h, W_mat, N=N, dt=dt, T=T)
-    k = 100.
     def Fano(sigma_eps):
-        x_t = k*sssn_sim_traj(sigma_eps)[:,:,alpha_ind,T_ss:]
-        _means = tf.math.reduce_mean(x_t, axis=2)
-        _vars = tf.square(tf.math.reduce_std(x_t, axis=2))
+        if (alpha == 'all'):
+            x_t = k*sssn_sim_traj(sigma_eps)[:,:,:4,T_ss:]
+        else:
+            x_t = k*sssn_sim_traj(sigma_eps)[:,:,alpha_ind,T_ss:]
+        _means = tf.math.reduce_mean(x_t, axis=-1)
+        _vars = tf.square(tf.math.reduce_std(x_t, axis=-1))
         fano = _vars / _means 
         vars_mean = tf.reduce_mean(fano, axis=1)
-        T_x = tf.stack((vars_mean, tf.square(vars_mean - mu)), axis=1)
+        if (alpha == 'all'):
+            T_x = tf.concat((vars_mean, tf.square(vars_mean - mu)), axis=1)
+        else:
+            T_x = tf.stack((vars_mean, tf.square(vars_mean - mu)), axis=1)
         return T_x
     return Fano
 
-def plot_contrast_response(x, title, ax=None, linestyle='-', colors=None):
-    c = np.array([0., 0.06, 0.12, 0.25, 0.5, 1.])
-def plot_contrast_response(x, title, ax=None, linestyle='-', colors=None):
-    c = np.array([0., 0.06, 0.12, 0.25, 0.5, 1.])
+def plot_contrast_response(c, x, title='', ax=None, linestyle='-', colors=None, fontsize=14):
     if colors is None:
         colors = 4*['k']
     assert(x.shape[0] == c.shape[0])
     if ax is None:
-        fig, ax = plt.figure(1,1)
+        fig, ax = plt.subplots(1,1)
     for i in range(4):
-        ax.plot(100*c, x[:,i], linestyle, c=colors[i])
-    ax.set_ylim([0., .8])
-    ax.set_xlabel('contrast (%)')
-    ax.set_ylabel('rate')
-    ax.set_title(title)
+        ax.plot(100*c, x[:,i], linestyle, c=colors[i], lw=4)
+    ax.set_ylim([0., 80])
+    ticksize = fontsize-4
+    ax.set_xlabel('contrast (%)', fontsize=fontsize)
+    ax.set_ylabel('rate (Hz)', fontsize=fontsize)
+    ax.set_title(title, fontsize=fontsize)
+    plt.setp(ax.get_xticklabels(), fontsize=ticksize)
+    plt.setp(ax.get_yticklabels(), fontsize=ticksize)
     return ax
 
 def ISN_coeff(dh, H):

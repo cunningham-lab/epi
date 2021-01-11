@@ -56,8 +56,8 @@ parameters = [sigma_eps]
 model = Model(name, parameters)
 
 dt = 0.0005
-T = 150
-N = 50
+T = 100
+N = 5
 
 fano = get_Fano_sigma(alpha, W_mat, h, N=N, dt=dt, T=T, T_ss=T-50, mu=ff_mean)
 model.set_eps(fano)

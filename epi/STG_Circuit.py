@@ -202,7 +202,6 @@ def NetworkFreq(dt, T, sigma_I, mu):
         v_rect_LPF = tf.nn.conv1d(v_rect, avg_filter, stride=1, padding="VALID")[
             :, :, 0
         ]
-
         v_rect_LPF = v_rect_LPF - tf.expand_dims(tf.reduce_mean(v_rect_LPF, 1), 1)
 
         V = tf.matmul(tf.cast(v_rect_LPF, tf.complex64), Phi)
@@ -312,3 +311,37 @@ def Simulate_all(dt, T, sigma_I):
         return x_t
 
     return simulate
+
+
+def NetworkFreq_all(dt, T, sigma_I, mu):
+    simulate = Simulate_all(dt, T, sigma_I)
+    Phi = get_Phi(dt, T)
+    def network_freq(g_el, g_synA):
+        """Simulate the STG circuit given parameters z.
+
+        # Arguments
+            z (tf.tensor): Density network system parameter samples.
+
+        # Returns
+            g(z) (tf.tensor): Simulated system activity.
+
+        """
+
+        x_t = simulate(g_el, g_synA)
+
+        v = tf.transpose(x_t[:,:,None], [1,0,2])[:,fft_start:, :]
+        v_rect = tf.nn.relu(v)  # [M5,T-fft,1]
+        v_rect_LPF = tf.nn.conv1d(v_rect, avg_filter, stride=1, padding="VALID")[
+            :, :, 0
+        ]
+
+        v_rect_LPF = v_rect_LPF - tf.expand_dims(tf.reduce_mean(v_rect_LPF, 1), 1)
+
+        V = tf.matmul(tf.cast(v_rect_LPF, tf.complex64), Phi)
+
+        soft_argmax = tf.reduce_sum(tf.nn.softmax(BETA*tf.abs(V), axis=1)*_x_range, axis=1, keepdims=True)
+        f_h = soft_argmax*dFreq + min_freq
+        T_x = tf.concat((f_h, tf.square(f_h - mu[0])), 1)
+        return T_x
+
+    return network_freq
