@@ -5,6 +5,8 @@ import scipy.stats
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+import pickle
+import time
 import tensorflow as tf
 import tensorflow_probability as tfp
 from tensorflow_probability.python.internal import tensorshape_util
@@ -19,8 +21,10 @@ from epi.error_formatters import format_type_err_msg
 from epi.util import (
     gaussian_backward_mapping,
     np_column_vec,
-    init_path,
+    get_hash,
+    set_dir_index,
     array_str,
+    dbg_check,
 )
 
 DTYPE = tf.float32
@@ -97,8 +101,10 @@ class NormalizingFlow(tf.keras.Model):
         num_stages,
         num_layers,
         num_units,
+        elemwise_fn="affine",
+        num_bins=32,
         batch_norm=True,
-        bn_momentum=0.99,
+        bn_momentum=0.0,
         post_affine=True,
         bounds=None,
         random_seed=1,
@@ -110,17 +116,18 @@ class NormalizingFlow(tf.keras.Model):
         self._set_num_stages(num_stages)
         self._set_num_layers(num_layers)
         self._set_num_units(num_units)
+        self._set_elemwise_fn(elemwise_fn)
+        self._set_num_bins(num_bins)
         self._set_batch_norm(batch_norm)
-        if self.batch_norm:
-            self._set_bn_momentum(bn_momentum)
-        else:
+        if not self.batch_norm:
             self.bn_momentum = None
         self._set_post_affine(post_affine)
         self._set_bounds(bounds)
         self._set_random_seed(random_seed)
 
         self.stages = []
-        self.shift_and_log_scale_fns = []
+        # self.shift_and_log_scale_fns = []
+        self.bijector_fns = []
         self.permutations = []
         if self.batch_norm:
             self.batch_norms = []
@@ -131,14 +138,23 @@ class NormalizingFlow(tf.keras.Model):
         np.random.seed(self.random_seed)
         for i in range(num_stages):
             if arch_type == "coupling":
-                shift_and_log_scale_fn = tfb.real_nvp_default_template(
-                    hidden_layers=num_layers * [num_units]
-                )
+                num_masked = self.D // 2
+                if elemwise_fn == "affine":
+                    bijector_fn = tfb.real_nvp_default_template(
+                        hidden_layers=num_layers * [num_units]
+                    )
+                    stage = tfb.RealNVP(
+                        num_masked=num_masked, shift_and_log_scale_fn=bijector_fn
+                    )
+                    self.bijector_fns.append(bijector_fn)
+                elif elemwise_fn == "spline":
+                    bijector_fn = SplineParams(D - num_masked, num_layers, num_units,
+                                               self.num_bins, B=4.)
+                    stage = tfb.RealNVP(num_masked=num_masked, bijector_fn=bijector_fn)
+                    self.bijector_fns.append(bijector_fn._bin_widths)
+                    self.bijector_fns.append(bijector_fn._bin_heights)
+                    self.bijector_fns.append(bijector_fn._knot_slopes)
 
-                stage = tfb.RealNVP(
-                    num_masked=self.D // 2,
-                    shift_and_log_scale_fn=shift_and_log_scale_fn,
-                )
             elif arch_type == "autoregressive":
                 shift_and_log_scale_fn = tfb.AutoregressiveNetwork(
                     params=2, hidden_units=num_layers * [num_units]
@@ -149,18 +165,18 @@ class NormalizingFlow(tf.keras.Model):
 
             self.stages.append(stage)
             bijectors.append(stage)
-            self.shift_and_log_scale_fns.append(shift_and_log_scale_fn)
+            #self.shift_and_log_scale_fns.append(shift_and_log_scale_fn)
+            self.bijector_fns.append(bijector_fn)
 
             if i < self.num_stages - 1:
-                if (np.mod(i, 2) == 0):
-                    _perm_i = np.arange(self.D-1, -1, -1)
-                else:
-                    _perm_i = np.random.permutation(self.D)
-                perm_i = tfb.Permute(_perm_i)
+                lower_upper, perm = trainable_lu_factorization(self.D)
+                perm_i = tfp.bijectors.ScaleMatvecLU(
+                    lower_upper, perm, validate_args=False, name=None
+                )
                 self.permutations.append(perm_i)
                 bijectors.append(perm_i)
                 if self.batch_norm:
-                    bn = tf.keras.layers.BatchNormalization(momentum=self.bn_momentum)
+                    bn = tf.keras.layers.BatchNormalization(momentum=bn_momentum)
                     batch_norm_i = BatchNormalization(batchnorm_layer=bn)
                     self.batch_norms.append(batch_norm_i)
                     bijectors.append(batch_norm_i)
@@ -173,6 +189,7 @@ class NormalizingFlow(tf.keras.Model):
             self.PA = tfb.Chain([self.shift, self.scale])
             bijectors.append(self.PA)
 
+        # TODO Make this "or" ?
         if self.lb is not None and self.ub is not None:
             self.support_mapping = IntervalFlow(self.lb, self.ub)
             bijectors.append(self.support_mapping)
@@ -182,9 +199,10 @@ class NormalizingFlow(tf.keras.Model):
             distribution=self.q0, bijector=tfb.Chain(bijectors)
         )
 
-    def __call__(self, N):
-        tf.random.set_seed(self.random_seed)
+        if self.batch_norm:
+            self._set_bn_momentum(bn_momentum)
 
+    def __call__(self, N):
         x = self.q0.sample(N)
         log_q0 = self.q0.log_prob(x)
 
@@ -196,6 +214,7 @@ class NormalizingFlow(tf.keras.Model):
             if i < self.num_stages - 1:
                 permutation_i = self.permutations[i]
                 x = permutation_i(x)
+                sum_ldj += permutation_i.forward_log_det_jacobian(x, event_ndims=1)
                 if self.batch_norm:
                     batch_norm_i = self.batch_norms[i]
                     sum_ldj += batch_norm_i.forward_log_det_jacobian(x, event_ndims=1)
@@ -212,7 +231,7 @@ class NormalizingFlow(tf.keras.Model):
         log_q_x = log_q0 - sum_ldj
         return x, log_q_x
 
-    #@tf.function
+    # @tf.function
     def sample(self, N):
         """Generate N samples from the network.
 
@@ -224,7 +243,7 @@ class NormalizingFlow(tf.keras.Model):
         return self.__call__(N)[0]
 
     def _set_arch_type(self, arch_type):  # Make this noninherited?
-        arch_types = ["coupling", "autoregressive"]
+        arch_types = ["coupling"] #, "autoregressive"] No AR for now.
         if type(arch_type) is not str:
             raise TypeError(format_type_err_msg(self, "arch_type", arch_type, str))
         if arch_type not in arch_types:
@@ -243,7 +262,7 @@ class NormalizingFlow(tf.keras.Model):
     def _set_num_stages(self, num_stages):
         if type(num_stages) is not int:
             raise TypeError(format_type_err_msg(self, "num_stages", num_stages, int))
-        elif num_stages < 1:
+        elif num_stages < 0:
             raise ValueError(
                 "NormalizingFlow num_stages %d must be greater than 0." % num_stages
             )
@@ -267,6 +286,23 @@ class NormalizingFlow(tf.keras.Model):
             )
         self.num_units = num_units
 
+    def _set_elemwise_fn(self, elemwise_fn):
+        elemwise_fns = ["affine", "spline"]
+        if type(elemwise_fn) is not str:
+            raise TypeError(format_type_err_msg(self, "elemwise_fn", elemwise_fn, str))
+        if elemwise_fn not in elemwise_fns:
+            raise ValueError('NormalizingFlow elemwise_fn must be "affine" or "spline"')
+        self.elemwise_fn = elemwise_fn
+
+    def _set_num_bins(self, num_bins):
+        if type(num_bins) is not int:
+            raise TypeError(format_type_err_msg(self, "num_bins", num_bins, int))
+        elif num_bins < 2:
+            raise ValueError(
+                "NormalizingFlow spline num_bins %d must be greater than 1." % num_units
+            )
+        self.num_bins = num_bins
+
     def _set_batch_norm(self, batch_norm):
         if type(batch_norm) is not bool:
             raise TypeError(format_type_err_msg(self, "batch_norm", batch_norm, bool))
@@ -278,6 +314,19 @@ class NormalizingFlow(tf.keras.Model):
                 format_type_err_msg(self, "bn_momentum", bn_momentum, float)
             )
         self.bn_momentum = bn_momentum
+        bijectors = self.trans_dist.bijector.bijectors
+        for bijector in bijectors:
+            if type(bijector).__name__ == "BatchNormalization":
+                bijector.batchnorm.momentum = bn_momentum
+        return None
+
+    def _reset_bn_movings(self,):
+        bijectors = self.trans_dist.bijector.bijectors
+        for bijector in bijectors:
+            if type(bijector).__name__ == "BatchNormalization":
+                bijector.batchnorm.moving_mean.assign(np.zeros((self.D,)))
+                bijector.batchnorm.moving_variance.assign(np.ones((self.D,)))
+        return None
 
     def _set_post_affine(self, post_affine):
         if type(post_affine) is not bool:
@@ -315,10 +364,39 @@ class NormalizingFlow(tf.keras.Model):
             raise TypeError(format_type_err_msg(self, "random_seed", random_seed, int))
         self.random_seed = random_seed
 
+    def get_init_path(self, mu, Sigma):
+        init_hash = get_hash([mu, Sigma, self.lb, self.ub])
+        init_path = "./data/inits/%s/%s/" % (init_hash, self.to_string())
+        if not os.path.exists(init_path):
+            os.makedirs(init_path)
+
+        init_index = {"mu": mu, "Sigma": Sigma, "lb": self.lb, "ub": self.ub}
+        init_index_file = "./data/inits/%s/init.pkl" % init_hash
+
+        arch_index = {
+            "arch_type": self.arch_type,
+            "D": self.D,
+            "num_stages": self.num_stages,
+            "num_layers": self.num_layers,
+            "num_units": self.num_units,
+            "batch_norm": self.batch_norm,
+            "bn_momentum": self.bn_momentum,
+            "post_affine": self.post_affine,
+            "lb": self.lb,
+            "ub": self.ub,
+            "random_seed": self.random_seed,
+        }
+        arch_index_file = "./data/inits/%s/%s/arch.pkl" % (init_hash, self.to_string())
+
+        set_dir_index(init_index, init_index_file)
+        set_dir_index(arch_index, arch_index_file)
+
+        return init_path
+
     def initialize(
         self,
-        init_type,
-        init_params,
+        mu,
+        Sigma,
         N=500,
         num_iters=int(1e4),
         lr=1e-3,
@@ -370,26 +448,17 @@ class NormalizingFlow(tf.keras.Model):
         """
         optimizer = tf.keras.optimizers.Adam(lr)
 
-        _init_path = init_path(self.to_string(), init_type, init_params)
-        init_file = _init_path + "ckpt"
+        init_path = self.get_init_path(mu, Sigma)
+        init_file = init_path + "ckpt"
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=self)
-        ckpt = tf.train.latest_checkpoint(_init_path)
+        ckpt = tf.train.latest_checkpoint(init_path)
         if load_if_cached and (ckpt is not None):
             print("Loading variables from cached initialization.")
             status = checkpoint.restore(ckpt)
             status.expect_partial()  # Won't use optimizer momentum parameters
-            opt_data_file = _init_path + "opt_data.csv"
+            opt_data_file = init_path + "opt_data.csv"
             if os.path.exists(opt_data_file):
                 return pd.read_csv(opt_data_file)
-
-        if init_type == "iso_gauss":
-            loc = init_params["loc"]
-            scale = init_params["scale"]
-            mu = np.array(self.D * [loc])
-            Sigma = scale * np.eye(self.D)
-        elif init_type == "gaussian":
-            mu = np_column_vec(init_params["mu"])[:, 0]
-            Sigma = init_params["Sigma"]
 
         eta = gaussian_backward_mapping(mu, Sigma)
 
@@ -417,6 +486,7 @@ class NormalizingFlow(tf.keras.Model):
             gradients = [tf.clip_by_value(grad, ming, maxg) for grad in gradients]
 
             optimizer.apply_gradients(zip(gradients, params))
+
             return loss
 
         z, log_q_z = self(N)
@@ -427,7 +497,9 @@ class NormalizingFlow(tf.keras.Model):
         opt_it_dfs = [pd.DataFrame(d, index=[0])]
 
         for i in range(1, num_iters + 1):
+            start_time = time.time()
             loss = train_step()
+            ts_time = time.time() - start_time
             if np.isnan(loss):
                 raise ValueError("Initialization loss is nan.")
             if not np.isfinite(loss):
@@ -442,30 +514,23 @@ class NormalizingFlow(tf.keras.Model):
                 opt_it_dfs.append(pd.DataFrame(d, index=[0]))
                 if verbose:
                     if not np.isnan(KL):
-                        print(i, "H", H, "KL", KL, "loss", loss)
+                        print(
+                            i,
+                            "H",
+                            H,
+                            "KL",
+                            KL,
+                            "loss",
+                            loss,
+                            "%.2E s" % ts_time,
+                            flush=True,
+                        )
                     else:
-                        print(i, "H", H, "loss", loss)
-
+                        print(i, "H", H, "loss", loss, "%.2E s" % ts_time, flush=True)
         opt_df = pd.concat(opt_it_dfs, ignore_index=True)
-        opt_df.to_csv(_init_path + "opt_data.csv")
+        opt_df.to_csv(init_path + "opt_data.csv")
         checkpoint.save(file_prefix=init_file)
         return opt_df
-
-    def plot_init_opt(self, init_type, init_params):
-        _init_path = init_path(self.to_string(), init_type, init_params)
-        opt_data_file = _init_path + "opt_data.csv"
-        if os.path.exists(opt_data_file):
-            df = pd.read_csv(opt_data_file)
-        else:
-            print("Error: Initialization not found.")
-            return None
-        fig, axs = plt.subplots(1, 3, figsize=(12, 5))
-        has_KL = not np.isnan(df["KL"][0])
-        ys = ["loss", "H", "KL"] if has_KL else ["loss", "H"]
-        num_ys = len(ys)
-        for i in range(num_ys):
-            df.plot("iteration", ys[i], ax=axs[i])
-        return df
 
     def gauss_KL(self, z, log_q_z, mu, Sigma):
         if self.lb is not None or self.ub is not None:
@@ -484,13 +549,17 @@ class NormalizingFlow(tf.keras.Model):
         elif self.arch_type == "autoregressive":
             arch_type_str = "AR"
 
-        arch_string = "D%d_%s%d_L%d_U%d" % (
+        arch_string = "D%d_%s%d_%s_L%d_U%d" % (
             self.D,
             arch_type_str,
             self.num_stages,
+            self.elemwise_fn,
             self.num_layers,
             self.num_units,
         )
+
+        if self.batch_norm:
+            arch_string += "_bins=%d" % self.num_bins
 
         if self.batch_norm:
             arch_string += "_bnmom=%.2E" % self.bn_momentum
@@ -513,7 +582,7 @@ class IntervalFlow(tfp.bijectors.Bijector):
     * no bound: :math:`y_i = x_i`
     * only lower bound: :math:`y_i = \\log(1 + \\exp(x_i)) + lb_i`
     * only upper bound: :math:`y_i = -\\log(1 + \\exp(x_i)) + ub_i`
-    * upper and lower bound: :math:`y_i = \\frac{ub_i - lb_i}{2} \\tanh(x_i) + \\frac{ub_i + lb_i}{2}`
+    * upper and lower bound: :math:`y_i = \\frac{ub_i - lb_i} \\sigmoid(x_i) + \\frac{ub_i + lb_i}{2}`
 
     :param lb: Lower bound. N values are numeric including :obj:`float('-inf')`.
     :type lb: np.ndarray
@@ -547,17 +616,17 @@ class IntervalFlow(tfp.bijectors.Bijector):
         for lb_i, ub_i in zip(self.lb, self.ub):
             if lb_i >= ub_i:
                 raise ValueError("Lower bound %.2E > upper bound %.2E." % (lb_i, ub_i))
-        tanh_flg, softplus_flg = self.D * [0], self.D * [0]
-        tanh_m, tanh_c = self.D * [1.0], self.D * [0.0]
+        sigmoid_flg, softplus_flg = self.D * [0], self.D * [0]
+        sigmoid_m, sigmoid_c = self.D * [1.0], self.D * [0.0]
         softplus_m, softplus_c = self.D * [1.0], self.D * [0.0]
         for i in range(self.D):
             lb_i, ub_i = self.lb[i], self.ub[i]
             has_lb = not np.isneginf(lb_i)
             has_ub = not np.isposinf(ub_i)
             if has_lb and has_ub:
-                tanh_flg[i] = 1
-                tanh_m[i] = (ub_i - lb_i) / 2.0
-                tanh_c[i] = (ub_i + lb_i) / 2.0
+                sigmoid_flg[i] = 1
+                sigmoid_m[i] = ub_i - lb_i
+                sigmoid_c[i] = lb_i
             elif has_lb:
                 softplus_flg[i] = 1
                 softplus_m[i] = 1.0
@@ -567,10 +636,10 @@ class IntervalFlow(tfp.bijectors.Bijector):
                 softplus_m[i] = -1.0
                 softplus_c[i] = ub_i
 
-        self.tanh_flg = tf.constant(tanh_flg, dtype=DTYPE)
+        self.sigmoid_flg = tf.constant(sigmoid_flg, dtype=DTYPE)
         self.softplus_flg = tf.constant(softplus_flg, dtype=DTYPE)
-        self.tanh_m = tf.constant(tanh_m, dtype=DTYPE)
-        self.tanh_c = tf.constant(tanh_c, dtype=DTYPE)
+        self.sigmoid_m = tf.constant(sigmoid_m, dtype=DTYPE)
+        self.sigmoid_c = tf.constant(sigmoid_c, dtype=DTYPE)
         self.softplus_m = tf.constant(softplus_m, dtype=DTYPE)
         self.softplus_c = tf.constant(softplus_c, dtype=DTYPE)
 
@@ -586,18 +655,20 @@ class IntervalFlow(tfp.bijectors.Bijector):
         :rtype: (tf.Tensor, tf.Tensor)
         """
         ldj = 0.0
-        tanh_x = tf.tanh(x)
-        out = tf.math.multiply(self.tanh_m, tanh_x) + self.tanh_c
-        tanh_ldj = tf.reduce_sum(
+        EPS_log = 1e-3
+        sigmoid_x = tf.sigmoid(x)
+        out = tf.math.multiply(self.sigmoid_m, sigmoid_x) + self.sigmoid_c
+        sigmoid_ldj = tf.reduce_sum(
             tf.multiply(
-                self.tanh_flg,
-                tf.math.log(self.tanh_m + EPS)
-                + tf.math.log(1.0 - tf.square(tanh_x) + EPS),
+                self.sigmoid_flg,
+                tf.math.log(self.sigmoid_m)
+                + tf.math.log_sigmoid(x)
+                + tf.math.log_sigmoid(-x),
             ),
             1,
         )
-        ldj += tanh_ldj
-        x = tf.multiply(self.tanh_flg, out) + tf.multiply(1 - self.tanh_flg, x)
+        ldj += sigmoid_ldj
+        x = tf.multiply(self.sigmoid_flg, out) + tf.multiply(1 - self.sigmoid_flg, x)
 
         out = tf.math.multiply(self.softplus_m, tf.math.softplus(x)) + self.softplus_c
         softplus_ldj = tf.reduce_sum(
@@ -617,9 +688,9 @@ class IntervalFlow(tfp.bijectors.Bijector):
         :returns: The forward pass of the interval flow
         :rtype: (tf.Tensor, tf.Tensor)
         """
-        tanh_x = tf.tanh(x)
-        out = tf.math.multiply(self.tanh_m, tanh_x) + self.tanh_c
-        x = tf.multiply(self.tanh_flg, out) + tf.multiply(1 - self.tanh_flg, x)
+        sigmoid_x = tf.math.sigmoid(x)
+        out = tf.math.multiply(self.sigmoid_m, sigmoid_x) + self.sigmoid_c
+        x = tf.multiply(self.sigmoid_flg, out) + tf.multiply(1 - self.sigmoid_flg, x)
 
         out = tf.math.multiply(self.softplus_m, tf.math.softplus(x)) + self.softplus_c
         x = tf.multiply(self.softplus_flg, out) + tf.multiply(1 - self.softplus_flg, x)
@@ -634,7 +705,6 @@ class IntervalFlow(tfp.bijectors.Bijector):
         :returns: The backward pass of the interval flow
         :rtype: (tf.Tensor, tf.Tensor)
         """
-
         softplus_inv = tf.math.log(
             tf.math.exp(
                 tf.multiply(
@@ -648,10 +718,14 @@ class IntervalFlow(tfp.bijectors.Bijector):
             1 - self.softplus_flg, x
         )
 
-        tanh_inv = tf.math.atanh(
-            tf.multiply(self.tanh_flg, tf.divide(x - self.tanh_c, self.tanh_m))
+        logit_input = tf.multiply(
+            self.sigmoid_flg, tf.divide(x - self.sigmoid_c, self.sigmoid_m + EPS)
         )
-        x = tf.multiply(self.tanh_flg, tanh_inv) + tf.multiply(1 - self.tanh_flg, x)
+        logit = tf.math.log(logit_input + EPS) - tf.math.log(1.0 - logit_input + EPS)
+
+        x = tf.multiply(self.sigmoid_flg, logit) + tf.multiply(
+            1.0 - self.sigmoid_flg, x
+        )
         return x
 
     def forward_log_det_jacobian(self, x):
@@ -665,18 +739,19 @@ class IntervalFlow(tfp.bijectors.Bijector):
         """
         ldj = 0.0
         # Tanh stage
-        tanh_x = tf.tanh(x)
-        out = tf.math.multiply(self.tanh_m, tanh_x) + self.tanh_c
-        tanh_ldj = tf.reduce_sum(
+        sigmoid_x = tf.sigmoid(x)
+        out = tf.math.multiply(self.sigmoid_m, sigmoid_x) + self.sigmoid_c
+        sigmoid_ldj = tf.reduce_sum(
             tf.multiply(
-                self.tanh_flg,
-                tf.math.log(self.tanh_m + EPS)
-                + tf.math.log(1.0 - tf.square(tanh_x) + EPS),
+                self.sigmoid_flg,
+                tf.math.log(self.sigmoid_m)
+                + tf.math.log_sigmoid(x)
+                + tf.math.log_sigmoid(-x),
             ),
             1,
         )
-        ldj += tanh_ldj
-        x = tf.multiply(self.tanh_flg, out) + tf.multiply(1 - self.tanh_flg, x)
+        ldj += sigmoid_ldj
+        x = tf.multiply(self.sigmoid_flg, out) + tf.multiply(1 - self.sigmoid_flg, x)
 
         softplus_ldj = tf.reduce_sum(
             tf.math.multiply(self.softplus_flg, tf.math.log_sigmoid(x)), 1
@@ -695,168 +770,101 @@ class IntervalFlow(tfp.bijectors.Bijector):
         :rtype: (tf.Tensor, tf.Tensor)
         """
 
-        return -self.forward_log_det_jacobian(self.inverse(x))
+        ildj = -self.forward_log_det_jacobian(self.inverse(x))
+        return ildj
+
 
 def hp_df_to_nf(hp_df, model):
     nf = NormalizingFlow(
-        arch_type=hp_df['arch_type'],
+        arch_type=hp_df["arch_type"],
         D=model.D,
-        num_stages=int(hp_df['num_stages']),
-        num_layers=int(hp_df['num_layers']),
-        num_units=int(hp_df['num_units']),
-        batch_norm=bool(hp_df['batch_norm']),
-        bn_momentum=float(hp_df['bn_momentum']),
-        post_affine=bool(hp_df['post_affine']),
+        num_stages=int(hp_df["num_stages"]),
+        num_layers=int(hp_df["num_layers"]),
+        num_units=int(hp_df["num_units"]),
+        batch_norm=bool(hp_df["batch_norm"]),
+        bn_momentum=float(hp_df["bn_momentum"]),
+        post_affine=bool(hp_df["post_affine"]),
         bounds=model._get_bounds(),
-        random_seed=int(hp_df['random_seed']),
+        random_seed=int(hp_df["random_seed"]),
     )
     return nf
 
-""" The code below is used to implement SNL and SNPE.
 
-    Yeah, so it turns out these norm flow API's in tensorflow
-    are kinda sh**.  For conditional density estimation, use
-    https://github.com/srbittner/torch_nf
+class SplineParams(tf.Module):
+    def __init__(self, D, num_layers, num_units, nbins=32, B=1):
+        self._D = D
+        self._num_layers = num_layers
+        self._num_units = num_units
+        self._nbins = nbins
+        self._built = False
+        self._B = B
 
-class ConditionedNormFlow(tf.keras.Model):
-    def __init__(self, D, num_stages=3, num_layers=2, num_units=100):
-        super(ConditionedNormFlow, self).__init__()
-        self._set_D(D)
-        self._set_num_layers(num_layers)
-        self._set_num_units(num_units)
+        self._bin_widths = tf.keras.Sequential()
+        self._bin_heights = tf.keras.Sequential()
+        self._knot_slopes = tf.keras.Sequential()
 
-        self.q0 = tfd.MultivariateNormalDiag(loc=self.D * [0.0])
+        for i in range(num_layers-1):
+            self._bin_widths.add(tf.keras.layers.Dense(
+                num_units, activation='tanh', name="w%d" % (i+1)
+            ))
+            self._bin_heights.add(tf.keras.layers.Dense(
+                num_units, activation='tanh', name="h%d" % (i+1)
+            ))
+            self._knot_slopes.add(tf.keras.layers.Dense(
+                num_units, activation='tanh', name="s%d" % (i+1)
+            ))
 
-        self.conditioners = []
-        self.NVPs = []
-        self.permutations = []
+        self._bin_widths.add(tf.keras.layers.Dense(
+            D * self._nbins, activation=self._bin_positions, name="w%d" % (num_layers)
+        ))
+        self._bin_heights.add(tf.keras.layers.Dense(
+            D * self._nbins, activation=self._bin_positions, name="h%d" % (num_layers)
+        ))
+        self._knot_slopes.add(tf.keras.layers.Dense(
+            D * (self._nbins - 1), activation=self._slopes, name="s%d" % (num_layers)
+        ))
+        self._built = True
 
-        bijectors = []
+    def _bin_positions(self, x):
+        x = tf.reshape(x, [-1, self._D, self._nbins])
+        return tf.math.softmax(x, axis=-1) * (2 * self._B - self._nbins * 1e-2) + 1e-2
 
-        for i in range(num_stages):
-            conditioner = self._real_nvp_conditioner_template(
-                output_units=D // 2,
-                hidden_layers=num_layers * [num_units],
-                conditioner_num_layers=2,
-            )
-            self.conditioners.append(conditioner)
+    def _slopes(self, x):
+        x = tf.reshape(x, [-1, self._D, self._nbins - 1])
+        return tf.math.softplus(x) + 1e-2
 
-            NVP = tfb.RealNVP(num_masked=D // 2, shift_and_log_scale_fn=conditioner,)
-            self.NVPs.append(NVP)
-            bijectors.append(NVP)
-
-            if i < num_stages - 1:
-                permutation = tfb.Permute(np.random.permutation(self.D))
-                bijectors.append(permutation)
-
-        # I got stuck here... The Chain doesn't except key-word arguments.
-        self.dist = tfd.TransformedDistribution(
-            distribution=self.q0,
-            bijector=tfb.Chain(bijectors),
-            kwargs_split_fn=(lambda y: ({}, y)),
+    def __call__(self, x, D):
+        return tfb.RationalQuadraticSpline(
+            bin_widths=self._bin_widths(x),
+            bin_heights=self._bin_heights(x),
+            knot_slopes=self._knot_slopes(x),
+            range_min=-self._B,
         )
 
-    def _real_nvp_conditioner_template(
-        self, output_units, hidden_layers=[100, 100], conditioner_num_layers=2,
-    ):
-        def tf1_net(x, num_layers, units):
-            for i in range(num_layers):
-                x = tf1.layers.dense(inputs=x, units=units)
-            return x
 
-        def _fn(z, output_units, **condition_kwargs):
-            x_data = condition_kwargs["x_data"]
-
-            if tensorshape_util.rank(z.shape) == 1:
-                z = z[tf.newaxis, ...]
-                reshape_output = lambda y: y[0]
-            else:
-                reshape_output = lambda y: y
-
-            nlayers = len(hidden_layers)
-            units_1 = hidden_layers[0]
-            W = tf1_net(
-                x_data, num_layers=conditioner_num_layers, units=(self.D // 2 * units_1)
-            )
-            b = tf1_net(x_data, num_layers=conditioner_num_layers, units=units_1)
-            W = tf.reshape(W, (units_1, self.D // 2))
-            z = tf.tanh(tf.linalg.matvec(W, z) + b)
-
-            for i in range(1, nlayers):
-                W = tf1_net(
-                    x_data,
-                    num_layers=conditioner_num_layers,
-                    units=(hidden_layers[i - 1] * hidden_layers[i]),
-                )
-                b = tf1_net(
-                    x_data, num_layers=conditioner_num_layers, units=hidden_layers[i]
-                )
-                W = tf.reshape(W, (hidden_layers[i], hidden_layers[i - 1]))
-                z = tf.tanh(tf.linalg.matvec(W, z) + b)
-
-            W = tf1_net(
-                x_data,
-                num_layers=conditioner_num_layers,
-                units=(hidden_layers[-1] * self.D // 2),
-            )
-            b = tf1_net(x_data, num_layers=conditioner_num_layers, units=self.D // 2)
-            W = tf.reshape(W, (self.D // 2, hidden_layers[-1]))
-            z_out = tf.tanh(tf.linalg.matvec(W, z) + b)
-
-            shift, log_scale = tf.split(z_out, 2, axis=-1)
-            v1 = reshape_output(shift)
-            v2 = reshape_output(log_scale)
-            return v1, v2
-
-        return tf1.make_template("real_nvp_template", _fn)
-
-    def __call__(self, N, **kwargs):
-        return self.dist.sample(N, **kwargs)
-
-    def log_prob(self, z, **kwargs):
-        return self.dist.log_prob(z, **kwargs)
-
-    def plot_dist(self, N=100, kde=True, **kwargs):
-        z = self(N, **kwargs)
-        log_q_z = self.log_prob(z, **kwargs)
-        df = pd.DataFrame(z)
-        z_labels = ["z%d" % d for d in range(1, self.D + 1)]
-        df.columns = z_labels
-        df["log_q_z"] = log_q_z
-
-        log_q_z_std = log_q_z - np.min(log_q_z)
-        log_q_z_std = log_q_z_std / np.max(log_q_z_std)
-        cmap = plt.get_cmap("viridis")
-        g = sns.PairGrid(df, vars=z_labels)
-        g = g.map_upper(plt.scatter, color=cmap(log_q_z_std))
-        if (kde):
-            g = g.map_diag(sns.kdeplot)
-            g = g.map_lower(sns.kdeplot)
-        return g
-
-    def _set_D(self, D):
-        if type(D) is not int:
-            raise TypeError(format_type_err_msg(self, "D", D, int))
-        elif D < 2:
-            raise ValueError("NormalizingFlow D %d must be greater than 0." % D)
-        self.D = D
-
-    def _set_num_layers(self, num_layers):
-        if type(num_layers) is not int:
-            raise TypeError(format_type_err_msg(self, "num_layers", num_layers, int))
-        elif num_layers < 1:
-            raise ValueError(
-                "NormalizingFlow num_layers arg %d must be greater than 0." % num_layers
-            )
-        self.num_layers = num_layers
-
-    def _set_num_units(self, num_units):
-        if type(num_units) is not int:
-            raise TypeError(format_type_err_msg(self, "num_units", num_units, int))
-        elif num_units < 1:
-            raise ValueError(
-                "NormalizingFlow num_units %d must be greater than 0." % num_units
-            )
-        self.num_units = num_units
-
-"""
+def trainable_lu_factorization(
+    event_size, batch_shape=(), seed=None, dtype=tf.float32, name=None
+):
+    with tf.name_scope(name or "trainable_lu_factorization"):
+        event_size = tf.convert_to_tensor(
+            event_size, dtype_hint=tf.int32, name="event_size"
+        )
+        batch_shape = tf.convert_to_tensor(
+            batch_shape, dtype_hint=event_size.dtype, name="batch_shape"
+        )
+        random_matrix = tf.random.uniform(
+            shape=tf.concat([batch_shape, [event_size, event_size]], axis=0),
+            dtype=dtype,
+            seed=seed,
+        )
+        random_orthonormal = tf.linalg.qr(random_matrix)[0]
+        lower_upper, permutation = tf.linalg.lu(random_orthonormal)
+        lower_upper = tf.Variable(
+            initial_value=lower_upper, trainable=True, name="lower_upper"
+        )
+        # Initialize a non-trainable variable for the permutation indices so
+        # that its value isn't re-sampled from run-to-run.
+        permutation = tf.Variable(
+            initial_value=permutation, trainable=False, name="permutation"
+        )
+    return lower_upper, permutation
