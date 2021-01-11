@@ -195,6 +195,7 @@ def test_to_string():
     )
     assert nf.to_string() == "D4_AR4_L2_U15_rs1"
 
+from scipy.special import expit
 
 def interval_flow_np(x, lb, ub):
     def softplus(x):
@@ -210,10 +211,10 @@ def interval_flow_np(x, lb, ub):
         has_lb = not np.isneginf(lb_i)
         has_ub = not np.isposinf(ub_i)
         if has_lb and has_ub:
-            m = (ub_i - lb_i) / 2
+            m = (ub_i - lb_i)
             c = (ub_i + lb_i) / 2
-            y[i] = m * np.tanh(x_i) + c
-            ldj += np.log(m) + np.log(1.0 - np.square(np.tanh(x_i)) + EPS)
+            y[i] = m * expit(x_i) + c
+            ldj += np.log(m) + np.log(expit(x_i)+EPS) + np.log(expit(-x_i))
         elif has_lb:
             y[i] = softplus(x_i) + lb_i
             ldj += np.log(1.0 / (1.0 + np.exp(-x_i)) + EPS)
@@ -355,18 +356,18 @@ def test_initialization():
     assert np.isclose(Sigma_z, Sigma, atol=0.5).all()
 
     # For init load
-    nf.initialize(mu, Sigma)
+    nf.initialize(mu, Sigma, verbose=True)
 
     # Bounds
-    lb = np.zeros((D,))
-    ub = np.ones((D,))
+    lb = -0*np.ones((D,))
+    ub = 2*np.ones((D,))
     nf = NormalizingFlow(
-        "autoregressive", D, 2, 2, 15, batch_norm=True, bounds=(lb, ub)
+        "autoregressive", D, 2, 2, 15, batch_norm=True, bounds=(lb, ub),
     )
-    nf.initialize(mu, Sigma, num_iters=int(5e3))
+    nf.initialize(mu, Sigma, num_iters=int(5e3), verbose=True)
 
     return None
 
 if __name__ == '__main__':
-    pass
-    #test_initialization()
+    test_interval_flow()
+    test_initialization()

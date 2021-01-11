@@ -150,6 +150,7 @@ class BatchNormalization(bijector.Bijector):
     # Scale must be positive.
     g_constraint = lambda x: tf.nn.relu(x) + 1e-6
     self.batchnorm = batchnorm_layer or tf.keras.layers.BatchNormalization(
+        momentum=0.,
         gamma_constraint=g_constraint)
     self._validate_bn_layer(self.batchnorm)
     self._training = training
@@ -204,7 +205,8 @@ class BatchNormalization(bijector.Bijector):
     return _broadcast
 
   def _normalize(self, y):
-    return self.batchnorm.apply(y, training=self._training)
+    out = self.batchnorm.apply(y, training=self._training)
+    return out
 
   def _de_normalize(self, x):
     # Uses the saved statistics.
@@ -219,18 +221,23 @@ class BatchNormalization(bijector.Bijector):
         x, mean, variance, beta, gamma, self.batchnorm.epsilon)
 
   def _forward(self, x):
-    return self._normalize(x)
+    x = self._normalize(x)
+    return x
 
   def _inverse(self, y):
     return self._de_normalize(y)
 
-  def _forward_log_det_jacobian(self, x, use_saved_statistics=False):
+  def _forward_log_det_jacobian(self, x):
+    # Uses saved statistics to compute volume distortion.
+    return -self._inverse_log_det_jacobian(x, use_saved_statistics=False)
+
+  def _inverse_log_det_jacobian(self, y, use_saved_statistics=True):
     if not self.batchnorm.built:
       # Create variables.
-      self.batchnorm.build(x.shape)
+      self.batchnorm.build(y.shape)
 
     event_dims = self.batchnorm.axis
-    reduction_axes = [i for i in range(len(x.shape)) if i not in event_dims]
+    reduction_axes = [i for i in range(len(y.shape)) if i not in event_dims]
 
     # At training-time, ildj is computed from the mean and log-variance across
     # the current minibatch.
@@ -239,7 +246,7 @@ class BatchNormalization(bijector.Bijector):
         tf.where(
             tf.logical_or(use_saved_statistics, tf.logical_not(self._training)),
             self.batchnorm.moving_variance,
-            tf.nn.moments(x=x, axes=reduction_axes, keepdims=True)[1]) +
+            tf.nn.moments(x=y, axes=reduction_axes, keepdims=True)[1]) +
         self.batchnorm.epsilon)
 
     # TODO(b/137216713): determine whether it's unsafe for the reduce_sums below
@@ -252,8 +259,5 @@ class BatchNormalization(bijector.Bijector):
     log_total_variance = tf.reduce_sum(log_variance)
     # The ildj is scalar, as it does not depend on the values of x and are
     # constant across minibatch elements.
-    return log_total_gamma - 0.5 * log_total_variance
+    return - log_total_gamma + 0.5 * log_total_variance
 
-  def _inverse_log_det_jacobian(self, y):
-    # Uses saved statistics to compute volume distortion.
-    return -self._forward_log_det_jacobian(y, use_saved_statistics=True)

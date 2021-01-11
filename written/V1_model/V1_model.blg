@@ -1,0 +1,66 @@
+This is BibTeX, Version 0.99d (TeX Live 2020)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: V1_model.aux
+The style file: unsrt.bst
+Database file #1: epi.bib
+Warning--entry type for "allen2018layer" isn't style-file defined
+--line 31 of file epi.bib
+Repeated entry---line 558 of file epi.bib
+ : @url{allen2018layer
+ :                    ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 564 of file epi.bib
+ : @article{billeh2019systematic
+ :                              ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 1105 of file epi.bib
+ : @article{pfeffer2013inhibition
+ :                               ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 1129 of file epi.bib
+ : @article{ozeki2009inhibitory
+ :                             ,
+I'm skipping whatever remains of this entry
+Warning--empty journal in Chen2019
+You've used 15 entries,
+            1791 wiz_defined-function locations,
+            545 strings with 6829 characters,
+and the built_in function-call counts, 3761 in all, are:
+= -- 320
+> -- 211
+< -- 1
++ -- 76
+- -- 61
+* -- 305
+:= -- 619
+add.period$ -- 44
+call.type$ -- 15
+change.case$ -- 15
+chr.to.int$ -- 0
+cite$ -- 16
+duplicate$ -- 143
+empty$ -- 335
+format.name$ -- 61
+if$ -- 800
+int.to.chr$ -- 0
+int.to.str$ -- 15
+missing$ -- 14
+newline$ -- 77
+num.names$ -- 15
+pop$ -- 26
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 66
+stack$ -- 0
+substring$ -- 280
+swap$ -- 27
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 1
+while$ -- 38
+width$ -- 17
+write$ -- 161
+(There were 4 error messages)

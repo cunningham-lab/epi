@@ -13,6 +13,16 @@ import pandas as pd
 from sklearn.neighbors import KernelDensity
 from epi.error_formatters import format_type_err_msg
 
+def dbg_check(tensor, name):
+    num_elems = 1
+    for dim in tensor.shape:
+        num_elems *= dim
+    num_infs = tf.reduce_sum(tf.cast(tf.math.is_inf(tensor), tf.float32))
+    num_nans = tf.reduce_sum(tf.cast(tf.math.is_nan(tensor), tf.float32))
+
+    print(name, "infs %d/%d" % (num_infs, num_elems), "nans %d/%d" % (num_nans, num_elems))
+    return num_nans or num_infs
+
 def get_hash(hash_vars):
     m = hashlib.md5()
     for hash_var in hash_vars:
@@ -440,7 +450,7 @@ def plot_square_mat(
     ax.axis("off")
     return texts
 
-def pairplot(
+def old_pairplot(
     Z,
     dims,
     labels,
@@ -601,3 +611,245 @@ def filter_outliers(c, num_stds=4):
     ]
     return plot_inds, below_inds, over_inds
 
+
+
+
+def pairplot(
+    Z,
+    dims,
+    labels,
+    lb = None,
+    ub = None,
+    clims=None,
+    ticks=None,
+    c=None,
+    c_label=None,
+    cmap=None,
+    s=10,
+    starred=None,
+    c_starred = None,
+    fontsize=12,
+    figsize=(12, 12),
+    outlier_stds=10,
+    ticksize=None,
+    labelpads=None,
+    unity_line=False,
+    subplots = None,
+    pfname="images/temp.png",
+):
+    M = Z.shape[0]
+    num_dims = len(dims)
+    rand_order = np.random.permutation(M)
+    Z = Z[rand_order, :]
+    if c is not None:
+        c = c[rand_order]
+        if clims is not None:
+            all_inds = np.arange(c.shape[0])
+            below_inds = all_inds[c < clims[0]]
+            over_inds = all_inds[c > clims[1]]
+            plot_inds = all_inds[
+                np.logical_and(clims[0] <= c, c <= clims[1])
+            ]
+        else:
+            plot_inds, below_inds, over_inds = filter_outliers(c, outlier_stds)
+            clims = [None, None]
+    if ticksize is None:
+        ticksize = fontsize-4
+    xlabelpad = None
+    ylabelpad = None
+    if labelpads is not None:
+        if labelpads[0] is not None:
+            xlabelpad = labelpads[0]
+        if labelpads[1] is not None:
+            ylabelpad = labelpads[1]
+
+
+    if subplots is not None:
+        fig, axs = subplots
+    else:
+        fig, axs = plt.subplots(num_dims - 1, num_dims - 1, figsize=figsize)
+    for i in range(num_dims - 1):
+        dim_i = dims[i]
+        for j in range(1, num_dims):
+            if num_dims == 2:
+                ax = plt.gca()
+            else:
+                ax = axs[i, j - 1]
+            if j > i:
+                dim_j = dims[j]
+                if c is not None:
+                    ax.scatter(
+                        Z[below_inds, dim_j],
+                        Z[below_inds, dim_i],
+                        c="k",
+                        s=s,
+                        edgecolors="k",
+                        linewidths=0.25,
+                    )
+                    ax.scatter(
+                        Z[over_inds, dim_j],
+                        Z[over_inds, dim_i],
+                        c="w",
+                        s=s,
+                        edgecolors="k",
+                        linewidths=0.25,
+                    )
+                    h = ax.scatter(
+                        Z[plot_inds, dim_j],
+                        Z[plot_inds, dim_i],
+                        c=c[plot_inds],
+                        cmap=cmap,
+                        s=s,
+                        vmin=clims[0],
+                        vmax=clims[1],
+                        edgecolors="k",
+                        linewidths=0.25,
+                    )
+                else:
+                    h = ax.scatter(
+                        Z[:, dim_j], Z[:, dim_i], c='k', s=s, edgecolors="k", linewidths=0.25,
+                    )
+                if starred is not None:
+                    if c_starred is None:
+                        ax.scatter(
+                            starred[:, dim_j], starred[:, dim_i], s=400, c='k', 
+                            marker='*', edgecolors="k", linewidths=1.,
+                        )
+                    else:
+                        ax.scatter(
+                            starred[:, dim_j], starred[:, dim_i], s=400, c=c_starred, 
+                            marker='*', edgecolors="k", linewidths=1.5,
+                        )
+
+
+                if unity_line:
+                    buf_frac = 0.1
+                    ax_xlim = ax.get_xlim()
+                    ax_ylim = ax.get_ylim()
+                    min_val = min(ax_xlim[0], ax_ylim[0])
+                    max_val = max(ax_xlim[1], ax_ylim[1])
+                    diff = max_val-min_val
+                    buf = buf_frac*diff
+                    min_val = min_val - buf
+                    max_val = max_val + buf
+                    ax.plot([min_val, max_val], [min_val, max_val], 'k--')
+                    ax.set_xlim([min_val, max_val])
+                    ax.set_ylim([min_val, max_val])
+
+                if i + 1 == j:
+                    ax.set_xlabel(labels[j], fontsize=fontsize, labelpad=xlabelpad)
+                    ax.set_ylabel(labels[i], fontsize=fontsize, labelpad=ylabelpad)
+                    plt.setp(ax.get_xticklabels(), fontsize=ticksize)
+                    plt.setp(ax.get_yticklabels(), fontsize=ticksize)
+                else:
+                    ax.set_xticklabels([])
+                    ax.set_yticklabels([])
+
+                if ticks is not None:
+                    ax.set_xticks(ticks, fontsize=fontsize)
+                    ax.set_yticks(ticks, fontsize=fontsize)
+                    
+                if not unity_line:
+                    if lb is not None and ub is not None:
+                        ax.set_xlim(lb[dim_j], ub[dim_j])
+                    if lb is not None and ub is not None:
+                        ax.set_ylim(lb[dim_i], ub[dim_i])
+            else:
+                ax.axis("off")
+
+    if c is not None:
+        fig.subplots_adjust(right=0.90)
+        cbar_ax = fig.add_axes([0.92, 0.15, 0.04, 0.7])
+        clb = fig.colorbar(h, cax=cbar_ax)
+        a = (1.01 / (num_dims - 1)) / (0.9 / (num_dims - 1))
+        b = (num_dims - 1) * 1.15
+        plt.text(a, b, c_label, {"fontsize": fontsize}, transform=ax.transAxes)
+        clb.ax.tick_params(labelsize=ticksize)
+    # plt.savefig(pfname)
+    return fig, axs
+
+def filter_outliers(c, num_stds=4):
+    max_stat = 10e5
+    _c = c[np.logical_and(c < max_stat, c > -max_stat)]
+    c_mean = np.mean(_c)
+    c_std = np.std(_c)
+    all_inds = np.arange(c.shape[0])
+    below_inds = all_inds[c < c_mean - num_stds * c_std]
+    over_inds = all_inds[c > c_mean + num_stds * c_std]
+    plot_inds = all_inds[
+        np.logical_and(c_mean - num_stds * c_std <= c, c <= c_mean + num_stds * c_std)
+    ]
+    return plot_inds, below_inds, over_inds
+
+purple = '#4C0099'
+def plot_T_x(T_x, T_x_sim, bins=30, xmin=None, xmax=None, 
+             x_mean=None, x_std=None, figsize=None,
+             xlabel=None, ylim=None, fontsize=14):
+    if xmin is not None and xmax is not None:
+        _range = (xmin, xmax)
+    else:
+        _range = (x_mean - 4*x_std, x_mean + 4*x_std)
+    fig, ax = plt.subplots(1,1, figsize=figsize)
+    ['ABC simulations', 'ABC posterior predictive']
+    if T_x is None:
+        ax.hist(T_x_sim, bins=bins, range=_range, color=purple, 
+                alpha=0.5, label='ABC posterior predictive')
+    else:
+        n, bins, patches = ax.hist(T_x, bins=bins, color='k', range=_range, 
+                alpha=0.5, label='ABC simulations')
+        ax.hist(T_x_sim, bins=bins, color=purple, alpha=0.5, label='ABC posterior predictive')
+    if ylim is not None:
+        ax.set_ylim(ylim)
+    ylim = ax.get_ylim()
+    ax.plot([x_mean, x_mean], ylim, 'k--')
+    ax.plot([x_mean+2*x_std, x_mean+2*x_std], ylim, '--', c=[0.5, 0.5, 0.5])
+    ax.plot([x_mean-2*x_std, x_mean-2*x_std], ylim, '--', c=[0.5, 0.5, 0.5])
+
+    if xlabel is not None:
+        ax.set_xlabel(xlabel, fontsize=fontsize)
+    xticks = [x_mean-2*x_std, x_mean, x_mean+2*x_std]
+    xticks = np.around(xticks, 2)
+    ax.set_xticks(xticks)
+    ax.set_xticklabels(xticks, fontsize=(fontsize-4))
+    plt.setp(ax.get_yticklabels(), fontsize=(fontsize-4))
+    ax.set_ylabel('count', fontsize=fontsize)
+
+    return ax
+
+def plot_opt(epi_df, max_k=None, cs=None, fontsize=12, figdir='./', save=False):
+    ticksize = fontsize-6
+    if max_k is None:
+        max_k = epi_df['k'].max()
+    keep = epi_df['k'] <= max_k
+    iters = epi_df['iteration'][keep].to_numpy()
+    H = epi_df['H'][keep].to_numpy()
+    m = epi_df.columns.str.contains('R').sum()
+    Rs = [epi_df['R%d' % r][keep].to_numpy() for r in range(1, m+1)]
+    
+    fig, ax = plt.subplots(1,1,figsize=(5,4))
+    ax.plot(iters, H, 'k')
+    plt.setp(ax.get_xticklabels(), fontsize=ticksize)
+    plt.setp(ax.get_yticklabels(), fontsize=ticksize)
+    plt.xlabel('iterations', fontsize=fontsize)
+    if save:
+        plt.tight_layout()
+        plt.savefig(os.path.join(figdir, 'opt_H.png'))
+    plt.show()
+ 
+    mu_c = .5*np.ones(3,)
+    if cs is None:
+        cs = ['k']
+    fig, ax = plt.subplots(1,1,figsize=(5,4))
+    for i in range(m):
+        line = '--' if (i >= m//2) else '-'
+        print(i, line)
+        ax.plot(iters, Rs[i], line, c=cs[i%(m//2)])
+    plt.plot([0, iters[-1]], [0, 0], c=mu_c)
+    plt.xlabel('iterations', fontsize=fontsize)
+    plt.setp(ax.get_xticklabels(), fontsize=ticksize)
+    plt.setp(ax.get_yticklabels(), fontsize=ticksize)
+    if save:
+        plt.tight_layout()
+        plt.savefig(os.path.join(figdir, 'opt_R.png'))
+    plt.show()
+    return None
