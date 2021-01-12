@@ -107,9 +107,10 @@ def test_epi():
     M = Model("lds_2D", params)
     M.set_eps(linear2D_freq)
     q_theta, opt_data, epi_path, failed = M.epi(
-        mu, num_iters=100, K=1, save_movie_data=True
+        mu, num_iters=100, K=1, save_movie_data=True, log_rate=10, 
     )
-    g = q_theta.plot_dist()
+    z = q_theta(50)
+    g = q_theta.plot_dist(z)
     M.epi_opt_movie(epi_path)
 
     params = [a11, a12, a21, a22]
@@ -130,7 +131,7 @@ def test_epi():
 
     M.set_eps(linear2D_freq)
     q_theta, opt_data, epi_path, failed = M.epi(
-        mu, num_iters=100, K=1, save_movie_data=True
+        mu, num_iters=100, K=1, save_movie_data=True, log_rate=10,
     )
     opt_data_cols = ["k", "iteration", "H", "cost", "converged"] + [
         "R%d" % i for i in range(1, M.m + 1)
@@ -157,7 +158,8 @@ def test_epi():
     M = Model("lds", params)
     M.set_eps(linear2D_freq)
     q_theta, opt_data, epi_path, _ = M.epi(
-        mu, K=2, num_iters=100, stop_early=True, verbose=True, save_movie_data=True,
+        mu, K=2, num_iters=100, stop_early=True, verbose=True, 
+        save_movie_data=True, log_rate=10,
     )
     M.epi_opt_movie(epi_path)
 
@@ -176,7 +178,8 @@ def test_epi():
     M.set_eps(linear2D_freq)
     # This should cause opt to fail with nan since c0=1e20 is too high.
     q_theta, opt_data, epi_path, _ = M.epi(
-        mu, K=3, num_iters=1000, c0=1e20, stop_early=True, verbose=True, save_movie_data=False,
+        mu, K=3, num_iters=1000, c0=1e20, stop_early=True, verbose=True, 
+        save_movie_data=False, log_rate=10,
     )
     with raises(IOError):
         M.epi_opt_movie(epi_path)

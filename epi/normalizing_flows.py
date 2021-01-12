@@ -117,6 +117,8 @@ class NormalizingFlow(tf.keras.Model):
         self._set_num_layers(num_layers)
         self._set_num_units(num_units)
         self._set_elemwise_fn(elemwise_fn)
+        if (self.arch_type == "autoregressive" and self.elemwise_fn == "spline"):
+            raise NotImplementedError("Error: MAF flows with splines are not implemented yet.")
         self._set_num_bins(num_bins)
         self._set_batch_norm(batch_norm)
         if not self.batch_norm:
@@ -151,17 +153,20 @@ class NormalizingFlow(tf.keras.Model):
                     bijector_fn = SplineParams(D - num_masked, num_layers, num_units,
                                                self.num_bins, B=4.)
                     stage = tfb.RealNVP(num_masked=num_masked, bijector_fn=bijector_fn)
+                    # make parameters visible to autograd
                     self.bijector_fns.append(bijector_fn._bin_widths)
                     self.bijector_fns.append(bijector_fn._bin_heights)
                     self.bijector_fns.append(bijector_fn._knot_slopes)
 
             elif arch_type == "autoregressive":
-                shift_and_log_scale_fn = tfb.AutoregressiveNetwork(
+                # Splines are not implemented for MAF networks yet!
+                bijector_fn = tfb.AutoregressiveNetwork(
                     params=2, hidden_units=num_layers * [num_units]
                 )
                 stage = tfb.MaskedAutoregressiveFlow(
-                    shift_and_log_scale_fn=shift_and_log_scale_fn
+                    shift_and_log_scale_fn=bijector_fn
                 )
+                self.bijector_fns.append(bijector_fn)
 
             self.stages.append(stage)
             bijectors.append(stage)
@@ -243,7 +248,7 @@ class NormalizingFlow(tf.keras.Model):
         return self.__call__(N)[0]
 
     def _set_arch_type(self, arch_type):  # Make this noninherited?
-        arch_types = ["coupling"] #, "autoregressive"] No AR for now.
+        arch_types = ["coupling", "autoregressive"]
         if type(arch_type) is not str:
             raise TypeError(format_type_err_msg(self, "arch_type", arch_type, str))
         if arch_type not in arch_types:
@@ -379,6 +384,8 @@ class NormalizingFlow(tf.keras.Model):
             "num_stages": self.num_stages,
             "num_layers": self.num_layers,
             "num_units": self.num_units,
+            "elemwise_fn": self.elemwise_fn,
+            "num_bins": self.num_bins,
             "batch_norm": self.batch_norm,
             "bn_momentum": self.bn_momentum,
             "post_affine": self.post_affine,
@@ -558,7 +565,7 @@ class NormalizingFlow(tf.keras.Model):
             self.num_units,
         )
 
-        if self.batch_norm:
+        if self.elemwise_fn == "spline":
             arch_string += "_bins=%d" % self.num_bins
 
         if self.batch_norm:

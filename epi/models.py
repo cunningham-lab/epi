@@ -720,7 +720,9 @@ class Model(object):
         else:
             R_ax = plt.subplot(4, 2, 3)
         R_ax.set_xlim(0, iters[-1])
-        min_R, max_R = np.min(R[20:,:]), np.max(R[20:,:])
+        R_ind1 = len(iters)//10
+        print(R_ind1, R.shape)
+        min_R, max_R = np.min(R[R_ind1:,:]), np.max(R[R_ind1:,:])
         R_ax.set_xlim(0, x_end)
         R_ax.set_ylim(min_R, max_R)
         R_ax.set_ylabel(r"$R(q_\theta)$", rotation="horizontal", fontsize=fontsize)
