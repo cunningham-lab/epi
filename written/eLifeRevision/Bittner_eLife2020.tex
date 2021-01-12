@@ -294,7 +294,7 @@ Such a normative principle of maximum entropy, which is also that of Bayesian in
 The recovered distribution of EPI is as variable as possible along each parametric manifold such that it produces the emergent property.
 
 EPI optimizes the weights and biases $\bm{\theta}$ of the deep neural network (which induces the probability distribution) by iteratively solving Equation \ref{eq:EPI}. 
-The optimization is complete when the sampled models with parameters $\mathbf{z} \sim q_{\bm{\theta}}(z \mid \mathcal{X})$ produce activity consistent with the specified emergent property (Fig. S4).
+The optimization is complete when the sampled models with parameters $\mathbf{z} \sim q_{\bm{\theta}}(z \mid \mathcal{X})$ produce activity consistent with the specified emergent property (Fig. \ref{fig:STG1}).
 %Such convergence is evaluated with a hypothesis test that the mean of each emergent property statistic is not different than its emergent property value (see Section \ref{methods_AL_opt}). 
 Such convergence is evaluated with a hypothesis test that the means and variances of each emergent property statistic are not different than their constrained values (see Section \ref{methods_AL_opt}). 
 Further validation of EPI is available in the supplementary materials, where we analyze a simpler model for which ground-truth statements can be made (Section \ref{methods_2DLDS}).
@@ -522,7 +522,7 @@ Here, we are interested in the scalability of EPI in number of parameters ($|\ma
  \end{equation}
  and dynamics
  \begin{equation}
- \tau \dot{\mathbf{x}} = -\mathbf{x} + W\mathbf{x}
+ \tau \frac{d\mathbf{x}}{dt} = -\mathbf{x} + W\mathbf{x}
  \end{equation}
 where $U = \begin{bmatrix} \mathbf{u}_1 & \mathbf{u}_2 \end{bmatrix}$, $V = \begin{bmatrix} \mathbf{v}_1 & \mathbf{v}_2 \end{bmatrix}$, $\mathbf{u}_1, \mathbf{u}_2, \mathbf{v}_1, \mathbf{v}_2 \in \left[-1, 1 \right]^N$, and $g=0.01$.
 
@@ -930,93 +930,101 @@ On the other end of the spectrum, many forward simulation iterations may be requ
 In such cases, backpropagating gradients through the SDE evolution will be expensive.
 
 \subsubsection{Example: 2D LDS}\label{methods_2DLDS}
-To gain intuition for EPI, consider a two-dimensional linear dynamical system (2D LDS) model (Fig. S1A):
+To gain intuition for EPI optimization, consider a two-dimensional linear dynamical system (2D LDS) model (Fig. \ref{fig:LDS1}A):
 \begin{equation} 
 \tau \frac{d\mathbf{x}}{dt} = A\mathbf{x}
 \end{equation}
-with
+where
 \begin{equation}
-A = \begin{bmatrix} a_1 & a_2 \\ a_3 & a_4 \end{bmatrix}.
+A = \begin{bmatrix} a_{1,1} & a_{1,2} \\ a_{2,1} & a_{2,2} \end{bmatrix},
 \end{equation}
-To run EPI with the dynamics matrix elements as the free parameters $\mathbf{z} = [ a_1, a_2, a_3, a_4]$ (fixing $\tau=1$), the emergent property statistics $T(\mathbf{x})$ were chosen to contain the first and second moments of the oscillatory frequency, $\frac{\text{imag}(\lambda_1)}{2 \pi}$, and the growth/decay factor, $\text{real}(\lambda_1)$, of the oscillating system. 
- $\lambda_1$ is the eigenvalue of greatest real part when the imaginary component is zero, and alternatively of positive imaginary component when the eigenvalues are complex conjugate pairs.  
-To learn the distribution of real entries of $A$ that produce a band of oscillating systems around 1Hz, we formalized this emergent property as $\text{real}(\lambda_1)$ having mean zero with variance $0.25^2$, and the oscillation frequency $2 \pi \text{imag}(\lambda_1)$ having mean $\omega = 1$ Hz with variance (0.1Hz)$^2$:
-\begin{equation}
- \mathbb{E}\left[T(\mathbf{x}) \right] ~~ \triangleq ~~ \mathbb{E} \begin{bmatrix} \text{real}(\lambda_1) \\ \text{imag}(\lambda_1) \\ (\text{real}(\lambda_1)-0)^2  \\ (\text{imag}(\lambda_1)-2 \pi \omega)^2 \end{bmatrix} = \begin{bmatrix} 0.0 \\ 2 \pi \omega \\ 0.25^2 \\ (2 \pi 0.1)^2 \end{bmatrix} ~~ \triangleq ~~ \bm{\mu}.
- \end{equation} 
+$\tau = 1$s, and $\mathbf{z} = [a_{1,1}, a_{1,2}, a_{2,1}, a_{2,2}]^\top$.
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.58]{figures/figLDS1/figLDS1.pdf}
+\includegraphics[scale=0.7]{figures/figLDS1/figLDS1.pdf}
 \end{center}
-\begin{flushleft}
 \caption{\small (LDS1): A. Two-dimensional linear dynamical system model, where real entries of the dynamics matrix $A$ are the parameters.  
-B. The EPI distribution for a two-dimensional linear dynamical system with $\tau=1$ that produces an average of 1Hz oscillations with some small amount of variance.  Dashed lines indicate the parameter axes. 
-C. Entropy throughout the optimization.  
-At the beginning of each augmented Lagrangian epoch (2,000 iterations), the entropy dipped due to the shifted optimization manifold where emergent property constraint satisfaction is increasingly weighted.  
-D. Emergent property moments throughout optimization.  
-At the beginning of each augmented Lagrangian epoch, the emergent property moments adjust closer to their constraints.}
-\end{flushleft}
+B. The EPI distribution for a two-dimensional linear dynamical system with $\tau=1$ that produces oscillations around 1Hz.  
+Inset show distribution of eigenvalues across the EPI posterior.
+C. (Left) Entropy throughout the optimization with different $c_0$.
+Individual optimizations were run with the same architecture and random seed.
+Norm of emergent property statistic errors throughout optimization.  
+}
 \label{fig:LDS1}
 \end{figure}
-
-Unlike the models we presented in the main text, this model admits an analytical form for the mean emergent property statistics given parameter $\mathbf{z}$, since the eigenvalues can be calculated using the quadratic formula: 
+ 
+To learn the distribution of real entries of $A$ that produce a band of oscillating systems around 1Hz, we formalized this emergent property as $\text{real}(\lambda_1)$ having mean zero and the oscillation frequency $2 \pi \text{imag}(\lambda_1)$ having mean $\omega = 1$ Hz.
+Thus, our statistics vector $f(\mathbf{x}; \mathbf{z})$ for this emergent property is two dimensional, and after specifying the variance constraint is
 \begin{equation}
-\lambda = \frac{(\frac{a_1 + a_4}{\tau}) \pm \sqrt{(\frac{a_1+a_4}{\tau})^2 + 4(\frac{a_2 a_3 - a_1 a_4}{\tau})}}{2}.
+\begin{split}
+\mathcal{X} ~~:~~ \mathbb{E}_{\mathbf{z}}\begin{bmatrix} \text{real}(\lambda_1 (\mathbf{x}; \mathbf{z})) \\ \text{imag}(\lambda_1 (\mathbf{x}; \mathbf{z})) \end{bmatrix}  &~~=~~  \begin{bmatrix} 0 \\ 2 \pi \omega \end{bmatrix}  \\ 
+ \text{Var}_{\mathbf{z}}\begin{bmatrix} \text{real}(\lambda_1 (\mathbf{x}; \mathbf{z}))\\ \text{imag}(\lambda_1 (\mathbf{x}; \mathbf{z})) \end{bmatrix}  &~~=~~  \begin{bmatrix} 0.5^2 \\ (\frac{\pi}{5})^2 \end{bmatrix}.
+\end{split}
 \end{equation}
 
-Importantly, even though $\mathbb{E}_{\mathbf{x}\sim p(\mathbf{x} \mid \mathbf{z})}\left[T(\mathbf{x})\right]$ is calculable directly via a closed form function and does not require simulation, we cannot derive the distribution $q^*_{\bm{\theta}}$ directly.  
+Notation of mean and variance taken with respect to $\mathbf{x}$ is omitted, since this model is deterministic, and EPI generalizes naturally to this scenario.
+ 
+ \begin{figure}
+\begin{center}
+\includegraphics[scale=0.7]{figures/figLDS2/figLDS2.pdf}
+\end{center}
+\caption{\small (LDS2): A. Probability contours in the $a_{1,1}$-$a_{2,2}$ plane were derived from the relationship to emergent property statistic of growth/decay factor $\text{real}(\lambda_1)$. 
+B. Probability contours in the $a_{1,2}$-$a_{2,1}$ plane were derived from the emergent property statistic of oscillation frequency $2\pi \text{imag}(\lambda_1)$.}
+\label{fig:LDS2}
+\end{figure}
+ 
+Unlike the models we presented in the main text, this model admits an analytical form for the mean emergent property statistics given parameter $\mathbf{z}$, since the eigenvalues can be calculated using the quadratic formula: 
+\begin{equation}
+\lambda = \frac{(\frac{a_{1,1} + a_{2,2}}{\tau}) \pm \sqrt{(\frac{a_{1,1}+a_{2,2}}{\tau})^2 + 4(\frac{a_{1,2} a_{2,1} - a_{1,1} a_{2,2}}{\tau})}}{2}.
+\end{equation}
+
+Importantly, even though $f(\mathbf{x}; \mathbf{z})$ is analytically available and does not require simulation, we cannot derive the distribution $q^*_{\bm{\theta}}(z \mid \mathcal{X})$ directly.  
 This fact is due to the formally hard problem of the backward mapping: finding the natural parameters $\eta$ from the mean parameters $\bm{\mu}$ of an exponential family distribution \cite{wainwright2008graphical}.  
-Instead, we used EPI to approximate this distribution (Fig. S1B). We used a real-NVP normalizing flow architecture with four masks, two neural network layers of 15 units per mask, with batch normalization momentum 0.99, mapped onto a support of $z_i \in \left[-10, 10 \right]$. (see Section \ref{methods_NF}).
+Instead, we can use EPI to approximate this distribution (Fig. \ref{fig:LDS1}B). 
+We used a real-NVP normalizing flow architecture with three masks, two neural network layers of 50 units per mask, mapped onto a support of $z_i \in \left[-10, 10 \right]$. (see Section \ref{methods_NF}).
+
+The effect of $c_0$ on the EPI optimization is shown in Figure \ref{fig:LDS1}C.
+Each EPI optimization was run for enough augmented Lagrangian epochs until convergence, with 1,000 iterations per epoch.  
+We see that low values of $c_0$ (e.g. $10^{-5}$) result in fast entropic growth to the uniform distribution at the outset of optimization. 
+We know this, since the dashed black line indicates the maximum entropy of a distribution with the given bounds. 
+Initial entropic growth can be desireable based on the application, however one should expect a greater number of epochs until convergence compared to a greater value of $c_0$ (e.g. $10^{-2}$).
+
+However, an important drawback of selecting a high `c0` is that you may miss interesting structure in the learned distribution.
 
 Even this relatively simple system has nontrivial (though intuitively sensible) structure in the parameter distribution.  
 To validate our method, we analytically derived the contours of the probability density from the emergent property statistics and values.
-In the $a_1$-$a_4$ plane, the black line at $\text{real}(\lambda_1) = \frac{a_1 + a_4}{2} = 0$, dotted black line at
-the standard deviation $\text{real}(\lambda_1) = \frac{a_1 + a_4}{2} \pm 0.25$, and the dotted gray line at twice the standard deviation
-$\text{real}(\lambda_1) = \frac{a_1 + a_4}{2} \pm 0.5$ follow the contour of probability density of the samples (Fig. S2A). 
-The distribution precisely reflects the desired statistical constraints and model degeneracy in the sum of $a_1$ and $a_4$.
+In the $a_1$-$a_4$ plane, the black line at $\text{real}(\lambda_1) = \frac{a_{1,1} + a_{2,2}}{2} = 0$, dotted black line at
+the standard deviation $\text{real}(\lambda_1) = \frac{a_{1,1} + a_{2,2}}{2} \pm 0.5$, and the dotted gray line at twice the standard deviation
+$\text{real}(\lambda_1) = \frac{a_{1,1} + a_{2,2}}{2} \pm 1$ follow the contour of probability density of the samples (Fig. \ref{fig:LDS2}A). 
+The distribution precisely reflects the desired statistical constraints and model degeneracy in the sum of $a_{1,1}$ and $a_{2,2}$.
 Intuitively, the parameters equivalent with respect to emergent property statistic $\text{real}(\lambda_1)$ have similar log densities.
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.5]{figures/figLDS2/figLDS2.pdf}
+\includegraphics[scale=0.7]{figures/figLDS3/figLDS3.pdf}
 \end{center}
-\begin{flushleft}
-\caption{\small (LDS2): A. Probability contours in the $a_1$-$a_4$ plane were derived from the relationship to emergent property statistic of growth/decay factor $\text{real}(\lambda_1)$. 
-B. Probability contours in the $a_2$-$a_3$ plane were derived from the emergent property statistic of oscillation frequency $2\pi \text{imag}(\lambda_1)$.}
-\end{flushleft}
-\label{fig:LDS2}
+\caption{\small (LDS3): Sampled dynamical systems $\mathbf{z} \sim q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ and their simulated activity from $\mathbf{x}(0) = [\frac{\sqrt{2}}{2}, -\frac{\sqrt{2}}{2}]$ colored by log probability. 
+A. Each dimension of the simulated trajectories throughout time.  
+B  The simulated trajectories in phase space.}
+\label{fig:LDS3}
 \end{figure}
 
-To explain the bimodality of the EPI distribution, we examined the imaginary component of $\lambda_1$.  When $\text{real}(\lambda_1) = \frac{a_1 + a_4}{2} = 0$, we have
+To explain the bimodality of the EPI distribution, we examined the imaginary component of $\lambda_1$.  When $\text{real}(\lambda_1) = \frac{a_{1,1} + a_{2,2}}{2} = 0$, we have
 \begin{equation}
 \text{imag}(\lambda_1) = \begin{cases}
-                             \sqrt{\frac{a_1 a_4 - a_2 a_3}{\tau}},  & \text{if } a_1 a_4 < a_2 a_3 \\
+                             \sqrt{\frac{a_{1,1} a_{2,2} - a_{1,2} a_{2,1}}{\tau}},  & \text{if } a_{1,1} a_{2,2} < a_{1,2} a_{2,1} \\
                              0 & \text{otherwise } \\
                          \end{cases}.
 \end{equation}
 
-When $\tau=1$ and $a_1 a_4 > a_2 a_3$ (center of distribution above), we have the following equation for the other two dimensions:
+When $\tau=1$ and $a_{1,1} a_{2,2} > a_{1,2} a_{2,1}$ (center of distribution above), we have the following equation for the other two dimensions:
 \begin{equation}
-\text{imag}(\lambda_1)^2 = a_1 a_4 - a_2 a_3
+\text{imag}(\lambda_1)^2 = a_{1,1} a_{2,2} - a_{1,2} a_{2,1}
 \end{equation}
-Since we constrained $\mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}\left[\text{imag}(\lambda)\right] = 2 \pi$ (with $\omega=1$), we can plot contours of the equation $\text{imag}(\lambda_1)^2 = a_1 a_4 - a_2 a_3 = (2 \pi)^2$ for various $a_1 a_4$ (Fig. S2B). 
-With $\sigma_{1,4} = \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}(|a_1 a_4 - E_{q_{\bm{\theta}}}[a_1 a_4]|)$, we show the contours as $a_1 a_4 = 0$ (black), $a_1 a_4 = -\sigma_{1,4}$ (black dotted), and $a_1 a_4 = -2\sigma_{1,4}$ (grey dotted). 
+Since we constrained $\mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}\left[\text{imag}(\lambda)\right] = 2 \pi$ (with $\omega=1$), we can plot contours of the equation $\text{imag}(\lambda_1)^2 = a_{1,1} a_{2,2} - a_{1,2} a_{2,1} = (2 \pi)^2$ assuming $a_{1,1} a_{2,2} = \mathbb{E}_z\left[a_{1,1} a_{2,2}\right]$ (Fig. \ref{fig:LDS2}B). 
 This validates the curved structure of the inferred distribution learned through EPI.  
-We took steps in negative standard deviation of $a_1 a_4$ (dotted and gray lines), since there are few positive values $a_1 a_4$ in the learned distribution.  
 Subtler combinations of model and emergent property will have more complexity, further motivating the use of EPI for understanding these systems.  
-As we expect, the distribution results in samples of two-dimensional linear systems oscillating near 1Hz (Fig. S3).
-
-\begin{figure}
-\begin{center}
-\includegraphics[scale=0.5]{figures/figLDS3/figLDS3.pdf}
-\end{center}
-\begin{flushleft}
-\caption{\small (LDS3): Sampled dynamical systems $\mathbf{z} \sim q_{\bm{\theta}}(\mathbf{z})$ and their simulated activity from $\mathbf{x}(0) = [\frac{\sqrt{2}}{2}, -\frac{\sqrt{2}}{2}]$ colored by log probability. A. Each dimension of the simulated trajectories throughout time.  
-B  The simulated trajectories in phase space.}
-\end{flushleft}
-\label{fig:LDS3}
-\end{figure}
-
+As we expect, the distribution results in samples of two-dimensional linear systems oscillating near 1Hz (Fig. \ref{fig:LDS3}).
 
 \subsubsection{Maximum entropy distributions and exponential families}\label{methods_ME_EF}
 %As we compare EPI to variational inference, it is important to consider that EPI is a maximum entropy method, and that maximum entropy methods have a fundamental relationship with exponential family distributions. 
@@ -1358,11 +1366,9 @@ The optimization converged after five epochs (Fig. S4).
 \begin{center}
 \includegraphics[scale=0.6]{figures/figSTG1/figSTG1.pdf}
 \end{center}
-\begin{flushleft}
 \caption{\small (STG1): EPI optimization of the STG model producing network syncing. 
 A. Entropy throughout optimization. 
 B. The emergent property statistic means and variances converge to their constraints at 25,000 iterations following the fifth augmented Lagrangian epoch.}
-\end{flushleft}
 \label{fig:STG1}
 \end{figure}
 
