@@ -633,6 +633,8 @@ def pairplot(
     outlier_stds=10,
     ticksize=None,
     labelpads=None,
+    unity_line=False,
+    subplots = None,
     pfname="images/temp.png",
 ):
     M = Z.shape[0]
@@ -662,7 +664,10 @@ def pairplot(
             ylabelpad = labelpads[1]
 
 
-    fig, axs = plt.subplots(num_dims - 1, num_dims - 1, figsize=figsize)
+    if subplots is not None:
+        fig, axs = subplots
+    else:
+        fig, axs = plt.subplots(num_dims - 1, num_dims - 1, figsize=figsize)
     for i in range(num_dims - 1):
         dim_i = dims[i]
         for j in range(1, num_dims):
@@ -708,13 +713,28 @@ def pairplot(
                     if c_starred is None:
                         ax.scatter(
                             starred[:, dim_j], starred[:, dim_i], s=400, c='k', 
-                            marker='*', edgecolors="k", linewidths=0.5,
+                            marker='*', edgecolors="k", linewidths=1.,
                         )
                     else:
                         ax.scatter(
                             starred[:, dim_j], starred[:, dim_i], s=400, c=c_starred, 
-                            marker='*', edgecolors="k", linewidths=0.5,
+                            marker='*', edgecolors="k", linewidths=1.5,
                         )
+
+
+                if unity_line:
+                    buf_frac = 0.1
+                    ax_xlim = ax.get_xlim()
+                    ax_ylim = ax.get_ylim()
+                    min_val = min(ax_xlim[0], ax_ylim[0])
+                    max_val = max(ax_xlim[1], ax_ylim[1])
+                    diff = max_val-min_val
+                    buf = buf_frac*diff
+                    min_val = min_val - buf
+                    max_val = max_val + buf
+                    ax.plot([min_val, max_val], [min_val, max_val], 'k--')
+                    ax.set_xlim([min_val, max_val])
+                    ax.set_ylim([min_val, max_val])
 
                 if i + 1 == j:
                     ax.set_xlabel(labels[j], fontsize=fontsize, labelpad=xlabelpad)
@@ -728,10 +748,12 @@ def pairplot(
                 if ticks is not None:
                     ax.set_xticks(ticks, fontsize=fontsize)
                     ax.set_yticks(ticks, fontsize=fontsize)
-                if lb is not None and ub is not None:
-                    ax.set_xlim(lb[dim_j], ub[dim_j])
-                if lb is not None and ub is not None:
-                    ax.set_ylim(lb[dim_i], ub[dim_i])
+                    
+                if not unity_line:
+                    if lb is not None and ub is not None:
+                        ax.set_xlim(lb[dim_j], ub[dim_j])
+                    if lb is not None and ub is not None:
+                        ax.set_ylim(lb[dim_i], ub[dim_i])
             else:
                 ax.axis("off")
 
@@ -761,13 +783,13 @@ def filter_outliers(c, num_stds=4):
 
 purple = '#4C0099'
 def plot_T_x(T_x, T_x_sim, bins=30, xmin=None, xmax=None, 
-             x_mean=None, x_std=None,
+             x_mean=None, x_std=None, figsize=None,
              xlabel=None, ylim=None, fontsize=14):
     if xmin is not None and xmax is not None:
         _range = (xmin, xmax)
     else:
         _range = (x_mean - 4*x_std, x_mean + 4*x_std)
-    fig, ax = plt.subplots(1,1)
+    fig, ax = plt.subplots(1,1, figsize=figsize)
     ['ABC simulations', 'ABC posterior predictive']
     if T_x is None:
         ax.hist(T_x_sim, bins=bins, range=_range, color=purple, 
@@ -793,3 +815,41 @@ def plot_T_x(T_x, T_x_sim, bins=30, xmin=None, xmax=None,
     ax.set_ylabel('count', fontsize=fontsize)
 
     return ax
+
+def plot_opt(epi_df, max_k=None, cs=None, fontsize=12, figdir='./', save=False):
+    ticksize = fontsize-6
+    if max_k is None:
+        max_k = epi_df['k'].max()
+    keep = epi_df['k'] <= max_k
+    iters = epi_df['iteration'][keep].to_numpy()
+    H = epi_df['H'][keep].to_numpy()
+    m = epi_df.columns.str.contains('R').sum()
+    Rs = [epi_df['R%d' % r][keep].to_numpy() for r in range(1, m+1)]
+    
+    fig, ax = plt.subplots(1,1,figsize=(5,4))
+    ax.plot(iters, H, 'k')
+    plt.setp(ax.get_xticklabels(), fontsize=ticksize)
+    plt.setp(ax.get_yticklabels(), fontsize=ticksize)
+    plt.xlabel('iterations', fontsize=fontsize)
+    if save:
+        plt.tight_layout()
+        plt.savefig(os.path.join(figdir, 'opt_H.png'))
+    plt.show()
+ 
+    mu_c = .5*np.ones(3,)
+    if cs is None:
+        cs = ['k']
+    fig, ax = plt.subplots(1,1,figsize=(5,4))
+    for i in range(m):
+        line = '--' if (i >= m//2) else '-'
+        print(i, line)
+        ax.plot(iters, Rs[i], line, c=cs[i%(m//2)])
+    plt.plot([0, iters[-1]], [0, 0], c=mu_c)
+    plt.xlabel('iterations', fontsize=fontsize)
+    plt.setp(ax.get_xticklabels(), fontsize=ticksize)
+    plt.setp(ax.get_yticklabels(), fontsize=ticksize)
+    if save:
+        plt.tight_layout()
+        plt.savefig(os.path.join(figdir, 'opt_R.png'))
+    plt.show()
+    return None

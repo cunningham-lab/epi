@@ -1,59 +1,52 @@
-This is BibTeX, Version 0.99d (TeX Live 2020)
-Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+This is BibTeX, Version 0.99d (TeX Live 2016)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: Bittner_eLife2020.aux
 The style file: unsrt.bst
 Database file #1: eLife2020.bib
-Warning--entry type for "allen2018layer" isn't style-file defined
---line 292 of file eLife2020.bib
-Repeated entry---line 1107 of file eLife2020.bib
- : @article{liepe2014framework
- :                            ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 1136 of file eLife2020.bib
- : @article{liepe2014framework
- :                            ,
-I'm skipping whatever remains of this entry
+Warning--I didn't find a database entry for "dinh2016density"
+Warning--I didn't find a database entry for "bondanelli2020coding"
 Warning--empty journal in blei2014build
 Warning--empty journal in Chen2019
-You've used 79 entries,
+Warning--empty journal in hastings1970monte
+You've used 102 entries,
             1791 wiz_defined-function locations,
-            874 strings with 19196 characters,
-and the built_in function-call counts, 20124 in all, are:
-= -- 1750
-> -- 1053
-< -- 14
-+ -- 380
-- -- 301
-* -- 1453
-:= -- 3188
-add.period$ -- 236
-call.type$ -- 79
-change.case$ -- 79
+            1000 strings with 23578 characters,
+and the built_in function-call counts, 26588 in all, are:
+= -- 2355
+> -- 1340
+< -- 18
++ -- 483
+- -- 381
+* -- 1945
+:= -- 4179
+add.period$ -- 309
+call.type$ -- 102
+change.case$ -- 102
 chr.to.int$ -- 0
-cite$ -- 81
-duplicate$ -- 873
-empty$ -- 1825
-format.name$ -- 301
-if$ -- 4430
+cite$ -- 105
+duplicate$ -- 1136
+empty$ -- 2425
+format.name$ -- 381
+if$ -- 5867
 int.to.chr$ -- 0
-int.to.str$ -- 79
-missing$ -- 78
-newline$ -- 397
-num.names$ -- 79
-pop$ -- 187
+int.to.str$ -- 102
+missing$ -- 102
+newline$ -- 513
+num.names$ -- 102
+pop$ -- 238
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 470
+skip$ -- 597
 stack$ -- 0
-substring$ -- 1414
-swap$ -- 239
-text.length$ -- 14
+substring$ -- 2015
+swap$ -- 308
+text.length$ -- 18
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
-warning$ -- 2
-while$ -- 192
-width$ -- 81
-write$ -- 848
-(There were 2 error messages)
+warning$ -- 3
+while$ -- 254
+width$ -- 105
+write$ -- 1102
+(There were 5 warnings)
