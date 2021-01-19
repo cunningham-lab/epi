@@ -183,26 +183,24 @@ def get_Fano(alpha, sigma_eps, W_mat, N=100, dt=0.0005, T=150, T_ss=100, mu=0.01
         return T_x
     return Fano
 
-def get_Fano_sigma(alpha, W_mat, h, N=100, dt=0.0005, T=150, T_ss=100, mu=0.01, k=100.):
+def get_stddev_sigma(alpha, W_mat, h, N=100, dt=0.0005, T=150, T_ss=100, mu=0.01, k=100.):
     if not (alpha == 'all'):
         alpha_ind = neuron_inds[alpha]
 
     sssn_sim_traj = SSSN_sim_traj_sigma(h, W_mat, N=N, dt=dt, T=T)
-    def Fano(sigma_eps):
+    def get_stddev(sigma_eps):
         if (alpha == 'all'):
             x_t = k*sssn_sim_traj(sigma_eps)[:,:,:4,T_ss:]
         else:
             x_t = k*sssn_sim_traj(sigma_eps)[:,:,alpha_ind,T_ss:]
-        _means = tf.math.reduce_mean(x_t, axis=-1)
-        _vars = tf.square(tf.math.reduce_std(x_t, axis=-1))
-        fano = _vars / _means 
-        vars_mean = tf.reduce_mean(fano, axis=1)
+        stddevs = tf.math.reduce_std(x_t, axis=-1)
+        stddevs_mean = tf.reduce_mean(stddevs, axis=1)
         if (alpha == 'all'):
-            T_x = tf.concat((vars_mean, tf.square(vars_mean - mu)), axis=1)
+            T_x = tf.concat((stddevs_mean, tf.square(stddevs_mean - mu)), axis=1)
         else:
-            T_x = tf.stack((vars_mean, tf.square(vars_mean - mu)), axis=1)
+            T_x = tf.stack((stddevs_mean, tf.square(stddevs_mean - mu)), axis=1)
         return T_x
-    return Fano
+    return get_stddev
 
 def plot_contrast_response(c, x, title='', ax=None, linestyle='-', colors=None, fontsize=14):
     if colors is None:
