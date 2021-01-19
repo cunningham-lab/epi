@@ -64,6 +64,8 @@ tau = tau[None,None,:,None]
 tau_noise = 0.005*np.array([1., 1., 1., 1.], np.float32)
 tau_noise = tau_noise[None,None,:,None]
 
+sigma_fac = np.sqrt(1. + (tau/tau_noise))
+
 # Dim is [M,N,|r|,T]
 def SSSN_sim_traj(sigma_eps, W_mat, N=1, dt=0.0005, T=150, x_init=None):
     sigma_eps = sigma_eps[:,None,:,None]
@@ -85,7 +87,7 @@ def SSSN_sim_traj(sigma_eps, W_mat, N=1, dt=0.0005, T=150, x_init=None):
             B = tf.random.normal(eps.shape, 0., np.sqrt(dt))
 
             dx = (-x + (tf.nn.relu(tf.matmul(W, x) + h + eps)**n)) / tau
-            deps = (-eps + (np.sqrt(2.*tau_noise)*sigma_eps*B/dt)) / tau_noise
+            deps = (-eps + (np.sqrt(2.*tau_noise)*sigma_eps*sigma_fac*B/dt)) / tau_noise
 
             return tf.concat((dx, deps), axis=2)
 
@@ -111,7 +113,7 @@ def SSSN_sim_traj_sigma(h, W_mat, N=1, dt=0.0005, T=150):
             B = tf.random.normal(eps.shape, 0., np.sqrt(dt))
 
             dx = (-x + (tf.nn.relu(tf.matmul(W, x) + h + eps)**n)) / tau
-            deps = (-eps + (np.sqrt(2.*tau_noise)*sigma_eps*B/dt)) / tau_noise
+            deps = (-eps + (np.sqrt(2.*tau_noise)*sigma_eps*sigma_fac*B/dt)) / tau_noise
 
             return tf.concat((dx, deps), axis=2)
 
@@ -138,7 +140,7 @@ def SSSN_sim(sigma_eps, W_mat, N=1, dt=0.0005, T=150):
             B = tf.random.normal(eps.shape, 0., np.sqrt(dt))
 
             dx = (-x + (tf.nn.relu(tf.matmul(W, x) + h + eps)**n)) / tau
-            deps = (-eps + (np.sqrt(2.*tau_noise)*sigma_eps*B/dt)) / tau_noise
+            deps = (-eps + (np.sqrt(2.*tau_noise)*sigma_eps*sigma_fac*B/dt)) / tau_noise
             
             return tf.concat((dx, deps), axis=2)
             
