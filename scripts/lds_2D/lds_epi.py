@@ -32,26 +32,24 @@ mu = np.array([0.0, 0.5**2, 2 * np.pi, (0.1 * 2 * np.pi)**2])
 
 np.random.seed(args.seed)
 num_stages = 3
-num_layers = np.random.randint(1, 3)
-num_units = np.random.randint(10, 25)
+num_layers = 2
+num_units = 50
 
-init_params = {'loc':0., 'scale':3.}
 q_theta, opt_data, save_path, failed = M.epi(
     mu, 
     arch_type='coupling', 
     num_stages=num_stages,
     num_layers=num_layers,
     num_units=num_units,
-    post_affine=False,
-    init_params=init_params,
+    post_affine=True,
     K = 10, 
-    num_iters=1000, 
+    num_iters=2500, 
     N=500,
     lr=1e-3, 
     c0=1e-3, 
     verbose=True,
     stop_early=True,
-    log_rate=50,
+    log_rate=100,
     save_movie_data=True,
 )
 print("EPI done.")

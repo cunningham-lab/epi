@@ -247,7 +247,7 @@ def test_unbiased_aug_grad():
     M.set_eps(linear2D_freq)
 
     nf = NormalizingFlow(
-        arch_type="autoregressive", D=4, num_stages=1, num_layers=2, num_units=15
+        arch_type="coupling", D=4, num_stages=1, num_layers=2, num_units=15
     )
 
     with tf.GradientTape(persistent=True) as tape:

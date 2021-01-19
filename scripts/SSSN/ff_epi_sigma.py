@@ -26,9 +26,15 @@ beta = args.beta
 c0 = 10.**args.logc0
 random_seed = args.random_seed
 
+<<<<<<< HEAD
 if lim is None:
     if ind == 49:
         lim = 0.03
+=======
+if lim is not None:
+    if ind == 49:
+        lim = 0.05
+>>>>>>> f0cc7e04db7b25d4e5bb912dab11d9366a17b44c
     elif ind == 62:
         lim = 0.005
     else:

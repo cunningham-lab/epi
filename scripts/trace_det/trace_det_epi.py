@@ -5,6 +5,7 @@ from epi.example_eps import linear2D_freq
 from epi.util import sample_aug_lag_hps
 import numpy as np
 import tensorflow as tf
+import tensorflow_probability as tfp
 import argparse
 
 DTYPE = np.float32
@@ -23,8 +24,8 @@ d = args.d
 D = int(d*(d+1)/2)
 
 # Set up the bound vectors.
-lb = -2.*np.ones((D,))
-ub = 2.*np.ones((D,))
+lb = -1.*np.ones((D,))
+ub = 1.*np.ones((D,))
 
 # Define the parameter A.
 A = Parameter("A", D, lb=lb, ub=ub)
@@ -33,8 +34,8 @@ parameters = [A]
 # Define the model matrix.
 M = Model("matrix", parameters)
 
-# 2. Define the emergent property: E[det(A)] = 100, std(det(A)) = 5
-mu = np.array([d, 0., 1., 1.], dtype=DTYPE)
+# 2. Define the emergent property:
+mu = np.array([d/2., 0., 1., 0.01], dtype=DTYPE)
 
 def trace_det(A):
     diag_div = tf.expand_dims(tf.eye(d), 0) + 1.
@@ -49,11 +50,11 @@ M.set_eps(trace_det)
 
 
 np.random.seed(args.seed)
-num_stages = 4 #np.random.randint(2, 6) 
-num_layers = 2 #np.random.randint(1, 3)
-num_units = D #np.random.randint(15, max(30, D))
+num_stages = 3
+num_layers = 2 #np.random.randint(2, 3)
+num_units = 121 #np.random.randint(15, max(30, D))
 
-init_params = {'loc':0., 'scale':1.}
+init_params = {'loc':0., 'scale':0.5}
 q_theta, opt_data, save_path = M.epi(
     mu, 
     arch_type='coupling', 
@@ -63,16 +64,17 @@ q_theta, opt_data, save_path = M.epi(
     post_affine=False,
     batch_norm=False,
     init_params=init_params,
-    K=10, 
-    num_iters=5000, 
+    K=1, 
+    num_iters=100, 
     N=1000,
     lr=1e-3, 
     c0=1e-1, 
     beta=10.,
+    nu=0.2,
     verbose=True,
     stop_early=True,
     log_rate=50,
-    save_movie_data=True,
+    save_movie_data=False,
 )
 print("EPI done.")
 print("Saved to %s." % save_path)

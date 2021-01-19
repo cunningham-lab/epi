@@ -18,6 +18,7 @@ from epi.util import (
     get_hash,
     set_dir_index,
     get_dir_index,
+    dbg_check, 
 )
 import matplotlib.pyplot as plt
 from matplotlib import animation
@@ -205,10 +206,11 @@ class Model(object):
         arch_type="coupling",
         num_stages=3,
         num_layers=2,
-        num_units=None,
-        batch_norm=True,
-        bn_momentum=0.99,
-        post_affine=False,
+        num_units=50,
+        elemwise_fn="affine",
+        batch_norm=False,
+        bn_momentum=0.,
+        post_affine=True,
         random_seed=1,
         init_type=None,  # "iso_gauss",
         init_params=None,  # {"loc": 0.0, "scale": 1.0},
@@ -247,7 +249,7 @@ class Model(object):
         :type post_affine: bool, optional
         :param random_seed: Random seed of architecture parameters, defaults to 1.
         :type random_seed: int, optional
-        :param init_type: :math:`\\in` :obj:`['iso_gauss', 'gaussian']`.
+        :param init_type: :math:`\\in` :obj:`['gaussian', 'abc']`.
         :type init_type: str, optional
         :param init_params: Parameters according to :obj:`init_type`.
         :type init_params: dict, optional
@@ -281,7 +283,7 @@ class Model(object):
         :rtype: epi.models.Distribution, pandas.DataFrame, str
         """
         if num_units is None:
-            num_units = max(2 * self.D, 15)
+            num_units = min(max(2 * self.D, 15), 100)
 
         nf = NormalizingFlow(
             arch_type=arch_type,
@@ -289,6 +291,7 @@ class Model(object):
             num_stages=num_stages,
             num_layers=num_layers,
             num_units=num_units,
+            elemwise_fn=elemwise_fn,
             batch_norm=batch_norm,
             bn_momentum=bn_momentum,
             post_affine=post_affine,
@@ -301,25 +304,84 @@ class Model(object):
 
         # Initialize architecture to gaussian.
         print("Initializing %s architecture." % nf.to_string(), flush=True)
-        if init_params is None:
-            mu_init = np.zeros((self.D))
-            Sigma = np.zeros((self.D, self.D))
-            for i in range(self.D):
-                if np.isneginf(nf.lb[i]) and np.isposinf(nf.ub[i]):
-                    mu_init[i] = 0.0
-                    Sigma[i, i] = 1.0
-                elif np.isneginf(nf.lb[i]):
-                    mu_init[i] = nf.ub[i] - 2.0
-                    Sigma[i, i] = 1.0
-                elif np.isposinf(nf.ub[i]):
-                    mu_init[i] = nf.lb[i] + 2.0
-                    Sigma[i, i] = 1.0
-                else:
-                    mu_init[i] = (nf.lb[i] + nf.ub[i]) / 2.0
-                    Sigma[i, i] = np.square((nf.ub[i] - nf.lb[i]) / 4)
-            init_type = "gaussian"
-            init_params = {"mu": mu_init, "Sigma": Sigma}
-        nf.initialize(init_params["mu"], init_params["Sigma"])
+        if init_type is None or init_type == 'gaussian':
+            if init_params is None:
+                mu_init = np.zeros((self.D))
+                Sigma = np.zeros((self.D, self.D))
+                for i in range(self.D):
+                    if np.isneginf(nf.lb[i]) and np.isposinf(nf.ub[i]):
+                        mu_init[i] = 0.0
+                        Sigma[i, i] = 1.0
+                    elif np.isneginf(nf.lb[i]):
+                        mu_init[i] = nf.ub[i] - 2.0
+                        Sigma[i, i] = 1.0
+                    elif np.isposinf(nf.ub[i]):
+                        mu_init[i] = nf.lb[i] + 2.0
+                        Sigma[i, i] = 1.0
+                    else:
+                        mu_init[i] = (nf.lb[i] + nf.ub[i]) / 2.0
+                        Sigma[i, i] = np.square((nf.ub[i] - nf.lb[i]) / 4)
+                init_params = {"mu": mu_init, "Sigma": Sigma}
+        elif init_type == 'abc':
+            if 'num_keep' in init_params.keys():
+                num_keep = init_params['num_keep']
+            else:
+                num_keep = 200
+            if 'means' in init_params.keys():
+                means = init_params['means']
+            else:
+                means = mu[:len(mu)//2]
+            if 'stds' in init_params.keys():
+                stds = init_params['stds']
+            else:
+                stds = np.sqrt(mu[len(mu)//2:])
+
+            hash_str = get_hash([nf.lb, nf.ub])
+            abc_fname = os.path.join("data", "abc", "M=%d_p=%.2f_std=%.3f_%s_abc.npz" % 
+                                    (num_keep, means[0], stds[0], hash_str))
+            if os.path.exists(abc_fname):
+                print('Loading prev ABC.')
+                npzfile = np.load(abc_fname)
+                init_params = {'mu': npzfile['mu'],
+                               'Sigma': npzfile['Sigma']}
+
+            else:
+                print('Running ABC!')
+                def accept_inds(T_x, means, stds):
+                    acc = np.array([np.logical_and(means[i] - 2*stds[i] < T_x[:,i],
+                                    T_x[:,i] < means[i] + 2*stds[i]) for i in range(len(means))])
+                    return np.logical_and.reduce(acc, axis=0)
+
+                num_found = 0
+                z_abc = None
+                T_x_abc = None
+                while (num_found < num_keep):
+                    _z = np.zeros((N, self.D), dtype=np.float32)
+                    for j in range(self.D):
+                        _z[:,j] = np.random.uniform(self.parameters[j].lb, self.parameters[j].ub, (N,))
+                    _T_x = self.eps(_z).numpy()
+
+                    inds = accept_inds(_T_x, means, stds)
+                    _z = _z[inds, :]
+                    _T_x = _T_x[inds, :]
+                    num_found += _z.shape[0]
+
+                    if (z_abc is None):
+                        z_abc = _z
+                        T_x_abc = _T_x
+                    else:
+                        z_abc = np.concatenate((z_abc, _z), axis=0)
+                        T_x_abc = np.concatenate((T_x_abc, _T_x), axis=0)
+                    print('ABC for init: %d/%d\r' % (num_found, num_keep), end='')
+
+                mu_init = np.mean(z_abc, axis=0)
+                Sigma = np.eye(self.D)
+                np.savez(abc_fname, mu=mu_init, Sigma=Sigma)
+                init_params = {'mu': mu_init,
+                               'Sigma': Sigma}
+
+        nf.initialize(init_params["mu"], init_params["Sigma"], 
+                      N=N, verbose=True)
 
         # Checkpoint the initialization.
         optimizer = tf.keras.optimizers.Adam(lr)
@@ -350,9 +412,23 @@ class Model(object):
             H_grad = tape.gradient(neg_H, params)
             lagrange_grad = tape.gradient(lagrange_dot, params)
             aug_grad = unbiased_aug_grad(R1s, R2, params, tape)
+            """dbg_check(cost, 'cost')
+            for ii, (p, g1, g2, g3) in enumerate(zip(params, H_grad, lagrange_grad, aug_grad)):
+                dbg_check(p, '%d param' % ii) 
+                dbg_check(g1, '%d g1' % ii) 
+                dbg_check(g2, '%d g2' % ii) 
+                dbg_check(g3, '%d g3' % ii) """
+
             gradients = [
                 g1 + g2 + c * g3 for g1, g2, g3 in zip(H_grad, lagrange_grad, aug_grad)
             ]
+            MAX_NORM = 1e10
+            gradients = [tf.clip_by_norm(g, MAX_NORM) for g in gradients]
+            """for ii, g in enumerate(gradients):
+                dbg_check(g, '%d g' % ii) 
+                print('max', tf.reduce_max(g))
+                print('min', tf.reduce_min(g))"""
+
             optimizer.apply_gradients(zip(gradients, params))
             return cost, H, R, z, log_q_z
 
@@ -386,8 +462,9 @@ class Model(object):
         norms = get_R_norm_dist(nf, self.eps, mu_colvec, self.M_norm, N)
 
         # EPI optimization
-        print(format_opt_msg(0, 0, cost_0, H_0, R_0), flush=True)
+        print(format_opt_msg(0, 0, cost_0, H_0, R_0, 0.), flush=True)
         failed = False
+        time_per_it = np.nan
         for k in range(1, K + 1):
             etas[k - 1], cs[k - 1], eta, c
             for i in range(1, num_iters + 1):
@@ -395,8 +472,9 @@ class Model(object):
                 cost, H, R, z, log_q_z = train_step(eta, c)
                 time2 = time.time()
                 if i % log_rate == 0:
+                    time_per_it = time2 - time1
                     if verbose:
-                        print(format_opt_msg(k, i, cost, H, R), flush=True)
+                        print(format_opt_msg(k, i, cost, H, R, time_per_it), flush=True)
                     it = (k - 1) * num_iters + i
                     opt_it_dfs.append(
                         self._opt_it_df(
@@ -414,7 +492,7 @@ class Model(object):
                 if np.isnan(cost):
                     failed = True
                     if verbose:
-                        print(format_opt_msg(k, i, cost, H, R), flush=True)
+                        print(format_opt_msg(k, i, cost, H, R, time_per_it), flush=True)
                     it = (k - 1) * num_iters + i
                     opt_it_dfs.append(
                         self._opt_it_df(
@@ -429,7 +507,7 @@ class Model(object):
                     print("NaN in EPI optimization. Exiting.")
                     break
             if not verbose:
-                print(format_opt_msg(k, i, cost, H, R), flush=True)
+                print(format_opt_msg(k, i, cost, H, R, time_per_it), flush=True)
 
             # Save epi optimization data following aug lag iteration k.
             opt_it_df = pd.concat(opt_it_dfs)
@@ -481,7 +559,7 @@ class Model(object):
 
         # Return optimized distribution.
         q_theta = Distribution(nf, self.parameters)
-        q_theta.set_batch_norm_trainable(False)
+        #q_theta.set_batch_norm_trainable(False)
 
         return q_theta, opt_it_dfs[0], ckpt_dir, failed
 
@@ -523,6 +601,40 @@ class Model(object):
                             df['AL_hps'] = df.shape[0]*[AL_hps]
                             dfs.append(df)
         return pd.concat(dfs)
+
+    def get_max_H(self, mu, nu, paths=None):
+        epi_df = self.get_epi_df()
+        if paths is None:
+            paths = epi_df['path'].unique()
+        
+        best_Hs = []
+        convergeds = []
+        best_ks = []
+        for i, path in enumerate(paths):
+            print('checking convergence', i)
+            epi_df2 = epi_df[epi_df['path'] == path]
+            df_row = epi_df2.iloc[0]
+            init = df_row['init']
+            init_params = {"mu":init["mu"], "Sigma":init["Sigma"]}
+            nf = self._df_row_to_nf(df_row)
+            aug_lag_hps = self._df_row_to_al_hps(df_row)
+            best_k, converged, best_H = self.get_convergence_epoch(
+                    init_params, nf, mu, aug_lag_hps, alpha=0.05, nu=nu)
+            best_Hs.append(best_H)
+            convergeds.append(converged)
+            best_ks.append(best_k)
+
+        bestHs = np.array(best_Hs)
+        best_ks = np.array(best_ks)
+
+        best_Hs = np.array([x if x is not None else np.nan for x in best_Hs])
+        ind = np.nanargmax(best_Hs)
+
+        best_k = int(best_ks[ind])
+        path = paths[ind]
+        best_H = best_Hs[ind]
+
+        return path, best_k
 
     def epi_opt_movie(self, path):
         """Generate video of EPI optimization.
@@ -608,7 +720,9 @@ class Model(object):
         else:
             R_ax = plt.subplot(4, 2, 3)
         R_ax.set_xlim(0, iters[-1])
-        min_R, max_R = np.min(R), np.max(R)
+        R_ind1 = len(iters)//10
+        print(R_ind1, R.shape)
+        min_R, max_R = np.min(R[R_ind1:,:]), np.max(R[R_ind1:,:])
         R_ax.set_xlim(0, x_end)
         R_ax.set_ylim(min_R, max_R)
         R_ax.set_ylabel(r"$R(q_\theta)$", rotation="horizontal", fontsize=fontsize)
@@ -762,8 +876,8 @@ class Model(object):
                 levels = np.linspace(np.min(scores_ij), np.max(scores_ij), 20)
                 cont = ax.contourf(z_grid[0], z_grid[1], scores_ij, levels=levels)
                 conts.append(cont)
-                ax.set_xlim(ax_mins[i], ax_maxs[i])
-                ax.set_ylim(ax_mins[j], ax_maxs[j])
+                ax.set_xlim(ax_mins[j], ax_maxs[j])
+                ax.set_ylim(ax_mins[i], ax_maxs[i])
                 kdes.append(kde)
 
         for i in range(D):
@@ -901,7 +1015,7 @@ class Model(object):
         ani.save(os.path.join(path,"epi_opt.mp4"), writer=writer)
         return None
 
-    def test_convergence(self, R_means, alpha, verbose=False):
+    def test_convergence(self, R_means, alpha, verbose=False, ind=None):
         """Tests convergence of EPI constraints.
 
         :param R_means: Emergent property statistic means.
@@ -914,7 +1028,16 @@ class Model(object):
         lt = np.sum(R_means < 0.0, axis=0).astype(np.float32)
         p_vals = 2 * np.minimum(gt / M, lt / M)
         if verbose:
-            print(p_vals, alpha / m)
+            if ind is None:
+                s = ''
+            else:
+                s = "%d: " % ind
+            for i in range(len(p_vals)):
+                s += "%.2f" % p_vals[i]
+                if i < (len(p_vals) - 1):
+                    s += '_'
+            s += '\r'
+            print(s, end="")
         return np.prod(p_vals > (alpha / m))
 
     def _opt_it_df(self, k, it, H, cost, R, log_rate, R_keys):
@@ -976,6 +1099,7 @@ class Model(object):
             "num_stages": nf.num_stages,
             "num_layers": nf.num_layers,
             "num_units": nf.num_units,
+            "elemwise_fn": nf.elemwise_fn,
             "batch_norm": nf.batch_norm,
             "bn_momentum": nf.bn_momentum,
             "post_affine": nf.post_affine,
@@ -1035,11 +1159,12 @@ class Model(object):
         # if final index is set, this EPI opt has been run before.
         return epi_path, exists
 
-    def get_epi_dist(self, df_row):
+    def get_epi_dist(self, df_row, k=None):
         init = df_row["init"]
         ep = df_row["EP"]
 
-        k = int(df_row["k"])
+        if k is None:
+            k = int(df_row["k"])
         init_params = {"mu":init["mu"], "Sigma":init["Sigma"]}
         nf = self._df_row_to_nf(df_row)
         mu = ep["mu"]
@@ -1054,6 +1179,8 @@ class Model(object):
             num_stages=arch["num_stages"],
             num_layers=arch["num_layers"],
             num_units=arch["num_units"],
+            elemwise_fn="affine",
+            #elemwise_fn=arch["elemwise_fn"],
             batch_norm=arch["batch_norm"],
             bn_momentum=arch["bn_momentum"],
             post_affine=arch["post_affine"],
@@ -1100,11 +1227,16 @@ class Model(object):
             status = checkpoint.restore(ckpts[num_ckpts+k])
         status.expect_partial()
         q_theta = Distribution(nf, self.parameters)
+        #if not training:
+        #    q_theta.set_batch_norm_trainable(False)
         return q_theta
 
     def get_convergence_epoch(
-        self, init_params, nf, mu, aug_lag_hps, alpha=0.05, nu=0.1, mu_test=None
+        self, init_params, nf, mu, aug_lag_hps, alpha=0.05, nu=0.1, mu_test=None, sampling_seed=0,
     ):
+
+        np.random.seed(sampling_seed)
+        tf.random.set_seed(sampling_seed)
 
         if mu_test is not None:
             _mu = np_column_vec(mu_test).astype(np.float32).T
@@ -1139,13 +1271,14 @@ class Model(object):
             R_means = tf.reduce_mean(T_x, axis=1) - _mu
 
             # R_means = get_R_mean_dist(nf, self.eps, _mu, self.M_test, N_test)
-            _converged = self.test_convergence(R_means.numpy(), alpha, verbose=True)
+            _converged = self.test_convergence(R_means.numpy(), alpha, verbose=True, ind=k)
             if _converged:
                 H = -np.mean(log_q_z.numpy())
                 if best_H is None or best_H < H:
                     best_k = k
                     best_H = H
                 converged = True
+        print('')
         return best_k, converged, best_H
 
     def parameter_check(self, parameters, verbose=False):
@@ -1305,8 +1438,9 @@ class Distribution(object):
         z = z.astype(np.float32)
         return z
 
-    def plot_dist(self, N=200, kde=True):
-        z = self.sample(N)
+    #def plot_dist(self, N=200, c=None, kde=True):
+    #    z = self.sample(N)
+    def plot_dist(self, z, c=None, kde=True):
         log_q_z = self.log_prob(z)
         df = pd.DataFrame(z)
         # iterate over parameters to create label_names
@@ -1322,9 +1456,13 @@ class Distribution(object):
 
         log_q_z_std = log_q_z - np.min(log_q_z)
         log_q_z_std = log_q_z_std / np.max(log_q_z_std)
+
         cmap = plt.get_cmap("viridis")
+        if c is None:
+            c = log_q_z_std
+        plt.figure()
         g = sns.PairGrid(df, vars=z_labels)
-        g = g.map_upper(plt.scatter, color=cmap(log_q_z_std))
+        g = g.map_upper(plt.scatter, color=cmap(c))
         if kde:
             g = g.map_diag(sns.kdeplot)
             g = g.map_lower(sns.kdeplot)
@@ -1360,8 +1498,8 @@ def get_R_mean_dist(nf, eps, mu, M, N):
     return tf.reduce_mean(T_x, axis=1) - mu
 
 
-def format_opt_msg(k, i, cost, H, R):
+def format_opt_msg(k, i, cost, H, R, time_per_it):
     s1 = "" if cost < 0.0 else " "
     s2 = "" if H < 0.0 else " "
-    args = (k, i, s1, cost, s2, H, np.sum(np.square(R)))
-    return "EPI(k=%2d,i=%4d): cost %s%.2E, H %s%.2E, |R|^2 %.2E" % args
+    args = (k, i, s1, cost, s2, H, np.sum(np.square(R)), time_per_it)
+    return "EPI(k=%2d,i=%4d): cost %s%.2E, H %s%.2E, |R|^2 %.2E, %.2E s/it" % args

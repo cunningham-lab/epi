@@ -12,8 +12,13 @@ DTYPE = tf.float32
 parser = argparse.ArgumentParser()
 parser.add_argument('--freq', type=float, default=0.55) # frequency for mu
 parser.add_argument('--mu_std', type=float, default=0.05) # std in mu constraint
+<<<<<<< HEAD
 parser.add_argument('--elemwise_fn', type=str, default="spline") # lower bound on g_el
 parser.add_argument('--num_layers', type=int, default=2) # aug lag hp
+=======
+parser.add_argument('--g_el_lb', type=float, default=0.01) # lower bound on g_el
+parser.add_argument('--beta', type=float, default=4.) # aug lag hp
+>>>>>>> f0cc7e04db7b25d4e5bb912dab11d9366a17b44c
 parser.add_argument('--logc0', type=float, default=0.) # log10 of c_0
 parser.add_argument('--random_seed', type=int, default=1)
 args = parser.parse_args()

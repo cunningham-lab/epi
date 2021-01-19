@@ -2,9 +2,9 @@
 
 # This shell script does it linearly, but could you run each of these 
 # python scripts independently on different instances?
-for N in 20
+for N in 2
 do
-  for n_train in 10000
+  for n_train in 2000
   do
     for n_mades in 2
     do
