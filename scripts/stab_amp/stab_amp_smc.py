@@ -29,6 +29,17 @@ time.sleep(sleep_time)
 print('Running SNPE on RNN conditioned on stable amplification with:')
 print('N = %d, seed=%d' % (N, rs))
 
+base_path = os.path.join("data", "smc")
+save_dir = "SMC_RNN_stab_amp_N=%d_rs=%d" % (N, rs)
+
+save_path = os.path.join(base_path, save_dir)
+if not os.path.exists(save_path):
+    os.makedirs(save_path)
+
+if os.path.exists(os.path.join(base_path, save_dir, "optim.pkl")):
+    print("SMC optimization already run. Exitting.")
+    exit()    
+
 def model(parameter):
     u1 = np.array([parameter["U%d1" % i] for i in range(1, N+1)])
     u2 = np.array([parameter["U%d2" % i] for i in range(1, N+1)])
@@ -102,13 +113,6 @@ optim = {'history':history,
         'converged':converged,
         'total_sims':total_sims,
         }
-
-base_path = os.path.join("data", "smc")
-save_dir = "SMC_RNN_stab_amp_N=%d_rs=%d" % (N, rs)
-
-save_path = os.path.join(base_path, save_dir)
-if not os.path.exists(save_path):
-    os.makedirs(save_path)
 
 print('Saving', save_path, '...')
 with open(os.path.join(base_path, save_dir, "optim.pkl"), "wb") as f:

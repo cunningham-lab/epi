@@ -2,7 +2,7 @@
 #SBATCH --account=stats
 #SBATCH --job-name=sa_smc
 #SBATCH -c 1
-#SBATCH --time=2:00:00
+#SBATCH --time=6:00:00
 #SBATCH --mem-per-cpu=1gb
 
 source activate epi

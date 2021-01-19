@@ -9,7 +9,11 @@ from epi.SSSN import SSSN_sim, SSSN_sim, load_SSSN_variable, get_Fano
 parser = argparse.ArgumentParser()
 parser.add_argument('--alpha', type=str, default='E') # neuron type
 parser.add_argument('--ind', type=int, default=62) # neuron type
+<<<<<<< HEAD
+parser.add_argument('--lim', type=float, default=0.25) # neuron type
+=======
 parser.add_argument('--lim', type=float, default=0.2) # neuron type
+>>>>>>> f0cc7e04db7b25d4e5bb912dab11d9366a17b44c
 parser.add_argument('--ff_mean', type=float, default=0.05) # neuron type
 parser.add_argument('--ff_std', type=float, default=0.025) # neuron type
 parser.add_argument('--beta', type=float, default=4.) # aug lag hp
@@ -56,7 +60,11 @@ model = Model(name, parameters)
 
 dt = 0.0005
 T = 150
+<<<<<<< HEAD
+N = 50
+=======
 N = 5
+>>>>>>> f0cc7e04db7b25d4e5bb912dab11d9366a17b44c
 
 fano = get_Fano(alpha, sigma_eps, W_mat, N=N, dt=dt, T=T, T_ss=T-50, mu=ff_mean)
 model.set_eps(fano)
@@ -74,9 +82,9 @@ q_theta, opt_data, epi_path, failed = model.epi(
     post_affine=False,
     batch_norm=False,
     bn_momentum=0.0,
-    K=2,
+    K=6,
     N=M,
-    num_iters=200,
+    num_iters=1000,
     lr=1e-3,
     c0=c0,
     beta=beta,
