@@ -342,6 +342,6 @@ def NetworkFreq_all(dt, T, sigma_I, mu):
         soft_argmax = tf.reduce_sum(tf.nn.softmax(BETA*tf.abs(V), axis=1)*_x_range, axis=1, keepdims=True)
         f_h = soft_argmax*dFreq + min_freq
         T_x = tf.concat((f_h, tf.square(f_h - mu[0])), 1)
-        return T_x
+        return x_t, T_x
 
     return network_freq

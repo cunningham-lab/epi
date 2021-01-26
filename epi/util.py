@@ -124,6 +124,47 @@ def np_column_vec(x):
     return x
 
 
+def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1.):
+    paths = epi_df['path'].unique()
+    best_Hs = []
+    best_ks = []
+    df_rows = []
+    for path in paths:
+        epi_df2 = epi_df[epi_df['path'] == path]
+        print('path:', path)
+        df_row = epi_df2.iloc[0]
+        init = df_row['init']
+        init_params = {"mu":init["mu"], "Sigma":init["Sigma"]}
+        nf = model._df_row_to_nf(df_row)
+        aug_lag_hps = model._df_row_to_al_hps(df_row)
+        best_k, converged, best_H = model.get_convergence_epoch(
+            init_params, 
+            nf, 
+            mu, 
+            aug_lag_hps, 
+            alpha=alpha, 
+            nu=nu,
+        )
+        best_Hs.append(best_H)
+        best_ks.append(best_k)
+        df_rows.append(df_row)
+        
+    bestHs = np.array(best_Hs)
+    best_ks = np.array(best_ks)
+
+    best_Hs = np.array([x if x is not None else np.nan for x in best_Hs])
+    ind = np.nanargmax(best_Hs)
+
+    path = paths[ind]
+    best_k = int(best_ks[ind])
+    best_H = best_Hs[ind]
+    df_row = df_rows[ind]
+    nf = model._df_row_to_nf(df_row)
+    dist = model._get_epi_dist(best_k, init_params, nf, mu, aug_lag_hps)
+    
+    return dist, path, best_k
+
+
 def array_str(a):
     """Returns a compressed string from a 1-D numpy array.
 
@@ -628,6 +669,7 @@ def pairplot(
     s=10,
     starred=None,
     c_starred = None,
+    traj = None,
     fontsize=12,
     figsize=(12, 12),
     outlier_stds=10,
@@ -672,7 +714,7 @@ def pairplot(
         dim_i = dims[i]
         for j in range(1, num_dims):
             if num_dims == 2:
-                ax = plt.gca()
+                ax = axs#plt.gca()
             else:
                 ax = axs[i, j - 1]
             if j > i:
@@ -720,6 +762,9 @@ def pairplot(
                             starred[:, dim_j], starred[:, dim_i], s=400, c=c_starred, 
                             marker='*', edgecolors="k", linewidths=1.5,
                         )
+
+                if traj is not None:
+                    ax.plot(traj[:,dim_j], traj[:,dim_i], 'k', lw=3)
 
 
                 if unity_line:
@@ -813,6 +858,9 @@ def plot_T_x(T_x, T_x_sim, bins=30, xmin=None, xmax=None,
     ax.set_xticklabels(xticks, fontsize=(fontsize-4))
     plt.setp(ax.get_yticklabels(), fontsize=(fontsize-4))
     ax.set_ylabel('count', fontsize=fontsize)
+
+    ax.set_yticks([])
+    ax.set_yticklabels([])
 
     return ax
 
