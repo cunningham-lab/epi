@@ -60,57 +60,55 @@ The operation of these circuits, like all models, critically depends on the choi
 When analytic derivation of the relationship between model parameters and computational properties is intractable, approximate inference and simulation-based techniques are relied upon for scientific insight.
 %Historically, the gold standard has been to analytically derive the relationship between model parameters and computational properties.  
 %However, this enterprise quickly becomes infeasible as biologically realistic constraints are included into the model increasing its complexity, often resulting in \emph{ad hoc} approaches to understanding the relationship between model and computation.
-We bring the use of deep generative models for probabilistic inference to bear on this problem, learning distributions of parameters that produce the specified properties of computation.
-By learning parameter distributions that produce computations -- an emergent property, we introduce a novel methodology that is particularly well-suited to the stochastic dynamical systems models predominant in our field of theoretical neuroscience.
+We bring the use of deep generative models for probabilistic inference to bear on this problem, learning complex distributions of parameters that produce the specified properties of computation.
+Our novel method solves the inverse problem by identifying the full space of parameters producing the emergent property.
 %Importantly, the techniques we introduce offer a principled means to understand the implications of model parameter choices on computational properties of interest.  
 We motivate this methodology with a worked example analyzing sensitivity in the stomatogastric ganglion.  
 %We then use it to go beyond linear theory of neuron-type input-responsivity in a model of primary visual cortex, gain a mechanistic understanding of rapid task switching in superior colliculus models, and attribute error to connectivity properties in recurrent neural networks solving a simple mathematical task.
 We then use it to reveal the key factors of variability in a model of primary visual cortex, gain a mechanistic understanding of rapid task switching in superior colliculus models, and scale inference of large low-rank RNN's exhibiting stable amplification.
-While much use of deep learning in theoretical neuroscience focuses on drawing analogies between optimized neural architectures and the brain, this work illustrates how we can further leverage the power of deep learning towards solving inverse problems in theoretical neuroscience.
+This work illustrates how we can further leverage the power of deep learning towards solving inverse problems in theoretical neuroscience.
 %More generally, this work suggests a departure from realism vs tractability considerations, towards the use of modern machine learning for sophisticated interrogation of biologically relevant models.
 
 \section{Introduction}
-The fundamental practice of theoretical neuroscience is to use a mathematical model to understand neural computation, whether that computation enables perception, action, or some intermediate processing \cite{abbott2008theoretical}.  
-A neural computation is systematized with a set of equations -- the model -- and these equations are motivated by biophysics, neurophysiology, and other conceptual considerations.
-The function of this system is governed by the choice of model parameters, which when configured in a particular way, give rise to a measurable signature of a computation.   
-The work of analyzing a model then requires solving the inverse problem: given a computation of interest, how can we reason about these particular parameter configurations?  
+The fundamental practice of theoretical neuroscience is to use a mathematical model to understand neural computation, whether that computation enables perception, action, or some intermediate processing.  
+A neural computation is systematized with a set of equations -- the model -- and these equations are motivated by biophysics, neurophysiology, and other conceptual considerations \cite{kopell1988coupled,  marder1998biophysics, abbott2008theoretical, wang2010neurophysiological}.
+The function of this system is governed by the choice of model \emph{parameters}, which when configured in a particular way, give rise to a measurable signature of a computation.   
+The work of analyzing a model then requires solving the inverse problem: given a computation of interest, how can we reason about particular parameter configurations?  
 %The inverse problem is crucial for reasoning about likely parameter values, uniquenesses and degeneracies, attractor states and phase transitions, and predictions made by the model.
-The inverse problem is crucial for reasoning about likely parameter values, uniquenesses and degeneracies, and predictions made by the model.  
+The inverse problem is crucial for reasoning about likely parameter values, uniquenesses and degeneracies, and predictions made by the model \cite{gutenkunst2007universally, o2014cell}.
 
-Consider the idealized practice: one carefully designs a model and analytically derives how model parameters govern the computation.
+Consider the idealized practice: one carefully designs a model and analytically derives how computational properties determine model parameters.
 Seminal examples of this gold standard (which often adopt approaches from statistical physics) include our field's understanding of memory capacity in associative neural networks \cite{hopfield1982neural}, chaos and autocorrelation timescales in random neural networks \cite{sompolinsky1988chaos}, the paradoxical effect \cite{tsodyks1997paradoxical}, and decision making \cite{wong2006recurrent}.
 Unfortunately, as circuit models include more biological realism, theory via analytical derivation becomes intractable.
 %This creates an unfavorable tradeoff.  On the one hand, one may tractably analyze systems of equations with unrealistic assumptions (for example symmetry or gaussianity), mathematically formalizing how parameters affect computation in a too-simple model.  
 %On the other hand, one may choose a more biologically accurate, scientifically relevant model at the cost of \emph{ad hoc} approaches to analysis (such as simply examining simulated activity), potentially resulting in bad inference of parameters and thus erroneous scientific predictions or conclusions.
-Alternatively, we can gain insight into these complex models by identifying all of the parameters consistent with the emergent phenomena of interest.
-By examining the structure of the full space of possible parameters, scientists can reason about the sensitivity and robustness of the model with respect to different parameter combinations \cite{foster1993significance, prinz2004similar, achard2006complex, o2014cell, alonso2019visualization}.
+Alternatively, we can gain insight into these complex models by identifying the full distribution of parameters consistent with specified emergent phenomena.
+By solving the inverse problem in this way, scientists can reason about the sensitivity and robustness of the model with respect to different parameter combinations \cite{foster1993significance, prinz2004similar, achard2006complex, o2014cell, alonso2019visualization}.
 
-The preferred formalism for parameter identification in science, statistical inference, has been used to great success in neuroscience through the stipulation of statistical generative models \cite{kass2001spike, brown1998statistical, paninski2004maximum, truccolo2005point, schneidman2006weak, druckmann2007novel, turner2007maximum, byron2009gaussian, macke2011empirical, park2011bayesian, granot2013stimulus, latimer2015single, lakshminarasimhan2018dynamic, duncker2019learning, ladenbauer2019inferring} (see review, \cite{paninski2018neural}). 
+The preferred formalism for parameter identification in science is statistical inference, which has been used to great success in neuroscience through the stipulation of statistical generative models \cite{kass2001spike, brown1998statistical, paninski2004maximum, truccolo2005point, schneidman2006weak, druckmann2007novel, turner2007maximum, byron2009gaussian, macke2011empirical, park2011bayesian, granot2013stimulus, latimer2015single, lakshminarasimhan2018dynamic, duncker2019learning, ladenbauer2019inferring} (see review, \cite{paninski2018neural}). 
 %Exact Bayesian inference is rarely tractable, so Markov chain Monte Carlo (MCMC) and variation inference (VI) techniques are used in practice.
 However, most neural circuit models in theoretical neuroscience stipulate a noisy system of differential equations that can only be sampled or realized through forward simulation; they lack the explicit likelihood central to the probabilistic modeling toolkit.
-Therefore, the most popular approaches to the inverse problem have been likelihood-free methods such as approximate Bayesian computation (ABC) \cite{sisson2007sequential, liepe2014framework}, in which a set of reasonable parameters estimates is obtained via simulation and rejection.
+Therefore, the most popular approaches to the inverse problem have been likelihood-free methods such as approximate Bayesian computation (ABC) \cite{sisson2007sequential, liepe2014framework}, in which reasonable parameters are obtained via simulation and rejection.
 
 % now transition to deep ML...
 %Of course, this same tradeoff has been confronted in many scientific fields characterized by the need to do inference in complex models.
 %In response, the machine learning community has made remarkable progress in recent years, via the use of deep neural networks as a powerful inference engine: a flexible function family that can map observed phenomena (in this case the measurable signal of some computation) back to probability distributions quantifying the likely parameter configurations.  
 Of course, the challenge of doing inference in complex models has arisen in many scientific fields.
-In response, the machine learning community has made remarkable progress in recent years, via the use of deep neural networks as a powerful inference engine: a flexible function family that can map observations back to probability distributions quantifying the likely parameter configurations. 
+In response, the machine learning community has made remarkable progress in recent years, via the use of deep neural networks as powerful inference engines: a flexible function family that can map observations back to probability distributions quantifying the likely parameter configurations. 
 %One celebrated example of this approach from machine learning, of which we draw key inspiration for this work, is the variational autoencoder \cite{kingma2013auto, rezende2014stochastic}, which uses a deep neural network to induce an (approximate) posterior distribution on hidden variables in a latent variable model, given data. 
 One celebrated example of this approach from machine learning, of which we draw key inspiration for this work, is the variational autoencoder (VAE) \cite{kingma2013auto, rezende2014stochastic}, which uses a deep neural network to induce an (approximate) posterior distribution on hidden variables in a latent variable model, given data. 
-Indeed, these tools have been used to great success in neuroscience as well, in particular for interrogating parameters (sometimes treated as hidden states) in models of both cortical population activity \cite{gao2016linear, zhao2017recursive, barello2018sparse, pandarinath2018inferring} and animal behavior \cite{wiltschko2015mapping, johnson2016composing, batty2019behavenet}. 
-These works have used deep neural networks to expand the expressivity and accuracy of statistical models of neural data \cite{paninski2018neural}.
+Indeed, these tools have been used to great success in neuroscience as well, in particular for interrogating hidden states in models of both cortical population activity \cite{gao2016linear, zhao2017recursive, barello2018sparse, pandarinath2018inferring} and animal behavior \cite{wiltschko2015mapping, johnson2016composing, batty2019behavenet}. 
+These works have used deep neural networks to expand the domain of neural data sets amenable to statistical modeling \cite{paninski2018neural}.
 
 % What's wrong with existing methodology:
 Existing approaches to the inverse problem in theoretical neuroscience fall short in three key ways. 
 First, theoretical models of neural computation aim to reflect a complex biological reality, and as a result, such models lack tractable likelihoods.
-Neuroscientists therefore resort to using approximate Bayesian computation, which requires a rejection heuristic, scales poorly, and only obtains sets of non-rejected parameters lacking probabilities.
-Second, is the undesirable trade-off between the flexibility and sampling speed of the approximated posterior distributions.
-Sampling-based approaches to statistical inference (e.g. ABC and Markov chain Monte Carlo (MCMC)) have flexibility in approximation, but must be executed continually for increasing samples.
-While variational approaches often result in fast sampling and sensitivity measurements post-optimization, existing approaches have relied on simplified classes of distributions.  
-These simple distributions (e.g. mean-field gaussians) restrict the flexibility of the posterior approximation.
-And third, one can never assume what inferred model parameters may predict.
-This is well understood when considering Box's loop and the role of posterior predictive checks in the development and critique of scientific models \cite{gelman2013philosophy, blei2014build}.
-Uncertainty about the properties of inferred model predictions introduce a conceptual degree of freedom to the inverse problem that may be unnecessary and undesirable given the scientific motivation.
+Without an efficient calculation of the probability of model properties given model parameters, neuroscientists resort to approximate Bayesian computation \cite{beaumont2002approximate, marjoram2003markov, sisson2007sequential}, which requires a rejection heuristic, scales poorly, and only produces sets of accepted parameters lacking probabilities.
+Second, there is an undesirable trade-off between the flexibility and sampling speed of approximated posterior distributions.
+Sampling-based inference approaches (e.g. ABC and Markov chain Monte Carlo (MCMC) \cite{hastings1970monte, metropolis1953equation}) confer flexible approximations, yet scale poorly in number of parameters.
+While variational inference (VI) \cite{saul1998mean} often results in fast posterior sampling, existing practice relies heavily on simplified classes of distributions \cite{rezende2015variational}.  
+Third, such parameter inference methods are designed to operate on experimentally collected data-sets.
+Ultimately, the objects of interest in theoretical neuroscience are phenomena or features of the model rather than singular data-sets.
 
 %However, these inference tools have not significantly influenced the study of theoretical neuroscience models, for at least three reasons.
 %First, at a practical level, the nonlinearities and dynamics of many theoretical models are such that conventional inference tools typically produce a narrow set of insights into these models.
@@ -130,9 +128,9 @@ This distribution has two critical properties: \emph{(i)} it is chosen such that
 %Taken together, emergent property inference (EPI) provides a methodology for inferring parameter configurations consistent with a particular emergent phenomena in theoretical models.
 %We use a classic example of parametric degeneracy in a biological system, the stomatogastric ganglion \cite{goldman2001global}, to motivate and clarify the technical details of EPI.
 First, we use stochastic gradient techniques in the spirit of likelihood-free variational inference \cite{tran2017hierarchical} to enable inference in likelihood-free models of neural computation.
-Second, we stipulate a bijective deep neural network that induces a flexible family of probability distributions over model parameterizations with a probability density we can calculate \cite{rezende2015variational, dinh2016density, papamakarios2017masked}, which confers fast sampling and sensitivity measurements.
+Second, we stipulate a bijective deep neural network that induces a flexible family of probability distributions over model parameterizations with a probability density we can calculate \cite{rezende2015variational, dinh2017density, papamakarios2017masked}, which confers fast sampling and sensitivity measurements.
 Third, we quantify the notion of emergent properties as a set of moment constraints on datasets generated by the model.  
-Thus, an emergent property is not a single data realization, but a phenomenon or a feature of the model, which is ultimately the object of interest in theoretical neuroscience.
+Thus, an emergent property is not a single data realization, but a phenomenon or a feature of the model.
 Conditioning on an emergent property requires a variant of deep probabilistic inference methods, which we have previously introduced \cite{loaiza2017maximum}.
 Taken together, emergent property inference (EPI) provides a methodology for inferring parameter configurations consistent with a particular emergent phenomena in theoretical models.
 We use a classic example of parametric degeneracy in a biological system, the stomatogastric ganglion \cite{goldman2001global}, to motivate and clarify the technical details of EPI.
@@ -140,12 +138,12 @@ We use a classic example of parametric degeneracy in a biological system, the st
 Equipped with this methodology, we then investigated three models of current importance in theoretical neuroscience.
 These models were chosen to demonstrate generality through ranges of biological realism (from conductance-based biophysics to recurrent neural networks), neural system function (from pattern generation to decision making), and network scale (from four to hundreds of neurons).
 %First, we use EPI to produce a set of verifiable hypotheses of input-responsivity in a four neuron-type dynamical model of primary visual cortex; we then validate these hypotheses in the model.
-First, we use EPI to understand the characteristics of noise that govern Fano factor in a stochastic four neuron-type model of primary visual cortex.
+First, we use EPI to understand the characteristics of noise that govern variability in a stochastic four neuron-type model of primary visual cortex.
 %Second, we demonstrated how the systematic application of EPI to levels of task performance can generate experimentally testable hypotheses regarding connectivity in superior colliculus.  
 Second, we discover connectivity patterns in superior colliculus resilient to optogenetic perturbation by using EPI to condition on rapid task switching.
 The novel scientific insights offered by EPI contextualize and clarify the previous studies exploring these models \cite{litwin2016inhibitory, duan2018collicular}.
 %Third, we use EPI to uncover the sources of error in a low-rank recurrent neural network executing a simple mathematical task.  
-Third, we emphasize the methodological advancement of EPI by inferring high-dimensional distributions of RNN connectivities exhibiting stable amplification.
+Third, we emphasize the scalability of EPI by inferring high-dimensional distributions of RNNs exhibiting stable amplification.
 These results point to the value of deep inference for the interrogation of biologically relevant models.
 
 %-------------------
