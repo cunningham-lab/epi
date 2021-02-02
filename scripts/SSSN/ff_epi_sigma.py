@@ -26,6 +26,14 @@ beta = args.beta
 c0 = 10.**args.logc0
 random_seed = args.random_seed
 
+if lim is not None:
+    if ind == 49:
+        lim = 0.05
+    elif ind == 62:
+        lim = 0.005
+    else:
+        raise NotImplementedError()
+
 contrast = 0.5
 W_mat = load_SSSN_variable('W', ind=ind)
 hb = load_SSSN_variable('hb', ind=ind).numpy()
@@ -49,7 +57,7 @@ model = Model(name, parameters)
 
 dt = 0.0005
 T = 150
-N = 25
+N = 100
 
 stddev = get_stddev_sigma(alpha, W_mat, h, N=N, dt=dt, T=T, T_ss=T-50, mu=f_mean)
 model.set_eps(stddev)
