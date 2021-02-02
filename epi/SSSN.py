@@ -212,7 +212,6 @@ def plot_contrast_response(c, x, title='', ax=None, linestyle='-', colors=None, 
         fig, ax = plt.subplots(1,1)
     for i in range(4):
         ax.plot(100*c, x[:,i], linestyle, c=colors[i], lw=4)
-    ax.set_ylim([0., 80])
     ticksize = fontsize-4
     ax.set_xlabel('contrast (%)', fontsize=fontsize)
     ax.set_ylabel('rate (Hz)', fontsize=fontsize)

@@ -619,7 +619,8 @@ class Model(object):
             nf = self._df_row_to_nf(df_row)
             aug_lag_hps = self._df_row_to_al_hps(df_row)
             best_k, converged, best_H = self.get_convergence_epoch(
-                    init_params, nf, mu, aug_lag_hps, alpha=0.05, nu=nu)
+                    init_params, nf, mu, aug_lag_hps, 
+                    alpha=0.05, nu=nu)
             best_Hs.append(best_H)
             convergeds.append(converged)
             best_ks.append(best_k)
@@ -1209,6 +1210,7 @@ class Model(object):
         optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
         ckpt_dir, exists = self.get_epi_path(init_params, nf, mu, aug_lag_hps)
+        print('ckpt_dir', ckpt_dir)
         if not exists:
             return None
         ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
@@ -1232,7 +1234,8 @@ class Model(object):
         return q_theta
 
     def get_convergence_epoch(
-        self, init_params, nf, mu, aug_lag_hps, alpha=0.05, nu=0.1, mu_test=None, sampling_seed=0,
+        self, init_params, nf, mu, aug_lag_hps, alpha=0.05, nu=1., 
+        mu_test=None, start_k=0, sampling_seed=0,
     ):
 
         np.random.seed(sampling_seed)
@@ -1243,6 +1246,7 @@ class Model(object):
         else:
             _mu = np_column_vec(mu).astype(np.float32).T
         N_test = int(nu * aug_lag_hps.N)
+        print(N_test, _mu)
 
         optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
@@ -1260,12 +1264,15 @@ class Model(object):
         best_k = None
         best_H = None
         converged = False
-        for k in range(num_ckpts):
+        for k in range(start_k,num_ckpts):
             status = checkpoint.restore(ckpts[k])
             status.expect_partial()
 
             m = _mu.shape[1]
             z, log_q_z = nf(self.M_test * N_test)
+            H = -np.mean(log_q_z.numpy())
+            if converged and H < best_H:
+                continue
             T_x = self.eps(z)
             T_x = tf.reshape(T_x, (self.M_test, N_test, m))
             R_means = tf.reduce_mean(T_x, axis=1) - _mu
@@ -1273,7 +1280,6 @@ class Model(object):
             # R_means = get_R_mean_dist(nf, self.eps, _mu, self.M_test, N_test)
             _converged = self.test_convergence(R_means.numpy(), alpha, verbose=True, ind=k)
             if _converged:
-                H = -np.mean(log_q_z.numpy())
                 if best_H is None or best_H < H:
                     best_k = k
                     best_H = H
@@ -1403,7 +1409,6 @@ class Distribution(object):
         del z  # Get rid of dummy variable.
         return grad_z.numpy()
 
-    @tf.function
     def _gradient(self, z):
         with tf.GradientTape() as tape:
             log_q_z = self.nf.trans_dist.log_prob(z)
@@ -1423,7 +1428,6 @@ class Distribution(object):
         del z  # Get rid of dummy variable.
         return hess_z.numpy()
 
-    @tf.function
     def _hessian(self, z):
         with tf.GradientTape(persistent=True) as tape:
             log_q_z = self.nf.trans_dist.log_prob(z)

@@ -124,14 +124,20 @@ def np_column_vec(x):
     return x
 
 
-def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1.):
+def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1., check_last_k=None):
     paths = epi_df['path'].unique()
     best_Hs = []
     best_ks = []
     df_rows = []
+    print('num paths', len(paths))
+    any_converged = False
     for path in paths:
         epi_df2 = epi_df[epi_df['path'] == path]
         print('path:', path)
+        if check_last_k is None:
+            start_k = 0
+        else:
+            start_k = int(epi_df2['k'].max()) - check_last_k + 1
         df_row = epi_df2.iloc[0]
         init = df_row['init']
         init_params = {"mu":init["mu"], "Sigma":init["Sigma"]}
@@ -144,15 +150,22 @@ def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1.):
             aug_lag_hps, 
             alpha=alpha, 
             nu=nu,
+            start_k=start_k
         )
+        if (not any_converged) and converged:
+            any_converged = True
         best_Hs.append(best_H)
         best_ks.append(best_k)
         df_rows.append(df_row)
+        print('best k', best_k)
+        print('best H', best_H)
         
     bestHs = np.array(best_Hs)
     best_ks = np.array(best_ks)
 
     best_Hs = np.array([x if x is not None else np.nan for x in best_Hs])
+    if not any_converged:
+        return None, None, None
     ind = np.nanargmax(best_Hs)
 
     path = paths[ind]
@@ -163,6 +176,38 @@ def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1.):
     dist = model._get_epi_dist(best_k, init_params, nf, mu, aug_lag_hps)
     
     return dist, path, best_k
+
+def get_conditional_mode(dist, ind, val, z0=None, lr=1e-6, num_steps=100):
+    if z0 is None:
+        z0 = (dist.nf.lb + dist.nf.ub) / 2.
+        z0[ind] = val
+    z = tf.Variable(initial_value=z0[None,:], dtype=tf.float32, trainable=True)
+    
+    log_q_z = dist.log_prob(z.numpy())
+    
+    zs = [z[0].numpy()]
+    log_q_zs = [log_q_z]
+    
+    for k in range(num_steps):
+        print('Finding mode %d/%d.\r' %(k+1, num_steps), end="")
+        grad_z = dist._gradient(z).numpy()
+        z_np = z.numpy()
+        z_next = z_np + lr * grad_z
+        z_next[0,ind] = val
+        for j in range(4):
+            if z_next[0,j] < dist.nf.lb[j]:
+                z_next[0,j] = dist.nf.lb[j]
+            if z_next[0,j] > dist.nf.ub[j]:
+                z_next[0,j] = dist.nf.ub[j]
+        z = tf.Variable(initial_value=z_next, 
+                        dtype=tf.float32, trainable=True)
+        
+        log_q_z = dist.log_prob(z_next)
+        zs.append(z_next[0])
+        log_q_zs.append(log_q_z)
+
+        
+    return zs, log_q_zs
 
 
 def array_str(a):
@@ -677,6 +722,7 @@ def pairplot(
     labelpads=None,
     unity_line=False,
     subplots = None,
+    skip_cbar = False,
     pfname="images/temp.png",
 ):
     M = Z.shape[0]
@@ -802,7 +848,7 @@ def pairplot(
             else:
                 ax.axis("off")
 
-    if c is not None:
+    if c is not None and not skip_cbar:
         fig.subplots_adjust(right=0.90)
         cbar_ax = fig.add_axes([0.92, 0.15, 0.04, 0.7])
         clb = fig.colorbar(h, cax=cbar_ax)
@@ -810,7 +856,6 @@ def pairplot(
         b = (num_dims - 1) * 1.15
         plt.text(a, b, c_label, {"fontsize": fontsize}, transform=ax.transAxes)
         clb.ax.tick_params(labelsize=ticksize)
-    # plt.savefig(pfname)
     return fig, axs
 
 def filter_outliers(c, num_stds=4):
@@ -864,7 +909,7 @@ def plot_T_x(T_x, T_x_sim, bins=30, xmin=None, xmax=None,
 
     return ax
 
-def plot_opt(epi_df, max_k=None, cs=None, fontsize=12, figdir='./', save=False):
+def plot_opt(epi_df, max_k=None, cs=None, fontsize=12, H_ylim=None, figdir='./', save=False):
     ticksize = fontsize-6
     if max_k is None:
         max_k = epi_df['k'].max()
@@ -879,6 +924,8 @@ def plot_opt(epi_df, max_k=None, cs=None, fontsize=12, figdir='./', save=False):
     plt.setp(ax.get_xticklabels(), fontsize=ticksize)
     plt.setp(ax.get_yticklabels(), fontsize=ticksize)
     plt.xlabel('iterations', fontsize=fontsize)
+    if H_ylim is not None:
+        ax.set_ylim(H_ylim)
     if save:
         plt.tight_layout()
         plt.savefig(os.path.join(figdir, 'opt_H.png'))
