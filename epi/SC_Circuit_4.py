@@ -1,6 +1,9 @@
 import tensorflow as tf
 import numpy as np
 import scipy
+from scipy.special import expit
+import matplotlib.pyplot as plt
+import os
 
 DTYPE = tf.float32
 
@@ -172,6 +175,7 @@ C_opto = 4
 I_opto = tf.concat((I_LP, I_LA, I_LP, I_LA), axis=2)
 
 def SC_sim_opto(strength, period):
+    print('str', strength)
     eta = np.ones((T, 1, C_opto, 1, 1), dtype=np.float32)
     if period == 'delay':
         eta[np.logical_and(0.8 <= t, t <= 1.2), :, 2:, :, :] = strength
@@ -258,6 +262,19 @@ def SC_acc_diff(strength, period):
 
     return _SC_acc_diff
 
+def z_to_W(z):
+    sW = z[:,0]
+    vW = z[:,1]
+    dW = z[:,2]
+    hW = z[:,3]
+
+    Wrow1 = tf.stack([sW, vW, dW, hW], axis=1)
+    Wrow2 = tf.stack([vW, sW, hW, dW], axis=1)
+    Wrow3 = tf.stack([dW, hW, sW, vW], axis=1)
+    Wrow4 = tf.stack([hW, dW, vW, sW], axis=1)
+    W = tf.stack([Wrow1, Wrow2, Wrow3, Wrow4], axis=1)
+    return W
+
 def get_schur_eigs(W):
     # returns 
     T, Z = scipy.linalg.schur(W)
@@ -278,3 +295,42 @@ def get_schur_eigs(W):
     #print(z_inds)
     #print(T)
     return eigs
+
+c_LP = '#3B8023'
+c_LA = '#EA8E4C'
+c_RA = '#F4C673'
+c_RP = '#81C176'
+
+def plot_SC_responses(v_t, fname, figsize=(6,4)):
+    M = v_t.shape[1]
+    T_x = np.mean(expit(100.*(v_t[-1,:,:,0,:] - v_t[-1,:,:,3,:])), axis=2)
+    
+    percfont = {'family': 'arial',
+                'weight': 'light',
+                'size': 20,
+            }
+    neuron_labels = ['LP', 'LA', 'RA', 'RP']
+    colors = [c_LP, c_LA, c_RA, c_RP]
+    C_titles = ['Pro, left trials', 'Anti, left trials']
+    for m in range(M):
+        print("%.1f, %.1f" % (100*T_x[m,0], 100-100*T_x[m,1]))
+        fig, axs = plt.subplots(2,1,figsize=figsize)
+        for c in range(2):
+            for i in range(4):
+                mean_v = np.mean(v_t[:,m,c,i,:], axis=1)
+                std_v = np.std(v_t[:,m,c,i,:], axis=1)
+                axs[c].fill_between(t, mean_v - std_v, mean_v + std_v, color=colors[i], alpha=0.2)
+                axs[c].plot(t, mean_v, label=neuron_labels[i], c=colors[i])
+                #axs[c].set_title(C_titles[c])
+                axs[c].set_ylim([0,1])
+                if c == 0:
+                    axs[c].text(0.75, 0.5, '%2d%%' % round(100.*T_x[m,c]), fontdict=percfont)
+                else:
+                    axs[c].text(0.75, 0.5, '%2d%%' % round(100.*(1.-T_x[m,c])), fontdict=percfont)
+            if c == 1:
+                axs[c].set_xlabel('t (s)', fontsize=18)
+        #axs[0].set_ylabel('Activation')
+        plt.tight_layout()
+        plt.savefig(fname + "sim%d.pdf" % (m+1))
+        plt.show()
+    return None
