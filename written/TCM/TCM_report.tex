@@ -1,0 +1,99 @@
+% You should title the file with a .tex extension (hw1.tex, for example)
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{wrapfig}
+\usepackage{fancyhdr}
+\usepackage{tikz-qtree}
+\usepackage{tikz-qtree-compat}
+\usepackage[normalem]{ulem}
+\usepackage{tikz}
+\usepackage{graphicx}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\usepackage{hyperref}
+\usepackage{soul}
+\usepackage{natbib}
+
+\oddsidemargin0cm
+\topmargin-2cm     %I recommend adding these three lines to increase the 
+\textwidth16.5cm   %amount of usable space on the page (and save trees)
+\textheight23.5cm  
+
+\newcommand{\question}[2] {\vspace{.25in} \hrule\vspace{0.5em}
+\noindent{\bf #1: #2} \vspace{0.5em}
+\hrule \vspace{.10in}}
+\renewcommand{\part}[1] {\vspace{.10in} {\bf (#1)}}
+
+\newcommand{\myname}{Sean Bittner}
+\newcommand{\myandrew}{srb2201@columbia.edu}
+\newcommand{\myhwnum}{12}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt plus 1pt}
+\setlength{\bibsep}{0pt plus 0.3ex}
+
+ 
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+ 
+\pagestyle{fancyplain}
+\rhead{\fancyplain{}{\myname\\ \myandrew}}
+
+\begin{document}
+
+\medskip                        % Skip a "medium" amount of space
+                                % (latex determines what medium is)
+                                % Also try: \bigskip, \littleskip
+
+\thispagestyle{plain}
+\begin{center}                  % Center the following lines
+{\Large Thesis committee report} \\
+Sean Bittner, January 16, 2021
+\end{center}
+
+\textbf{Summary}:
+During my last thesis committee meeting in May, 2020, I presented progress on the emergent property inference (EPI) project.  
+To refresh, EPI is a likelihood-free inference (LFI) method, that uses deep probability distributions (normalizing flows) to obtain flexible posterior approximations.  
+I presented the EPI method and my work on neuroscientific applications of EPI, which come from this manuscript \cite{bittner2019interrogating}.
+Our conclusion was that I should focus on a.) improving the science done with this method and b.) providing a comparative analysis between EPI and other LFI techniques.
+The advancements I've made since our last meeting are listed below.
+
+\underline{Advancements since May, 2020}:
+\begin{enumerate}
+\item \textbf{STG}: This introductory example based on an STG subcircuit \cite{gutierrez2013multiple} has been revisited: we introduced stochasticity to make a technical point, and changed the emergent property to improve the pedagogical value of the analysis.
+\item \textbf{V1}: We now focus on how parameters of noise govern variability in the stochastic stabilized supralinear network (SSSN) \cite{hennequin2018dynamical} generalized to have inhibitory multiplicity.
+\item \textbf{SC}: By request from our collaborators, we changed the modeling of network responses from winner-take-all to comparative decision making.
+Intriguingly, EPI inferred connectivities postdict optogenetic response properties published by the Brody Lab.
+\item \textbf{RNNs}: We infer connectivities of low-rank RNN's exhibiting stable amplification using criteria defined in \cite{bondanelli2020coding}.  
+Here, we demonstrate the superior scaling properties of EPI compared to sequential Monte Carlo approximate Bayesian computation (SMC-ABC) \cite{sisson2007sequential} and sequential neural posterior estimation (SNPE) \cite{gonccalves2020training}.
+\end{enumerate}
+
+Each model in the paper was re-analyzed using the new {\color{blue} \href{https://github.com/cunningham-lab/epi}{epi} software package}, which takes advantage of modern advancements in normalizing flows.
+
+In September, I had the opportunity to present our work on EPI at the Bernstein Conference Workshop on ``Inferring and Testing Optimality in Perception and Neurons".
+Upon feedback from the committee and some final touches, we will resubmit our manuscript to eLife.
+
+\textbf{Professional ambitions}:
+This past summer (June-Aug 2020) I had a research internship at Facebook Reality Labs (with the CTRL-Labs Science Team).
+I used recently developed techniques from automatic speech recognition to substantially improve EMG typing accuracy.
+I'm excited about the challenging research problems in BCI development, and I've applied for a Research Scientist position at Facebook with the CTRL-Labs group.
+I will be interviewed soon, the start date would be flexible, and my preferred graduation date is still May 2021.
+Here is my proposal for the thesis outline.
+
+\textbf{Proposed thesis outline} \\
+\underline{Title}: Bridging data, theory, and experiment in computational neuroscience. \\
+\underline{Chapter 1}: Understanding movement generation using normative models: \\ 
+$~~~~~~~~~~~~~~~~~~~$ tangling \cite{russo2018motor} and divergence \cite{russo2020neural}. \\
+\underline{Chapter 2}: Amortizing statistical inference in exponential family models of neural activity \cite{bittner2019approximating}. \\
+\underline{Chapter 3}: Inference in theoretical models of neural computation \cite{bittner2019interrogating}. \\
+
+In our meeting, I'll summarize the latest advancements to the EPI project, and describe my contributions to the work listed in the thesis outline.
+
+\bibliography{tcm}
+\bibliographystyle{unsrt}
+\vspace{3mm}
+
+\end{document}
+

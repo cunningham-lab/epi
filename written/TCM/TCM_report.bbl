@@ -1,0 +1,65 @@
+\begin{thebibliography}{1}
+
+\bibitem{bittner2019interrogating}
+Sean~R Bittner, Agostina Palmigiano, Alex~T Piet, Chunyu~A Duan, Carlos~D
+  Brody, Kenneth~D Miller, and John~P Cunningham.
+\newblock Interrogating theoretical models of neural computation with deep
+  inference.
+\newblock {\em bioRxiv}, page 837567, 2019.
+
+\bibitem{gutierrez2013multiple}
+Gabrielle~J Gutierrez, Timothy O'Leary, and Eve Marder.
+\newblock Multiple mechanisms switch an electrically coupled, synaptically
+  inhibited neuron between competing rhythmic oscillators.
+\newblock {\em Neuron}, 77(5):845--858, 2013.
+
+\bibitem{hennequin2018dynamical}
+Guillaume Hennequin, Yashar Ahmadian, Daniel~B Rubin, M{\'a}t{\'e} Lengyel, and
+  Kenneth~D Miller.
+\newblock The dynamical regime of sensory cortex: stable dynamics around a
+  single stimulus-tuned attractor account for patterns of noise variability.
+\newblock {\em Neuron}, 98(4):846--860, 2018.
+
+\bibitem{bondanelli2020coding}
+Giulio Bondanelli and Srdjan Ostojic.
+\newblock Coding with transient trajectories in recurrent neural networks.
+\newblock {\em PLoS computational biology}, 16(2):e1007655, 2020.
+
+\bibitem{sisson2007sequential}
+Scott~A Sisson, Yanan Fan, and Mark~M Tanaka.
+\newblock Sequential monte carlo without likelihoods.
+\newblock {\em Proceedings of the National Academy of Sciences},
+  104(6):1760--1765, 2007.
+
+\bibitem{gonccalves2020training}
+Pedro~J Gon{\c{c}}alves, Jan-Matthis Lueckmann, Michael Deistler, Marcel
+  Nonnenmacher, Kaan {\"O}cal, Giacomo Bassetto, Chaitanya Chintaluri,
+  William~F Podlaski, Sara~A Haddad, Tim~P Vogels, et~al.
+\newblock Training deep neural density estimators to identify mechanistic
+  models of neural dynamics.
+\newblock {\em bioRxiv}, page 838383, 2020.
+
+\bibitem{russo2018motor}
+Abigail~A Russo, Sean~R Bittner, Sean~M Perkins, Jeffrey~S Seely, Brian~M
+  London, Antonio~H Lara, Andrew Miri, Najja~J Marshall, Adam Kohn, Thomas~M
+  Jessell, et~al.
+\newblock Motor cortex embeds muscle-like commands in an untangled population
+  response.
+\newblock {\em Neuron}, 97(4):953--966, 2018.
+
+\bibitem{russo2020neural}
+Abigail~A Russo, Ramin Khajeh, Sean~R Bittner, Sean~M Perkins, John~P
+  Cunningham, LF~Abbott, and Mark~M Churchland.
+\newblock Neural trajectories in the supplementary motor area and motor cortex
+  exhibit distinct geometries, compatible with different classes of
+  computation.
+\newblock {\em Neuron}, 2020.
+
+\bibitem{bittner2019approximating}
+Sean~R Bittner and John~P Cunningham.
+\newblock Approximating exponential family models (not single distributions)
+  with a two-network architecture.
+\newblock {\em ICML Workshop on Invertible Neural Networks and Normalizing
+  Flows}, 2019.
+
+\end{thebibliography}

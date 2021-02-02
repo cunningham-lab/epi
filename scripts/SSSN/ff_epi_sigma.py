@@ -3,15 +3,15 @@ import argparse
 import numpy as np
 import tensorflow as tf
 from epi.models import Parameter, Model
-from epi.SSSN import SSSN_sim, SSSN_sim, load_SSSN_variable, get_Fano_sigma
+from epi.SSSN import SSSN_sim, SSSN_sim, load_SSSN_variable, get_stddev_sigma
 
 # Parse script command-line parameters.
 parser = argparse.ArgumentParser()
 parser.add_argument('--alpha', type=str, default='E') # neuron type
 parser.add_argument('--ind', type=int, default=62) # neuron type
-parser.add_argument('--lim', type=float, default=None) # neuron type
-parser.add_argument('--ff_mean', type=float, default=1.) # neuron type
-parser.add_argument('--ff_std', type=float, default=0.025) # neuron type
+parser.add_argument('--lim', type=float, default=0.005) # neuron type
+parser.add_argument('--f_mean', type=float, default=5.) # neuron type
+parser.add_argument('--f_std', type=float, default=0.25) # neuron type
 parser.add_argument('--beta', type=float, default=4.) # aug lag hp
 parser.add_argument('--logc0', type=float, default=0.) # log10 of c_0
 parser.add_argument('--random_seed', type=int, default=1)
@@ -20,21 +20,15 @@ args = parser.parse_args()
 alpha = args.alpha
 ind = args.ind
 lim = args.lim
-ff_mean = args.ff_mean
-ff_std = args.ff_std
+f_mean = args.f_mean
+f_std = args.f_std
 beta = args.beta
 c0 = 10.**args.logc0
 random_seed = args.random_seed
 
-<<<<<<< HEAD
-if lim is None:
-    if ind == 49:
-        lim = 0.03
-=======
 if lim is not None:
     if ind == 49:
         lim = 0.05
->>>>>>> f0cc7e04db7b25d4e5bb912dab11d9366a17b44c
     elif ind == 62:
         lim = 0.005
     else:
@@ -57,7 +51,7 @@ ub = lim*np.ones((D,))
 sigma_eps = Parameter("sigma_eps", D, lb=lb, ub=ub)
 
 # Define model
-name = "SSSN_ff_sigma_%s_%.2E_%.2E_ind=%d" % (alpha, ff_mean, ff_std, ind)
+name = "SSSN_stddev_sigma_%s_%.2E_%.2E_ind=%d" % (alpha, f_mean, f_std, ind)
 parameters = [sigma_eps]
 model = Model(name, parameters)
 
@@ -65,11 +59,11 @@ dt = 0.0005
 T = 150
 N = 100
 
-fano = get_Fano_sigma(alpha, W_mat, h, N=N, dt=dt, T=T, T_ss=T-50, mu=ff_mean)
-model.set_eps(fano)
+stddev = get_stddev_sigma(alpha, W_mat, h, N=N, dt=dt, T=T, T_ss=T-50, mu=f_mean)
+model.set_eps(stddev)
 
 # Emergent property values.
-mu = np.array([ff_mean, ff_std**2])
+mu = np.array([f_mean, f_std**2])
 
 # 3. Run EPI.
 q_theta, opt_data, epi_path, failed = model.epi(
@@ -77,8 +71,8 @@ q_theta, opt_data, epi_path, failed = model.epi(
     arch_type='coupling',
     num_stages=3,
     num_layers=2,
-    num_units=50,
-    post_affine=False,
+    num_units=25,
+    post_affine=True,
     batch_norm=False,
     bn_momentum=0.0,
     K=10,
