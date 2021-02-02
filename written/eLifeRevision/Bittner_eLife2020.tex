@@ -198,7 +198,7 @@ Once we have such a methodology, we can infer a probability distribution over pa
 %D. EPI optimization: To learn the EPI distribution $q_{\bm{\theta}}(\mathbf{z})$ of model parameters that produce an emergent property, the emergent property statistics $T(\mathbf{x})$ are set in expectation over model parameter samples $\mathbf{z} \sim q_{\bm{\theta}}(\mathbf{z})$ and model simulations $\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z})$ to emergent property values $\bm{\mu}$.
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.32]{figures/fig1/fig1.pdf}
+\includegraphics[scale=0.8]{figures/fig1/fig1.pdf}
 \end{center}
 \caption{\small Emergent property inference (EPI) in the stomatogastric ganglion.  
 \textbf{A}. Conductance-based biophysical model of the STG subcircuit.
@@ -315,7 +315,7 @@ Subsequently in Section \ref{results_LRRNN}, we show EPI's superiority in parame
 \begin{figure}
 \vspace{-1cm}
 \begin{center}
-\includegraphics[scale=0.2]{figures/fig2/fig2.pdf}
+\includegraphics[scale=.8]{figures/fig2/fig2.pdf}
 \end{center}
 \vspace{-1cm}
 \caption{\small Emergent property inference of a stochastic stabilized supralinear network.
@@ -467,7 +467,7 @@ Here, we use EPI to determine the changes in network connectivity $\mathbf{z} = 
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.48]{figures/fig3/fig3.pdf}
+\includegraphics[scale=0.8]{figures/fig3/fig3.pdf}
 \end{center}
 \caption{\small 
 \textbf{A}. Rapid task switching behavioral paradigm (see text). 
@@ -516,7 +516,7 @@ EPI allows us to conclude that since \textit{all} parameters of this model produ
 
 \subsection{EPI scales well to high-dimensional parameter spaces} \label{results_LRRNN}
 
-Here, we are interested in the scalability of EPI in number of parameters ($|\mathbf{z}|$).  We consider rank-2 RNN with N neurons of connectivity
+Here, we are interested in the scalability of EPI in number of parameters $|\mathbf{z}|$.  We consider rank-2 RNN with N neurons of connectivity
 \begin{equation}
  W = UV^\top + g\chi
  \end{equation}
@@ -555,7 +555,7 @@ SNPE's posterior predictive distribution is not necessarily close to the conditi
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=1.4]{figures/fig4/fig4.pdf}
+\includegraphics[scale=.8]{figures/fig4/fig4.pdf}
 \end{center}
 \caption{\small 
 \textbf{A}. Recurrent neural network.
@@ -879,16 +879,18 @@ We use the Real NVP \cite{dinh2017density} normalizing flow class, because its c
 Fast probability evaluation in turn facilitates fast gradient and Hessian evaluation of log probability throughout parameter space.
 Glow permutations were used in between coupling stages \cite{kingma2018glow}.
 This is in contrast to autoregressive architectures \cite{papamakarios2017masked, kingma2016improved}, in which only forward or backward passes are efficient.
-Normalizing flow architectures for deep probability distributions used in EPI are specified by the number of coupling stages, neural network layers and units per layer for conditioning functions.
+
+In this work, normalizing flows are used as flexible posterior approximations $q_{\bm{\theta}}(\mathbf{z})$ having weights and biases $\bm{\theta}$. We specify the architecture used in each application by the number of Real-NVP affine coupling stages, and the number of neural network layers and units per layer of the conditioning functions.
 
 \subsubsection{Augmented Lagrangian optimization}\label{methods_AL_opt}
-To optimize $q_{\bm{\theta}}(\mathbf{z})$ in Equation \ref{eq:opt}, the constrained optimization is executed using the augmented Lagrangian method.  The following objective is minimized:
+To optimize $q_{\bm{\theta}}(\mathbf{z})$ in Equation \ref{eq:opt}, the constrained maximum entropy optimization is executed using the augmented Lagrangian method.  The following objective is minimized:
 \begin{equation} \label{eq:AL}
 L(\bm{\theta}; \bm{\eta}_{\text{opt}}, c) = -H(q_{\bm{\theta}}) + \bm{\eta}_{\text{opt}}^\top R(\bm{\theta}) + \frac{c}{2}||R(\bm{\theta})||^2
 \end{equation}
-where $R(\bm{\theta}) = \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}\left[ \mathbb{E}_{\mathbf{x}\sim p(\mathbf{x} \mid \mathbf{z})}\left[T(\mathbf{x}; \mathbf{z}) - \bm{\mu}_{\text{opt}} \right] \right]$, $\bm{\eta}_{\text{opt}} \in \mathbb{R}^m$ are the Lagrange multipliers where $m = |\bm{\mu}_{\text{opt}}| = |T(\mathbf{x}; \mathbf{z})|$,  and $c$ is the penalty coefficient. 
-These Lagrange multipliers are closely related to the natural parameters $\bm{\eta}$ of exponential families (see Section \ref{methods_VI}).
-Deep neural network weights and biases $\bm{\theta}$ of the deep probability distribution are optimized according to Equation \ref{eq:AL} using the Adam optimizer with learning rate $10^{-3}$ \cite{kingma2014adam}.
+where average constraint violations $R(\bm{\theta}) = \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}\left[ \mathbb{E}_{\mathbf{x}\sim p(\mathbf{x} \mid \mathbf{z})}\left[T(\mathbf{x}; \mathbf{z}) - \bm{\mu}_{\text{opt}} \right] \right]$, $\bm{\eta}_{\text{opt}} \in \mathbb{R}^m$ are the Lagrange multipliers where $m = |\bm{\mu}_{\text{opt}}| = |T(\mathbf{x}; \mathbf{z})| = 2|f(\mathbf{x}; \mathbf{z})|$,  and $c$ is the penalty coefficient. 
+The sufficient statistics $T(\mathbf{x}; \mathbf{z})$ and mean parameter $\bm{\mu}_{\text{opt}}$ are determined by the means $\bm{\mu}$ and variances $\bm{\sigma}^2$ of emergent property statistics $f(\mathbf{x}; \mathbf{z})$ defined in Equation \ref{eq:opt}.
+Specifically, $T(\mathbf{x}; \mathbf{z})$ is a concatenation of the first and second moments, $\bm{\mu}_{\text{opt}}$ is a concatenation of $\bm{\mu}$ and $\bm{\sigma}^2$ (see section \ref{methods_ME_EF}), and the Lagrange multipliers are closely related to the natural parameters $\bm{\eta}$ of exponential families (see Section \ref{methods_VI}).
+Weights and biases $\bm{\theta}$ of the deep probability distribution are optimized according to Equation \ref{eq:AL} using the Adam optimizer with learning rate $10^{-3}$ \cite{kingma2014adam}.
 
 To take gradients with respect to the entropy $H(q_{\bm{\theta}}(\mathbf{z}))$, it can be expressed using the reparameterization trick as an expectation of the negative log density of parameter samples $\mathbf{z}$ over the randomness in the parameterless initial distribution $q_0(\mathbf{z}_0$):
 \begin{equation}
@@ -904,7 +906,7 @@ A low value of $c$ is used initially, and conditionally increased after each epo
 The penalty coefficient is updated based on the result of a hypothesis test regarding the reduction in constraint violation.  
 The p-value of $\mathbb{E}[||R(\bm{\theta}_{k+1})||] > \gamma \mathbb{E} \left[||R(\bm{\theta}_{k})|| \right]$ is computed, and $c_{k+1}$ is updated  to $\beta c_k$ with probability $1-p$.  
 The other update rule is $\bm{\eta}_{\text{opt},k+1} = \bm{\eta}_{\text{opt},k} + c_k \frac{1}{n} \sum_{i=1}^n (T(\mathbf{x}^{(i)}) - \bm{\mu}_{\text{opt}})$ given a batch size $n$.
-Throughout the study, $\beta = 4.0$, $\gamma = 0.25$, and the batch size was a hyperparameter, which varied according to the application of EPI.
+Throughout the study, $\gamma = 0.25$, while $\beta$ was chosen to be either 2 or 4.  The batch size of EPI also varied according to application.
 
 The intention is that $c$ and $\bm{\eta}_{\text{opt}}$ start at values encouraging entropic growth early in optimization.  
 With each training epoch in which the update rule for $c$ is invoked by unsatisfactory constraint error reduction, the constraint satisfaction terms are increasingly weighted, resulting in a decreased entropy.
@@ -915,10 +917,10 @@ Rather than starting optimization from some $\bm{\theta}$ drawn from a randomize
 The parameters of the Gaussian initialization were chosen on an application-specific basis.  
 Throughout the study, we chose isotropic Gaussian initializations with mean $\bm{\mu}_{\text{init}}$ at the center of the distribution support and some standard deviation $\bm{\sigma}_{\text{init}}$, except for one case, where an initialization informed by random search was used (see Section \ref{methods_STG}).
 
-To assess whether the EPI distribution $q_{\bm{\theta}}(\mathbf{z})$ produces the emergent property, we defined a hypothesis testing convergence criteria.  
-The algorithm has converged when a null hypothesis test of constraint violations $R(\bm{\theta})_i$ being zero is accepted for all constraints $i \in \{1, ..., m\}$ at a significance threshold $\alpha=0.05$.  
+To assess whether the EPI distribution $q_{\bm{\theta}}(\mathbf{z})$ produces the emergent property, we assess whether each individual constraint on the means and variances of $f(\mathbf{x}; \mathbf{z})$ is satisfied.
+We consider the EPI to have converged when a null hypothesis test of constraint violations $R(\bm{\theta})_i$ being zero is accepted for all constraints $i \in \{1, ..., m\}$ at a significance threshold $\alpha=0.05$.  
 This significance threshold is adjusted through Bonferroni correction according to the number of constraints $m$.  
-The p-values for each constraint are calculated according to a two-tailed nonparametric test, where 200 estimations of the sample mean $R(\bm{\theta})^i$ are made from $k$ resamplings of $\mathbf{z}$ from a finite sample of size $n$ taken at the end of the augmented Lagrangian epoch.
+The p-values for each constraint are calculated according to a two-tailed nonparametric test, where 200 estimations of the sample mean $R(\bm{\theta})^i$ are made using $N_{\text{test}}$ samples of $\mathbf{z} \sim q_{\bm{\theta}}(\mathbf{z})$ at the end of the augmented Lagrangian epoch.
 
 When assessing the suitability of EPI for a particular modeling question, there are some important technical considerations. 
 First and foremost, as in any optimization problem, the defined emergent property should always be appropriately conditioned (constraints should not have wildly different units).  
@@ -946,7 +948,7 @@ To learn the distribution of real entries of $A$ that produce a band of oscillat
  \end{equation} 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.58]{figures/figLDS1/figLDS1.pdf}
+\includegraphics[scale=0.8]{figures/figLDS1/figLDS1.pdf}
 \end{center}
 \begin{flushleft}
 \caption{\small (LDS1): A. Two-dimensional linear dynamical system model, where real entries of the dynamics matrix $A$ are the parameters.  
@@ -1366,10 +1368,10 @@ B. The emergent property statistic means and variances converge to their constra
 \label{fig:STG1}
 \end{figure}
 
-For EPI in Fig \ref{fig:STG}E, we used a real NVP architecture with three coupling layers of affine transformations parameterized by two-layer neural networks of 25 units per layer.
+For EPI in Fig \ref{fig:STG}E, we used a real NVP architecture with three Real NVP coupling layers and two-layer neural networks of 25 units per layer.
 The initial distribution was a standard isotropic gaussian $z_0 \sim \mathcal{N}(\mathbf{0}, I)$ mapped to a support of $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}] \in [4,8] \times [0.01,4]$. 
 We did not include $g_{\text{synA}} < 0.01$, since conductances that low make the circuit simulations numerically unstable.
-We used an augmented Lagrangian coefficient of $c_0 = 10^{5}$, a batch size $n=400$, set $\nu = 0.25$, and initialized $q_{\bm{\theta}}(\mathbf{z})$ to produce a gaussian approximation to samples returned from an initial ABC search.
+We used an augmented Lagrangian coefficient of $c_0 = 10^{5}$, a batch size $n=400$, $\beta = 2$, $N_{\text{test}} = 100$, and initialized $q_{\bm{\theta}}(\mathbf{z})$ to produce a gaussian approximation to samples returned from an initial ABC search.
 This initialization had much greater entropy and a different emergent property than the returned EPI posterior.
 
 TODO write about specifics of the Hessian analysis.
@@ -1692,7 +1694,7 @@ Accuracies were estimated over 200 trials of random gaussian noise, which was sa
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.85]{figures/figSC1/figSC1.pdf}
+\includegraphics[scale=0.7]{figures/figSC1/figSC1.pdf}
 \end{center}
 \caption{\small (SC1): Connectivity parameters of EPI distributions versus task accuracies.  $\beta$ is slope coefficient of linear regression, $r$ is correlation, and $p$ is the two-tailed p value.
 }
@@ -1701,7 +1703,7 @@ Accuracies were estimated over 200 trials of random gaussian noise, which was sa
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=1.3]{figures/figSC2/figSC2.pdf}
+\includegraphics[scale=.7]{figures/figSC2/figSC2.pdf}
 \end{center}
 \caption{\small (SC2):  
 A. Invariant eigenvectors of connectivity matrix $W$.
@@ -1711,7 +1713,7 @@ B. Eigenvalues of connectivities of EPI distribution versus task accuracies.}
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.6]{figures/figSC3/figSC3.pdf}
+\includegraphics[scale=1.]{figures/figSC3/figSC3.pdf}
 \end{center}
 \caption{\small (SC3): 
 A. Connectivity eigenvalues of EPI parameter distribution colored by Pro task accuracy. 
@@ -1722,7 +1724,7 @@ B. Same for Anti task.
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.75]{figures/figSC4/figSC4.pdf}
+\includegraphics[scale=0.6]{figures/figSC4/figSC4.pdf}
 \end{center}
 \caption{\small (SC4):  Scatters of the effect of delay period inactivation in each task with task accuracy.  Plots are shown at an opto strength of 0.8.
 }
