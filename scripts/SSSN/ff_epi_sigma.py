@@ -49,7 +49,7 @@ model = Model(name, parameters)
 
 dt = 0.0005
 T = 150
-N = 100
+N = 25
 
 stddev = get_stddev_sigma(alpha, W_mat, h, N=N, dt=dt, T=T, T_ss=T-50, mu=f_mean)
 model.set_eps(stddev)
