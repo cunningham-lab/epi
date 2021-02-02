@@ -315,7 +315,7 @@ Subsequently in Section \ref{results_LRRNN}, we show EPI's superiority in parame
 \begin{figure}
 \vspace{-1cm}
 \begin{center}
-\includegraphics[scale=.8]{figures/fig2/fig2.pdf}
+\includegraphics[scale=0.8]{figures/fig2/fig2.pdf}
 \end{center}
 \vspace{-1cm}
 \caption{\small Emergent property inference of a stochastic stabilized supralinear network.
@@ -879,11 +879,12 @@ We use the Real NVP \cite{dinh2017density} normalizing flow class, because its c
 Fast probability evaluation in turn facilitates fast gradient and Hessian evaluation of log probability throughout parameter space.
 Glow permutations were used in between coupling stages \cite{kingma2018glow}.
 This is in contrast to autoregressive architectures \cite{papamakarios2017masked, kingma2016improved}, in which only forward or backward passes are efficient.
-
-In this work, normalizing flows are used as flexible posterior approximations $q_{\bm{\theta}}(\mathbf{z})$ having weights and biases $\bm{\theta}$. We specify the architecture used in each application by the number of Real-NVP affine coupling stages, and the number of neural network layers and units per layer of the conditioning functions.
+In this work, normalizing flows are used as flexible posterior approximations $q_{\bm{\theta}}(\mathbf{z})$ having weights and biases $\bm{\theta}$. 
+We specify the architecture used in each application by the number of Real-NVP affine coupling stages, and the number of neural network layers and units per layer of the conditioning functions.
 
 \subsubsection{Augmented Lagrangian optimization}\label{methods_AL_opt}
-To optimize $q_{\bm{\theta}}(\mathbf{z})$ in Equation \ref{eq:opt}, the constrained maximum entropy optimization is executed using the augmented Lagrangian method.  The following objective is minimized:
+To optimize $q_{\bm{\theta}}(\mathbf{z})$ in Equation \ref{eq:opt}, the constrained maximum entropy optimization is executed using the augmented Lagrangian method.  
+The following objective is minimized:
 \begin{equation} \label{eq:AL}
 L(\bm{\theta}; \bm{\eta}_{\text{opt}}, c) = -H(q_{\bm{\theta}}) + \bm{\eta}_{\text{opt}}^\top R(\bm{\theta}) + \frac{c}{2}||R(\bm{\theta})||^2
 \end{equation}
@@ -918,7 +919,7 @@ The parameters of the Gaussian initialization were chosen on an application-spec
 Throughout the study, we chose isotropic Gaussian initializations with mean $\bm{\mu}_{\text{init}}$ at the center of the distribution support and some standard deviation $\bm{\sigma}_{\text{init}}$, except for one case, where an initialization informed by random search was used (see Section \ref{methods_STG}).
 
 To assess whether the EPI distribution $q_{\bm{\theta}}(\mathbf{z})$ produces the emergent property, we assess whether each individual constraint on the means and variances of $f(\mathbf{x}; \mathbf{z})$ is satisfied.
-We consider the EPI to have converged when a null hypothesis test of constraint violations $R(\bm{\theta})_i$ being zero is accepted for all constraints $i \in \{1, ..., m\}$ at a significance threshold $\alpha=0.05$.  
+We consider the EPI to have converged when a null hypothesis test of constraint violations $R(\bm{\theta})_i$ being zero is accepted for all constraints $i \in \{1, ..., m\}$ at a significance threshold $\alpha=0.05$. 
 This significance threshold is adjusted through Bonferroni correction according to the number of constraints $m$.  
 The p-values for each constraint are calculated according to a two-tailed nonparametric test, where 200 estimations of the sample mean $R(\bm{\theta})^i$ are made using $N_{\text{test}}$ samples of $\mathbf{z} \sim q_{\bm{\theta}}(\mathbf{z})$ at the end of the augmented Lagrangian epoch.
 
@@ -1703,7 +1704,7 @@ Accuracies were estimated over 200 trials of random gaussian noise, which was sa
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=.7]{figures/figSC2/figSC2.pdf}
+\includegraphics[scale=0.7]{figures/figSC2/figSC2.pdf}
 \end{center}
 \caption{\small (SC2):  
 A. Invariant eigenvectors of connectivity matrix $W$.
@@ -1713,7 +1714,7 @@ B. Eigenvalues of connectivities of EPI distribution versus task accuracies.}
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=1.]{figures/figSC3/figSC3.pdf}
+\includegraphics[scale=1.0]{figures/figSC3/figSC3.pdf}
 \end{center}
 \caption{\small (SC3): 
 A. Connectivity eigenvalues of EPI parameter distribution colored by Pro task accuracy. 
