@@ -138,12 +138,12 @@ We use a classic example of parametric degeneracy in a biological system, the st
 Equipped with this methodology, we then investigated three models of current importance in theoretical neuroscience.
 These models were chosen to demonstrate generality through ranges of biological realism (from conductance-based biophysics to recurrent neural networks), neural system function (from pattern generation to decision making), and network scale (from four to hundreds of neurons).
 %First, we use EPI to produce a set of verifiable hypotheses of input-responsivity in a four neuron-type dynamical model of primary visual cortex; we then validate these hypotheses in the model.
-First, we use EPI to understand the characteristics of noise that govern variability in a stochastic four neuron-type model of primary visual cortex.
+First, we use EPI to understand the characteristics of noise across mulitple neuron-type populations that govern variability in a model of primary visual cortex.
 %Second, we demonstrated how the systematic application of EPI to levels of task performance can generate experimentally testable hypotheses regarding connectivity in superior colliculus.  
-Second, we discover connectivity patterns in superior colliculus resilient to optogenetic perturbation by using EPI to condition on rapid task switching.
+Then, we use EPI to infer multiple regimes of superior colliculus connectivity that perform rapid task switching.
 The novel scientific insights offered by EPI contextualize and clarify the previous studies exploring these models \cite{litwin2016inhibitory, duan2018collicular}.
 %Third, we use EPI to uncover the sources of error in a low-rank recurrent neural network executing a simple mathematical task.  
-Third, we emphasize the scalability of EPI by inferring high-dimensional distributions of RNNs exhibiting stable amplification.
+Finally, we emphasize the scalability of EPI by inferring high-dimensional distributions of RNNs exhibiting stable amplification.
 These results point to the value of deep inference for the interrogation of biologically relevant models.
 
 %-------------------
@@ -204,21 +204,22 @@ In the STG model, jagged connections indicate electrical coupling having electri
 Other connections in the diagram are inhibitory synaptic projections having strength $g_{\text{synA}}$ onto the hub neuron, and $g_{\text{synB}}=5$nS for mutual inhibitory connections.  
 Parameters are represented by the vector $\mathbf{z}$ and membrane potentials by the vector $\mathbf{x}$.
 The evolution of this model's activity $\mathbf{x}(t)$ is predicated by differential equations.
-\textbf{B}. Spiking frequency $\omega(\mathbf{x}; \mathbf{z})$ is an emergent property statistic. Spiking frequency is measured from simulated activity of the STG model at parameter choices of $g_{\text{el}} = 4.5$nS and $g_{\text{synA}} = 3$nS.
+\textbf{B}. Spiking frequency $\omega(\mathbf{x}; \mathbf{z})$ is an emergent property statistic. 
+In this example, spiking frequency is measured from simulated activity of the STG model at parameter choices of $g_{\text{el}} = 4.5$nS and $g_{\text{synA}} = 3$nS.
 \textbf{C}. The emergent property of intermediate hub frequency, in which the hub neuron fires at a rate between the fast and slow frequencies.
+This emergent property is defined by a mean and variance on the emergent property statistic.
 Simulated activity traces are colored by log probability density of their generating parameters in the EPI-inferred distribution (Panel E).
-\textbf{D}. For a choice of model and emergent property, emergent property inference (EPI) learns a distribution of the model parameters $\mathbf{z} = \left[g_{\text{el}}, g_{\text{synA}} \right]$ producing intermediate hub frequency.
-Deep probability distributions map a simple random variable $\mathbf{z}_0$ through a deep neural network with weights and biases $\bm{\theta}$ to parameters $\mathbf{z} = g_{\bm{\theta}}(\mathbf{z}_0)$ distributed as $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$. 
+\textbf{D}. For a choice of model and emergent property, emergent property inference (EPI) learns a deep probability distribution of parameters $\mathbf{z}$.
+Deep probability distributions map a simple random variable $\mathbf{z}_0$ through a deep neural network with weights and biases $\bm{\theta}$ to parameters $\mathbf{z} = g_{\bm{\theta}}(\mathbf{z}_0)$.
 In EPI optimization, stochastic gradient steps in $\bm{\theta}$ are taken such that entropy is maximized, and the emergent property $\mathcal{X}$ is produced.
-\textbf{E}. The EPI distribution of STG model parameters producing intermediate hub frequency.
+The EPI posterior distribution is denoted $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$. 
+\textbf{E}. The EPI posterior producing intermediate hub frequency.
 Samples are colored by log probability density.  
-Distribution contours of hub neuron frequency from mean of .55 Hz are shown at levels of $.525$, $.53$, ... $.575$ Hz (dark to light gray away from mean).
-Frequencies are averages over the stochasticity of the model.
+Distribution contours of average hub neuron frequency from mean of .55 Hz are shown at levels of $.525$, $.53$, ... $.575$ Hz (dark to light gray away from mean).
 Eigenvectors of the Hessian at the mode of the inferred distribution are indicated as $\mathbf{v}_1$ (solid) and $\mathbf{v}_2$ (dashed) with lengths scaled by the square root of the absolute value of their eigenvalues.  
-Simulated activity is shown for three samples (stars). 
 %(Inset) Sensitivity of the system with respect to network syncing along all dimensions of parameter space away from the mode.  
 \textbf{F} Simulations from parameters in E.  
-(Top) The predictive distribution of the posterior obeys the constraints stipulated by the emergent property.
+(Top) The predictive distribution of the posterior obeys the emergent property.
 The black and gray dashed lines show the mean and two standard deviations according the emergent property, respectively.
 (Bottom) Simulations at the starred parameter values.
  }
@@ -230,8 +231,8 @@ The black and gray dashed lines show the mean and two standard deviations accord
 Before presenting technical details (in the following section), let us understand emergent property inference schematically:  EPI (Fig. \ref{fig:STG}D) takes, as input, the model and the specified emergent property, and as its output, produces the parameter distribution  EPI (Fig. \ref{fig:STG}E).  
 This distribution -- represented for clarity as samples from the distribution -- is then a scientifically meaningful and mathematically tractable object.  
 In the STG model, this distribution can be specifically queried to reveal the prototypical parameter configuration for network syncing (the mode; Figure \ref{fig:STG}E yellow star), and how network syncing decays based on changes away from the mode.
-The eigenvectors (of the Hessian of the distribution at the mode) quantitatively formalize the robustness of unified intermediacy (Fig. \ref{fig:STG}B solid ($v_1$) and dashed  ($v_2$) black arrows).
-Indeed, samples equidistant from the mode along these EPI-identified dimensions of sensitivity ($v_1$) and degeneracy ($v_2$) agree with error contours (Fig. \ref{fig:STG}B contours) and have diminished or preserved network syncing, respectively (Fig. \ref{fig:STG}F activity traces, Fig. S TODO) (see Section \ref{methods_STG}).
+The eigenvectors (of the Hessian of the distribution at the mode) quantitatively formalize the robustness of intermediate hub frequency (Fig. \ref{fig:STG}E solid ($v_1$) and dashed  ($v_2$) black arrows).
+Indeed, samples equidistant from the mode along these EPI-identified dimensions of sensitivity ($v_1$) and degeneracy ($v_2$) agree with error contours (Fig. \ref{fig:STG}E contours) and have diminished or preserved hub frequency, respectively (Fig. \ref{fig:STG}F activity traces) (see Section \ref{methods_STG}).
 
 \subsection{A deep generative modeling approach to emergent property inference} \label{results_dgm}
 Emergent property inference (EPI) systematizes the three-step procedure of the previous section.
@@ -267,7 +268,7 @@ Mathematically, we achieve this via constraints on the mean and variance of the 
 The emergent property statistic $f(\mathbf{x}; \mathbf{z}) = \omega_{\text{hub}}(\mathbf{x}; \mathbf{z})$ along with its constrained mean $\bm{\mu}$ and variance $\bm{\sigma}^2$ define the emergent property denoted $\mathcal{X}$.
 
 Third, we perform emergent property inference: we find a distribution over parameter configurations $\mathbf{z}$, and insist that samples from this distribution produce the emergent property; in other words, they obey the constraints introduced in Equation \ref{eq:EP_STG}.  
-This distribution will be chosen from a family of probability distributions $\mathcal{Q} = \left\{ q_{\bm{\theta}}(\mathbf{z}) : \bm{\theta} \in \Theta \right\}$, defined by a deep generative distribution of the normalizing flow class \cite{rezende2015variational, dinh2016density, papamakarios2017masked} -- neural networks which transform a simple distribution into a suitably complicated distribution (as is needed here).  
+This distribution will be chosen from a family of probability distributions $\mathcal{Q} = \left\{ q_{\bm{\theta}}(\mathbf{z}) : \bm{\theta} \in \Theta \right\}$, defined by a deep generative distribution of the normalizing flow class \cite{rezende2015variational, dinh2017density, papamakarios2017masked} -- neural networks which transform a simple distribution into a suitably complicated distribution (as is needed here).  
 This deep distribution is represented in Figure \ref{fig:STG}C (see Section \ref{methods_EPI}).  
 Then, mathematically, we must solve the following optimization program: 
 %\begin{equation} \label{eq:EPI}
@@ -291,7 +292,7 @@ This principle, captured in Equation \ref{eq:EPI} by the primal objective $H$, i
 Such a normative principle of maximum entropy, which is also that of Bayesian inference, naturally fits with our scientific objective of reasoning about parametric sensitivity and robustness. 
 The recovered distribution of EPI is as variable as possible along each parametric manifold such that it produces the emergent property.
 
-EPI optimizes the weights and biases $\bm{\theta}$ of the deep neural network (which induces the probability distribution) by iteratively solving Equation \ref{eq:EPI}. 
+EPI optimizes the weights and biases $\bm{\theta}$ of the deep network (which induces the probability distribution) by iteratively solving Equation \ref{eq:EPI}. 
 The optimization is complete when the sampled models with parameters $\mathbf{z} \sim q_{\bm{\theta}}(z \mid \mathcal{X})$ produce activity consistent with the specified emergent property (Fig. S4).
 %Such convergence is evaluated with a hypothesis test that the mean of each emergent property statistic is not different than its emergent property value (see Section \ref{methods_AL_opt}). 
 Such convergence is evaluated with a hypothesis test that the means and variances of each emergent property statistic are not different than their constrained values (see Section \ref{methods_AL_opt}). 
@@ -979,7 +980,7 @@ Intuitively, the parameters equivalent with respect to emergent property statist
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.5]{figures/figLDS2/figLDS2.pdf}
+\includegraphics[scale=0.8]{figures/figLDS2/figLDS2.pdf}
 \end{center}
 \begin{flushleft}
 \caption{\small (LDS2): A. Probability contours in the $a_1$-$a_4$ plane were derived from the relationship to emergent property statistic of growth/decay factor $\text{real}(\lambda_1)$. 
@@ -1009,7 +1010,7 @@ As we expect, the distribution results in samples of two-dimensional linear syst
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.5]{figures/figLDS3/figLDS3.pdf}
+\includegraphics[scale=0.8]{figures/figLDS3/figLDS3.pdf}
 \end{center}
 \begin{flushleft}
 \caption{\small (LDS3): Sampled dynamical systems $\mathbf{z} \sim q_{\bm{\theta}}(\mathbf{z})$ and their simulated activity from $\mathbf{x}(0) = [\frac{\sqrt{2}}{2}, -\frac{\sqrt{2}}{2}]$ colored by log probability. A. Each dimension of the simulated trajectories throughout time.  
@@ -1357,7 +1358,7 @@ The optimization converged after five epochs (Fig. S4).
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.6]{figures/figSTG1/figSTG1.pdf}
+\includegraphics[scale=0.8]{figures/figSTG1/figSTG1.pdf}
 \end{center}
 \begin{flushleft}
 \caption{\small (STG1): EPI optimization of the STG model producing network syncing. 
@@ -1460,7 +1461,7 @@ Fano factors along the ridge of the posterior in Fig. \ref{fig:V1}E.
  }
  \label{fig:V1_2}
 \begin{center}
-\includegraphics[scale=.5]{figures/figV1_2/figV1_2.pdf}
+\includegraphics[scale=.8]{figures/figV1_2/figV1_2.pdf}
 \end{center}
 \end{figure}
 
@@ -1693,7 +1694,7 @@ Accuracies were estimated over 200 trials of random gaussian noise, which was sa
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.7]{figures/figSC1/figSC1.pdf}
+\includegraphics[scale=0.8]{figures/figSC1/figSC1.pdf}
 \end{center}
 \caption{\small (SC1): Connectivity parameters of EPI distributions versus task accuracies.  $\beta$ is slope coefficient of linear regression, $r$ is correlation, and $p$ is the two-tailed p value.
 }
@@ -1702,7 +1703,7 @@ Accuracies were estimated over 200 trials of random gaussian noise, which was sa
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.7]{figures/figSC2/figSC2.pdf}
+\includegraphics[scale=0.8]{figures/figSC2/figSC2.pdf}
 \end{center}
 \caption{\small (SC2):  
 A. Invariant eigenvectors of connectivity matrix $W$.
@@ -1712,7 +1713,7 @@ B. Eigenvalues of connectivities of EPI distribution versus task accuracies.}
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=1.0]{figures/figSC3/figSC3.pdf}
+\includegraphics[scale=0.8]{figures/figSC3/figSC3.pdf}
 \end{center}
 \caption{\small (SC3): 
 A. Connectivity eigenvalues of EPI parameter distribution colored by Pro task accuracy. 
@@ -1723,7 +1724,7 @@ B. Same for Anti task.
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.6]{figures/figSC4/figSC4.pdf}
+\includegraphics[scale=0.8]{figures/figSC4/figSC4.pdf}
 \end{center}
 \caption{\small (SC4):  Scatters of the effect of delay period inactivation in each task with task accuracy.  Plots are shown at an opto strength of 0.8.
 }
@@ -1732,7 +1733,7 @@ B. Same for Anti task.
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.6]{figures/figSC5/figSC5.pdf}
+\includegraphics[scale=0.8]{figures/figSC5/figSC5.pdf}
 \end{center}
 \caption{\small (SC5): EPI optimization of the SC model producing rapid task switching.
 A. Entropy throughout optimization. 
