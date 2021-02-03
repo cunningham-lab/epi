@@ -309,7 +309,7 @@ In Sections \ref{results_V1} and \ref{results_SC}, we prove out the value of EPI
 Subsequently in Section \ref{results_LRRNN}, we show EPI's superiority in parameter scalability and fidelity of the posterior predictive distribution by conditioning on stable amplification in low-rank RNNs.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{EPI reveals how noise across neural population types governs Fano factor in a stochastic inhibition stabilized network} \label{results_V1}
+\subsection{EPI reveals how neuron-type specific noise governs variability in the stochastic stabilized supralinear network} \label{results_V1}
 
 \begin{figure}
 \vspace{-1cm}
@@ -317,22 +317,19 @@ Subsequently in Section \ref{results_LRRNN}, we show EPI's superiority in parame
 \includegraphics[scale=0.8]{figures/fig2/fig2.pdf}
 \end{center}
 \vspace{-1cm}
-\caption{\small Emergent property inference of a stochastic stabilized supralinear network.
+\caption{\small Emergent property inference in the stochastic stabilized supralinear network (SSSN)
 \textbf{A}.  Four-population model of primary visual cortex with excitatory (black), parvalbumin (blue), somatostatin (red), and VIP (green) neurons (excitatory and inhibitory projections filled and unfilled, respectively).   
 Some neuron-types largely do not form synaptic projections to others ($|W_{\alpha_1, \alpha_2})| < 0.025$).
-Each neural population receives a baseline input $\mathbf{h}_b$, and the E- and P-populations also receive a contrast-dependent input $\mathbf{h}_b$.
+Each neural population receives a baseline input $\mathbf{h}_b$, and the E- and P-populations also receive a contrast-dependent input $\mathbf{h}_c$.
 Additionally, each neural population receives a slow noisy input $\bm{\epsilon}$.
-\textbf{B}. Responses of the deterministic model ($\bm{\epsilon}=\bm{0}$) to varying contrasts.  The response at 50\% contrast (dots) is the focus of our analysis.
-\textbf{C}. Paradoxical response of the stochastic model to a small increase in input to the P-population.  
-\textbf{D}. EPI posterior of noise parameters $\mathbf{z}$ conditioned on realistic E-population Fano factors.
-The posterior predictive distribution is show on the bottom-left.
-and the mode of the distribution is starred.
-\textbf{E}. (Top) Enlarged visualization of the $\sigma_E$-$\sigma_P$ marginal distribution of the posterior.
-Each gray dot is a choice of $\sigma_P$, for which a constrained mode $z^*(\sigma_P, P)$ is chosen.
+\textbf{B}. Steady-state responses of the SSN model (deterministic, $\bm{\sigma}=\bm{0}$) to varying contrasts.  The response at 50\% contrast (dots) is the focus of our analysis.
+\textbf{C}. Transient network responses of the SSSN model at 50 \% contrast. (Left) Traces are independent trials with varying initialization $\mathbf{x}(0)$ and noise realization. (Right) Mean (solid line) and standard deviation (shading) of responses.
+\textbf{D}. EPI posterior of noise parameters $\mathbf{z}$ conditioned on E-population variability.
+The posterior predictive distribution of $s_E(\mathbf{x}; \mathbf{z})$ is show on the bottom-left.
+\textbf{E}. (Top) Enlarged visualization of the $\sigma_E$-$\sigma_P$ marginal distribution of the posteriors $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{ Hz})$ and $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(10\text{ Hz})$.
+Each black dot shows the mode at each $\sigma_P$.
 The arrows show the most sensitive dimensions of the Hessian evaluated at these modes.
-(Bottom) Such sensitive dimensions of the Hessian (dots) are significantly more sensitive than randomly chosen dimensions (box and whiskers).
-\textbf{F}. The Fano factor of the E-population is strongly correlated with each other neuron-type population.
-\textbf{G}. Mean and standard deviation (across EPI posterior) of Fano factor of each neuron-type population at each level of contrast.
+\textbf{F}. The predictive distributions of $\sigma_E^2 + \sigma_P^2$ of each posterior $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{ Hz})$ and $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(10\text{ Hz})$.
 }
  \label{fig:V1}
 \end{figure}
@@ -343,57 +340,43 @@ Despite their strong predictive power, E-I circuit models rely on the assumption
 However, experimental evidence shows that inhibition is composed of distinct elements -- parvalbumin (P), somatostatin (S), VIP (V) --
 composing 80\% of GABAergic interneurons in V1 \cite{markram2004interneurons, rudy2011three, tremblay2016}, and that these inhibitory cell types follow specific connectivity patterns (Fig. \ref{fig:V1}A) \cite{pfeffer2013inhibition}.
 Recent theoretical advances \cite{litwin2016inhibitory, GarciaDelMolino2017, Chen2019},  have only started to address the consequences of this multiplicity in the dynamics of V1, strongly relying on linear theoretical tools. 
-Here, we use EPI to characterize the properties of slow noise in a stochastic version of this model, which result in biologically realistic responses.
+Here, we use EPI to analyze V1 models of greater complexity in order to characterize properties of slow noise governing circuit variability.
 
-We considered the contrast response of a nonlinear dynamical V1 circuit model (Fig. \ref{fig:V1}A) with a state comprised of each neuron-type population's rate $\mathbf{x} = \left[x_E, x_P , x_S, x_V \right]^\top$.
-Each population receives recurrent input $W \mathbf{x}$ from synaptic projections of effective connectivity $W$ and an external input $\mathbf{h}$, which determine the population rate via nonlinearity $\phi = \left[\right]^2_+$ (see Section \ref{methods_V1}).
-The circuit model evolves form an initial condition $\mathbf{x}(0) \sim \mathcal{U}(\left[10, 25\right])$ with time constant $\tau = 1$ms according to a contrast-dependent input $\mathbf{h}$ and  slow noise $\bm{\epsilon}$ of time constant $\tau_{\text{noise}} = 5$ms.
-This model is the stochastic stabilized supralinear network (SSSN) \cite{hennequin2018dynamical}  generalized to have inhibitory multiplicity 
+We considered the response properties of a nonlinear dynamical V1 circuit model (Fig. \ref{fig:V1}A) with a state comprised of each neuron-type population's rate $\mathbf{x} = \left[x_E, x_P , x_S, x_V \right]^\top$.
+Each population receives recurrent input $W \mathbf{x}$ from synaptic projections of effective connectivity $W$ and an external input $\mathbf{h}$, which determine the population rate via supralinear nonlinearity $\phi = \left[\right]^2_+$.
+The input is also comprised of a slow noise component $\bm{\epsilon} \sim OU\left(\tau_{\text{noise}}, \Sigma \right)$ of time scale $\tau_{\text{noise}} > \tau$ and covariance $\Sigma = \text{diag}\left(\bm{\sigma^2}\right)$ (see Section \ref{methods_V1})
 \begin{equation}
     \tau \frac{d\mathbf{x}}{dt} = -\mathbf{x} +\phi(W\mathbf{x} + \mathbf{h} + \bm{\epsilon}).
 \end{equation}
-As contrast increases, input to the E- and P-populations increases  relative to a baseline input $\mathbf{h}_b$ via $\mathbf{h}_c$
-\begin{equation}
-\mathbf{h} = \mathbf{h}_b + c\mathbf{h}_c,
-\end{equation}
-where $h_{c,E}, h_{c,P}  > 0$ and $h_{c,S}, h_{c,V}  = 0$.
-In this analysis, we fixed $W$,$\mathbf{h}_b$, and $\mathbf{h}_c$ to values fit to mean contrast responses in mice with the deterministic model \cite{palmigiano2020structure} ($\bm{\epsilon}=\mathbf{0}$, Fig. \ref{fig:V1}B, see Section \ref{methods_V1}).
-At all contrasts, the E-population of this SSSN is unstable without recurrent inhibitory feedback.
-At 50\% contrast, only the P-population exhibits the paradoxical effect (\ref{fig:V1}C, Fig. \ref{fig:V1_1}), so the network is P-stabilized.
+This model is the stochastic stabilized supralinear network (SSSN) \cite{hennequin2018dynamical} generalized to have inhibitory multiplicity, and introduces stochasticity to previous four neuron-type models of V1 \cite{litwin2016inhibitory}.
+Both modeling advancements introduce substantial complexity to mathematical derivations (see Section \ref{methods_V1_complexity}) motivating the treatment of this model with EPI.
+Here, we consider fixed weights $W$ and input $\mathbf{h}$ according to a fit of the deterministic model to contrast responses \cite{palmigiano2020structure} (Fig. \ref{fig:V1}B), and study the effect of noise parameterization $\mathbf{z} = [\sigma_E, \sigma_P, \sigma_S, \sigma_V]^\top$ on fluctuations at 50\% contrast. 
 
-The slow noise of the SSSN is an Ornstein-Uhlenbeck process
-\begin{equation}
-\tau_{\text{noise}} d\epsilon_\alpha = -\epsilon_\alpha dt + \sqrt{2\tau_{\text{noise}}}\sigma_\alpha dB,
-\end{equation}
-parameterized by $\sigma_\alpha$, which can be different for each neuron type,
-\begin{equation}
-\mathbf{z} = [\sigma_E, \sigma_P, \sigma_S, \sigma_V]^\top.
-\end{equation} 
-For this SSSN, we are interested in the parameters of slow noise that produce realistic stochastic fluctuations.
-Here, we quantify this emergent property as having an excitatory population Fano factor near 1:
+For this SSSN, we are interested in how noise variability across neural populations governs stochastic fluctuations in the E-population.
+Here, we quantify different levels $y$ of E-population variability with the emergent property
 \begin{equation}\label{eq:EP_V1}
 \begin{split}
-\mathcal{X} ~~:~~  \mathbb{E}_{\mathbf{z}}\begin{bmatrix} F_E(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~ 1 \\ 
- \text{Var}_{\mathbf{z}}\begin{bmatrix} F_E(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~  0.125^2,
+\mathcal{X}(y) ~~:~~  \mathbb{E}_{\mathbf{z}}\begin{bmatrix} s_E(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~ y \\ 
+ \text{Var}_{\mathbf{z}}\begin{bmatrix} s_E(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~  1 \text{Hz}^2,
 \end{split}
 \end{equation}
-where $F_\alpha(\mathbf{x}; \mathbf{z})$ is the Fano factor of the $\alpha$-population.
+where $s_E(\mathbf{x}; \mathbf{z})$ is the standard deviation of the stochastic $E$-population response about its steady state (Fig. \ref{fig:V1}C).
 
-We ran EPI to obtain a posterior $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$, where each parameter $\mathbf{z}$ produces biologically realistic levels of E-population variability (Fig. \ref{fig:V1}D).
-From the marginal distribution of $\sigma_E$ and $\sigma_P$ (Fig. \ref{fig:V1}D, top-left), we can see that $F_E(\mathbf{x}; \mathbf{z})$ is sensitive to the combination of $\sigma_E$ and $\sigma_P$.
-In fact, the posterior obtained through EPI offers exactly how this sensitivity changes along this ridge of the posterior (Fig. \ref{fig:V1}E).
-$\sigma_S$ and $\sigma_V$ are degenerate with respect to $F_E(\mathbf{x}; \mathbf{z})$ evidenced by the uniform distribution in those dimensions of the posterior (Fig. \ref{fig:V1}D, bottom-right).
-Together, this posterior indicates a parametric manifold of degeneracy with respect to Fano factor: the ridge visualized in the $\sigma_E$-$\sigma_P$ marginal (Fig. \ref{fig:V1_2}) and the dimensions of $\sigma_S$ and $\sigma_V$.
+We ran EPI to obtain a posterior distribution $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{ Hz})$ producing E-population variability around 5 Hz (Fig. \ref{fig:V1}D).
+From the marginal distribution of $\sigma_E$ and $\sigma_P$ (Fig. \ref{fig:V1}D, top-left), we can see that $s_E(\mathbf{x}; \mathbf{z})$ is sensitive to various combinations of $\sigma_E$ and $\sigma_P$.
+Alternatively, both $\sigma_S$ and $\sigma_V$ are degenerate with respect to $s_E(\mathbf{x}; \mathbf{z})$ evidenced by the high variability in those dimensions of the posterior (Fig. \ref{fig:V1}D, bottom-right).
+Together, these observations imply a parametric manifold of degeneracy with respect to $s_E(\mathbf{x}; \mathbf{z})$ of 5 Hz, which is indicated by the modes along $\sigma_P$ in the $\sigma_E$-$\sigma_P$ marginal (Fig. \ref{fig:V1}E).
+The dimensions of sensitivity conferred by EPI and this plain visual structure suggest a quadratic relationship in the emergent property statistic $s_E(\mathbf{x}; \mathbf{z})$ and parameters $\mathbf{z}$, which is preserved at a greater level of variability $\mathcal{X}(10\text{ Hz})$ (Fig. \ref{fig:V1}E).
+Indeed, the sum of squares of $\sigma_E$ and $\sigma_P$ is larger in $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(10\text{ Hz})$ than $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{ Hz})$ (Fig \ref{fig:V1}F, $p=0$), while the sum of squares of $\sigma_S$ and $\sigma_V$ are not significantly different in the two posteriors (Fig. \ref{fig:V1_3}, $p=.402$).
 
-Greater $\sigma_E$ and $\sigma_P$ confer greater Fano factor, and the Fano factors of each neuron-type are strongly correlated across the posterior (Fig \ref{fig:V1}F), showing that Fano factor of each neuron-type can be modulated globally via $\sigma_E$ and $\sigma_P$.
-Furthermore, across the entire posterior distribution of noise parameterizations, we find that when contrast is increased above 50\%, variability is quenched for all neuron types (Fig \ref{fig:V1}G).
-In summary, we used EPI to obtain a posterior of SSSNs producing realistic Fano factors, which allowed degenerate manifold identification via sample visualization, fast sensitivity measurements via Hessian evaluation, and predictions of variability quenching.
-
-
+While a quadratic relationship in $s_E(\mathbf{x}; \mathbf{z})$ and $\mathbf{z}$ is potentially derivable by extending the derivation in Section \ref{methods_V1} to the case of $\tau \neq \tau_{\text{noise}}$, the coefficients in front of each quadratic term would be unruly, and likely escape comprehensible analysis.
+This makes EPI an attractive tool for revealing the characteristics of noise governing variability and for answering other questions in this complex model.
+Intriguingly, this circuit exhibited a paradoxical effect in the P-population, and no other inhibitory types at 50\% contrast (Fig. \ref{fig:V1_3}) implying that the E-population is P-stabilized.
+Future work motivated by our analysis here, may uncover a relationship between the neuron-type mediating stability and the factors governing circuit variability.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{EPI identifies neural mechanisms of flexible task switching} \label{results_SC}
+\subsection{EPI identifies multiple regimes of rapid task switching} \label{results_SC}
 %In a rapid task switching experiment \cite{duan2015requirement}, rats were explicitly cued on each trial to either orient towards a visual stimulus in the Pro (P) task or orient away from a visual stimulus in the Anti (A) task (Fig. \ref{fig:SC}a). 
 %Neural recordings in the midbrain superior colliculus (SC) exhibited two populations of neurons that simultaneously represented both task context (Pro or Anti) and motor response (contralateral or ipsilateral to the recorded side): the Pro/Contra and Anti/Ipsi neurons \cite{duan2018collicular}.
 %Duan et al. proposed a model of SC that, like the V1 model analyzed in the previous section, is a four-population dynamical system.  
@@ -482,14 +465,14 @@ Subscripts $P$ and $A$ of connectivity weights indicate Pro or Anti populations.
 \end{figure}
 
 We define rapid task switching behavior as accurate execution of each task.  Inferred models should not exhibit fully random responses (50\%), or perfect performance (100\%), since perfection is never attained by even the best trained rats.
-We formulate rapid task switching as an emergent property by stipulating that the average accuracy in the Pro task $p_P(\mathbf{x}, \mathbf{z})$ and Anti task $p_A(\mathbf{x}, \mathbf{z})$ be $75\%$ with variance $5\%^2$.
+We formulate rapid task switching as an emergent property by stipulating that the average accuracy in the Pro task $p_P(\mathbf{x}; \mathbf{z})$ and Anti task $p_A(\mathbf{x}; \mathbf{z})$ be $75\%$ with variance $7.5\%^2$.
 \begin{equation}\label{eq:EP}
 \begin{split}
 \mathcal{X} ~~:~~ \mathbb{E}_{\mathbf{z}}\begin{bmatrix} p_P(\mathbf{x}; \mathbf{z}) \\ p_A(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~  \begin{bmatrix} 75\% \\ 75\% \end{bmatrix}  \\ 
- \text{Var}_{\mathbf{z}}\begin{bmatrix} p_P(\mathbf{x}; \mathbf{z}) \\ p_A(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~  \begin{bmatrix} 5\%^2 \\ 5\%^2  \end{bmatrix}
+ \text{Var}_{\mathbf{z}}\begin{bmatrix} p_P(\mathbf{x}; \mathbf{z}) \\ p_A(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~  \begin{bmatrix} 7.5\%^2 \\ 7.5\%^2  \end{bmatrix}
 \end{split}
 \end{equation}
-A variance of $5\%^2$ performance in each task will confer a posterior producing performances ranging from about $65\%-85\%$, allowing us to examine the properties of connectivity that yield better performance.
+A variance of $7.5\%^2$  in each task will confer a posterior producing performances ranging from about $60\%-90\%$, allowing us to examine the properties of connectivity that yield better performance.
 
 We ran EPI to obtain SC model connectivity parameters $\mathbf{z}$ producing rapid task switching (Fig. \ref{fig:SC}C).
 Some parameters were predictive of accuracy while others were not (Fig. \ref{fig:SC1}), and often had different effects on $p_P$ and $p_A$.
@@ -1369,12 +1352,11 @@ B. The emergent property statistic means and variances converge to their constra
 \end{figure}
 
 For EPI in Fig \ref{fig:STG}E, we used a real NVP architecture with three Real NVP coupling layers and two-layer neural networks of 25 units per layer.
-The initial distribution was a standard isotropic gaussian $z_0 \sim \mathcal{N}(\mathbf{0}, I)$ mapped to a support of $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}] \in [4,8] \times [0.01,4]$. 
-We did not include $g_{\text{synA}} < 0.01$, since conductances that low make the circuit simulations numerically unstable.
-We used an augmented Lagrangian coefficient of $c_0 = 10^{5}$, a batch size $n=400$, $\beta = 2$, $N_{\text{test}} = 100$, and initialized $q_{\bm{\theta}}(\mathbf{z})$ to produce a gaussian approximation to samples returned from an initial ABC search.
-This initialization had much greater entropy and a different emergent property than the returned EPI posterior.
+The normalizing flow architecture mapped $z_0 \sim \mathcal{N}(\mathbf{0}, I)$ to a support of $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}] \in [4,8] \times [0.01,4]$, initialized to a gaussian approximation of samples returned by a preliminary ABC search.
+We did not include $g_{\text{synA}} < 0.01$, for numerical stability.
+EPI optimization was run using 5 different random seeds for architecture initialization $\bm{\theta}$ with an augmented Lagrangian coefficient of $c_0 = 10^{5}$, a batch size $n=400$, and $\beta = 2$.
+The distribution shown is that of the architecture converging with criteria $N_{\text{test}} = 100$ at greatest entropy across random seeds.
 
-TODO write about specifics of the Hessian analysis.
 %We calculated the Hessian at the mode of the inferred EPI distribution.  
 %The Hessian of a probability model is the second order gradient of the log probability density $\log q_{\bm{\theta}}(\mathbf{z})$ with respect to the parameters $\mathbf{z}$:  $\frac{\partial^2 \log q_{\bm{\theta}}(\mathbf{z})}{\partial \mathbf{z} \partial \mathbf{z}^\top}$.  
 %With EPI, we can examine the Hessian, which is analytically available throughout distribution, to indicate the dimensions of parameter space that are sensitive (high magnitude eigenvalue), and which are degenerate (low magnitude eigenvalue) with respect to the emergent property produced. 
@@ -1389,7 +1371,39 @@ TODO write about specifics of the Hessian analysis.
 
 
 \subsubsection{Primary visual cortex}\label{methods_V1}
+In the stochastic stabilized supralinear network, population rate responses $\mathbf{x}$ to input $\mathbf{h}$, recurrent input $W\mathbf{x}$ and slow noise $\bm{\epsilon}$ are governed by
+\begin{equation}
+    \tau \frac{d\mathbf{x}}{dt} = -\mathbf{x} +\phi(W\mathbf{x} + \mathbf{h} + \bm{\epsilon}),
+\end{equation}
+where the noise is an Ornstein-Uhlenbeck process
+\begin{equation}
+\tau_{\text{noise}} d\epsilon_\alpha = -\epsilon_\alpha dt + \sqrt{2\tau_{\text{noise}}}\sigma_\alpha dB
+\end{equation}
+with $\tau_{\text{noise}} = 5\text{ms} > \tau = 1\text{ms}$.
+As contrast increases, input to the E- and P-populations increases  relative to a baseline input $\mathbf{h} = \mathbf{h}_b + c\mathbf{h}_c$.
 Connectivity ($W_{\text{fit}}$) and input ($\mathbf{h}_{b,\text{fit}}$ and $\mathbf{h}_{c,\text{fit}}$) parameters were fit using the deterministic V1 circuit model \cite{palmigiano2020structure} 
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=.8]{figures/figV1_1/figV1_1.pdf}
+\end{center}
+\caption{\small (V1 1)
+(Left) Simulations for small increases in neuron-type population input.
+Input magnitudes are chosen so that effect is salient ($0.002$ for E and P, but $0.02$ for S and V).
+(Right) Average (solid) and standard deviation (shaded) of stochastic fluctuations of responses.
+ }
+ \label{fig:V1_1}
+\end{figure}
+
+\begin{figure}[h]
+\caption{\small (V1 2)
+Posterior predictive distributions of the sum of squares of each pair of noise parameters.
+ }
+ \label{fig:V1_2}
+\begin{center}
+\includegraphics[scale=.8]{figures/figV1_2/figV1_2.pdf}
+\end{center}
+\end{figure}
 
 \begin{equation}
 W_{\text{fit}} =  \begin{bmatrix} W_{EE} & W_{EP} & W_{ES} & W_{EV} \\
@@ -1415,6 +1429,16 @@ and
 
 To obtain rates on a realistic scale (100-fold greater), we map these fitted parameters to an equivalence class
 
+\begin{figure}[h]
+\caption{\small (V1 3)
+EPI posterior for $\mathcal{X}(10\text{ Hz})$.
+ }
+ \label{fig:V1_3}
+\begin{center}
+\includegraphics[scale=.8]{figures/figV1_3/figV1_3.pdf}
+\end{center}
+\end{figure}
+
 \begin{equation}
 W =  \begin{bmatrix} W_{EE} & W_{EP} & W_{ES} & W_{EV} \\
 W_{PE} & W_{PP} & W_{PS} & W_{PV} \\
@@ -1437,33 +1461,19 @@ and
 \begin{bmatrix} 3.59 \\ 4.03 \\ 0 \\ 0 \end{bmatrix}.
 \end{equation} 
 
-Since the E-population of this network increases exponentially in the absense of  recurrent inhibitory feedback, we may also observe a paradoxical effect in the inhibitory populations (which is present in E-I networks).
-At 50\% contrast (Fig. \ref{fig:V1}B, dots), this network exhibits a paradoxical effect in the P-population (Fig. \ref{fig:V1}C), but no others (Fig. \ref{fig:V1_1}).
-That is, for a small increase in $h_P$, $\mathbb{E}_t\left[x_P\right]$ decreases.
+Circuit responses are simulated using $T = 200$ time steps at $dt = 0.5\text{ms}$ from an initial condition drawn from $\mathbf{x}(0) \sim U\left[10\text{ Hz}, 25\text{ Hz}\right]$.
+Standard deviation of the E-population $s_E(\mathbf{x}; \mathbf{z})$ is calculated as the square root of the temporal variance from $t_{ss} = 75\text{ms}$ to $Tdt = 100\text{ms}$ averaged over 100 independent trials.
+\begin{equation}
+s_E(\mathbf{x}; \mathbf{z}) =\mathbb{E}_{x}\left[\sqrt{\mathbb{E}_{t > t_{ss}}\left[\left(x_E(t) -\mathbb{E}_{t > t_{ss}}\left[ x_E(t) \right]\right)^2 \right]}\right]
+\end{equation}
 
-Fano factor is calculated as the temporal variance divided by the temporal mean following sometime $t_{ss}$ following dynamical evolution from the initial state at $\mathbf{x}(t=0)$.
+For EPI in Fig \ref{fig:V1}D-E, we used a real NVP architecture with three Real NVP coupling layers and two-layer neural networks of 50 units per layer.
+The normalizing flow architecture mapped $z_0 \sim \mathcal{N}(\mathbf{0}, I)$ to a support of $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}] \in [4,8] \times [0.0, 0.5]$.
+EPI optimization was run using 3 different random seeds for architecture initialization $\bm{\theta}$ with an augmented Lagrangian coefficient of $c_0 = 10^{-1}$, a batch size $n=100$, and $\beta = 2$.
+The distributions shown are those of the architectures converging with criteria $N_{\text{test}} = 100$ at greatest entropy across random seeds.
 
-\begin{figure}[h]
-\begin{center}
-\includegraphics[scale=.5]{figures/figV1_1/figV1_1.pdf}
-\end{center}
-\caption{\small Supplemental Figure: 
-(Left) Simulations for small increases in neuron-type population input.
-Input magnitudes are chosen so that effect is salient ($0.002$ for E and P, but $0.02$ for S and V).
-(Right) Average and standard deviation of stochastic fluctuations of responses.
- }
- \label{fig:V1_1}
-\end{figure}
-
-\begin{figure}[h]
-\caption{\small Supplemental Figure: 
-Fano factors along the ridge of the posterior in Fig. \ref{fig:V1}E.
- }
- \label{fig:V1_2}
-\begin{center}
-\includegraphics[scale=.8]{figures/figV1_2/figV1_2.pdf}
-\end{center}
-\end{figure}
+\subsubsection{Primary visual cortex: challenges to analysis}\label{methods_V1_complexity}
+TODO Agostina and I are putting this together now.
 
 \subsubsection{Superior colliculus}\label{methods_SC}
 %In the model of Duan et al \cite{duan2018collicular}, there are four total units: two in each hemisphere corresponding to the Pro/Contra and Anti/Ipsi populations.  
