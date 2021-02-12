@@ -1,0 +1,49 @@
+This is BibTeX, Version 0.99d (TeX Live 2016)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: Bittner_eLife2020.aux
+The style file: unsrt.bst
+Database file #1: eLife2020.bib
+Warning--empty journal in hastings1970monte
+Warning--empty journal in Chen2019
+You've used 105 entries,
+            1791 wiz_defined-function locations,
+            1015 strings with 24102 characters,
+and the built_in function-call counts, 27410 in all, are:
+= -- 2431
+> -- 1372
+< -- 18
++ -- 495
+- -- 390
+* -- 2021
+:= -- 4308
+add.period$ -- 318
+call.type$ -- 105
+change.case$ -- 105
+chr.to.int$ -- 0
+cite$ -- 107
+duplicate$ -- 1164
+empty$ -- 2507
+format.name$ -- 390
+if$ -- 6044
+int.to.chr$ -- 0
+int.to.str$ -- 105
+missing$ -- 105
+newline$ -- 528
+num.names$ -- 105
+pop$ -- 237
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 607
+stack$ -- 0
+substring$ -- 2107
+swap$ -- 312
+text.length$ -- 18
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 2
+while$ -- 263
+width$ -- 108
+write$ -- 1137
+(There were 2 warnings)
