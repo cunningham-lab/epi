@@ -453,6 +453,25 @@ Giulio Bondanelli and Srdjan Ostojic.
 \newblock Coding with transient trajectories in recurrent neural networks.
 \newblock {\em PLoS computational biology}, 16(2):e1007655, 2020.
 
+\bibitem{gonccalves2019training}
+Pedro~J Gon{\c{c}}alves, Jan-Matthis Lueckmann, Michael Deistler, Marcel
+  Nonnenmacher, Kaan {\"O}cal, Giacomo Bassetto, Chaitanya Chintaluri,
+  William~F Podlaski, Sara~A Haddad, Tim~P Vogels, et~al.
+\newblock Training deep neural density estimators to identify mechanistic
+  models of neural dynamics.
+\newblock {\em bioRxiv}, page 838383, 2019.
+
+\bibitem{sisson2018handbook}
+Scott~A Sisson, Yanan Fan, and Mark Beaumont.
+\newblock {\em Handbook of approximate Bayesian computation}.
+\newblock CRC Press, 2018.
+
+\bibitem{mlynarski2020statistical}
+Wiktor M{\l}ynarski, Michal Hled{\'\i}k, Thomas~R Sokolowski, and Ga{\v{s}}per
+  Tka{\v{c}}ik.
+\newblock Statistical analysis and optimality of neural systems.
+\newblock {\em bioRxiv}, page 848374, 2020.
+
 \bibitem{kraynyukova2018stabilized}
 Nataliya Kraynyukova and Tatjana Tchumatchenko.
 \newblock Stabilized supralinear network can give rise to bistable,
@@ -466,35 +485,10 @@ Katherine Morrison, Anda Degeratu, Vladimir Itskov, and Carina Curto.
   networks: a preliminary report.
 \newblock {\em arXiv preprint arXiv:1605.04463}, 2016.
 
-\bibitem{pitkow2017inference}
-Xaq Pitkow and Dora~E Angelaki.
-\newblock Inference in the brain: statistics flowing in redundant population
-  codes.
-\newblock {\em Neuron}, 94(5):943--953, 2017.
-
-\bibitem{echeveste2019cortical}
-Rodrigo Echeveste, Laurence Aitchison, Guillaume Hennequin, and M{\'a}t{\'e}
-  Lengyel.
-\newblock Cortical-like dynamics in recurrent circuits optimized for
-  sampling-based probabilistic inference.
-\newblock {\em bioRxiv}, page 696088, 2019.
-
-\bibitem{mastrogiuseppe2018linking}
-Francesca Mastrogiuseppe and Srdjan Ostojic.
-\newblock Linking connectivity, dynamics, and computations in low-rank
-  recurrent neural networks.
-\newblock {\em Neuron}, 99(3):609--623, 2018.
-
 \bibitem{richards2019deep}
 Blake~A Richards and et~al.
 \newblock A deep learning framework for neuroscience.
 \newblock {\em Nature Neuroscience}, 2019.
-
-\bibitem{mlynarski2020statistical}
-Wiktor M{\l}ynarski, Michal Hled{\'\i}k, Thomas~R Sokolowski, and Ga{\v{s}}per
-  Tka{\v{c}}ik.
-\newblock Statistical analysis and optimality of neural systems.
-\newblock {\em bioRxiv}, page 848374, 2020.
 
 \bibitem{girolami2011riemann}
 Mark Girolami and Ben Calderhead.
@@ -538,14 +532,6 @@ Deistler Michael, , Pedro~J Goncalves, Kaan Oecal, and Jakob~H Macke.
 \newblock Statistical inference for analyzing sloppiness in neuroscience
   models.
 \newblock In {\em Bernstein Conference 2019, Berlin, Germany}, 2019.
-
-\bibitem{gonccalves2019training}
-Pedro~J Gon{\c{c}}alves, Jan-Matthis Lueckmann, Michael Deistler, Marcel
-  Nonnenmacher, Kaan {\"O}cal, Giacomo Bassetto, Chaitanya Chintaluri,
-  William~F Podlaski, Sara~A Haddad, Tim~P Vogels, et~al.
-\newblock Training deep neural density estimators to identify mechanistic
-  models of neural dynamics.
-\newblock {\em bioRxiv}, page 838383, 2019.
 
 \bibitem{LueckmannGoncalves_17}
 Jan-Matthis Lueckmann, Pedro~J Goncalves, Giacomo Bassetto, Kaan {\"O}cal,

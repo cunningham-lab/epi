@@ -344,12 +344,12 @@ Here, we use EPI to analyze V1 models of greater complexity in order to characte
 
 We considered the response properties of a nonlinear dynamical V1 circuit model (Fig. \ref{fig:V1}A) with a state comprised of each neuron-type population's rate $\mathbf{x} = \left[x_E, x_P , x_S, x_V \right]^\top$.
 Each population receives recurrent input $W \mathbf{x}$ from synaptic projections of effective connectivity $W$ and an external input $\mathbf{h}$, which determine the population rate via supralinear nonlinearity $\phi = \left[\right]^2_+$.
-The input is also comprised of a slow noise component $\bm{\epsilon} \sim OU\left(\tau_{\text{noise}}, \Sigma \right)$ of time scale $\tau_{\text{noise}} > \tau$ and covariance $\Sigma = \text{diag}\left(\bm{\sigma^2}\right)$ (see Section \ref{methods_V1})
+The input is also comprised of a slow noise component $\bm{\epsilon} \sim OU\left(\tau_{\text{noise}}, \bm{\sigma} \right)$ of time scale $\tau_{\text{noise}} > \tau$ and variance parameters $\bm{\sigma}$ (see Section \ref{methods_V1})
 \begin{equation}
     \tau \frac{d\mathbf{x}}{dt} = -\mathbf{x} +\phi(W\mathbf{x} + \mathbf{h} + \bm{\epsilon}).
 \end{equation}
 This model is the stochastic stabilized supralinear network (SSSN) \cite{hennequin2018dynamical} generalized to have inhibitory multiplicity, and introduces stochasticity to previous four neuron-type models of V1 \cite{litwin2016inhibitory}.
-Both modeling advancements introduce substantial complexity to mathematical derivations (see Section \ref{methods_V1_complexity}) motivating the treatment of this model with EPI.
+Stochasticity and inhibitory multiplicity introduce substantial complexity to mathematical derivations (see Section \ref{methods_V1_complexity}) motivating the treatment of this model with EPI.
 Here, we consider fixed weights $W$ and input $\mathbf{h}$ according to a fit of the deterministic model to contrast responses \cite{palmigiano2020structure} (Fig. \ref{fig:V1}B), and study the effect of noise parameterization $\mathbf{z} = [\sigma_E, \sigma_P, \sigma_S, \sigma_V]^\top$ on fluctuations at 50\% contrast. 
 
 For this SSSN, we are interested in how noise variability across neural populations governs stochastic fluctuations in the E-population.
@@ -445,7 +445,7 @@ The dynamics evolve with timescale $\tau= 90\text{ms}$ governed by connectivity 
 \end{equation}
 with white noise of variance $0.2^2$.
 The input $\mathbf{h}$ is comprised of a cue-dependent input to the Pro or Anti populations, a stimulus orientation input to either the Left or Right populations, and a choice-period input to the entire network (see Section \ref{methods_SC}).
-Here, we use EPI to determine the changes in network connectivity $\mathbf{z} = [sW, vW, dW, hW]^{\top}$ resulting in execution of rapid task switching behavior.
+Here, we use EPI to determine the network connectivity $\mathbf{z} = [sW, vW, dW, hW]^{\top}$ that produces rapid task switching behavior.
 
 \begin{figure}
 \begin{center}
@@ -480,8 +480,7 @@ We formulate rapid task switching as an emergent property by stipulating that th
 A variance of $7.5\%^2$  in each task will confer a posterior producing performances ranging from about $60\%-90\%$, allowing us to examine the properties of connectivity that yield better performance in each task.
 Notably, this is our first example using EPI to condition on multiple emergent property statistics ($|f(\mathbf{x}; \mathbf{z})| = 2$).
 
-We ran EPI to obtain the posterior connectivities $\mathbf{z}$ producing rapid task switching (Fig. \ref{fig:SC}C).
-The inferred parameters generate a distribution of task accuracies (Fig. \ref{fig:SC}C, middle-left) according to our mathematical definition of rapid task switching (Equation \ref{eq:SC_EP}).
+The EPI inferred parameters  (Fig. \ref{fig:SC}C) generate a distribution of task accuracies (Fig. \ref{fig:SC}C, middle-left) according to our mathematical definition of rapid task switching (Equation \ref{eq:SC_EP}).
 The nonlinear patterns of connectivity that govern each task accuracy (Fig. \ref{fig:SC1}A-B) are not fully captured by linear prediction (Fig. \ref{fig:SC1}C).
 For example, the patterns in connectivity increasing Pro accuracy change dramatically after crossing a threshold of $sW$ (Fig. \ref{fig:SC1}A $sW$-$hW$ marginal).
 Not only has EPI captured this complex nonlinear posterior, it offers probabilistic tools for understanding the different regimes of model behavior.
@@ -496,17 +495,17 @@ These responses make intuitive sense, recognizing that $\mathbf{v}_1$ (unlike $\
 In agreement with experimental results from Duan et al., we found optogenetic inactivation during the delay period consistently decreased performance in the Anti task, but had no effect on the Pro task (Fig. \ref{fig:SC}E)).
 This difference in resiliency across tasks to delay perturbation is a prediction made by the inferred EPI distribution, rather than an emergent property that was conditioned upon.
 Similarities across Pro and Anti trials in choice period responses following delay period inactivation (Fig. \ref{fig:SC5}A) suggested that connectivity patterns inducing greater Pro task accuracy increase error in delay period inactivated Anti trials (Fig. \ref{fig:SC}F).
-The strong anticorrelation between $p_P$ and $p_{A, opto}$ across posterior connectivities led to the following hypothesis about each connectivity regime: the sensitivity dimension of each regime decreases $p_{A,opto}$ irrespective of its effect $p_A$, since both $\mathbf{v}_1$ and $\mathbf{v}_2$ increase $p_P$.
-Indeed, in regimes 1 and 2 whose sensitivity dimension elicits very different responses in $p_A$, $p_{A,opto}$ decreases since the connectivity changes enhancing $p_P$ exacerbate Anti trial error (Fig. \ref{fig:SC}F).
+The strong anticorrelation between $p_P$ and $p_{A, opto}$ across posterior connectivities led to the following hypothesis about each connectivity regime: the sensitivity dimension of each regime decreases $p_{A,opto}$ irrespective of its effect on $p_A$, since both $\mathbf{v}_1$ and $\mathbf{v}_2$ increase $p_P$.
+Indeed, in regimes 1 and 2 where sensitivity dimensions elicit different responses in $p_A$, $p_{A,opto}$ decreases since the connectivity changes enhancing $p_P$ exacerbate Anti trial error (Fig. \ref{fig:SC}F).
 
 In summary, we used EPI to obtain the full distribution of connectivities that execute rapid task switching.
 This posterior revealed multiple regimes of rapid task switching, which we characterized using the probabilistic toolkit EPI seemlessly affords.
-EPI allowed us to conclude that since \textit{all} parameters of this model producing rapid task switching make an experimentally verified prediction, we have a well-chosen model in that regard.
+EPI allowed us to conclude that since \textit{all} parameters of this model producing rapid task switching make an experimentally verified prediction, the model is well-chosen in that regard.
 Finally, we used our knowledge about how $\mathbf{z}$ governs $p_{A,opto}$ to make accurate predictions about each identified regime of connectivity.
 
 \subsection{EPI scales well to high-dimensional parameter spaces} \label{results_LRRNN}
 Here, we study the scalability of EPI in number of parameters $|\mathbf{z}|$ by inferring the connectivities of recurrent neural networks (RNNs, Fig. \ref{fig:LRRNN}A). 
- We consider a rank-2 RNN with N neurons of connectivity
+ We consider a rank-2 RNN with N neurons having connectivity
 \begin{equation}
  W = UV^\top + g\chi
  \end{equation}
@@ -514,40 +513,13 @@ Here, we study the scalability of EPI in number of parameters $|\mathbf{z}|$ by 
  \begin{equation}
  \tau \dot{\mathbf{x}} = -\mathbf{x} + W\mathbf{x}
  \end{equation}
-where $U = \begin{bmatrix} \mathbf{u}_1 & \mathbf{u}_2 \end{bmatrix}$, $V = \begin{bmatrix} \mathbf{v}_1 & \mathbf{v}_2 \end{bmatrix}$, $\mathbf{u}_1, \mathbf{u}_2, \mathbf{v}_1, \mathbf{v}_2 \in \left[-1, 1 \right]^N$, and $g=0.01$.  We  infer connectivity distributions $\mathbf{z} = \left[\mathbf{u}_1^\top, \mathbf{u}_2^\top, \mathbf{v}_1^\top, \mathbf{v}_2^\top \right]^\top$   producing stable amplification.
+where $U = \begin{bmatrix} \mathbf{u}_1 & \mathbf{u}_2 \end{bmatrix}$, $V = \begin{bmatrix} \mathbf{v}_1 & \mathbf{v}_2 \end{bmatrix}$ and $\mathbf{u}_1 \mathbf{u}_2, \mathbf{v}_1, \mathbf{v}_2 \in \left[-1, 1 \right]^N$.  
+The random component has strength $g=0.01$ and $\chi_{i,j} \sim \mathcal{N}(0, 1)$.  
+We  infer connectivity distributions $\mathbf{z} = \left[\mathbf{u}_1^\top, \mathbf{u}_2^\top, \mathbf{v}_1^\top, \mathbf{v}_2^\top \right]^\top$   producing stable amplification.
 RNN's exhibiting stable amplification amplify responses to input along some dimensions, and are stable across all dimensions.
 Two conditions are both necessary and sufficient for RNNs to exhibit stable amplification \cite{bondanelli2020coding}:  $\text{real}(\lambda_1) < 1$ and
 $\lambda^s_1 > 1$, where $\lambda_1$ is the eigenvalue of $W$ with greatest real part and $\lambda^s$ is the maximum eigenvalue of $W^s = \frac{W + W\top}{2}$.
 
-In our analysis, we seek to condition rank-2 networks of increasing size on a regime of stable amplification.  
-Networks with $\text{real}(\lambda_1) = 0.5 \pm 0.5$ and $\lambda_1^s = 1.5 \pm 0.5$ will yield moderate amplification.
- EPI can naturally condition on this emergent property
-\begin{equation}\label{eq:EP_LRRNN}
-\begin{split}
-\mathcal{X} ~~:~~ \mathbb{E}_{\mathbf{z}, \mathbf{x}} \begin{bmatrix} \text{real}(\lambda_1) \\ \lambda^s_1 \end{bmatrix} &= \begin{bmatrix} 0.5 \\ 1.5 \end{bmatrix} \\
-\text{Var}_{\mathbf{z}, \mathbf{x}} \begin{bmatrix} \text{real}(\lambda_1) \\ \lambda^s_1 \end{bmatrix} &= \begin{bmatrix} 0.25^2 \\ 0.25^2 \end{bmatrix} .
-\end{split}
-\end{equation}
-
-For comparison, we infer rank-2 RNN connectivites with alternative approaches to likelihood free inference.
-ABC methods define a distance tolerance $\epsilon$ observed data $x_0$ for which we keep sampled parameters.
-To make this ABC approach as similar as possible to the EPI program defined by Equation \ref{eq:EP_LRRNN}, we chose $\epsilon = 0.5$, an $l$-$2$ distance metric, and 
-\begin{equation}\label{eq:SNPE_stab_amp_x0}
-x_0 = \begin{bmatrix} \text{real}(\lambda_1) \\ \lambda^s_1 \end{bmatrix} = \begin{bmatrix} 0.5 \\ 1.5 \end{bmatrix}
-\end{equation}
-located at the mean of our desired emergent property.
-We use sequential Monte Carlo ABC (SMC-ABC), to compare efficiency, since it is considered the state-of-the-art ABC approach.
-SNPE \cite{gonccalves2019training} is another deep likelihood-free inference method that emerged along with this work.
-In contrast to EPI, SNPE cannot condition on the variance of the posterior predictive distribution. 
-Also, there is no tolerance parameter for SNPE like $\epsilon$ in ABC, so the comparative SNPE approach simply conditions on observation $x_0$.
-
-As we scale the number of neurons $N$ in the RNN, and thus the dimensionality of the parameter space $\mathbf{z} \in [-1, 1]^{4N}$, we see that EPI has superior scaling properties (Fig. \ref{fig:LRRNN}B).
-SMC-ABC and SNPE become intractable around 25 and 90 dimensions respectively, while EPI can infer 1000-dimensional distributions in about 1 day.
-No matter the number of neurons, EPI always produces the same distribution of emergent property statistics $\text{real}(\lambda_1)$ and $\lambda_1^s$ (Fig. \ref{fig:LRRNN}C, blue), and high variation in response profiles \ref{fig:LRRNN}D, red).
-For the dimensionalities in which SMC-ABC is tractable, the inferred parameters always exhibit stable amplification, are less varied \ref{fig:LRRNN}C, red) and largely produce similar responses \ref{fig:LRRNN}D, red).
-When using SNPE the inferred parameters are widely varied \ref{fig:LRRNN}C, orange), but often produce non amplified or unstable responses \ref{fig:LRRNN}D, orange).
-In conclusion, we found that deep likelihood-free inference techniques are capable of scaling to higher dimensional inference than SMC-ABC.
-However, only EPI can scale to high dimensions while reproducing the emergent property.
 
 
 \begin{figure}
@@ -565,79 +537,41 @@ and SMC-ABC (red) - 100 particles with $\epsilon < 0.5$ are produced.
 Gray star indicates emergent property mean, and gray dashed lines indicate two standard deviations corresponding to the variance constraint.
 For $N <= 6$ where SMC-ABC converges, samples are not diverse (path degeneracies).  
 For $N >= 25$, SNPE does not produce a posterior approximation yielding parameters with simulations near $x_0$. 
-\textbf{D}. Simulations of network parameters resulting from each method ($\tau=100ms$).  Each trace corresponds to simulation of one $z$.  
-\textbf{E}. Ratio of obtained samples producing stable amplification.
+\textbf{D}. Simulations of network parameters resulting from each method ($\tau=100ms$).  Each trace corresponds to simulation of one $z$.  (Below) Ratio of obtained samples producing stable amplification.
 }
 \label{fig:LRRNN}
 \end{figure}
 
-%%%%%%%%%%%%%%%%%%%%%%%%
-%\subsection{Linking RNN connectivity to error} \label{results_RNN}
-%So far, each model we have studied was designed from fundamental biophysical principles, genetically- or functionally-defined neuron types.  
-%At a more abstract level of modeling, recurrent neural networks (RNNs) are high-dimensional dynamical models of computation that are becoming increasingly popular in neuroscience research \cite{barak2017recurrent}. 
-%In theoretical neuroscience, RNN dynamics usually follow the equation
-%\begin{equation}
-%\frac{dx}{dt} = -x + W \phi(x) + h,
-%\end{equation}
-%where $x$ is the network activity, $W$ is the network connectivity, $\phi(\cdot) = \tanh(\cdot)$, and $h$ is the input to the system.
-%Such RNNs are trained to do a task from a systems neuroscience experiment, and then the unit activations of the trained RNN are compared to recorded neural activity.
-%Fully-connected RNNs with tens of thousands of parameters are challenging to characterize \cite{sussillo2013opening}, especially making statistical inferences about their parameterization.
-%Alternatively, we considered a rank-1, $N$-neuron RNN with connectivity consisting of the sum of a random and a structured component:
-%\begin{equation}
-%W = g\chi + \frac{1}{N}mn^\top.
-%\end{equation}
-%The random component $g \chi$ has strength $g$, and random component weights are Gaussian distributed $\chi_{i,j} \sim \mathcal{N}(0, \frac{1}{N})$.  
-%The structured component $\frac{1}{N}m n\top$ has entries of $m$ and $n$ drawn from Gaussian distributions $m_i \sim \mathcal{N}(M_m, 1)$ and $n_i \sim \mathcal{N}(M_n, 1)$.
-%Recent theoretical work derives the low-dimensional response properties of low-rank networks from statistical parameterizations of their connectivity, such as $z = [g, M_m, M_n]$ \cite{mastrogiuseppe2018linking}.
-%We used EPI to infer the parameterizations of rank-1 RNNs solving an example task, enabling discovery of properties of connectivity that result in different types of error in the computation.
-%
-%\begin{figure}
-%\begin{center}
-%\includegraphics[scale=0.75]{figures/fig5/fig5.pdf}
-%\end{center}
-%\caption{\small Sources of error in an RNN solving a simple task.  A. (left) A rank-1 RNN executing a Gaussian posterior conditioning computation on $\mu_y$. 
-%(right) Error in this computation can come from over- or under-estimating the posterior mean or variance. 
-%B. EPI distribution of rank-1 RNNs executing Gaussian posterior conditioning.  Samples are colored by (left) posterior mean $\mu_{\text{post}}=\kappa_r$ and (right) posterior variance $\sigma^2_{\text{post}}=\Delta_T$  
-%C.  Finite-size network simulations of 2,000 neurons with parameters $z_1$ and $z_2$ sampled from the inferred distribution.  
-%Activity along readout $\kappa_r$ (cyan) is stable despite chaotic fluctuations.  
-%D. The posterior mean computed by RNNs parameterized by $z_1$ and $z_2$ perturbed in the dimension of the product of $M_m$ and $M_n$.  
-%Means and standard errors are shown across 10 realizations of 2,000-neuron networks.}
-%\label{fig:RNN}
-%\end{figure}
-%
-%The task we consider is Gaussian posterior conditioning: calculate the parameters of a posterior distribution induced by a prior $p(\mu_y) = \mathcal{N}(\mu_0=4, \sigma_0^2=1)$ and a likelihood $p(y | \mu_y) = \mathcal{N}(\mu_y,\sigma^2_y = 1)$, given a single observation $y$.  
-%Conjugacy offers the result analytically; $p(\mu_y | y ) = \mathcal{N}\left(\mu_{post},\sigma_{post}^2\right)$, where:   
-%\begin{equation}
-%\mu_{\text{post}} = \frac{\frac{\mu_0}{\sigma_0^2} + \frac{y}{\sigma_y^2}}{\frac{1}{\sigma_0^2} + \frac{1}{\sigma_y^2}}
-%~~~~~~~~~~
-% \sigma^2_{\text{post}} = \frac{1}{\frac{1}{\sigma_0^2} + \frac{1}{\sigma_y^2}}.
-%\end{equation} 
-%To solve this Gaussian posterior conditioning task, the RNN response to a constant input $h = y r + (n-M_n)$ must equal the posterior mean along readout vector $r$ , where
-%\begin{equation}
-%\kappa_r =  \frac{1}{N} \sum_{j=1}^N r_j \phi(x_j).
-%\end{equation}
-%Additionally, the amount of chaotic variance $\Delta_T$ must equal the posterior variance.
-%Theory for low-rank RNNs allows us to express $\kappa_r$ and $\Delta_T$ in terms of each other through a solvable system of nonlinear equations  (see Section \ref{methods_LRRNN}) \cite{mastrogiuseppe2018linking}.
-%This theory facilitates the mathematical formalization of task execution into an emergent property, where the emergent property statistics of the RNN activity are $\kappa_r$ and $\Delta_T$, and the emergent property values are the ground truth posterior mean $\mu_{\text{post}}$ and variance $\sigma^2_{\text{post}}$:
-%\begin{equation}
-%\mathbb{E} \begin{bmatrix} \kappa_r \\ \Delta_T \\ (\kappa_r-\mu_{\text{post}})^2 \\ (\Delta_T^2-\sigma^2_{\text{post}})^2 \end{bmatrix} ~~=~~ \begin{bmatrix} \mu_{\text{post}} \\ \sigma^2_{\text{post}} \\ 0.1 \\ 0.1 \end{bmatrix}.
-%\end{equation}
-%We chose a substantial amount of variance in these emergent property statistics, so that the inferred distribution resulted in RNNs with a variety of errors in their solutions to the gaussian posterior conditioning problem. 
-%
-%EPI was used to learn distributions of RNN connectivity properties $z = [g, M_m, M_n]$ executing Gaussian posterior conditioning given an input of $y=2$, where the true posterior is $\mu_{\text{post}}=3$ and $\sigma_{\text{post}} = 0.5$ (Fig. \ref{fig:RNN}A). 
-%We examined the nature of the over- and under-estimation of the posterior means (Fig. \ref{fig:RNN}B left) and variances (Fig. \ref{fig:RNN}B right) in the inferred distributions (300 samples).  
-%The symmetry in the $M_m$-$M_n$ plane, suggests a degeneracy in the product of $M_m$ and $M_n$ (Fig. \ref{fig:RNN}B).  
-%Indeed, $M_m M_n$ strongly determines the posterior mean ($r=0.62$,  $p<10^{-4}$). 
-%Furthermore, the random strength $g$ strongly determines the chaotic variance ($r=0.56$,  $p<10^{-4}$).
-%Neither of these observations were obvious from what mathematical analysis is available in networks of this type (see Section \ref{methods_LRRNN}).  
-%While the link between random strength $g$ and chaotic variance $\Delta_T$ (and resultingly posterior variance in this problem) is well-known \cite{sompolinsky1988chaos}, the distribution admits a novel hypothesis: the estimation of the posterior mean by the RNN increases with $M_m M_n$.
-%
-%We tested this prediction by taking parameters $z_1$ and $z_2$ as representative samples from the positive and negative $M_m$-$M_n$ quadrants, respectively.
-%Instead of using the theoretical predictions shown in Figure \ref{fig:RNN}B, we simulated finite-size realizations of these networks with 2,000 neurons (e.g. Fig. \ref{fig:RNN}C).  
-%We perturbed these parameter choices by $M_m M_n$ clarifying that the posterior mean can be directly controlled in this way (Fig. \ref{fig:RNN}D; $p<10^{-4}$), see Section \ref{methods_LRRNN}).
-%Thus, EPI confers a clear picture of error in this computation: the product of the low rank vector means $M_m$ and $M_n$ modulates the estimated posterior mean while the random strength $g$ modulates the estimated posterior variance.
-%This novel procedure of inference on reduced parameterizations of RNNs conditioned on the emergent property of task execution is generalizable to other settings modeled in \cite{mastrogiuseppe2018linking} like noisy integration and context-dependent decision making (Fig. S5).
-%
+In our analysis, we seek to condition rank-2 networks of increasing size on a regime of stable amplification.  
+Networks with $\text{real}(\lambda_1) = 0.5 \pm 0.5$ and $\lambda_1^s = 1.5 \pm 0.5$ will yield moderate amplification.
+ EPI can naturally condition on this emergent property
+\begin{equation}\label{eq:EP_LRRNN}
+\begin{split}
+\mathcal{X} ~~:~~ \mathbb{E}_{\mathbf{z}, \mathbf{x}} \begin{bmatrix} \text{real}(\lambda_1) \\ \lambda^s_1 \end{bmatrix} &= \begin{bmatrix} 0.5 \\ 1.5 \end{bmatrix} \\
+\text{Var}_{\mathbf{z}, \mathbf{x}} \begin{bmatrix} \text{real}(\lambda_1) \\ \lambda^s_1 \end{bmatrix} &= \begin{bmatrix} 0.25^2 \\ 0.25^2 \end{bmatrix} .
+\end{split}
+\end{equation}
+
+For comparison, we infer rank-2 RNN connectivites with alternative approaches to likelihood free-inference.
+ABC methods define a tolerance $\epsilon$ from observed data $x_0$ for which we keep sampled parameters.
+To make this ABC approach as similar as possible to the EPI program defined by Equation \ref{eq:EP_LRRNN}, we chose $\epsilon = 0.5$, an $l$-$2$ distance metric, and 
+\begin{equation}\label{eq:SNPE_stab_amp_x0}
+x_0 = \begin{bmatrix} \text{real}(\lambda_1) \\ \lambda^s_1 \end{bmatrix} = \begin{bmatrix} 0.5 \\ 1.5 \end{bmatrix}
+\end{equation}
+located at the mean of our desired emergent property.
+We use sequential Monte Carlo ABC (SMC-ABC), to compare efficiency, since it is considered the most efficient ABC approach.
+SNPE \cite{gonccalves2019training} is another deep likelihood-free inference method that emerged along with this work.
+In contrast to EPI, SNPE cannot condition on the variance of the posterior predictive distribution. 
+Also, there is no tolerance parameter for SNPE like $\epsilon$ in ABC, so the comparative SNPE approach simply conditions on observation $x_0$.
+
+As we scale the number of neurons $N$ in the RNN, and thus the dimensionality of the parameter space $\mathbf{z} \in [-1, 1]^{4N}$, we see that EPI has superior scaling properties (Fig. \ref{fig:LRRNN}B).
+SMC-ABC and SNPE become intractable around 25 and 90 dimensions respectively, while EPI can infer 1000-dimensional distributions in about 1 day.
+No matter the number of neurons, EPI always produces connectivity distributions with mean and variance of $\text{real}(\lambda_1)$ and $\lambda_1^s$ of $\mathcal{X}$(Fig. \ref{fig:LRRNN}C, blue), and high variation in response profiles \ref{fig:LRRNN}D, blue).
+For the dimensionalities in which SMC-ABC is tractable, the inferred parameters always exhibit stable amplification, are less varied \ref{fig:LRRNN}C, red) and largely produce similar responses \ref{fig:LRRNN}D, red).
+When using SNPE the inferred parameters are widely varied \ref{fig:LRRNN}C, orange), but often produce non-amplified or unstable responses \ref{fig:LRRNN}D, orange).
+In conclusion, we found that deep likelihood-free inference techniques are capable of scaling to higher dimensional inference than SMC-ABC.
+However, only EPI can scale to high dimensions while reproducing the emergent property.
+
 %\section{Discussion}
 %\subsection{EPI is a general tool for theoretical neuroscience} 
 %Biologically realistic models of neural circuits are comprised of complex nonlinear differential equations, making traditional theoretical analysis and statistical inference intractable. 
@@ -654,42 +588,59 @@ For $N >= 25$, SNPE does not produce a posterior approximation yielding paramete
 
 %\subsection{Novel hypotheses from EPI} 
 \section{Discussion} 
-NOTE: \textbf{This is the old discussion section.  I will rewrite this based on our discussion of the rest of the draft.}
 
-In neuroscience, machine learning has primarily been used to reveal structure in neural datasets \cite{kass2001spike, brown1998statistical, paninski2004maximum, truccolo2005point, druckmann2007novel, byron2009gaussian, park2011bayesian, latimer2015single, lakshminarasimhan2018dynamic, duncker2019learning, ladenbauer2019inferring} (see review, \cite{paninski2018neural}). 
- Such careful inference procedures are developed for these statistical models allowing precise, quantitative reasoning, which clarifies the way data informs beliefs about the model parameters.  
- However, these statistical models lack resemblance to the underlying biology, making it unclear how to go from the structure revealed by these methods, to the neural mechanisms giving rise to it. 
+In neuroscience, machine learning has primarily been used to reveal structure in neural datasets \cite{paninski2018neural}.
+Such careful inference procedures are developed for these statistical models allowing precise, quantitative reasoning, which clarifies the way data informs beliefs about the model parameters.  
+However, these statistical models lack resemblance to the underlying biology, making it unclear how to go from the structure revealed by these methods, to the neural mechanisms giving rise to it. 
 In contrast, theoretical neuroscience has focused on careful mechanistic modeling and the production of emergent properties of computation.  
 The careful steps of \emph{i}.) model design and \emph{ii}.) emergent property definition, are followed by \emph{iii}.) practical inference methods resulting in an opaque characterization of the way model parameters govern computation.  
-In this work, we replaced this opaque procedure of parameter identification in theoretical neuroscience with emergent property inference, opening the door to careful inference in careful models of neural computation.
+In this work, we improve upon parameter inference techniques in theoretical neuroscience with emergent property inference, harnessing deep learning towards careful inference in careful models of neural computation (see Section \ref{methods_related}).
 
-Biologically realistic models of neural circuits often prove formidable to analyze.
-Two main factors contribute to the difficulty of this endeavor.
-First, in most neural circuit models, the number of parameters scales quadratically with the number of neurons, limiting analysis of its parameter space. 
-Second, even in low dimensional circuits, the structure of the parametric regimes governing emergent properties is intricate.  
-For example, these circuit models can support more than one steady state \cite{kraynyukova2018stabilized} and non-trivial dynamics on strange attractors \cite{morrison2016diversity}.
+Specifically, approximate Bayesian computation \cite{beaumont2002approximate, marjoram2003markov, sisson2007sequential} has been the standard approach to parameter inference in neural circuit models lacking tractable likelihoods.
+ABC methods do not confer probabilities on accepted parameters, require an acceptance threshold chosen to trade-off inference quality with tractability, do not scale efficiently to high-dimensional parameter spaces, and require independent techniques to analyze sensitivity for local parameter choices \cite{sisson2018handbook}.
+In contrast, EPI allows probability evaluations at any point in parameter space, conditions posteriors on the natural quantification of emergent properties, scales to high dimensional parameter spaces, and naturally admits sensitivity quantification via fast evaluations of the posterior Hessian.
 
-In Section \ref{results_V1}, we advanced the tractability of low-dimensional neural circuit models by showing that EPI offers insights about cell-type specific input-responsivity that cannot be afforded through the available linear analytical methods  \cite{litwin2016inhibitory, GarciaDelMolino2017, Chen2019}. 
-By flexibly conditioning this V1 model on different emergent properties, we performed an exploratory analysis of a \emph{model} rather than a dataset, generating a set of testable hypotheses, which were proved out. 
-Furthermore, exploratory analyses can be directed towards formulating hypotheses of a specific form. 
-For example, model parameter dependencies on behavioral performance can be assessed by using EPI to condition on various levels of task accuracy (See Section \ref{results_SC}). 
-This analysis identified experimentally testable predictions (proved out \textit{in-silico}) of patterns of effective connectivity in SC that should be correlated with increased performance.
+Technically, EPI is a maximum entropy method, which learns parameter distributions that are as random as possible given that they produce the emergent property.
+Conceptually, maximally random distributions given some constraints are useful for understanding parametric sensitivity.
+This is well understood in Bayesian inference, where maximum entropy is the chosen normative principle.
+This is emphasized by an innovative formalism unifying top-down maximum entropy normative models with bottom-up statistical models \cite{mlynarski2020statistical}.
+Indeed, EPI is an adaptive variational inference program, and may be considered to have a Bayesian uniform prior (see Section \ref{methods_VI}).
 
-In our final analysis, we presented a novel procedure for doing statistical inference on interpretable parameterizations of RNNs executing simple tasks. 
-Specifically, we analyzed RNNs solving a posterior conditioning problem in the spirit of \cite{pitkow2017inference, echeveste2019cortical}. 
-This methodology relies on recently extended theory of responses in random neural networks with low-rank structure \cite{mastrogiuseppe2018linking}. 
-While we focused on rank-1 RNNs, which were sufficient for solving this task, this inference procedure generalizes to RNNs of greater rank necessary for more complex tasks.
-The ability to apply the probabilistic model selection toolkit to RNNs should prove invaluable as their use in neuroscience increases.
+
+%Biologically realistic models of neural circuits often prove formidable to analyze.
+%Two main factors contribute to the difficulty of this endeavor.
+%First, in most neural circuit models, the number of parameters scales dramatically with the number of neurons, limiting analysis of its parameter space. 
+%Second, even in low dimensional circuits, the structure of the parametric regimes governing emergent properties is intricate.  
+%For example, these circuit models can support more than one steady state \cite{kraynyukova2018stabilized} and non-trivial dynamics on strange attractors \cite{morrison2016diversity}.
+
+Biologically realistic models of neural circuits often prove formidable to analyze for two main reasons.
+A primary challenge is that the number of parameters scales dramatically with the number of neurons, limiting analysis of its parameter space.
+We see in Section \ref{results_LRRNN} that EPI scales seemlessly to high dimensional parameter spaces of RNN connectivities, while maintaining the production of the specified emergent property.
+EPI strongly outperforms the standard likelihood-free inference technique (SMC-ABC \cite{sisson2007sequential}), and a recently developed deep likelihood-free inference technique (SNPE \cite{gonccalves2019training}), most likely because of it's ability to leverage the gradient information of the emergent property statistics and to adapt it's paramter sampling distribution at every step of gradient descent.
+
+A secondary challenge is that the structure of the parametric regimes governing emergent properties is intricate.  
+For example, even in low dimensional circuits, models can support more than one steady state \cite{kraynyukova2018stabilized} and non-trivial dynamics on strange attractors \cite{morrison2016diversity}.
+With EPI, we use deep probabillity distributions to capture the complex nonlinear parameter distributions governing model behavior.
+In Section \ref{results_V1}, we used EPI to reveal a curved parametric manifolds governing curcuit variability in the stochastic stabilized supralinear network, and used hypothesis testing techniques to validate our findings.
+In Section \ref{results_SC}, we identified two regimes of SC connectivity resulting in rapid task switching, and found that the full distribution of rapid task switching networks reproduced an experimental result.
+
+%In Section \ref{results_V1}, we advanced the tractability of low-dimensional neural circuit models by showing that EPI offers insights about cell-type specific input-responsivity that cannot be afforded through the available linear analytical methods  \cite{litwin2016inhibitory, GarciaDelMolino2017, Chen2019}. 
+%By flexibly conditioning this V1 model on different emergent properties, we performed an exploratory analysis of a \emph{model} rather than a dataset, generating a set of testable hypotheses, which were proved out. 
+%Furthermore, exploratory analyses can be directed towards formulating hypotheses of a specific form. 
+%For example, model parameter dependencies on behavioral performance can be assessed by using EPI to condition on various levels of task accuracy (See Section \ref{results_SC}). 
+%This analysis identified experimentally testable predictions (proved out \textit{in-silico}) of patterns of effective connectivity in SC that should be correlated with increased performance.
+
+%In our final analysis, we presented a novel procedure for doing statistical inference on interpretable parameterizations of RNNs executing simple tasks. 
+%Specifically, we analyzed RNNs solving a posterior conditioning problem in the spirit of \cite{pitkow2017inference, echeveste2019cortical}. 
+%This methodology relies on recently extended theory of responses in random neural networks with low-rank structure \cite{mastrogiuseppe2018linking}. 
+%While we focused on rank-1 RNNs, which were sufficient for solving this task, this inference procedure generalizes to RNNs of greater rank necessary for more complex tasks.
+%The ability to apply the probabilistic model selection toolkit to RNNs should prove invaluable as their use in neuroscience increases.
 
 EPI leverages deep learning technology for neuroscientific inquiry in a categorically different way than approaches focused on training neural networks to execute behavioral tasks \cite{richards2019deep}. 
 These works focus on examining optimized deep neural networks while considering the objective function, learning rule, and architecture used.
 This endeavor efficiently obtains sets of parameters that can be reasoned about with respect to such considerations, but lacks the careful probabilistic treatment of parameter inference in EPI.
-These approaches can be used complementarily to enhance the practice of theoretical neuroscience.
+All of these approaches can be used complementarily to enhance the practice of theoretical neuroscience.
 
-\textbf{TODO} *merge this point in*
-
-While much research in computational neuroscience has focused on optimizing neural architectures to process information and accomplish tasks \cite{richards2019deep}, structure in parameter space of the set of optimized solutions is rarely discussed and lacks a probabilistic treatment.  Talk about Wyktor's work here \cite{mlynarski2020statistical}.
- 
 
 \textbf{Acknowledgements}: \\
 This work was funded by NSF Graduate Research Fellowship,  DGE-1644869, McKnight Endowment Fund, NIH NINDS 5R01NS100066, Simons Foundation 542963, NSF NeuroNex Award, DBI-1707398, The Gatsby Charitable Foundation, Simons Collaboration on the Global Brain Postdoctoral Fellowship, Chinese Postdoctoral Science Foundation, and International Exchange Program Fellowship. 
@@ -699,7 +650,7 @@ Helpful conversations were had with Francesca Mastrogiuseppe, Srdjan Ostojic, Ja
 The datasets generated during and/or analyzed during the current study are available from the corresponding author upon reasonable request.
 
 \textbf{Code availability statement}: \\
-The software written for the current study is available from the corresponding author upon reasonable request.
+All software written for the current study is available at https://github.com/cunningham-lab/epi.
 
 \bibliography{eLife2020}
 \bibliographystyle{unsrt}
@@ -1387,15 +1338,20 @@ Since the Hessian eigenvectors have sign degeneracy, the visualized directions i
 
 
 \subsubsection{Primary visual cortex}\label{methods_V1}
-In the stochastic stabilized supralinear network, population rate responses $\mathbf{x}$ to input $\mathbf{h}$, recurrent input $W\mathbf{x}$ and slow noise $\bm{\epsilon}$ are governed by
+In the stochastic stabilized supralinear network \cite{hennequin2018dynamical}, population rate responses $\mathbf{x}$ to input $\mathbf{h}$, recurrent input $W\mathbf{x}$ and slow noise $\bm{\epsilon}$ are governed by
 \begin{equation}
     \tau \frac{d\mathbf{x}}{dt} = -\mathbf{x} +\phi(W\mathbf{x} + \mathbf{h} + \bm{\epsilon}),
 \end{equation}
-where the noise is an Ornstein-Uhlenbeck process
+where the noise is an Ornstein-Uhlenbeck process $\bm{\epsilon} \sim OU(\tau_{\text{noise}}, \bm{\sigma})$
 \begin{equation}
-\tau_{\text{noise}} d\epsilon_\alpha = -\epsilon_\alpha dt + \sqrt{2\tau_{\text{noise}}}\sigma_\alpha dB
+\tau_{\text{noise}} d\epsilon_\alpha = -\epsilon_\alpha dt + \sqrt{2\tau_{\text{noise}}}\tilde{\sigma}_\alpha dB
 \end{equation}
 with $\tau_{\text{noise}} = 5\text{ms} > \tau = 1\text{ms}$.
+The noisy process is parameterized as
+\begin{equation}
+\tilde{\sigma}_\alpha = \sigma_\alpha \sqrt{1 + \frac{\tau}{\tau_{\text{noise}}}},
+\end{equation}
+so that $\bm{\sigma}$ parameterizes the variance of the noisy input in the abscence of recurrent connectivity ($W = \bm{0}$).
 As contrast increases, input to the E- and P-populations increases  relative to a baseline input $\mathbf{h} = \mathbf{h}_b + c\mathbf{h}_c$.
 Connectivity ($W_{\text{fit}}$) and input ($\mathbf{h}_{b,\text{fit}}$ and $\mathbf{h}_{c,\text{fit}}$) parameters were fit using the deterministic V1 circuit model \cite{palmigiano2020structure} 
 
@@ -1484,8 +1440,8 @@ s_E(\mathbf{x}; \mathbf{z}) =\mathbb{E}_{x}\left[\sqrt{\mathbb{E}_{t > t_{ss}}\l
 \end{equation}
 
 For EPI in Fig \ref{fig:V1}D-E, we used a real NVP architecture with three Real NVP coupling layers and two-layer neural networks of 50 units per layer.
-The normalizing flow architecture mapped $z_0 \sim \mathcal{N}(\mathbf{0}, I)$ to a support of $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}] \in [4,8] \times [0.0, 0.5]$.
-EPI optimization was run using 3 different random seeds for architecture initialization $\bm{\theta}$ with an augmented Lagrangian coefficient of $c_0 = 10^{-1}$, a batch size $n=100$, and $\beta = 2$.
+The normalizing flow architecture mapped $z_0 \sim \mathcal{N}(\mathbf{0}, I)$ to a support of $\mathbf{z} = [\sigma_E, \sigma_P, \sigma_S, \sigma_V] \in [0.0, 0.5]^4$.
+EPI optimization was run using three different random seeds for architecture initialization $\bm{\theta}$ with an augmented Lagrangian coefficient of $c_0 = 10^{-1}$, a batch size $n=100$, and $\beta = 2$.
 The distributions shown are those of the architectures converging with criteria $N_{\text{test}} = 100$ at greatest entropy across random seeds.
 
 In Fig. \ref{fig:V1}E, we visualize the modes of $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ throughout the $\sigma_E$-$\sigma_P$ marginal.
