@@ -18,6 +18,9 @@ from epi.util import (
     pairplot,
     dbg_check,
     get_max_H_dist,
+    get_conditional_mode,
+    plot_opt,
+    plot_T_x,
 )
 from epi.example_eps import linear2D_freq, linear2D_freq_np
 import pytest
@@ -382,7 +385,7 @@ def test_dbg_check():
     assert(dbg_check(z, 'z'))
     return None
 
-def test_get_max_H_dist():
+def lds_2D_model_fixture():
     # 1. Define the model.
     lb, ub = -10., 10.
     a11 = Parameter("a11", 1, lb=lb, ub=ub)
@@ -421,19 +424,45 @@ def test_get_max_H_dist():
         )
         return T_x
     M.set_eps(linear2D_eig)
-    mu = np.array([0.0, 2 * np.pi, 0.5**2, (0.2 * np.pi)**2])
+    return M
 
+LDS_2D_PATH = "data/epi/lds_2D/48988ad4eb43922fde8a7438dc0c7e5f/D4_C3_affine_L2_U50_PA_rs1/bad59598253d74d26098ac5705f713e1/N500_lr1.00E-03_c0=1.00E-02_gamma2.50E-01_beta4.00E+00" 
+def test_get_max_H_dist():
+    M = lds_2D_model_fixture()
+    mu = np.array([0.0, 2 * np.pi, 0.5**2, (0.2 * np.pi)**2])
     os.chdir(os.path.join("..", "notebooks"))
     epi_df = M.get_epi_df()
     dist, path, best_k = get_max_H_dist(M, epi_df, mu, alpha=0.05, nu=1.)
     assert(dist is not None)
-    assert(path ==
-    "data/epi/lds_2D/48988ad4eb43922fde8a7438dc0c7e5f/D4_C3_affine_L2_U50_PA_rs1/bad59598253d74d26098ac5705f713e1/N500_lr1.00E-03_c0=1.00E-02_gamma2.50E-01_beta4.00E+00")
+    assert(path == LDS_2D_PATH)
     assert(best_k == 9)
     dist, path, best_k = get_max_H_dist(M, epi_df, mu, alpha=0.5, nu=1., check_last_k=1)
     assert(dist is None and path is None and best_k is None)
     os.chdir(os.path.join("..", "tests"))
     return None
 
-if __name__ == '__main__':
-    test_get_max_H_dist()
+def test_get_conditional_mode():
+    M = lds_2D_model_fixture()
+    mu = np.array([0.0, 2 * np.pi, 0.5**2, (0.2 * np.pi)**2])
+    os.chdir(os.path.join("..", "notebooks"))
+    epi_df = M.get_epi_df()
+    epi_df = epi_df[epi_df['path']==LDS_2D_PATH]
+    dist, _, _ = get_max_H_dist(M, epi_df, mu, alpha=0.05, nu=1., check_last_k=1)
+    zs, log_q_zs = get_conditional_mode(dist, 0, 0., num_steps=5)
+    return None
+
+def test_plots():
+    M = lds_2D_model_fixture()
+    mu = np.array([0.0, 2 * np.pi, 0.5**2, (0.2 * np.pi)**2])
+    os.chdir(os.path.join("..", "notebooks"))
+    epi_df = M.get_epi_df()
+    epi_df = epi_df[epi_df['path']==LDS_2D_PATH]
+    plot_opt(epi_df, cs=['r', 'b'])
+    dist, _, _ = get_max_H_dist(M, epi_df, mu, alpha=0.05, nu=1., check_last_k=1)
+    z = dist(100)
+    T_x = M.eps(z).numpy()
+    plot_T_x(None, T_x[:,0], x_mean=0., x_std=0.5)
+    return None
+
+#if __name__ == '__main__':
+#    test_plots()
