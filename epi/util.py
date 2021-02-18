@@ -129,11 +129,9 @@ def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1., check_last_k=None):
     best_Hs = []
     best_ks = []
     df_rows = []
-    print('num paths', len(paths))
     any_converged = False
     for path in paths:
         epi_df2 = epi_df[epi_df['path'] == path]
-        print('path:', path)
         if check_last_k is None:
             start_k = 0
         else:
@@ -157,12 +155,8 @@ def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1., check_last_k=None):
         best_Hs.append(best_H)
         best_ks.append(best_k)
         df_rows.append(df_row)
-        print('best k', best_k)
-        print('best H', best_H)
-        
-    bestHs = np.array(best_Hs)
+  
     best_ks = np.array(best_ks)
-
     best_Hs = np.array([x if x is not None else np.nan for x in best_Hs])
     if not any_converged:
         return None, None, None
@@ -173,6 +167,7 @@ def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1., check_last_k=None):
     best_H = best_Hs[ind]
     df_row = df_rows[ind]
     nf = model._df_row_to_nf(df_row)
+    aug_lag_hps = model._df_row_to_al_hps(df_row)
     dist = model._get_epi_dist(best_k, init_params, nf, mu, aug_lag_hps)
     
     return dist, path, best_k
@@ -535,170 +530,6 @@ def plot_square_mat(
         ax.text(0.27, 1.1, title, fontsize=(fontsize - 4))
     ax.axis("off")
     return texts
-
-def old_pairplot(
-    Z,
-    dims,
-    labels,
-    z1=None,
-    z2=None,
-    origin=False,
-    xlims=None,
-    ylims=None,
-    clims=None,
-    ticks=None,
-    c=None,
-    c_label=None,
-    c_traj=None,
-    cmap=None,
-    ss=False,
-    fontsize=12,
-    figsize=(12, 12),
-    outlier_stds=10,
-    pfname="images/temp.png",
-):
-    M = Z.shape[0]
-    num_dims = len(dims)
-    rand_order = np.random.permutation(M)
-    Z = Z[rand_order, :]
-    if c is not None:
-        c = c[rand_order]
-        if clims is not None:
-            all_inds = np.arange(c.shape[0])
-            below_inds = all_inds[c < clims[0]]
-            over_inds = all_inds[c > clims[1]]
-            plot_inds = all_inds[
-                np.logical_and(clims[0] <= c, c <= clims[1])
-            ]
-        else:
-            plot_inds, below_inds, over_inds = filter_outliers(c, outlier_stds)
-            clims = [None, None]
-
-    fig, axs = plt.subplots(num_dims - 1, num_dims - 1, figsize=figsize)
-    for i in range(num_dims - 1):
-        dim_i = dims[i]
-        for j in range(1, num_dims):
-            if num_dims == 2:
-                ax = plt.gca()
-            else:
-                ax = axs[i, j - 1]
-            if j > i:
-                dim_j = dims[j]
-                if (xlims is not None) and (ylims is not None) and origin:
-                    ax.plot(xlims, [0, 0], c=0.5 * np.ones(3), linestyle="--")
-                    ax.plot([0, 0], ylims, c=0.5 * np.ones(3), linestyle="--")
-                if ss:
-                    ax.plot(
-                        np.reshape(Z[:, dim_j].T, (M // 2, 2)),
-                        np.reshape(Z[:, dim_i].T, (M // 2, 2)),
-                        "k",
-                        lw=0.2,
-                    )
-                if c is not None:
-                    ax.scatter(
-                        Z[below_inds, dim_j],
-                        Z[below_inds, dim_i],
-                        c="k",
-                        edgecolors="k",
-                        linewidths=0.25,
-                    )
-                    ax.scatter(
-                        Z[over_inds, dim_j],
-                        Z[over_inds, dim_i],
-                        c="w",
-                        edgecolors="k",
-                        linewidths=0.25,
-                    )
-                    h = ax.scatter(
-                        Z[plot_inds, dim_j],
-                        Z[plot_inds, dim_i],
-                        c=c[plot_inds],
-                        cmap=cmap,
-                        vmin=clims[0],
-                        vmax=clims[1],
-                        edgecolors="k",
-                        linewidths=0.25,
-                    )
-                else:
-                    h = ax.scatter(
-                        Z[:, dim_j], Z[:, dim_i], c='k', edgecolors="k", linewidths=0.25,
-                    )
-                if (z1 is not None):
-                    if (z1.shape[0] == z2.shape[0]):
-                        for _i in range(len(z1)):
-                            fac = 0.9 # percentage of length where arrow head should start
-                            xy_st = [z1[_i,j], z1[_i,i]]
-                            xy_mid = [((1-fac)*z1[_i,j])+(fac*z2[_i,j]), 
-                                      ((1-fac)*z1[_i,i])+(fac*z2[_i,i])]
-                            xy_end = [z2[_i,j], z2[_i,i]]
-                            norm = np.linalg.norm(np.array(xy_end) - np.array(xy_st))
-                            if c_traj is not None:
-                                _c = c_traj[_i]
-                            else:
-                                _c = 'k'
-                            if xlims is not None:
-                                lims = xlims
-                            else:
-                                lims = [np.min(Z), np.max(Z)]
-                            if norm > 1.:
-                                ax.plot(
-                                    [xy_st[0], xy_mid[0]], 
-                                    [xy_st[1], xy_mid[1]], 
-                                    '-',
-                                    lw=5,
-                                    c=_c,
-                                )
-                                ax.annotate(
-                                    "", 
-                                    xy=xy_end,
-                                    xytext=xy_mid, 
-                                    arrowprops=dict(headwidth=norm*10, lw=2, color=_c)
-                                )
-                    else:
-                        print('Error: z1 and z2 had different lengths.')
-                        pass
-                if i + 1 == j:
-                    ax.set_xlabel(labels[j], fontsize=fontsize)
-                    ax.set_ylabel(labels[i], fontsize=fontsize)
-                else:
-                    ax.set_xticklabels([])
-                    ax.set_yticklabels([])
-
-                if ticks is not None:
-                    ax.set_xticks(ticks, fontsize=fontsize)
-                    ax.set_yticks(ticks, fontsize=fontsize)
-                if xlims is not None:
-                    ax.set_xlim(xlims)
-                if ylims is not None:
-                    ax.set_ylim(ylims)
-            else:
-                ax.axis("off")
-
-    if c is not None:
-        fig.subplots_adjust(right=0.90)
-        cbar_ax = fig.add_axes([0.92, 0.15, 0.04, 0.7])
-        clb = fig.colorbar(h, cax=cbar_ax)
-        a = (1.01 / (num_dims - 1)) / (0.9 / (num_dims - 1))
-        b = (num_dims - 1) * 1.15
-        plt.text(a, b, c_label, {"fontsize": fontsize}, transform=ax.transAxes)
-    # plt.savefig(pfname)
-    return fig, axs
-
-def filter_outliers(c, num_stds=4):
-    max_stat = 10e5
-    _c = c[np.logical_and(c < max_stat, c > -max_stat)]
-    c_mean = np.mean(_c)
-    c_std = np.std(_c)
-    all_inds = np.arange(c.shape[0])
-    below_inds = all_inds[c < c_mean - num_stds * c_std]
-    over_inds = all_inds[c > c_mean + num_stds * c_std]
-    plot_inds = all_inds[
-        np.logical_and(c_mean - num_stds * c_std <= c, c <= c_mean + num_stds * c_std)
-    ]
-    return plot_inds, below_inds, over_inds
-
-
-
 
 def pairplot(
     Z,

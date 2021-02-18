@@ -16,6 +16,8 @@ from epi.util import (
     set_dir_index,
     get_dir_index,
     pairplot,
+    dbg_check,
+    get_max_H_dist,
 )
 from epi.example_eps import linear2D_freq, linear2D_freq_np
 import pytest
@@ -371,5 +373,67 @@ def test_sample_aug_lag_hps():
 
     return None
 
+def test_dbg_check():
+    x = tf.random.normal((100, 8), 0., 1.)
+    assert(not dbg_check(x, 'x'))
+    y = np.nan*x
+    assert(dbg_check(y, 'y'))
+    z = -np.inf*x
+    assert(dbg_check(z, 'z'))
+    return None
+
+def test_get_max_H_dist():
+    # 1. Define the model.
+    lb, ub = -10., 10.
+    a11 = Parameter("a11", 1, lb=lb, ub=ub)
+    a12 = Parameter("a12", 1, lb=lb, ub=ub)
+    a21 = Parameter("a21", 1, lb=lb, ub=ub)
+    a22 = Parameter("a22", 1, lb=lb, ub=ub)
+    name = "lds_2D"
+    params = [a11, a12, a21, a22]
+    M = Model(name, params)
+
+    # 2. Define the emergent property.
+    def linear2D_eig(a11, a12, a21, a22):
+        tau = 1.0
+        c11 = a11 / tau
+        c12 = a12 / tau
+        c21 = a21 / tau
+        c22 = a22 / tau
+
+
+        # Quadratic formula.
+        real_term = 0.5 * (c11 + c22)
+        complex_term = 0.5 * tf.sqrt(
+            tf.complex(tf.square(c11 + c22) - 4.0 * (c11 * c22 - c12 * c21), 0.0)
+        )
+        real_lambda = real_term + tf.math.real(complex_term)
+        imag_lambda = tf.math.imag(complex_term)
+
+        T_x = tf.concat(
+            (
+                real_lambda,
+                imag_lambda,
+                tf.square(real_lambda - 0.),
+                tf.square(imag_lambda - (2. * np.pi)),
+            ),
+            axis=1,
+        )
+        return T_x
+    M.set_eps(linear2D_eig)
+    mu = np.array([0.0, 2 * np.pi, 0.5**2, (0.2 * np.pi)**2])
+
+    os.chdir(os.path.join("..", "notebooks"))
+    epi_df = M.get_epi_df()
+    dist, path, best_k = get_max_H_dist(M, epi_df, mu, alpha=0.05, nu=1.)
+    assert(dist is not None)
+    assert(path ==
+    "data/epi/lds_2D/48988ad4eb43922fde8a7438dc0c7e5f/D4_C3_affine_L2_U50_PA_rs1/bad59598253d74d26098ac5705f713e1/N500_lr1.00E-03_c0=1.00E-02_gamma2.50E-01_beta4.00E+00")
+    assert(best_k == 9)
+    dist, path, best_k = get_max_H_dist(M, epi_df, mu, alpha=0.5, nu=1., check_last_k=1)
+    assert(dist is None and path is None and best_k is None)
+    os.chdir(os.path.join("..", "tests"))
+    return None
+
 if __name__ == '__main__':
-    test_pairplot()
+    test_get_max_H_dist()

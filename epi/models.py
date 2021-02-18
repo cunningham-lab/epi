@@ -1210,7 +1210,6 @@ class Model(object):
         optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
         ckpt_dir, exists = self.get_epi_path(init_params, nf, mu, aug_lag_hps)
-        print('ckpt_dir', ckpt_dir)
         if not exists:
             return None
         ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
@@ -1229,8 +1228,6 @@ class Model(object):
             status = checkpoint.restore(ckpts[num_ckpts+k])
         status.expect_partial()
         q_theta = Distribution(nf, self.parameters)
-        #if not training:
-        #    q_theta.set_batch_norm_trainable(False)
         return q_theta
 
     def get_convergence_epoch(
@@ -1246,7 +1243,6 @@ class Model(object):
         else:
             _mu = np_column_vec(mu).astype(np.float32).T
         N_test = int(nu * aug_lag_hps.N)
-        print(N_test, _mu)
 
         optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
@@ -1278,13 +1274,12 @@ class Model(object):
             R_means = tf.reduce_mean(T_x, axis=1) - _mu
 
             # R_means = get_R_mean_dist(nf, self.eps, _mu, self.M_test, N_test)
-            _converged = self.test_convergence(R_means.numpy(), alpha, verbose=True, ind=k)
+            _converged = self.test_convergence(R_means.numpy(), alpha, verbose=False, ind=k)
             if _converged:
                 if best_H is None or best_H < H:
                     best_k = k
                     best_H = H
                 converged = True
-        print('')
         return best_k, converged, best_H
 
     def parameter_check(self, parameters, verbose=False):
