@@ -3,7 +3,7 @@ import argparse
 import numpy as np
 import tensorflow as tf
 from epi.models import Parameter, Model
-from epi.SC_Circuit_4 import SC_acc_var
+from neural_circuits.SC_Circuit_4 import SC_acc_var
 import time
 
 DTYPE = tf.float32
@@ -46,13 +46,6 @@ mu = np.array([p, 1.-p, mu_std**2, mu_std**2])
 
 model.set_eps(SC_acc_var(p))
 
-#init_type = 'abc'
-#abc_std = 0.025
-#init_params = {'num_keep':100, 
-#               'means':np.array([p, 1-p]),
-#               'stds':np.array([abc_std, abc_std]),
-#              }
-
 # 3. Run EPI.
 q_theta, opt_data, epi_path, failed = model.epi(
     mu,
@@ -72,8 +65,6 @@ q_theta, opt_data, epi_path, failed = model.epi(
     beta=AL_beta,
     nu=0.5,
     random_seed=random_seed,
-    #init_type=init_type,
-    #init_params=init_params,
     verbose=True,
     stop_early=True,
     log_rate=100,

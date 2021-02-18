@@ -4,9 +4,9 @@
 # python scripts independently on different instances?
 for ind in 49
 do
-  for ff_mean in 1.
+  for sE_mean in 1.
   do
-    for ff_std in 0.125
+    for sE_std in 0.125
     do
       for beta in 2. 4.
       do
@@ -14,7 +14,7 @@ do
         do
           for rs in 1 2 3
           do
-            sbatch cpu_ff_sigma.sh $ind $ff_mean $ff_std $beta $logc0 $rs
+            sbatch cpu_SSSN_epi.sh $ind $sE_mean $sE_std $beta $logc0 $rs
           done
         done
       done
