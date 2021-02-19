@@ -1,14 +1,14 @@
 """Run EPI on oscillating 2D LDS. """
 
-from epi.models import Model, Parameter
-from epi.example_eps import linear2D_freq
-from epi.util import sample_aug_lag_hps
 import numpy as np
 import argparse
+from epi.models import Model, Parameter
+from epi.util import sample_aug_lag_hps
+from epi.example_eps import linear2D_freq
 
 # Get random seed.
 parser = argparse.ArgumentParser()
-parser.add_argument('--seed', type=int)
+parser.add_argument('--seed', type=int, default=1)
 args = parser.parse_args()
 
 print('Running epi on 2D-LDS with hyper parameter random seed %d.' % args.seed)

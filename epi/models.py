@@ -337,7 +337,8 @@ class Model(object):
                 stds = np.sqrt(mu[len(mu)//2:])
 
             hash_str = get_hash([nf.lb, nf.ub])
-            abc_fname = os.path.join("data", "abc", "M=%d_p=%.2f_std=%.3f_%s_abc.npz" % 
+            abc_dir = os.path.join("data", "abc")
+            abc_fname = os.path.join(abc_dir, "M=%d_p=%.2f_std=%.3f_%s_abc.npz" % 
                                     (num_keep, means[0], stds[0], hash_str))
             if os.path.exists(abc_fname):
                 print('Loading prev ABC.')
@@ -376,6 +377,8 @@ class Model(object):
 
                 mu_init = np.mean(z_abc, axis=0)
                 Sigma = np.eye(self.D)
+                if not os.path.exists(abc_dir):
+                    os.mkdir(abc_dir)
                 np.savez(abc_fname, mu=mu_init, Sigma=Sigma)
                 init_params = {'mu': mu_init,
                                'Sigma': Sigma}
@@ -412,22 +415,12 @@ class Model(object):
             H_grad = tape.gradient(neg_H, params)
             lagrange_grad = tape.gradient(lagrange_dot, params)
             aug_grad = unbiased_aug_grad(R1s, R2, params, tape)
-            """dbg_check(cost, 'cost')
-            for ii, (p, g1, g2, g3) in enumerate(zip(params, H_grad, lagrange_grad, aug_grad)):
-                dbg_check(p, '%d param' % ii) 
-                dbg_check(g1, '%d g1' % ii) 
-                dbg_check(g2, '%d g2' % ii) 
-                dbg_check(g3, '%d g3' % ii) """
 
             gradients = [
                 g1 + g2 + c * g3 for g1, g2, g3 in zip(H_grad, lagrange_grad, aug_grad)
             ]
             MAX_NORM = 1e10
             gradients = [tf.clip_by_norm(g, MAX_NORM) for g in gradients]
-            """for ii, g in enumerate(gradients):
-                dbg_check(g, '%d g' % ii) 
-                print('max', tf.reduce_max(g))
-                print('min', tf.reduce_min(g))"""
 
             optimizer.apply_gradients(zip(gradients, params))
             return cost, H, R, z, log_q_z
@@ -601,41 +594,6 @@ class Model(object):
                             df['AL_hps'] = df.shape[0]*[AL_hps]
                             dfs.append(df)
         return pd.concat(dfs)
-
-    def get_max_H(self, mu, nu, paths=None):
-        epi_df = self.get_epi_df()
-        if paths is None:
-            paths = epi_df['path'].unique()
-        
-        best_Hs = []
-        convergeds = []
-        best_ks = []
-        for i, path in enumerate(paths):
-            print('checking convergence', i)
-            epi_df2 = epi_df[epi_df['path'] == path]
-            df_row = epi_df2.iloc[0]
-            init = df_row['init']
-            init_params = {"mu":init["mu"], "Sigma":init["Sigma"]}
-            nf = self._df_row_to_nf(df_row)
-            aug_lag_hps = self._df_row_to_al_hps(df_row)
-            best_k, converged, best_H = self.get_convergence_epoch(
-                    init_params, nf, mu, aug_lag_hps, 
-                    alpha=0.05, nu=nu)
-            best_Hs.append(best_H)
-            convergeds.append(converged)
-            best_ks.append(best_k)
-
-        bestHs = np.array(best_Hs)
-        best_ks = np.array(best_ks)
-
-        best_Hs = np.array([x if x is not None else np.nan for x in best_Hs])
-        ind = np.nanargmax(best_Hs)
-
-        best_k = int(best_ks[ind])
-        path = paths[ind]
-        best_H = best_Hs[ind]
-
-        return path, best_k
 
     def epi_opt_movie(self, path):
         """Generate video of EPI optimization.
@@ -1210,7 +1168,6 @@ class Model(object):
         optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
         ckpt_dir, exists = self.get_epi_path(init_params, nf, mu, aug_lag_hps)
-        print('ckpt_dir', ckpt_dir)
         if not exists:
             return None
         ckpt_state = tf.train.get_checkpoint_state(ckpt_dir)
@@ -1229,8 +1186,6 @@ class Model(object):
             status = checkpoint.restore(ckpts[num_ckpts+k])
         status.expect_partial()
         q_theta = Distribution(nf, self.parameters)
-        #if not training:
-        #    q_theta.set_batch_norm_trainable(False)
         return q_theta
 
     def get_convergence_epoch(
@@ -1246,7 +1201,6 @@ class Model(object):
         else:
             _mu = np_column_vec(mu).astype(np.float32).T
         N_test = int(nu * aug_lag_hps.N)
-        print(N_test, _mu)
 
         optimizer = tf.keras.optimizers.Adam(aug_lag_hps.lr)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=nf)
@@ -1278,13 +1232,12 @@ class Model(object):
             R_means = tf.reduce_mean(T_x, axis=1) - _mu
 
             # R_means = get_R_mean_dist(nf, self.eps, _mu, self.M_test, N_test)
-            _converged = self.test_convergence(R_means.numpy(), alpha, verbose=True, ind=k)
+            _converged = self.test_convergence(R_means.numpy(), alpha, verbose=False, ind=k)
             if _converged:
                 if best_H is None or best_H < H:
                     best_k = k
                     best_H = H
                 converged = True
-        print('')
         return best_k, converged, best_H
 
     def parameter_check(self, parameters, verbose=False):

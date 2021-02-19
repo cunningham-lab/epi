@@ -14,7 +14,7 @@ do
         do
           for rs in 1
           do
-            sbatch cpu_SC_acc_epi_var.sh $p $beta $elemwise_fn $logc0 $mu_std $rs
+            sbatch cpu_SC_epi.sh $p $beta $elemwise_fn $logc0 $mu_std $rs
           done
         done
       done

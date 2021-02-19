@@ -151,8 +151,6 @@ def test_epi():
     assert np.sum(z[:, 3] > 0.0) == 0
     assert np.sum(1 - np.isfinite(z)) == 0
 
-    #assert np.sum(1 - np.isfinite(log_q_z)) == 0
-
     # Intentionally swap order in list to insure proper handling.
     params = [a22, a21, a12, a11]
     M = Model("lds", params)
@@ -172,6 +170,25 @@ def test_epi():
     assert np.sum(z[:, 2] > ub_a21) == 0
     assert np.sum(z[:, 3] > 0.0) == 0
     assert np.sum(1 - np.isfinite(z)) == 0
+
+    print('DOING ABC NOW')
+    # Need finite support for ABC
+    a11 = Parameter("a11", 1, -10., 10.)
+    a12 = Parameter("a12", 1, -10., 10.)
+    a21 = Parameter("a21", 1, -10., 10.)
+    a22 = Parameter("a22", 1, -10., 10.)
+    params = [a11, a12, a21, a22]
+    M = Model("lds_2D", params)
+    M.set_eps(linear2D_freq)
+    init_type = 'abc'
+    init_params = {'num_keep':50, 'mean':mu[:2], 'std':np.sqrt(mu[2:])}
+
+    q_theta, opt_data, epi_path, failed = M.epi(
+        mu, num_iters=100, K=1,
+        init_type=init_type, init_params=init_params,
+        save_movie_data=True, log_rate=10,
+    )
+
 
     params = [a11, a12, a21, a22]
     M = Model("lds2", params)

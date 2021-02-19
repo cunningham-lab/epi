@@ -5,8 +5,8 @@ import tensorflow as tf
 from epi.models import Parameter, Model
 import time
 import matplotlib.pyplot as plt
-from epi.STG_Circuit import Simulate, Simulate_all, NetworkFreq
 from epi.util import pairplot, plot_T_x
+from neural_circuits.STG_Circuit import Simulate, Simulate_all, NetworkFreq
 
 # 1. Specify the V1 model for EPI.
 D = 2
