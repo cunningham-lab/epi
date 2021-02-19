@@ -430,7 +430,7 @@ LDS_2D_PATH = "data/epi/lds_2D/48988ad4eb43922fde8a7438dc0c7e5f/D4_C3_affine_L2_
 def test_get_max_H_dist():
     M = lds_2D_model_fixture()
     mu = np.array([0.0, 2 * np.pi, 0.5**2, (0.2 * np.pi)**2])
-    os.chdir(os.path.join("..", "notebooks"))
+    os.chdir("notebooks")
     epi_df = M.get_epi_df()
     dist, path, best_k = get_max_H_dist(M, epi_df, mu, alpha=0.05, nu=1.)
     assert(dist is not None)
@@ -438,23 +438,24 @@ def test_get_max_H_dist():
     assert(best_k == 9)
     dist, path, best_k = get_max_H_dist(M, epi_df, mu, alpha=0.5, nu=1., check_last_k=1)
     assert(dist is None and path is None and best_k is None)
-    os.chdir(os.path.join("..", "tests"))
+    os.chdir("..")
     return None
 
 def test_get_conditional_mode():
     M = lds_2D_model_fixture()
     mu = np.array([0.0, 2 * np.pi, 0.5**2, (0.2 * np.pi)**2])
-    os.chdir(os.path.join("..", "notebooks"))
+    os.chdir("notebooks")
     epi_df = M.get_epi_df()
     epi_df = epi_df[epi_df['path']==LDS_2D_PATH]
     dist, _, _ = get_max_H_dist(M, epi_df, mu, alpha=0.05, nu=1., check_last_k=1)
     zs, log_q_zs = get_conditional_mode(dist, 0, 0., num_steps=5)
+    os.chdir("..")
     return None
 
 def test_plots():
     M = lds_2D_model_fixture()
     mu = np.array([0.0, 2 * np.pi, 0.5**2, (0.2 * np.pi)**2])
-    os.chdir(os.path.join("..", "notebooks"))
+    os.chdir("notebooks")
     epi_df = M.get_epi_df()
     epi_df = epi_df[epi_df['path']==LDS_2D_PATH]
     plot_opt(epi_df, cs=['r', 'b'])
@@ -462,7 +463,10 @@ def test_plots():
     z = dist(100)
     T_x = M.eps(z).numpy()
     plot_T_x(None, T_x[:,0], x_mean=0., x_std=0.5)
+    os.chdir("..")
     return None
 
-#if __name__ == '__main__':
-#    test_plots()
+if __name__ == '__main__':
+    test_get_max_H_dist()
+    test_get_conditional_mode()
+    test_plots()
