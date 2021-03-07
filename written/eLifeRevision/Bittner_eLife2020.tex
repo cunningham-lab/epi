@@ -56,13 +56,13 @@ $^{7}$Department of Statistics, Columbia University
 \section{Abstract}
 A cornerstone of theoretical neuroscience is the circuit model: a system of equations that captures a hypothesized neural mechanism.  
 Such models are valuable when they give rise to an experimentally observed phenomenon -- whether behavioral or in terms of neural activity -- and thus can offer insights into neural computation.
-The operation of these circuits, like all models, critically depends on the choices of model parameters.
+The operation of these mechanistic circuits, like all models, critically depends on the choices of model parameters.
 %When analytic derivation of the relationship between model parameters and computational properties is intractable, approximate inference and simulation-based techniques are relied upon for scientific insight.
 %We bring the use of deep generative models for probabilistic inference to bear on this problem, learning complex distributions of parameters that produce the specified properties of computation.
-We present a novel technique designed to infer parameter distributions that produce mathematically defined emergent properties of computation, rather than sets of experimental data.
-We find that conditioning parameter distributions on an emergent property rather than datasets is natural and often advantageous in theoretical practice.
-Also, this approach allows us to greatly simplify the deep inference architecture used and to scale inference to high dimensions.
-We bring this deep inference technique to bear on important questions in theoretical neuroscience, and demonstrate the broad range of insightful analyses this approach allows.
+We present a novel technique designed to infer parameter distributions that produce mathematically defined emergent properties of computation.
+We detail how the parameter distributions of theoretical neuroscience problems are better defined by the emergent properties they produce, rather than conditioned upon artificial datasets.
+This approach is not only well-motivated, but allows technical simplifications to statistical inference in mechanistic models and scaling to high dimensions.
+With this method, we bring deep inference to bear on important questions in theoretical neuroscience, and demonstrate the broad range of insightful analyses this approach allows.
 First, we show a worked example analyzing parametric sensitivity in the stomatogastric ganglion, emphasizing the general applicability of this approach to complex models with complex emergent properties.
 Then, in a model of primary visual cortex where mathematical analysis becomes untenable, we identify a nonlinear manifold revealing the rule of parametric degeneracy with respect to variability.
 Next, we gain a mechanistic understanding of how superior colliculus connectivity produces rapid task switching in multiple parametric regimes.
@@ -81,7 +81,7 @@ These analyses illustrate how we can further leverage the power of deep learning
 
 \section{Introduction}
 The fundamental practice of theoretical neuroscience is to use a mathematical model to understand neural computation, whether that computation enables perception, action, or some intermediate processing.  
-A neural computation is systematized with a set of equations -- the model -- and these equations are motivated by biophysics, neurophysiology, and other conceptual considerations \cite{kopell1988coupled,  marder1998biophysics, abbott2008theoretical, wang2010neurophysiological}.
+A neural circuit is systematized with a set of equations -- the model -- and these equations are motivated by biophysics, neurophysiology, and other conceptual considerations \cite{kopell1988coupled,  marder1998biophysics, abbott2008theoretical, wang2010neurophysiological}.
 The function of this system is governed by the choice of model \emph{parameters}, which when configured in a particular way, give rise to a measurable signature of a computation.   
 The work of analyzing a model then requires solving the inverse problem: given a computation of interest, how can we reason about particular parameter configurations?  
 The inverse problem is crucial for reasoning about likely parameter values, uniquenesses and degeneracies, and predictions made by the model \cite{gutenkunst2007universally, o2014cell}.
@@ -90,44 +90,71 @@ Consider the idealized practice: one carefully designs a model and analytically 
 Seminal examples of this gold standard (which often adopt approaches from statistical physics) include our field's understanding of memory capacity in associative neural networks \cite{hopfield1982neural}, chaos and autocorrelation timescales in random neural networks \cite{sompolinsky1988chaos}, the paradoxical effect \cite{tsodyks1997paradoxical}, and decision making \cite{wong2006recurrent}.
 Unfortunately, as circuit models include more biological realism, theory via analytical derivation becomes intractable.
 Alternatively, we can gain insight into these complex models by identifying the full distribution of parameters consistent with specified emergent phenomena.
-By solving the inverse problem in this way, scientists can reason about the sensitivity and robustness of the model with respect to different parameter combinations \cite{foster1993significance, prinz2004similar, achard2006complex, o2014cell, alonso2019visualization}.
+By solving the inverse problem in this way, scientific analysis of complex biologically realistic models is made possible \cite{foster1993significance, prinz2004similar, achard2006complex, o2014cell, alonso2019visualization}.
+%By solving the inverse problem in this way, scientists can reason about the sensitivity and robustness of the model with respect to different parameter combinations \cite{foster1993significance, prinz2004similar, achard2006complex, o2014cell, alonso2019visualization}.
 
-The preferred formalism for parameter identification in science is statistical inference, which has been used to great success in neuroscience through the stipulation of statistical generative models \cite{kass2001spike, brown1998statistical, paninski2004maximum, truccolo2005point, schneidman2006weak, druckmann2007novel, turner2007maximum, byron2009gaussian, macke2011empirical, park2011bayesian, granot2013stimulus, latimer2015single, lakshminarasimhan2018dynamic, duncker2019learning, ladenbauer2019inferring} (see review, \cite{paninski2018neural}). 
-However, most neural circuit models in theoretical neuroscience stipulate a noisy system of differential equations that can only be sampled or realized through forward simulation; they lack the explicit likelihood central to the probabilistic modeling toolkit.
-Therefore, the most popular approaches to the inverse problem have been likelihood-free methods such as approximate Bayesian computation (ABC) \cite{sisson2007sequential, liepe2014framework}, in which reasonable parameters are obtained via simulation and rejection.
+%The preferred formalism for parameter identification in science is statistical inference, which has been used to great success in neuroscience through the stipulation of statistical generative models \cite{kass2001spike, brown1998statistical, paninski2004maximum, truccolo2005point, schneidman2006weak, druckmann2007novel, turner2007maximum, byron2009gaussian, macke2011empirical, park2011bayesian, granot2013stimulus, latimer2015single, lakshminarasimhan2018dynamic, duncker2019learning, ladenbauer2019inferring} (see review, \cite{paninski2018neural}). 
+%However, most neural circuit models in theoretical neuroscience stipulate a noisy system of differential equations that can only be sampled or realized through forward simulation; they lack the explicit likelihood central to the probabilistic modeling toolkit.
+%Therefore, the most popular approaches to the inverse problem have been likelihood-free methods such as approximate Bayesian computation (ABC) \cite{sisson2007sequential, liepe2014framework}, in which reasonable parameters are obtained via simulation and rejection.
+% 
+%Of course, the challenge of doing inference in complex models has arisen in many scientific fields.
+%In response, the machine learning community has made remarkable progress in recent years, via the use of deep neural networks as powerful inference engines: a flexible function family that can map observations back to probability distributions quantifying the likely parameter configurations. 
+%One celebrated example of this approach from machine learning, of which we draw key inspiration for this work, is the variational autoencoder (VAE) \cite{kingma2013auto, rezende2014stochastic}, which uses a deep neural network to induce an (approximate) posterior distribution on hidden variables in a latent variable model, given data. 
+%Indeed, these tools have been used to great success in neuroscience as well, in particular for interrogating hidden states in models of both cortical population activity \cite{gao2016linear, zhao2017recursive, barello2018sparse, pandarinath2018inferring} and animal behavior \cite{wiltschko2015mapping, johnson2016composing, batty2019behavenet}. 
+%These works have used deep neural networks to expand the domain of neural data sets amenable to statistical modeling \cite{paninski2018neural}.
+
+One preferred formalism for parameter identification is statistical inference, which has been used to great success in neuroscience through the stipulation of statistical generative models \cite{kass2001spike, brown1998statistical, paninski2004maximum, truccolo2005point, schneidman2006weak, druckmann2007novel, turner2007maximum, byron2009gaussian, macke2011empirical, park2011bayesian, granot2013stimulus, latimer2015single, lakshminarasimhan2018dynamic, duncker2019learning, ladenbauer2019inferring} (see review, \cite{paninski2018neural}). 
+Recent work has used variational autoencoders (VAEs) \cite{kingma2013auto, rezende2014stochastic} to interrogate hidden states in models of both cortical population activity \cite{gao2016linear, zhao2017recursive, barello2018sparse, pandarinath2018inferring} and animal behavior \cite{wiltschko2015mapping, johnson2016composing, batty2019behavenet}, thus expanding the domain of neural data sets amenable to statistical modeling.
+However, most neural circuit models in theoretical neuroscience are noisy systems of differential equations that can only be sampled or realized through forward simulation; they lack the explicit likelihood necessary for statistical inference.
+Therefore, the most popular approaches to theoretical inverse problems have been likelihood-free inference (LFI) methods \cite{sisson2007sequential, liepe2014framework}, in which reasonable parameters are obtained via simulation and rejection.
+A flourishing new class of techniques \cite{gonccalves2019training, papamakarios2019sequential, hermans2020likelihood} use deep learning to improve upon traditional LFI approaches.
+However, as we detail, all of these approaches require good datasets for the scientific question at hand.
  
-Of course, the challenge of doing inference in complex models has arisen in many scientific fields.
-In response, the machine learning community has made remarkable progress in recent years, via the use of deep neural networks as powerful inference engines: a flexible function family that can map observations back to probability distributions quantifying the likely parameter configurations. 
-One celebrated example of this approach from machine learning, of which we draw key inspiration for this work, is the variational autoencoder (VAE) \cite{kingma2013auto, rezende2014stochastic}, which uses a deep neural network to induce an (approximate) posterior distribution on hidden variables in a latent variable model, given data. 
-Indeed, these tools have been used to great success in neuroscience as well, in particular for interrogating hidden states in models of both cortical population activity \cite{gao2016linear, zhao2017recursive, barello2018sparse, pandarinath2018inferring} and animal behavior \cite{wiltschko2015mapping, johnson2016composing, batty2019behavenet}. 
-These works have used deep neural networks to expand the domain of neural data sets amenable to statistical modeling \cite{paninski2018neural}.
+%
+%Existing approaches to the inverse problem in theoretical neuroscience fall short in three key ways. 
+%First, theoretical models of neural computation aim to reflect a complex biological reality, and as a result, such models lack tractable likelihoods.
+%Without an efficient calculation of the probability of model properties given model parameters, neuroscientists resort to approximate Bayesian computation \cite{beaumont2002approximate, marjoram2003markov, sisson2007sequential}, which requires a rejection heuristic, scales poorly, and only produces sets of accepted parameters lacking probabilities.
+%Second, there is an undesirable trade-off between the flexibility and sampling speed of approximated posterior distributions.
+%Sampling-based inference approaches (e.g. ABC and Markov chain Monte Carlo (MCMC) \cite{hastings1970monte, metropolis1953equation}) confer flexible approximations, yet scale poorly in number of parameters.
+%While variational inference (VI) \cite{saul1998mean} often results in fast posterior sampling, existing practice relies heavily on simplified classes of distributions \cite{rezende2015variational}.  
+%Third, such parameter inference methods are designed to operate on experimentally collected data-sets.
+%Ultimately, the objects of interest in theoretical neuroscience are phenomena or features of the model rather than singular data-sets.
 
-Existing approaches to the inverse problem in theoretical neuroscience fall short in three key ways. 
-First, theoretical models of neural computation aim to reflect a complex biological reality, and as a result, such models lack tractable likelihoods.
-Without an efficient calculation of the probability of model properties given model parameters, neuroscientists resort to approximate Bayesian computation \cite{beaumont2002approximate, marjoram2003markov, sisson2007sequential}, which requires a rejection heuristic, scales poorly, and only produces sets of accepted parameters lacking probabilities.
-Second, there is an undesirable trade-off between the flexibility and sampling speed of approximated posterior distributions.
-Sampling-based inference approaches (e.g. ABC and Markov chain Monte Carlo (MCMC) \cite{hastings1970monte, metropolis1953equation}) confer flexible approximations, yet scale poorly in number of parameters.
-While variational inference (VI) \cite{saul1998mean} often results in fast posterior sampling, existing practice relies heavily on simplified classes of distributions \cite{rezende2015variational}.  
-Third, such parameter inference methods are designed to operate on experimentally collected data-sets.
-Ultimately, the objects of interest in theoretical neuroscience are phenomena or features of the model rather than singular data-sets.
+%To address these three challenges, we developed an inference methodology -- `emergent property inference' -- which learns a distribution over parameter configurations in a theoretical model.  
+%This distribution has two critical properties: \emph{(i)} it is chosen such that draws from the distribution (parameter configurations) correspond to systems of equations that give rise to a specified emergent property (a set of constraints); and \emph{(ii)} it is chosen to have maximum entropy given those constraints, such that we identify all likely parameters and can use the distribution to reason about parametric sensitivity and degeneracies \cite{transtrum2015perspective}.  
+%First, we use stochastic gradient techniques in the spirit of likelihood-free variational inference \cite{tran2017hierarchical} to enable inference in likelihood-free models of neural computation.
+%Second, we stipulate a bijective deep neural network that induces a flexible family of probability distributions over model parameterizations with a probability density we can calculate \cite{rezende2015variational, dinh2017density, papamakarios2017masked}, which confers fast sampling and sensitivity measurements.
+%Third, we quantify the notion of emergent properties as a set of moment constraints on datasets generated by the model.  
+%Thus, an emergent property is not a single data realization, but a phenomenon or a feature of the model.
+%Conditioning on an emergent property requires a variant of deep probabilistic inference methods, which we have previously introduced \cite{loaiza2017maximum}.
+%Taken together, emergent property inference (EPI) provides a methodology for inferring parameter configurations consistent with a particular emergent phenomena in theoretical models.
+%We use a classic example of parametric degeneracy in a biological system, the stomatogastric ganglion \cite{goldman2001global}, to motivate and clarify the technical details of EPI.
 
-To address these three challenges, we developed an inference methodology -- `emergent property inference' -- which learns a distribution over parameter configurations in a theoretical model.  
-This distribution has two critical properties: \emph{(i)} it is chosen such that draws from the distribution (parameter configurations) correspond to systems of equations that give rise to a specified emergent property (a set of constraints); and \emph{(ii)} it is chosen to have maximum entropy given those constraints, such that we identify all likely parameters and can use the distribution to reason about parametric sensitivity and degeneracies \cite{transtrum2015perspective}.  
-First, we use stochastic gradient techniques in the spirit of likelihood-free variational inference \cite{tran2017hierarchical} to enable inference in likelihood-free models of neural computation.
-Second, we stipulate a bijective deep neural network that induces a flexible family of probability distributions over model parameterizations with a probability density we can calculate \cite{rezende2015variational, dinh2017density, papamakarios2017masked}, which confers fast sampling and sensitivity measurements.
-Third, we quantify the notion of emergent properties as a set of moment constraints on datasets generated by the model.  
-Thus, an emergent property is not a single data realization, but a phenomenon or a feature of the model.
+This work seeks to clarify an important incongruity between theoretical approaches to neuroscience and existing statistical inference methodology.
+In theoretical neuroscience, we are concerned with the computational properties -- the \emph{emergent phenomena} -- of our models \cite{hopfield1982neural, sompolinsky1988chaos, tsodyks1997paradoxical, wong2006recurrent}, not noisy observed datasets \cite{paninski2018neural}.
+To use the aforementioned inference paradigm, scientists must shoehorn such mathematical criteria into an artificial dataset compatible with existing statistical approaches.
+Theorists are therefore barred from using the probabilistic modeling toolkit for science, unless they reformulate their inverse problem to fit an evidence accumulation framework.
+
+These challenges motivate the development of a novel inference framework called emergent property inference (EPI).
+As an adaption of variational inference \cite{saul1998mean}, EPI infers parameter distributions that produce an emergent property: not a singular dataset, but a collection of datasets  exhibiting some mathematical criteria.
+EPI fixates on the inverse problem by constraining the predictions of the inferred parameter distribution to produce the emergent property exactly.
 Conditioning on an emergent property requires a variant of deep probabilistic inference methods, which we have previously introduced \cite{loaiza2017maximum}.
-Taken together, emergent property inference (EPI) provides a methodology for inferring parameter configurations consistent with a particular emergent phenomena in theoretical models.
-We use a classic example of parametric degeneracy in a biological system, the stomatogastric ganglion \cite{goldman2001global}, to motivate and clarify the technical details of EPI.
+By using deep probability distributions EPI flexibly captures parametric structure in mechanistic models.
+This technique is designed to identify the full parameter space producing an emergent property and facilitate the seemless structural analysis of the inferred parameter distribution.
+Thus, EPI provides neuroscientists with an efficient, versatile probabilistic modeling toolkit designed explicitly for theoretical inverse problems.
 
-Equipped with this methodology, we then investigated three models of current importance in theoretical neuroscience.
-These models were chosen to demonstrate generality through ranges of biological realism (from conductance-based biophysics to recurrent neural networks), neural system function (from pattern generation to decision making), and network scale (from four to hundreds of neurons).
-First, we use EPI to understand the characteristics of noise across mulitple neuron-type populations that govern variability in a model of primary visual cortex.
-Then, we use EPI to infer multiple regimes of superior colliculus connectivity that perform rapid task switching.
-The novel scientific insights offered by EPI contextualize and clarify the previous studies exploring these models \cite{litwin2016inhibitory, duan2018collicular}.
-Finally, we emphasize the scalability of EPI by inferring high-dimensional distributions of RNNs exhibiting stable amplification.
-These results point to the value of deep inference for the interrogation of biologically relevant models.
+Equipped with this method, we bring deep inference to bear on theoretical neuroscience to an unprecedented extent.
+Throughout this work, we showcase the capabilities of EPI on four neural circuit models across ranges of biological realism, neural system function, and network scale.
+First, we show EPI's ability to capture subtle, nonlinear parametric structure in a stomatogastric ganglion subcircuit model \cite{gutierrez2013multiple}.
+In a model of primary visual cortex \cite{palmigiano2020structure}, we show how to gain insight from multiple inferred distributions.
+Next, we used EPI to idenitfy and structurally characterize multiple parametric regimes of superior colliculus activity in a model of task switching \cite{duan2018collicular}.
+Finally, we emphasize the superior scalability of EPI compared to other LFI techniques by inferring high-dimensional distributions of RNN connectivities that exhibit amplified, yet stable responses -- a hallmark of cortical sensory systems \cite{more, bondanelli2020coding}.
+
+Most importantly of all in this work, we present novel theories of neural computation borne from EPI analysis.
+We identified an unknown parametric rule of variability with respect to inhibitory neuron type in a V1 model, where analytic techniques became untenable.
+Furthermore, we identified multiple regimes of SC connectivity which confer rapid task switching, and used the structural analytic tools of EPI to gain a mechanistic understanding of circuit responses.
+These valuable theoretical insights illustrate the value of deep inference for the interrogation of neural circuit models.
+
 
 %-------- old sentences -----------
 
@@ -191,7 +218,7 @@ This emergent property is shown in Figure \ref{fig:STG}C at an average frequency
 %Subsequently, a qualitative description is formulated to describe the different parameter configurations that lead to the emergent property.  
 %In this last step lies the opportunity for a precise quantification of the emergent property as a statistical feature of the model. 
 % Once we have such a methodology, we can infer a probability distribution over parameter configurations that produce this emergent property.
-Third, parameter analyses ensue: brute-force parameter sweeps, ABC sampling, and sensitivity analyses are all routinely used to reason about what parameter configurations lead to an emergent property.
+Third, parameter analyses ensue: brute-force parameter sweeps, ABC sampling \cite{liepe2014framework}, and sensitivity analyses \cite{raue2009structural} are all routinely used to reason about what parameter configurations lead to an emergent property.
 In this last step lies the opportunity for a precise quantification of the emergent property as a statistical feature of the model.
 Once we have such a methodology, we can infer a probability distribution over parameter configurations that produce this emergent property.
 
@@ -243,13 +270,12 @@ The black and gray dashed lines show the mean and two standard deviations accord
 
 %Before presenting technical details (in the following section), let us understand emergent property inference schematically:  EPI (Fig. \ref{fig:STG}A gray box) takes, as input, the model and the specified emergent property, and as its output, produces the parameter distribution shown in Figure \ref{fig:STG}B.
 Before presenting technical details (in the following section), let us understand emergent property inference schematically:  EPI (Fig. \ref{fig:STG}D) takes, as input, the model and the specified emergent property, and as its output, produces the parameter distribution  EPI (Fig. \ref{fig:STG}E).  
-This distribution -- represented for clarity as samples from the distribution -- is then a scientifically meaningful and mathematically tractable object.  
-In the STG model, this distribution can be specifically queried to reveal the prototypical parameter configuration for network syncing (the mode; Figure \ref{fig:STG}E yellow star), and how network syncing decays based on changes away from the mode.
-The eigenvectors (of the Hessian of the distribution at the mode) quantitatively formalize the robustness of intermediate hub frequency (Fig. \ref{fig:STG}E solid ($v_1$) and dashed  ($v_2$) black arrows).
-Indeed, samples equidistant from the mode along these EPI-identified dimensions of sensitivity ($v_1$) and degeneracy ($v_2$) agree with error contours (Fig. \ref{fig:STG}E contours) and have diminished or preserved hub frequency, respectively (Fig. \ref{fig:STG}F activity traces) (see Section \ref{methods_STG}).
+This distribution -- represented for clarity as samples from the distribution -- is then the most random parameter distribution producing the emergent property. 
+In the STG model, this distribution can be specifically queried to reveal the prototypical parameter configuration for intermediate hub frequency (the mode; Figure \ref{fig:STG}E yellow star), and how it decays based on changes away from the mode.
+Indeed, samples equidistant from the mode along these EPI-identified dimensions of sensitivity ($v_1$) and degeneracy ($v_2$) (Fig. \ref{fig:STG}E, arrows) agree with error contours (Fig. \ref{fig:STG}E contours) and have diminished or preserved hub frequency, respectively (Fig. \ref{fig:STG}F activity traces) (see Section \ref{methods_STG}).
 
 \subsection{A deep generative modeling approach to emergent property inference} \label{results_dgm}
-Emergent property inference (EPI) systematizes the three-step procedure of the previous section.
+Emergent property inference (EPI) formalizes the three-step procedure of the previous section with deep probability distributions.
 %First, we consider the model as a coupled set of differential (and potentially stochastic) equations \cite{gutierrez2013multiple}.  
 First, we consider the model as a coupled set of differential equations \cite{gutierrez2013multiple}.  
 In the running STG example, the model activity $\mathbf{x} = \left[ x_{\text{f1}}, x_{\text{f2}}, x_{\text{hub}}, x_{\text{s1}}, x_{\text{s2}} \right]$ is the membrane potential for each neuron, which evolves according to the biophysical conductance-based equation:
@@ -264,63 +290,62 @@ where $C_m$=1nF, and $\mathbf{h}$ is a sum of the leak, calcium, potassium, hype
 Second, we define the emergent property, which as above is ``intermediate hub  frequency" (Figure \ref{fig:STG}C).
 %Quantifying this phenomenon is straightforward: we define network syncing to be that each neuron's spiking frequency -- denoted $\omega_{\text{f1}}(\mathbf{x})$, $\omega_{\text{f2}}(\mathbf{x})$, etc. -- is close to an intermediate frequency of 0.53Hz.  
 %Mathematically, we achieve this via constraints on the mean and variance of $\omega_\alpha(\mathbf{x})$ for each neuron $\alpha \in \{ \text{f1}, \text{f2}, \text{hub}, \text{s1}, \text{s2} \}$:
-Quantifying this phenomenon is straightforward: we stipulate that the hub neuron's spiking frequency -- denoted $\omega_{\text{hub}}(\mathbf{x})$ is close to an intermediate frequency of 0.55Hz.  
-Mathematically, we achieve this via constraints on the mean and variance of the hub neuron spiking frequency.
-
-%\begin{equation}\label{eq:EP}
- %\mathbb{E}\left[T(x) \right] ~~\triangleq~~ \mathbb{E}\begin{bmatrix} \omega_{\text{f1}}(x) \\ \vdots \\ (\omega_{\text{f1}}(x) - 0.53)^2 \\ \vdots \end{bmatrix} ~~=~~  
- %\begin{bmatrix} 0.53 \\ \vdots \\ 0.025^2 \\ \vdots \end{bmatrix} ~~\triangleq~~ \mu,
- %\end{equation}
-\begin{equation}\label{eq:EP_STG}
-\begin{split}
-\mathcal{X} ~~:~~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] &~~\triangleq~~  \mathbb{E}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.55 \end{bmatrix} ~~\triangleq~~ \bm{\mu}  \\ 
- \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] &~~\triangleq~~ \text{Var}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.025^2 \end{bmatrix} ~~\triangleq~~ \bm{\sigma}^2 .
-\end{split}
+Quantifying this phenomenon is straightforward: we stipulate that the hub neuron's spiking frequency -- denoted $\omega_{\text{hub}}(\mathbf{x})$ is close to a frequency of 0.55Hz.  
+%Mathematically, we achieve this via constraints on the mean and variance of the hub neuron spiking frequency.
+Mathematically, we achieve this with two constraints: by setting the mean hub frequency of model generated activity to 0.55Hz.
+\begin{equation}\label{eq:EP_STG1}
+ \mathbb{E}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.55 \end{bmatrix}
 \end{equation}
-
-%which completes the quantification of the emergent property.
-The emergent property statistic $f(\mathbf{x}; \mathbf{z}) = \omega_{\text{hub}}(\mathbf{x}; \mathbf{z})$ along with its constrained mean $\bm{\mu}$ and variance $\bm{\sigma}^2$ define the emergent property denoted $\mathcal{X}$.
+and requiring that the variance around this mean is small
+\begin{equation}\label{eq:EP_STG2}
+\text{Var}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.025^2 \end{bmatrix}.
+\end{equation}
+This level of variance was chosen to be low enough to exclude the fast and slow frequencies of the two populations, but large enough to allow structural examination of the compatible parameter space.
+In general, an emergent property
+\begin{equation}\label{eq:EP_STG}
+\mathcal{X}:~~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\mu}, \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2
+\end{equation}
+defines a collection of datasets with a statistic $f(\mathbf{x}; \mathbf{z})$ (which may be comprised of multiple statistics) and the means $\bm{\mu}$ and variances $\bm{\sigma}^2$ of those statistics over the datasets.
+The choice of $\bm{\sigma}^2$ predicates the degree of variability in around mean $\bm{\mu}$ that is consistent with the emergent property.
 
 Third, we perform emergent property inference: we find a distribution over parameter configurations $\mathbf{z}$, and insist that samples from this distribution produce the emergent property; in other words, they obey the constraints introduced in Equation \ref{eq:EP_STG}.  
 This distribution will be chosen from a family of probability distributions $\mathcal{Q} = \left\{ q_{\bm{\theta}}(\mathbf{z}) : \bm{\theta} \in \Theta \right\}$, defined by a deep generative distribution of the normalizing flow class \cite{rezende2015variational, dinh2017density, papamakarios2017masked} -- neural networks which transform a simple distribution into a suitably complicated distribution (as is needed here).  
-This deep distribution is represented in Figure \ref{fig:STG}C (see Section \ref{methods_EPI}).  
-Then, mathematically, we must solve the following optimization program: 
+This deep distribution is represented in Figure \ref{fig:STG}D (see Section \ref{methods_EPI}).
+Many distributions in $\mathcal{Q}$ will respect the emergent property constraints, so we choose a normative selection principle imposing no additional structure beyond the production of the emergent property \cite{jaynes1957information, elsayed2017structure, loaiza2017maximum, savin2017maximum}, which is the same normative principle of Bayesian inference (see Section \ref{methods_VI}).
+
+%Third, we perform emergent property inference: we find a distribution over parameter configurations $\mathbf{z}$, and insist that samples from this distribution produce the emergent property; in other words, they obey the constraints introduced in Equation \ref{eq:EP_STG}.  
+%This distribution will be chosen from a family of probability distributions $\mathcal{Q} = \left\{ q_{\bm{\theta}}(\mathbf{z}) : \bm{\theta} \in \Theta \right\}$, defined by a deep generative distribution of the normalizing flow class \cite{rezende2015variational, dinh2017density, papamakarios2017masked} -- neural networks which transform a simple distribution into a suitably complicated distribution (as is needed here).  
+%This deep distribution is represented in Figure \ref{fig:STG}E (see Section \ref{methods_EPI}).  
+%Then, mathematically, we must solve the following optimization program: 
 %\begin{equation} \label{eq:EPI}
 %\begin{split}
-%&\argmax_{q_{\bm{\theta}} \in \mathcal{Q}} H(q_{\bm{\theta}}(\mathbf{z})) \\
-%&\text{  s.t.  } \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}\left[ \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z})}\left[T(\mathbf{x})\right] \right] = \bm{\mu}, \\
+%q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}) ~~=~~ &\argmax_{q_{\bm{\theta}} \in \mathcal{Q}} H(q_{\bm{\theta}}(\mathbf{z})) \\
+%&\text{  s.t.  } ~\mathcal{X}:~~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\mu}, \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2 \\
 %\end{split}
 %\end{equation}
-\begin{equation} \label{eq:EPI}
-\begin{split}
-q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}) ~~=~~ &\argmax_{q_{\bm{\theta}} \in \mathcal{Q}} H(q_{\bm{\theta}}(\mathbf{z})) \\
-&\text{  s.t.  } ~\mathcal{X}:~~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\mu}, \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2 \\
-\end{split}
-\end{equation}
-%where $T(\mathbf{x}), \bm{\mu}$ are defined as in Equation \ref{eq:EP}, and $p(\mathbf{x} | \mathbf{z})$ is the intractable distribution of data from the model, $\mathbf{x}$, given that model's parameters $\mathbf{z}$ (we access samples from this distribution by running the model forward).
-where $f(\mathbf{x}, \mathbf{z}), \bm{\mu}$, and $\bm{\sigma}$ are defined as in Equation \ref{eq:EP}.
-According to the emergent property of interest, $f(\mathbf{x}, \mathbf{z})$ may contain multiple statistics, in which case the mean and variance vectors $\bm{\mu}$ and $\bm{\sigma}^2$ match this dimension.
-%The purpose of each element in this program is detailed in Figure \ref{fig:STG}D.
-Finally, we recognize that many distributions in $\mathcal{Q}$ will respect the emergent property constraints, so we select that which has maximum entropy.
-This principle, captured in Equation \ref{eq:EPI} by the primal objective $H$, identifies parameter distributions with minimal assumptions beyond some chosen structure \cite{jaynes1957information, elsayed2017structure, loaiza2017maximum, savin2017maximum}.
-Such a normative principle of maximum entropy, which is also that of Bayesian inference, naturally fits with our scientific objective of reasoning about parametric sensitivity and robustness. 
-The recovered distribution of EPI is as variable as possible along each parametric manifold such that it produces the emergent property.
+%where $f(\mathbf{x}, \mathbf{z}), \bm{\mu}$, and $\bm{\sigma}$ are defined as in Equation \ref{eq:EP}.
+%According to the emergent property of interest, $f(\mathbf{x}, \mathbf{z})$ may contain multiple statistics, in which case the mean and variance vectors $\bm{\mu}$ and $\bm{\sigma}^2$ match this dimension.
+%Finally, we recognize that many distributions in $\mathcal{Q}$ will respect the emergent property constraints, so we select that which has maximum entropy.
+%This principle, captured in Equation \ref{eq:EPI} by the primal objective $H$, identifies parameter distributions with minimal assumptions beyond some chosen structure \cite{jaynes1957information, elsayed2017structure, loaiza2017maximum, savin2017maximum}.
+%Such a normative principle of maximum entropy, which is also that of Bayesian inference, naturally fits with our scientific objective of reasoning about parametric sensitivity and robustness. 
+%The recovered distribution of EPI is as variable as possible along each parametric manifold such that it produces the emergent property.
 
-EPI optimizes the weights and biases $\bm{\theta}$ of the deep network (which induces the probability distribution) by iteratively solving Equation \ref{eq:EPI}. 
-The optimization is complete when the sampled models with parameters $\mathbf{z} \sim q_{\bm{\theta}}(z \mid \mathcal{X})$ produce activity consistent with the specified emergent property (Fig. S4).
-%Such convergence is evaluated with a hypothesis test that the mean of each emergent property statistic is not different than its emergent property value (see Section \ref{methods_AL_opt}). 
-Such convergence is evaluated with a hypothesis test that the means and variances of each emergent property statistic are not different than their constrained values (see Section \ref{methods_AL_opt}). 
-Further validation of EPI is available in the supplementary materials, where we analyze a simpler model for which ground-truth statements can be made (Section \ref{methods_2DLDS}).
+%EPI optimizes the weights and biases $\bm{\theta}$ of the deep network (which induces the probability distribution) by iteratively solving Equation \ref{eq:EPI}. 
+%The optimization is complete when the sampled models with parameters $\mathbf{z} \sim q_{\bm{\theta}}(z \mid \mathcal{X})$ produce activity consistent with the specified emergent property (Fig. S4).
+%%Such convergence is evaluated with a hypothesis test that the mean of each emergent property statistic is not different than its emergent property value (see Section \ref{methods_AL_opt}). 
+%Such convergence is evaluated with a hypothesis test that the means and variances of each emergent property statistic are not different than their constrained values (see Section \ref{methods_AL_opt}). 
+%Further validation of EPI is available in the supplementary materials, where we analyze a simpler model for which ground-truth statements can be made (Section \ref{methods_2DLDS}).
 
-In relation to broader methodology, inspection of the EPI objective reveals a natural relationship to posterior inference.
-%Specifically, EPI executes variational inference in an exponential family model, the sufficient statistics and mean parameter of which are defined by the emergent property statistics and values, respectively (see Section \ref{methods_VI}).
-%Specifically, EPI executes variational inference in an exponential family model, the sufficient statistics and mean parameter of which are defined by $f(\mathbf{x})$, $\bm{\mu}$ and $\bm{\sigma}$ (see Section \ref{methods_VI}).
-Specifically, EPI executes a novel variant of  Bayesian inference with a uniform prior and a gaussian likelihood on the emergent property statistic (see Section \ref{methods_ME_EF}).
-A key advantage of EPI over established Bayesian inference is that the predictions made by the inferred distribution are constrained to produce the specified emergent property.
-%Equipped with this method, we may examine structure in such inferred distributions or make comparisons between inferred distributions at graded values of emergent property statistics.
-Equipped with this method, we may examine structure in posterior distributions or make comparisons between posteriors conditioned at different levels of the same emergent property statistic.
-In Sections \ref{results_V1} and \ref{results_SC}, we prove out the value of EPI by using it to investigate and produce novel insights into two prominent models in neuroscience. 
-Subsequently in Section \ref{results_LRRNN}, we show EPI's superiority in parameter scalability and fidelity of the posterior predictive distribution by conditioning on stable amplification in low-rank RNNs.
+%In relation to broader methodology, inspection of the EPI objective reveals a natural relationship to posterior inference.
+%Specifically, EPI executes a novel variant of  Bayesian inference with a uniform prior and a gaussian likelihood on the emergent property statistic (see Section \ref{methods_ME_EF}).
+%A key advantage of EPI over established Bayesian inference is that the predictions made by the inferred distribution are constrained to produce the specified emergent property.
+
+The probabilities of the distribution inferred from EPI are the densities of these parameters in the most random distribution producing the emergent property.
+While existing approaches to probabilistic structural identifiability analysis use the lens of evidence accumulation \cite{raue2009structural, gonccalves2019training}, sensitivity and robustness of parameter space dimensions with respect to emergent phenomena can be directly quantified with EPI.
+Sensitivity quantifications are measured by the second order derivative of EPI probability along the parameteric dimension of interest: to what extent is the emergent property maintained or diminished along this dimension?
+Once an EPI distribution has been inferred, this second order derivative requires trivial computation (as long as the correct architecture class is chosen, see Section \ref{methods_NF}).
+Equipped with this method, we may examine structure in the resulting parameter distributions or make comparisons between distributions conditioned at different levels of the same emergent property statistic.
+In Sections \ref{results_V1} and \ref{results_SC}, we prove out the value of EPI by using these techniques to investigate and produce novel scientific insight.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{EPI reveals how neuron-type specific noise governs variability in the stochastic stabilized supralinear network} \label{results_V1}
@@ -795,9 +820,6 @@ The approximating fidelity of the first neural network in sequential approaches 
 This optimization towards generalization of sequential methods can reduce the accuracy at the singular posterior of interest.
 Whereas in EPI, the entire expressivity of the normalizing flow is dedicated to learning a single distribution as well as possible.
 While amortization is not possible in EPI parameterized by the mean parameter $\mu$ (due to the inverse mapping problem \cite{wainwright2008graphical}), we have shown this two-network amortization approach to be effective in exponential family distributions defined by their natural parameterization \cite{bittner2019approximating}.
-
-
-
 
 Structural identifiability analysis involves the measurement of sensitivity and unidentifiabilities in natural models.
 Around a point, one can measure the Jacobian. One approach that scales well is EAR \cite{karlsson2012efficient}.
