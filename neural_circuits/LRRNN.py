@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-EPS = 1e-2
+#EPS = 1e-10
 
 def get_W_eigs_np(g, K):
     def W_eigs(U, V):
@@ -16,7 +16,7 @@ def get_W_eigs_np(g, K):
         Js_eig_max = np.mean(Js_eig_maxs)
 
         # Take eig of low rank similar mat
-        Jr = np.matmul(np.transpose(V,[0,2,1]), U) + EPS*np.eye(2)[None,:,:]
+        Jr = np.matmul(np.transpose(V,[0,2,1]), U) #+ EPS*np.eye(2)[None,:,:]
         Jr_tr = np.trace(Jr, axis1=1, axis2=2)
         sqrt_term = np.square(Jr_tr) + -4.*np.linalg.det(Jr)
         maybe_complex_term = np.sqrt(np.vectorize(complex)(sqrt_term, 0.))
@@ -38,7 +38,7 @@ def get_W_eigs_tf(g, K, Js_eig_max_mean=1.5, J_eig_realmax_mean=0.5):
         Js_eig_max = tf.reduce_mean(Js_eig_maxs, axis=1)
 
         # Take eig of low rank similar mat
-        Jr = tf.matmul(tf.transpose(V, [0,1,3,2]), U) + EPS*tf.eye(2)[None,None,:,:]
+        Jr = tf.matmul(tf.transpose(V, [0,1,3,2]), U) #+ EPS*tf.eye(2)[None,None,:,:]
         Jr_tr = tf.linalg.trace(Jr)
         maybe_complex_term = tf.sqrt(tf.complex(tf.square(Jr_tr) + -4.*tf.linalg.det(Jr), 0.))
         J_eig_realmaxs = 0.5 * (Jr_tr + tf.math.real(maybe_complex_term))
