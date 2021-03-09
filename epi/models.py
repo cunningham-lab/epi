@@ -522,6 +522,7 @@ class Model(object):
                     break
                 # Check for convergence if early stopping.
                 if stop_early and converged:
+                    print('Stopping early because converged!', flush=True)
                     break
 
                 # Update eta and c
