@@ -1,5 +1,6 @@
 """SNPE: RNN stable amplification. """
 
+from neural_circuits.LRRNN import get_W_eigs_np
 import numpy as np
 import os
 import pickle
@@ -22,6 +23,8 @@ parser.add_argument('--N', type=int)
 parser.add_argument('--n_train', type=int, default=2000)
 parser.add_argument('--n_mades', type=int, default=5)
 parser.add_argument('--n_atoms', type=int, default=100)
+parser.add_argument('--g', type=float, default=0.01)
+parser.add_argument('--K', type=int, default=1)
 parser.add_argument('--rs', type=int, default=1)
 args = parser.parse_args()
 
@@ -29,6 +32,8 @@ N = args.N
 n_train = args.n_train
 n_mades = args.n_mades
 n_atoms = args.n_atoms
+g = args.g
+K = args.K
 rs = args.rs
 
 print('Running SNPE on RNN conditioned on stable amplification with:')
@@ -47,8 +52,9 @@ if os.path.exists(os.path.join(base_path, save_dir, "optim.pkl")):
     print("SNPE optimization already run. Exitting.")
     exit()
 
+_W_eigs = get_W_eigs_np(g, K)
 
-def Jeigs(params, seed=None):
+def W_eigs(params, seed=None):
     """Calculates Jeigs.
 
         Parameters
@@ -68,21 +74,8 @@ def Jeigs(params, seed=None):
     U = np.reshape(params[0,:(2*N)], (N,2))
     V = np.reshape(params[0,(2*N):], (N,2))
 
-    J = np.matmul(U, np.transpose(V))
-    J = J + rng.normal(0., 0.01, J.shape)
-    Js = (J + np.transpose(J)) / 2.
-    Js_eigs = np.linalg.eigvalsh(Js)
-    Js_eig_max = np.max(Js_eigs, axis=0)
-
-    # Take eig of low rank similar mat
-    Jr = np.matmul(np.transpose(V), U) + 0.01*np.eye(2)
-    Jr_tr = np.trace(Jr)
-    sqrt_term = np.square(Jr_tr) + -4.*np.linalg.det(Jr)
-    J_eig_realmax = 0.5 * Jr_tr
-    if (sqrt_term > 0.):
-        J_eig_realmax += 0.5*np.sqrt(sqrt_term)
-
-    return np.array([J_eig_realmax, Js_eig_max])
+    x = _W_eigs(U, V)
+    return x
 
 class RNN(BaseSimulator):
     def __init__(self, N, seed=None):
@@ -100,7 +93,7 @@ class RNN(BaseSimulator):
         dim_param = self.N*self.r*2
 
         super().__init__(dim_param=dim_param, seed=seed)
-        self.Jeigs = Jeigs
+        self.Jeigs = W_eigs
 
     def gen_single(self, params):
         """Forward model for simulator for single parameter set

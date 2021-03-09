@@ -1,5 +1,6 @@
 """Run EPI on Rank2 RNN. """
 
+from neural_circuits.LRRNN import get_W_eigs_tf
 from epi.models import Model, Parameter
 from epi.example_eps import linear2D_freq
 from epi.util import sample_aug_lag_hps
@@ -17,12 +18,16 @@ DTYPE = np.float32
 # Get random seed.
 parser = argparse.ArgumentParser()
 parser.add_argument('--N', type=int)
+parser.add_argument('--g', type=float, default=0.01)
+parser.add_argument('--K', type=int, default=1)
 parser.add_argument('--c0', type=float)
 parser.add_argument('--rs', type=int)
 args = parser.parse_args()
 
 print('Running epi for RNN N=%d, c0=%f, rs=%d stable amplification.' % (args.N, args.c0, args.rs))
 N = args.N
+g = args.g
+K = args.K
 c0 = args.c0
 rs = args.rs
 
@@ -53,24 +58,11 @@ mu = np.array([Js_eig_max_mean,
                J_eig_realmax_mean,
                0.25**2], dtype=DTYPE)
 
-
+W_eigs = get_W_eigs_tf(g, K)
 def stable_amplification_r2(U, V):
     U = tf.reshape(U, (-1, N, 2))
     V = tf.reshape(V, (-1, N, 2))
-    J = tf.matmul(U, tf.transpose(V, [0,2,1]))
-    J = J + tf.random.normal(J.shape, 0., 0.01)
-    Js = (J + tf.transpose(J, [0, 2, 1])) / 2.
-    Js_eigs = tf.linalg.eigvalsh(Js)
-    Js_eig_max = tf.reduce_max(Js_eigs, axis=1)
-    
-    # Take eig of low rank similar mat
-    Jr = tf.matmul(tf.transpose(V, [0,2,1]), U) + 0.01*tf.eye(2)[None,:,:]
-    Jr_tr = tf.linalg.trace(Jr)
-    maybe_complex_term = tf.complex(tf.square(Jr_tr) + -4.*tf.linalg.det(Jr), 0.)
-    J_eig_realmax = 0.5 * (Jr_tr + tf.math.real(tf.sqrt(maybe_complex_term)))
-    
-    T_x = tf.stack([Js_eig_max, tf.square(Js_eig_max-Js_eig_max_mean),
-                    J_eig_realmax, tf.square(J_eig_realmax-J_eig_realmax_mean)], axis=1)
+    T_x = W_eigs(U, V)
     return T_x
 
 M.set_eps(stable_amplification_r2)
