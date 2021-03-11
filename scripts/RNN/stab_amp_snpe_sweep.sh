@@ -4,16 +4,16 @@
 # python scripts independently on different instances?
 for N in 2
 do
-  for n_train in 2000
+  for n_atoms in 10
   do
-    for n_mades in 2
+    for g in 0.0001
     do
-      for n_atoms in 100
+      for K in 1
       do
-        for rs in {4..10}
+        for rs in 1
         do
-          echo "Running N = $N, n_train $n_train, n_mades $n_mades, n_atoms = $n_atoms, rs = $rs"
-          sbatch gpu_stab_amp_snpe.sh $N $n_train $n_mades $n_atoms $rs
+          echo "Running N = $N, n_atoms = $n_atoms, g = $g, K = $K, rs = $rs"
+          sbatch cpu_stab_amp_snpe.sh $N 1000 3 $n_atoms $g $K $rs
         done
       done
     done
