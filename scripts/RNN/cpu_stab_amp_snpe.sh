@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --account=stats
-#SBATCH --job-name=sa_snpe
+#SBATCH --job-name=rnn_snpe
 #SBATCH -c 1
 #SBATCH --time=2:30:00
 #SBATCH --mem-per-cpu=1gb

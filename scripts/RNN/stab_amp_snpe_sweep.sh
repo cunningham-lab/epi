@@ -2,7 +2,7 @@
 
 # This shell script does it linearly, but could you run each of these 
 # python scripts independently on different instances?
-for N in 2
+for N in 2 5
 do
   for n_atoms in 10
   do
