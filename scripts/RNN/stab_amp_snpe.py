@@ -23,6 +23,9 @@ parser.add_argument('--num_transforms', type=int, default=3)
 parser.add_argument('--num_atoms', type=int, default=10)
 parser.add_argument('--g', type=float, default=0.01)
 parser.add_argument('--K', type=int, default=1)
+parser.add_argument('--max_rounds', type=int, default=50)
+parser.add_argument('--persist_rounds', type=int, default=5)
+parser.add_argument('--min_epochs', type=int, default=10)
 parser.add_argument('--rs', type=int, default=1)
 args = parser.parse_args()
 
@@ -33,6 +36,9 @@ num_transforms = args.num_transforms
 num_atoms = args.num_atoms
 g = args.g
 K = args.K
+max_rounds = args.max_rounds
+persist_rounds = args.persist_rounds
+min_epochs = args.min_epochs
 rs = args.rs
 torch.manual_seed(rs)
 
@@ -73,37 +79,61 @@ x_0 = torch.tensor([0.5, 1.5])
 
 inference = SNPE(prior, density_estimator=density_estimator_build_fun)
 
-max_rounds = 25
-persist_rounds = 5
 best_round = 0
 
 posteriors = []
 times = []
 proposal = prior
+round_val_log_probs = []
 for r in range(max_rounds):
     time1 = time.time()
     if r == 0:
-        print('Round %d:' % (r+1), flush=True)
+        print('Round %d/%d:' % (r+1, max_rounds), flush=True)
     else:
-        print('Round %d, Best (%d), Avg (%.1f min)):' % (r+1, best_round+1, np.mean(times)/60.), 
+        print('Round %d/%d, Best (%d), Avg (%.1f min)):' % (r+1, max_rounds, best_round+1, np.mean(times)/60.), 
                flush=True)
     theta, x = simulate_for_sbi(simulator, proposal=proposal, num_simulations=num_sims)
     inference = inference.append_simulations(theta, x)
-    density_estimator = inference.train(training_batch_size=num_batch, num_atoms=num_atoms, stop_after_epochs=10)
+    density_estimator = inference.train(
+        training_batch_size=num_batch, 
+        num_atoms=num_atoms, 
+        stop_after_epochs=min_epochs)
     posterior = inference.build_posterior(density_estimator)
     time2 = time.time()
     times.append(time2-time1)
     posteriors.append(posterior)
-    best_round = np.argmax(inference.summary['best_validation_log_probs'])
+    round_val_log_probs.append(inference.summary['validation_log_probs'][-1])
+    best_round = np.argmax(round_val_log_probs)
+    print('vlps', round_val_log_probs)
+    print('round', best_round)
     if best_round + persist_rounds == r:
         break
     proposal = posterior.set_default_x(x_0)
 
-zs = []
-for posterior in posteriors:
-    zs.append(posterior.sample((1000,), x=x_0).numpy())
+zs = [] 
+xs = []
+log_probs = [] 
+distances = []
+M = 1000
+for posterior in posteriors: 
+    z = posterior.sample((M,), x=x_0)
+    x = simulator(z).numpy()
+    log_prob = posterior.log_prob(z, x=x_0)
+    median_x = np.median(x, axis=0)
+    distance = np.linalg.norm(median_x - x_0.numpy())
 
-optim = {'summary':inference._summary, 'zs':np.array(zs), 'times':times}
+    zs.append(z.numpy())
+    xs.append(x)
+    log_probs.append(log_prob.numpy())
+    distances.append(distance)
+
+optim = {'summary':inference._summary, 
+         'round_val_log_probs':np.array(round_val_log_probs), 
+         'zs':np.array(zs), 
+         'xs':np.array(xs), 
+         'log_probs':np.array(log_probs),
+         'distances':np.array(distances),
+         'times':times}
 
 print('Saving', save_path, '...', flush=True)
 with open(os.path.join(save_path, "optim.pkl"), "wb") as f:
