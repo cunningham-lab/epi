@@ -54,20 +54,23 @@ $^{7}$Department of Statistics, Columbia University
 
 \linenumbers
 \section{Abstract}
-A cornerstone of theoretical neuroscience is the circuit model: a system of equations that captures a hypothesized neural mechanism.  
-Such models are valuable when they give rise to an experimentally observed phenomenon -- whether behavioral or in terms of neural activity -- and thus can offer insights into neural computation.
-The operation of these mechanistic circuits, like all models, critically depends on the choices of model parameters.
 %When analytic derivation of the relationship between model parameters and computational properties is intractable, approximate inference and simulation-based techniques are relied upon for scientific insight.
 %We bring the use of deep generative models for probabilistic inference to bear on this problem, learning complex distributions of parameters that produce the specified properties of computation.
-We present a novel technique designed to infer parameter distributions that produce mathematically defined emergent properties of computation.
-We detail how the parameter distributions of theoretical neuroscience problems are better defined by the emergent properties they produce, rather than conditioned upon artificial datasets.
-This approach is not only well-motivated, but allows technical simplifications to statistical inference in mechanistic models and scaling to high dimensions.
+A cornerstone of theoretical neuroscience is the circuit model: a system of equations that captures a hypothesized neural mechanism.  
+Such models are valuable when they give rise to an experimentally observed phenomenon -- whether behavioral or a pattern of neural activity -- and thus can offer insights into neural computation.
+The operation of these mechanistic circuits, like all models, critically depends on the choices of model parameters.
+A key process in neuroscientific modeling is then to identify the model parameters consistent with observed phenomena: to solve the inverse problem.
+While statistical inference has proven effective on a broad variety of neuroscientific datasets, we clarify an important incongruity between theoretical approaches to neuroscience and this probabilistic methodology.
+Theoretical neuroscience is focused on computational properties and how they emerge from biological mechanisms, rather than noisy experimental datasets and their quantified structure.
+In this work, we present a novel technique to directly infer circuit model parameters producing these computational properties.
+This method tailors deep inference, the use of deep neural networks for statistical inference, to the nature of theoretical inverse problems, enabling scaling to high dimensions and considerable technical simplifications.
 With this method, we bring deep inference to bear on important questions in theoretical neuroscience, and demonstrate the broad range of insightful analyses this approach allows.
-First, we show a worked example analyzing parametric sensitivity in the stomatogastric ganglion, emphasizing the general applicability of this approach to complex models with complex emergent properties.
-Then, in a model of primary visual cortex where mathematical analysis becomes untenable, we identify a nonlinear manifold revealing the rule of parametric degeneracy with respect to variability.
-Next, we gain a mechanistic understanding of how superior colliculus connectivity produces rapid task switching in multiple parametric regimes.
-Finally, we scale inference of RNN connectivity exhibiting stable amplification to 1,000-dimensional parameter spaces.
+First, we emphasize the general applicability of this approach by inferring channel conductance parameters that produce a distinctive spiking frequency in a biophysical model of the stomatogastric ganglion.
+Then, in a model of primary visual cortex with multiple neuron-types, where  analysis becomes untenable as more neuron-types are included, we use this technique to discover how noise properties govern excitatory population variability.
+Next, in a model of superior colliculus, we identify and characterize two distinct regimes of connectivity that facilitate switching between opposite tasks throughout interleaved trials. 
+Finally, we scale inference to 1,000-dimensional parameter spaces of RNN connectivity that exhibit stable, yet amplified responses.
 These analyses illustrate how we can further leverage the power of deep learning towards solving inverse problems in theoretical neuroscience.
+
 
 %-------- old sentences -----------
 
@@ -89,7 +92,7 @@ The inverse problem is crucial for reasoning about likely parameter values, uniq
 Consider the idealized practice: one carefully designs a model and analytically derives how computational properties determine model parameters.
 Seminal examples of this gold standard (which often adopt approaches from statistical physics) include our field's understanding of memory capacity in associative neural networks \cite{hopfield1982neural}, chaos and autocorrelation timescales in random neural networks \cite{sompolinsky1988chaos}, the paradoxical effect \cite{tsodyks1997paradoxical}, and decision making \cite{wong2006recurrent}.
 Unfortunately, as circuit models include more biological realism, theory via analytical derivation becomes intractable.
-Alternatively, we can gain insight into these complex models by identifying the full distribution of parameters consistent with specified emergent phenomena.
+Alternatively, we can gain insight into these complex models by identifying the distribution of parameters that produce a specific computational property.
 By solving the inverse problem in this way, scientific analysis of complex biologically realistic models is made possible \cite{foster1993significance, prinz2004similar, achard2006complex, o2014cell, alonso2019visualization}.
 %By solving the inverse problem in this way, scientists can reason about the sensitivity and robustness of the model with respect to different parameter combinations \cite{foster1993significance, prinz2004similar, achard2006complex, o2014cell, alonso2019visualization}.
 
