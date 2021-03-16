@@ -70,9 +70,15 @@ M.set_eps(stable_amp)
 
 q_theta, opt_data, save_path, failed = M.epi(
     mu, 
-    batch_norm=False,
+    arch_type="coupling",
     lr=1e-3, 
-    N = 100,
+    N=100,
+    num_stages=3,
+    num_layers=2,
+    num_units=100,
+    batch_norm=False,
+    bn_momentum=0.,
+    post_affine=True,
     num_iters = 1000,
     c0=c0,
     beta = 4.,

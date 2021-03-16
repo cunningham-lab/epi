@@ -72,7 +72,8 @@ def simulator(params):
     return x
 
 simulator, prior = prepare_for_sbi(simulator, prior)
-density_estimator_build_fun = posterior_nn(model='maf', hidden_features=50, num_transforms=num_transforms,
+density_estimator_build_fun = posterior_nn(model='maf', hidden_features=50, 
+                                           num_transforms=num_transforms,
                                            z_score_x=False, z_score_theta=False,
                                            support_map=True)
 x_0 = torch.tensor([0.5, 1.5])
