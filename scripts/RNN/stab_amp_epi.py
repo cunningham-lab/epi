@@ -20,15 +20,15 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--N', type=int)
 parser.add_argument('--g', type=float, default=0.01)
 parser.add_argument('--K', type=int, default=1)
-parser.add_argument('--c0', type=float)
-parser.add_argument('--rs', type=int)
+parser.add_argument('--c0', type=float, default=0.)
+parser.add_argument('--rs', type=int, default=1)
 args = parser.parse_args()
 
 print('Running epi for RNN N=%d, c0=%f, rs=%d stable amplification.' % (args.N, args.c0, args.rs))
 N = args.N
 g = args.g
 K = args.K
-c0 = args.c0
+c0 = 10**(args.c0)
 rs = args.rs
 
 r = 2 # rank-2 networks
@@ -51,21 +51,22 @@ parameters = [U, V]
 M = Model("Rank2Net", parameters)
 
 # 2. Define the emergent property:
-Js_eig_max_mean = 1.5
 J_eig_realmax_mean = 0.5
-mu = np.array([Js_eig_max_mean, 
-               0.25**2, 
-               J_eig_realmax_mean,
-               0.25**2], dtype=DTYPE)
+Js_eig_max_mean = 1.5
+eig_std = 0.25
+mu = np.array([J_eig_realmax_mean,
+               Js_eig_max_mean,
+               eig_std**2, 
+               eig_std**2], dtype=DTYPE)
 
 W_eigs = get_W_eigs_tf(g, K)
-def stable_amplification_r2(U, V):
+def stable_amp(U, V):
     U = tf.reshape(U, (-1, N, 2))
     V = tf.reshape(V, (-1, N, 2))
     T_x = W_eigs(U, V)
     return T_x
 
-M.set_eps(stable_amplification_r2)
+M.set_eps(stable_amp)
 
 q_theta, opt_data, save_path, failed = M.epi(
     mu, 
