@@ -2,11 +2,11 @@
 
 # This shell script does it linearly, but could you run each of these 
 # python scripts independently on different instances?
-for N in 2
+for N in 5
 do
-  for g in 0.0001 0.01 0.1 0.25
+  for g in 0.05 0.1 0.15
   do
-    for K in 1 5 100
+    for K in 1
     do
       for num_sims in 2000
       do

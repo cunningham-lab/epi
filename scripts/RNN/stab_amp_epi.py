@@ -48,7 +48,7 @@ V = Parameter("V", D, lb=lb, ub=ub)
 parameters = [U, V]
 
 # Define the model matrix.
-M = Model("Rank2Net", parameters)
+M = Model("Rank2Net_g=%.4f_K=%d" % (g, K), parameters)
 
 # 2. Define the emergent property:
 J_eig_realmax_mean = 0.5
@@ -56,7 +56,7 @@ Js_eig_max_mean = 1.5
 eig_std = 0.25
 mu = np.array([J_eig_realmax_mean,
                Js_eig_max_mean,
-               eig_std**2, 
+	       eig_std**2, 
                eig_std**2], dtype=DTYPE)
 
 W_eigs = get_W_eigs_tf(g, K)
