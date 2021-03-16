@@ -110,32 +110,33 @@ for r in range(max_rounds):
         break
     proposal = posterior.set_default_x(x_0)
 
-zs = [] 
-xs = []
-log_probs = [] 
-distances = []
-M = 1000
-for posterior in posteriors: 
-    z = posterior.sample((M,), x=x_0)
-    x = simulator(z).numpy()
-    log_prob = posterior.log_prob(z, x=x_0)
-    median_x = np.median(x, axis=0)
-    distance = np.linalg.norm(median_x - x_0.numpy())
+    zs = [] 
+    xs = []
+    log_probs = [] 
+    distances = []
+    M = 1000
+    for posterior in posteriors: 
+        z = posterior.sample((M,), x=x_0)
+        x = simulator(z).numpy()
+        log_prob = posterior.log_prob(z, x=x_0)
+        median_x = np.median(x, axis=0)
+        distance = np.linalg.norm(median_x - x_0.numpy())
 
-    zs.append(z.numpy())
-    xs.append(x)
-    log_probs.append(log_prob.numpy())
-    distances.append(distance)
+        zs.append(z.numpy())
+        xs.append(x)
+        log_probs.append(log_prob.numpy())
+        distances.append(distance)
 
-optim = {'summary':inference._summary, 
-         'round_val_log_probs':np.array(round_val_log_probs), 
-         'zs':np.array(zs), 
-         'xs':np.array(xs), 
-         'log_probs':np.array(log_probs),
-         'distances':np.array(distances),
-         'times':times}
+        optim = {'summary':inference._summary, 
+                 'round_val_log_probs':np.array(round_val_log_probs), 
+                 'zs':np.array(zs), 
+                 'xs':np.array(xs), 
+                 'log_probs':np.array(log_probs),
+                 'distances':np.array(distances),
+                 'times':times}
 
-print('Saving', save_path, '...', flush=True)
-with open(os.path.join(save_path, "optim.pkl"), "wb") as f:
-    pickle.dump(optim, f)
+    print('Saving', save_path, '...', flush=True)
+    with open(os.path.join(save_path, "optim.pkl"), "wb") as f:
+        pickle.dump(optim, f)
+
 print('done.', flush=True)

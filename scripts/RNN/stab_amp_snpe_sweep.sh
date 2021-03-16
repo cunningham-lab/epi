@@ -2,15 +2,15 @@
 
 # This shell script does it linearly, but could you run each of these 
 # python scripts independently on different instances?
-for N in 50 100 250
+for N in 2
 do
-  for g in 0.0001
+  for g in 0.0001 0.01 0.1 0.25
   do
-    for K in 1
+    for K in 1 5 100
     do
-      for num_sims in 1000
+      for num_sims in 2000
       do
-        for num_batch in 50 250
+        for num_batch in 100
         do
           for num_atoms in 100
           do
