@@ -42,6 +42,7 @@ persist_rounds = args.persist_rounds
 min_epochs = args.min_epochs
 stop_distance = args.stop_distance
 rs = args.rs
+np.random.seed(rs)
 torch.manual_seed(rs)
 
 print('\n\nRunning SNPE on RNN conditioned on stable amplification with:')
@@ -85,14 +86,20 @@ inference = SNPE(prior, density_estimator=density_estimator_build_fun)
 
 best_round = 0
 
-posteriors = []
-times = []
+# log initialized state
+_theta, _x = simulate_for_sbi(simulator, proposal=prior, num_simulations=num_sims)
+density_estimator = density_estimator_build_fun(_theta, _x)
+posterior = inference.build_posterior(density_estimator)
+z = posterior.sample((M,), x=x_0)
+x = simulator(z).numpy()
+posteriors, zs, xs = [posterior], [z], [x]
+log_probs = [posterior.log_prob(z, x=x_0)]
+median_x = np.median(x, axis=0)
+distances = [np.linalg.norm(median_x - x_0.numpy())]
+
 proposal = prior
 round_val_log_probs = []
-zs = [] 
-xs = []
-log_probs = [] 
-distances = []
+times = []
 for r in range(max_rounds):
     time1 = time.time()
     if r == 0:
@@ -126,13 +133,15 @@ for r in range(max_rounds):
     distances.append(distance)
 
     optim = {'summary':inference._summary, 
-             'round_val_log_probs':np.array(round_val_log_probs), 
+             # contains init too
              'zs':np.array(zs), 
              'xs':np.array(xs), 
              'log_probs':np.array(log_probs),
              'distances':np.array(distances),
-             'args':args,
-             'times':times}
+             # one per round
+             'round_val_log_probs':np.array(round_val_log_probs), 
+             'times':times,
+             'args':args}
 
     print('Saving', save_path, '...', flush=True)
     with open(os.path.join(save_path, "optim.pkl"), "wb") as f:
