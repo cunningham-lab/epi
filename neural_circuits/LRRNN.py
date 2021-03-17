@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-#EPS = 1e-10
+EPS = 1e-6
 
 def get_W_eigs_np(g, K, feed_noise=False):
     def W_eigs(U, V, noise=None):
@@ -70,7 +70,7 @@ def get_W_eigs_tf(g, K, Js_eig_max_mean=1.5, J_eig_realmax_mean=0.5, feed_noise=
         Js_eig_max = tf.reduce_mean(Js_eig_maxs, axis=1)
 
         # Take eig of low rank similar mat
-        Jr = tf.matmul(tf.transpose(V, [0,1,3,2]), U) #+ EPS*tf.eye(2)[None,None,:,:]
+        Jr = tf.matmul(tf.transpose(V, [0,1,3,2]), U) + EPS*tf.eye(2)[None,None,:,:]
         Jr_tr = tf.linalg.trace(Jr)
         maybe_complex_term = tf.sqrt(tf.complex(tf.square(Jr_tr) + -4.*tf.linalg.det(Jr), 0.))
         J_eig_realmaxs = 0.5 * (Jr_tr + tf.math.real(maybe_complex_term))
