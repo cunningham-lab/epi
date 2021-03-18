@@ -1,5 +1,13 @@
 import numpy as np
 import tensorflow as tf
+import itertools
+from epi.normalizing_flows import NormalizingFlow
+
+import torch
+from sbi import utils as utils
+from sbi import analysis as analysis
+from sbi.inference import SNPE, prepare_for_sbi, simulate_for_sbi
+from sbi.utils.get_nn_models import posterior_nn
 
 EPS = 1e-6
 
@@ -124,16 +132,33 @@ def get_simulator(N, g, K):
         return x
     return simulator, prior
 
-def snpe_plot_times(optim):
+T_EPS = 1e-6
+def get_epi_times(optim):
+    iteration = optim['iteration']
+    return iteration*optim['time_per_it'] + T_EPS
+
+def get_snpe_times(optim, num_sims=None):
     round_durations = np.array(optim['times'])
     round_times = np.cumsum(round_durations)
     summary = optim['summary']
     epochs = np.array(summary['epochs'])
     epoch_durations = round_durations/epochs
     epoch_times = [num_epochs*[epoch_duration] for num_epochs, epoch_duration in zip(epochs, epoch_durations)]
+    if num_sims is not None:
+        epoch_sims = [[0]] + [num_epochs*[(i+1)*num_sims] for i, num_epochs in enumerate(epochs)]
+        epoch_sims = list(itertools.chain.from_iterable(epoch_sims))
+        round_sims = np.concatenate(
+            (np.array([0.]), np.cumsum(len(round_times)*[num_sims])), 
+            axis=0)
     epoch_times = np.cumsum(list(itertools.chain.from_iterable(epoch_times)))
+    epoch_times = np.concatenate((np.array([0.]), epoch_times)) + T_EPS
+    round_times = np.concatenate((np.array([0.]), round_times)) + T_EPS
 
-    return epoch_times, round_times
+    if num_sims is not None:
+        return epoch_times, round_times, epoch_sims, round_sims
+    else:
+        return epoch_times, round_times
+
 
 def has_converged(z, simulator, x0, eps):
     x = np.array([simulator(torch.tensor(_z)) for _z in z])
@@ -191,6 +216,16 @@ def torch_num_params(N):
         num_params += np.prod(param.shape)
     return num_params
 
+def SNPE_entropy(log_probs):
+    snpe_H = []
+    for _log_probs in log_probs:
+        safe_log_probs = []
+        for log_prob in _log_probs:
+            if not (np.isnan(log_prob) or np.isinf(log_prob)):
+                safe_log_probs.append(log_prob)
+        snpe_H.append(-np.mean(safe_log_probs))
+    return snpe_H
+
 def eig_scatter(T_xs, colors, ax=None, perm=True):
     if ax is None:
         fig, ax = plt.subplots(1,1,figsize=(5,5))
@@ -207,7 +242,7 @@ def eig_scatter(T_xs, colors, ax=None, perm=True):
         T_x, c = T_x[perm], c[perm]
     ax.plot([0.5], [1.5], '*', c=gray, markersize=10)
     ax.scatter(T_x[:,0], T_x[:,1], c=c,
-               edgecolors='k',  s=50,
+               edgecolors='k',  linewidth=0.5, s=50,
                alpha=alpha)
     ax.set_yticks([0,1,2,3,4])
     ax.set_xlim([-1, 3])
