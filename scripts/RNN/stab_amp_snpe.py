@@ -92,30 +92,35 @@ density_estimator = density_estimator_build_fun(_theta, _x)
 posterior = inference.build_posterior(density_estimator)
 z = posterior.sample((M,), x=x_0)
 x = simulator(z).numpy()
-posteriors, zs, xs = [posterior], [z], [x]
-log_probs = [posterior.log_prob(z, x=x_0)]
-median_x = np.median(x, axis=0)
-distances = [np.linalg.norm(median_x - x_0.numpy())]
+posteriors, zs, xs = [posterior], [z.numpy()], [x]
+log_probs = [posterior.log_prob(z, x=x_0).numpy()]
+mean_x = np.mean(x, axis=0)
+distances = [np.linalg.norm(mean_x - x_0.numpy())]
 
 proposal = prior
 round_val_log_probs = []
-times = []
+sample_times = []
+opt_times = []
 for r in range(max_rounds):
-    time1 = time.time()
     if r == 0:
         print('Round %d/%d:' % (r+1, max_rounds), flush=True)
     else:
-        print('Round %d/%d, Best (%d), Avg (%.1f min)):' % (r+1, max_rounds, best_round_ind+1, np.mean(times)/60.), 
+        last_epochs = inference.summary['epochs'][-1]
+        print('Round %d/%d, Best (%d), Last (%.2f s/sample, %.2f s/epoch)):' \
+              % (r+1, max_rounds, best_round_ind+1,
+                 sample_times[-1]/last_epochs, opt_times[-1]/last_epochs), 
                flush=True)
+    _t1 = time.time()
     theta, x = simulate_for_sbi(simulator, proposal=proposal, num_simulations=num_sims)
+    sample_times.append(time.time()-_t1)
     inference = inference.append_simulations(theta, x)
+    _t1 = time.time()
     density_estimator = inference.train(
         training_batch_size=num_batch, 
         num_atoms=num_atoms, 
         stop_after_epochs=min_epochs)
+    opt_times.append(time.time()-_t1)
     posterior = inference.build_posterior(density_estimator)
-    time2 = time.time()
-    times.append(time2-time1)
     posteriors.append(posterior)
     round_val_log_probs.append(inference.summary['validation_log_probs'][-1])
     proposal = posterior.set_default_x(x_0)
@@ -123,15 +128,15 @@ for r in range(max_rounds):
     z = posterior.sample((M,), x=x_0)
     x = simulator(z).numpy()
     log_prob = posterior.log_prob(z, x=x_0)
-    median_x = np.median(x, axis=0)
-    distance = np.linalg.norm(median_x - x_0.numpy())
-
+    mean_x = np.mean(x, axis=0)
+    distance = np.linalg.norm(mean_x - x_0.numpy())
+    
     zs.append(z.numpy())
     xs.append(x)
     log_probs.append(log_prob.numpy())
     distances.append(distance)
 
-    optim = {'summary':inference._summary, 
+    optim = {'summary':inference.summary, 
              # contains init too
              'zs':np.array(zs), 
              'xs':np.array(xs), 
@@ -139,7 +144,8 @@ for r in range(max_rounds):
              'distances':np.array(distances),
              # one per round
              'round_val_log_probs':np.array(round_val_log_probs), 
-             'times':times,
+             'sample_times':sample_times,
+             'opt_times':opt_times,
              'args':args}
 
     print('Saving', save_path, '...', flush=True)
