@@ -1,7 +1,11 @@
+import os
+import itertools
+import pickle
 import numpy as np
 import tensorflow as tf
-import itertools
 from epi.normalizing_flows import NormalizingFlow
+from epi.models import Model, Parameter
+from epi.util import get_max_H_dist
 
 import torch
 from sbi import utils as utils
@@ -9,7 +13,7 @@ from sbi import analysis as analysis
 from sbi.inference import SNPE, prepare_for_sbi, simulate_for_sbi
 from sbi.utils.get_nn_models import posterior_nn
 
-EPS = 1e-6
+#EPS = 1e-6
 
 def get_W_eigs_np(g, K, feed_noise=False):
     def W_eigs(U, V, noise=None):
@@ -78,7 +82,7 @@ def get_W_eigs_tf(g, K, Js_eig_max_mean=1.5, J_eig_realmax_mean=0.5, feed_noise=
         Js_eig_max = tf.reduce_mean(Js_eig_maxs, axis=1)
 
         # Take eig of low rank similar mat
-        Jr = tf.matmul(tf.transpose(V, [0,1,3,2]), U) + EPS*tf.eye(2)[None,None,:,:]
+        Jr = tf.matmul(tf.transpose(V, [0,1,3,2]), U) #+ EPS*tf.eye(2)[None,None,:,:]
         Jr_tr = tf.linalg.trace(Jr)
         maybe_complex_term = tf.sqrt(tf.complex(tf.square(Jr_tr) + -4.*tf.linalg.det(Jr), 0.))
         J_eig_realmaxs = 0.5 * (Jr_tr + tf.math.real(maybe_complex_term))
@@ -117,6 +121,87 @@ def get_W_eigs_full_tf(g, K, Js_eig_max_mean=1.5, J_eig_realmax_mean=0.5, feed_n
     return W_eigs
 
 RANK = 2
+
+def load_ME_EPI_LRRNN(N, g, K, mu, return_df=False, by_df=False, nu=1.0):
+    # Choose max entropy
+    D = int(N*RANK)
+    lb = -np.ones((D,))
+    ub = np.ones((D,))
+    U = Parameter("U", D, lb=lb, ub=ub)
+    V = Parameter("V", D, lb=lb, ub=ub)
+    parameters = [U, V]
+    model = Model("Rank2Net_g=%.4f_K=%d" % (g, K), parameters)
+    W_eigs = get_W_eigs_tf(g, K)
+    def stable_amp(U, V):
+        U = tf.reshape(U, (-1, N, RANK))
+        V = tf.reshape(V, (-1, N, RANK))
+        T_x = W_eigs(U, V)
+        return T_x
+    model.set_eps(stable_amp)
+    epi_df = model.get_epi_df()
+    epi_df['arch_D'] = [row['arch']['D'] for i, row in epi_df.iterrows()]
+    epi_df['c0'] = [row['AL_hps']['c0'] for i, row in epi_df.iterrows()]
+    epi_df = epi_df[(epi_df['arch_D']==2*D) & (epi_df['c0']==1000.)]
+    tf.random.set_seed(0)
+    np.random.seed(0)
+    dist, path, best_k = get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=nu, 
+                                        check_last_k=1, by_df=by_df)
+    if path is None:
+        if return_df:
+            return None, None
+        else:
+            return None
+    epi_df = epi_df[epi_df['path']==path]
+    time_filename = os.path.join(path, 'timing.npz')
+    time_file = np.load(time_filename)
+    time_per_it = time_file['time_per_it']
+
+    epi_optim = {'model':model,
+             'dist':dist,
+             'iteration':epi_df['iteration'].to_numpy(),
+             'H':epi_df['H'].to_numpy(),
+             'R1':epi_df['R1'].to_numpy(),
+             'R2':epi_df['R2'].to_numpy(),
+             'R3':epi_df['R3'].to_numpy(),
+             'R4':epi_df['R4'].to_numpy(),
+             'time_per_it':time_per_it,}
+
+    if return_df:
+        return epi_optim, epi_df
+    else:
+        return epi_optim
+
+def load_best_SNPE_LRRNN(N, g, K, x0,
+                         num_sims=1000, num_batch=200,num_atoms=100, 
+                         random_seeds=[1,2,3]):
+    snpe_base_path = os.path.join("data", "snpe")
+    num_transforms = 3
+    # Choose best SNPE
+    best_val_prob = None
+    snpe_optim = None
+    for _i, rs in enumerate(random_seeds):
+        print("Processing SNPE N=%d, g =%.2f, rs=%d.\r" % (N,g,rs), end="")
+        save_dir = "SNPE_RNN_stab_amp_N=%d_sims=%d_batch=%d_transforms=%d_atoms=%d_g=%.4f_K=%d_rs=%d" \
+                % (N, num_sims, num_batch, num_transforms, num_atoms, g, K, rs)
+        save_path = os.path.join(snpe_base_path, save_dir)
+        if os.path.isdir(save_path):
+            file = os.path.join(save_path, "optim.pkl")
+            try:
+                with open(file, "rb") as f:
+                    optim = pickle.load(f)
+            except:
+                print("Error: no optim file %s." % file)
+                continue
+        else:
+            print("Error: no save path %s." % save_path)
+            continue
+
+        best_val_prob_i = np.max(optim['round_val_log_probs'])
+        if best_val_prob is None or best_val_prob_i > best_val_prob:
+            best_val_prob = best_val_prob_i
+            snpe_optim = optim
+    print('\n', end="")
+    return snpe_optim
 
 def get_simulator(N, g, K):
     _W_eigs = get_W_eigs_np(g, K)
