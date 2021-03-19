@@ -1,13 +1,14 @@
 #!/bin/bash
 #SBATCH --account=stats
-#SBATCH --job-name=sa_snpe
+#SBATCH --job-name=gpu_snpe
+#SBATCH --gres=gpu:v100:1
 #SBATCH -c 1
-#SBATCH --gres=gpu:1
-#SBATCH --time=2:00:00
-#SBATCH --mem-per-cpu=10gb
+#SBATCH --time=12:00:00
+#SBATCH --mem-per-cpu=20gb
 
-source activate delfi
-module load gcc/7.2.0
-module load cuda92/toolkit
+module load cuda11.0/toolkit
+module load cuda11.0/blas
+module load cudnn8.0-cuda11.0
 
-THEANO_FLAGS=device=cuda python3 stab_amp_snpe.py --N $1 --n_train $2 --n_mades $3 --n_atoms $4 --rs $5
+source activate sbi_gpu
+python3 stab_amp_snpe.py --N $1 --num_sims $2 --num_batch $3 --num_transforms $4 --num_atoms $5 --g $6 --K $7 --rs $8 --max_rounds 25

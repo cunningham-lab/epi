@@ -84,7 +84,7 @@ x_0 = torch.tensor([0.5, 1.5])
 
 inference = SNPE(prior, density_estimator=density_estimator_build_fun)
 
-best_round = 0
+best_round_ind = 0
 
 # log initialized state
 _theta, _x = simulate_for_sbi(simulator, proposal=prior, num_simulations=num_sims)
@@ -105,7 +105,7 @@ for r in range(max_rounds):
     if r == 0:
         print('Round %d/%d:' % (r+1, max_rounds), flush=True)
     else:
-        print('Round %d/%d, Best (%d), Avg (%.1f min)):' % (r+1, max_rounds, best_round+1, np.mean(times)/60.), 
+        print('Round %d/%d, Best (%d), Avg (%.1f min)):' % (r+1, max_rounds, best_round_ind+1, np.mean(times)/60.), 
                flush=True)
     theta, x = simulate_for_sbi(simulator, proposal=proposal, num_simulations=num_sims)
     inference = inference.append_simulations(theta, x)
@@ -118,7 +118,6 @@ for r in range(max_rounds):
     times.append(time2-time1)
     posteriors.append(posterior)
     round_val_log_probs.append(inference.summary['validation_log_probs'][-1])
-    best_round = np.argmax(round_val_log_probs)
     proposal = posterior.set_default_x(x_0)
 
     z = posterior.sample((M,), x=x_0)
@@ -147,7 +146,9 @@ for r in range(max_rounds):
     with open(os.path.join(save_path, "optim.pkl"), "wb") as f:
         pickle.dump(optim, f)
 
-    if best_round + persist_rounds == r:
+    best_round_ind = np.argmax(round_val_log_probs)
+    # Go at least 5 rounds, but quit 2 straight bad rounds
+    if (r >= 4) and (best_round_ind + persist_rounds == r):
         print("Log prob has converged.", flush=True)
         break
     if stop_distance is not None:
