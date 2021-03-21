@@ -536,17 +536,17 @@ class Model(object):
                     c = beta * c
                 norms = norms_k
 
-        time_per_it = time2 - time1
-        if save_movie_data:
-            np.savez(
-                os.path.join(ckpt_dir,"movie_data.npz"),
-                zs=np.array(zs),
-                log_q_zs=np.array(log_q_zs),
-                time_per_it=time_per_it,
-                iterations=np.arange(0, k * num_iters + 1, log_rate),
-            )
-        else:
-            np.savez(os.path.join(ckpt_dir, "timing.npz"), time_per_it=time_per_it)
+            time_per_it = time2 - time1
+            if save_movie_data:
+                np.savez(
+                    os.path.join(ckpt_dir,"movie_data.npz"),
+                    zs=np.array(zs),
+                    log_q_zs=np.array(log_q_zs),
+                    time_per_it=time_per_it,
+                    iterations=np.arange(0, k * num_iters + 1, log_rate),
+                )
+            else:
+                np.savez(os.path.join(ckpt_dir, "timing.npz"), time_per_it=time_per_it)
 
         # Save hyperparameters.
         self.aug_lag_hps = aug_lag_hps
@@ -1233,7 +1233,7 @@ class Model(object):
             R_means = tf.reduce_mean(T_x, axis=1) - _mu
 
             # R_means = get_R_mean_dist(nf, self.eps, _mu, self.M_test, N_test)
-            _converged = self.test_convergence(R_means.numpy(), alpha, verbose=False, ind=k)
+            _converged = self.test_convergence(R_means.numpy(), alpha, verbose=True, ind=k)
             if _converged:
                 if best_H is None or best_H < H:
                     best_k = k
