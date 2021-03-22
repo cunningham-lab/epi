@@ -534,7 +534,7 @@ def eig_scatter(T_xs, colors, ax=None, perm=True):
         T_x, c = T_x[perm], c[perm]
     ax.plot([0.5], [1.5], "*", c=gray, markersize=10)
     ax.scatter(
-        T_x[:, 0], T_x[:, 1], c=c, edgecolors="k", linewidth=0.5, s=50, alpha=alpha
+        T_x[:, 0], T_x[:, 1], c=c, edgecolors="k", linewidth=0.5, s=60, alpha=alpha
     )
     ax.set_yticks([0, 1, 2, 3, 4])
     ax.set_xlim([-1, 3])
@@ -575,9 +575,9 @@ def count_str(n):
 
 def plot_compare_hp(epis, snpes1, snpes2, c_epi, pal, 
                epi_label=None, snpe1_label=None, snpe2_label=None,
-               xlims=None,
+               xlims=None, fontsize=12
                ):
-    fig, axs = plt.subplots(1,2,figsize=(10,5))
+    fig, axs = plt.subplots(1,2,figsize=(10,3))
     
     max_sims, max_time, max_dist = snpe_simplot(snpes1, snpe1_label, axs, pal[0])
     max_sims, max_time, max_dist = snpe_simplot(snpes2, snpe2_label, axs, pal[1], \
@@ -601,11 +601,11 @@ def plot_compare_hp(epis, snpes1, snpes2, c_epi, pal,
         labeled=True
         
     if xlims is not None:
-        if max_sims > xlims[0]:
-            axs[0].set_xlim([0, xlims[0]])
+        _xlim = min(max_sims, xlims[0])
+        axs[0].set_xlim([0, _xlim])
     xticks = axs[0].get_xticks()
     xticklabels = [count_str(count) for count in xticks]
-    axs[0].set_xticklabels(xticklabels)
+    axs[0].set_xticklabels(xticklabels, fontsize=fontsize)
     axs[0].set_ylim([0, 1.1*max_dist])
     axs[0].legend(fontsize=12, loc="upper right")
 
@@ -613,11 +613,14 @@ def plot_compare_hp(epis, snpes1, snpes2, c_epi, pal,
     xticks = hrs*60
     xticklabels = ["0"] + ["%dhr" % hr for hr in hrs[1:]]
     axs[1].set_xticks(xticks)
-    axs[1].set_xticklabels(xticklabels)
+    axs[1].set_xticklabels(xticklabels, fontsize=fontsize)
     if xlims is not None:
-        if max_time > xlims[1]:
-            axs[1].set_xlim([0, xlims[1]])
+        _xlim = min(max_time, xlims[1])
+        axs[1].set_xlim([0, _xlim])
     axs[1].set_ylim([0, 1.1*max_dist])
+
+    for i in range(2):
+        axs[i].set_yticks(axs[i].get_yticks())
 
     return fig, axs
 
