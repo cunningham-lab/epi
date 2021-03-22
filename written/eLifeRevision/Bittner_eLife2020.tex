@@ -1839,70 +1839,41 @@ Greater $n_{\text{mades}}$ increases the flexibility of the deep parameter distr
 For the timing plot, we show the fastest among all of these choices, and for the convergence plot, we show the best convergence among all of these choices.
 During optimization, we used $n_{\text{atom}}$=100 atomic proposals as is recommended.
 
-%\subsubsection{Rank-1 RNN}\label{methods_LRRNN}
-%Extensive research on random fully-connected recurrent neural networks has resulted in foundational theories of their activity \cite{sompolinsky1988chaos, brunel2000dynamics}.
-%Furthermore, independent research on training these models to perform computations suggests that learning occurs through low-rank perturbations to the connectivity (e.g. \cite{jaeger2004harnessing, sussillo2009generating}).
-%Recent theoretical work extends theory for random neural networks \cite{sompolinsky1988chaos} to those with added low-rank structure \cite{mastrogiuseppe2018linking}.
-%In Section \ref{results_RNN}, we used this theory to enable EPI on RNN parameters conditioned on the emergent property of task execution.
-%
-%Such RNNs have the following dynamics: 
-%\begin{equation}
-%\frac{dx}{dt} = -x + W \phi(x) + h,
-%\end{equation}
-%where $x$ is network activity, $W$ is the connectivity weight matrix, $\phi(\cdot) = \tanh(\cdot)$ is the input-output function, and $h$ is the input to the system.
-%In a rank-1 RNN (which was sufficiently complex for the Gaussian posterior conditioning task), $W$ is the sum of a random component with strength $g$ and a structured component determined by the outer product of vectors $m$ and $n$:
-%\begin{equation}
-%W = g\chi + \frac{1}{N}mn^\top,
-%\end{equation}
-%where  $\chi_{ij} \sim \mathcal{N}(0, \frac{1}{N})$, and the entries of $m$ and $n$ are distributed as $m_i \sim \mathcal{N}(M_m, 1)$ and $n_i \sim \mathcal{N}(M_n, 1)$. 
-%For EPI, we consider $z = [g, M_m, M_n]$, which are the parameters governing the connectivity properties of the RNN.
-%
-%From such a parameterization $z$, the theory of Mastrogiuseppe et al. produces solutions for variables describing the low dimensional response properties of the RNN.
-%These ``dynamic mean field" (DMF) variables (e.g. the activity along a vector $\kappa_v$, the total variance $\Delta_0$, structured variance $\Delta_\infty$, and the chaotic variance $\Delta_T$) are derived to be functions of one another and connectivity parameters $z$.
-%The collection of these derived functions results in a system of equations, whose solution must be obtained through a nonlinear system of equations solver.
-%The iterative steps of this system of equations solver are differentiable, so we take gradients through this solve process.
-%The DMF variables provide task-relevant information about the RNN's response to task inputs.
-%
-%In the Gaussian posterior conditioning example, $\kappa_r$ and $\Delta_T$ are DMF variables used as task-relevant emergent property statistics $\mu_{\text{post}}$ and $\sigma^2_{\text{post}}$.
-%Specifically, we solve for the DMF variables $\kappa_r$, $\kappa_n$, $\Delta_0$ and $\Delta_\infty$, where the readout is nominally chosen to point in the unit orthant $r = [1, ..., 1]^\top$.  
-%The consistency equations for these variables in the presence of a constant input $h = y r - (n - M_n)$ can be derived following \cite{mastrogiuseppe2018linking}:
-%{\small
-%\begin{equation}
-%\begin{split}
-%\kappa_r = G_1(\kappa_r, \kappa_n, \Delta_0, \Delta_\infty) = M_m \kappa_n + y \\
-%\kappa_n = G_2(\kappa_r, \kappa_n, \Delta_0, \Delta_\infty) = M_n \langle \left[ \phi_i \right] \rangle + \langle \left[ \phi_i' \right] \rangle \\
-%\frac{\Delta_0^2-\Delta_\infty^2}{2} = G_3(\kappa_r, \kappa_n, \Delta_0, \Delta_\infty) = g^2 \left( \int \mathcal{D}z \Phi^2(\kappa_r + \sqrt{\Delta_0}z) - \int \mathcal{D}z \int \mathcal{D}x \Phi(\kappa_r + \sqrt{\Delta_0 - \Delta_\infty}x + \sqrt{\Delta_\infty}z)  \right) \\
-%+ (\kappa_n^2  + 1)(\Delta_0-\Delta_\infty) \\
-%\Delta_\infty = G_4(\kappa_r, \kappa_n, \Delta_0, \Delta_\infty)  = g^2 \int \mathcal{D}z \left[ \int \mathcal{D}x \phi(\kappa_r + \sqrt{\Delta_0 - \Delta_\infty}x + \sqrt{\Delta_\infty}z \right]^2 + \kappa_n^2 + 1
-%\end{split} 
-%\end{equation}
-%}
-%where here $z$ is a gaussian integration variable. 
-%We can solve these equations by simulating the following Langevin dynamical system to a steady state:
-%
-%\begin{equation}
-%\begin{split}
-%l(t) = \frac{\Delta_0(t)^2-\Delta_\infty(t)^2}{2} \\
-%\Delta_0(t) = \sqrt{2l(t) + \Delta_\infty(t)^2} \\
-%\frac{d \kappa_r(t)}{dt}  = -\kappa_r(t) + G_1(\kappa_r(t), \kappa_n(t), \Delta_0(t), \Delta_\infty(t)) \\
-%\frac{d \kappa_n(t)}{dt} = -\kappa_n + G_2(\kappa_r(t), \kappa_n(t), \Delta_0(t), \Delta_\infty(t)) \\
-%\frac{d l(t)}{dt}  = -l(t) + G_3(\kappa_r(t), \kappa_n(t), \Delta_0(t), \Delta_\infty(t)) \\
-%\frac{d \Delta_\infty(t)}{dt}  = -\Delta_\infty(t) + G_4(\kappa_r(t), \kappa_n(t), \Delta_0(t), \Delta_\infty(t))
-%\end{split}.
-%\end{equation}
-%Then, the chaotic variance, which is necessary for the Gaussian posterior conditioning example, is simply calculated via $\Delta_T = \Delta_0 - \Delta_\infty$.
-%
-%We ran EPI using a real NVP architecture of two masks and two layers per mask with 10 units mapped to a support of $z = [g, M_m, M_n] \in [0,5] \times [-5,5] \times[-5,5]$ with no batch normalization. 
-%We used an augmented Lagrangian coefficient of $c_0 = 1$, a batch size $n=300$, set $\nu = 0.15$, and initialized $q_{\bm{\theta}}(z)$ to produce an isotropic Gaussian with mean $\mu_{\text{init}} = [2.5, 0, 0]$ with standard deviation $\sigma_{\text{init}} = 2.0$.
-%The EPI distribution shown in Fig. \ref{fig:RNN} is the converged distributions with maximum entropy across five random seeds.
-%
-%To examine the effect of product $M_m M_n$ on the posterior mean, $\mu_{\text{post}}$ we took perturbations in $M_m M_n$ away from two representative parameters  $z_1$ and $z_2$ in 21 equally space increments from -1 to 1.  
-%For each perturbation, we sampled 10 2,000-neuron RNNs and measure the calculated posterior means.  
-%In Fig. \ref{fig:RNN}D, we plot the product of $M_m M_n$ in the perturbation versus the average posterior mean across 10 network realizations with standard error bars.  
-%The correlation between perturbation product $M_m M_n$ and $\mu_{\text{post}}$ was measured over all simulations.  
-%For perturbations away from $z_1$ the correlation was 0.995 with $p<10^{-4}$, and for perturbations away from $z_2$ the correlation was 0.983 with $p<10^{-4}$.
-%
-%In addition to the Gaussian posterior conditioning example in Section \ref{results_RNN}, we modeled two tasks from Mastrogiuseppe et al.: noisy detection and context-dependent discrimination.  
-%We used the same theoretical equations and task setups described in their study.
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.8]{figures/figRNN1/figRNN1.pdf}
+\end{center}
+\caption{\small (RNN1): 
+A. cap a
+B. cap b
+}
+\label{fig:RNN1}
+\end{figure}
+
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.85]{figures/figRNN2/figRNN2.pdf}
+\end{center}
+\caption{\small (RNN2): 
+A. cap a
+B. cap b
+}
+\label{fig:RNN2}
+\end{figure}
+
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.85]{figures/figRNN3/figRNN3.pdf}
+\end{center}
+\caption{\small (RNN3): 
+A. cap a
+B. cap b
+}
+\label{fig:RNN3}
+\end{figure}
+
+
 \end{document}
 
