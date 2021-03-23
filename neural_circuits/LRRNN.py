@@ -367,9 +367,9 @@ def get_SNPE_conv(N, g, K, x0, eps,
             print('bad')
         
         assert(num_rounds < args.max_rounds)
-        conv_inds = np.nonzero(distances<eps)[0]
-        conv_time = np.nan if len(conv_inds) == 0 else round_times[conv_inds[0]]
-        _conv_sims = np.nan if len(conv_inds) == 0 else round_sims[conv_inds[0]]
+        conv_inds = np.nonzero(distances[1:]<eps)[0]
+        conv_time = np.nan if len(conv_inds) == 0 else round_times[conv_inds[0]+1]
+        _conv_sims = np.nan if len(conv_inds) == 0 else round_sims[conv_inds[0]+1]
         conv_times.append(conv_time)
         conv_sims.append(_conv_sims)
     
@@ -398,7 +398,7 @@ def get_EPI_conv(N, g, K, random_seeds, eps=None):
         if eps is not None:
             R = np.stack((_epi_df['R1'].to_numpy(), _epi_df['R2'].to_numpy()), axis=1)
             distances = np.linalg.norm(R, axis=1)
-            conv_inds = np.nonzero(distances<eps)[0]
+            conv_inds = np.nonzero(np.logical_and(distances<eps, _epi_df['iteration'].to_numpy()>0))[0]
         else:
             converged = _epi_df['converged'].to_numpy()==1.
             conv_inds = np.nonzero(converged)[0]
