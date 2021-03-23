@@ -609,14 +609,17 @@ def plot_compare_hp(epis, snpes1, snpes2, c_epi, pal,
     axs[0].set_ylim([0, 1.1*max_dist])
     axs[0].legend(fontsize=12, loc="upper right")
 
-    hrs = 4*np.arange(7)
-    xticks = hrs*60
-    xticklabels = ["0"] + ["%dhr" % hr for hr in hrs[1:]]
+    _xlim = min(max_time/60., xlims[1]) if xlims is not None else max_time/60.
+    if _xlim > 24*60:
+        hr_ticks = 12*np.arange(4)
+    else:
+        hr_ticks = 4*np.arange(9)
+    xticks = hr_ticks*60
+    print(xticks)
+    xticklabels = ["0"] + ["%dhr" % hr for hr in hr_ticks[1:]]
     axs[1].set_xticks(xticks)
     axs[1].set_xticklabels(xticklabels, fontsize=fontsize)
-    if xlims is not None:
-        _xlim = min(max_time, xlims[1])
-        axs[1].set_xlim([0, _xlim])
+    axs[1].set_xlim([0, _xlim])
     axs[1].set_ylim([0, 1.1*max_dist])
 
     for i in range(2):
