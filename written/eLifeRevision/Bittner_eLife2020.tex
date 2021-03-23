@@ -1637,14 +1637,15 @@ This RNN model has dynamics
 \begin{equation}
 \tau \dot{\mathbf{x}} = -\mathbf{x} + W\mathbf{x}.
 \end{equation}
-In this analysis, we infer connectivity parameterizations $\mathbf{z} = \left[\mathbf{u}_1^\top, \mathbf{u}_2^\top, \mathbf{v}_1^\top, \mathbf{v}_2^\top \right]^\top \in \left[-1, 1 \right]^{(4N)}$   that produce stable amplification.
+In this analysis, we infer connectivity parameterizations $\mathbf{z} = \left[\mathbf{u}_1^\top, \mathbf{u}_2^\top, \mathbf{v}_1^\top, \mathbf{v}_2^\top \right]^\top \in \left[-1, 1 \right]^{(4N)}$   that produce stable amplification using EPI, SMC-ABC \cite{sisson2007sequential}, and SNPE \cite{gonccalves2019training} (see Section \ref{methods_related}).
 
 For this RNN model to be stable, all real eigenvalues of $W$ must be less than 1:  $\text{real}(\lambda_1) < 1$, where $\lambda_1$ denotes the greatest real eigenvalue of $W$.
 For a stable RNN to amplify at least one input pattern, the symmetric connectivity $W^s = \frac{W + W\top}{2}$ must have an eigenvalue greater than 1:
 $\lambda^s_1 > 1$, where  $\lambda^s$ is the maximum eigenvalue of $W^s$.
 These two conditions are necessary and sufficient for stable amplification in RNNs \cite{bondanelli2020coding}.
-We define the emergent property of stable amplification with means of these eigenvalues (0.5 and 1.5, respectively) that satisfy these conditions and variances ($0.25^2$) about those means such that samples rarely violate the eigenvalue constraints.
-As a maximum entropy distribution, this is written as
+We define the emergent property of stable amplification with means of these eigenvalues (0.5 and 1.5, respectively) that satisfy these conditions.
+To complete the emergent property definition, we chose variances ($0.25^2$) about those means such that samples rarely violate the eigenvalue constraints.
+In terms of the EPI optimization variables, this is written as
 \begin{equation} 
 T(\mathbf{x}; \mathbf{z}) = \begin{bmatrix} \text{real}(\lambda_1)(\mathbf{x}; \mathbf{z}) \\ \lambda_1^s(\mathbf{x}; \mathbf{z}) \\ \left(\text{real}(\lambda_1)(\mathbf{x}; \mathbf{z}) - 0.5 \right)^2 \\ \left( \lambda_1^s(\mathbf{x}; \mathbf{z})  - 1.5 \right)^2 \end{bmatrix},
 \end{equation}
@@ -1659,57 +1660,68 @@ To differentiate through the $\text{real}(\lambda_1)$, we solve the following eq
 
 For EPI in Fig. \ref{fig:LRRNN}, we used a real NVP architecture with three coupling layers of affine transformations parameterized by two-layer neural networks of 100 units per layer.
 The initial distribution was a standard isotropic gaussian $z_0 \sim \mathcal{N}(\mathbf{0}, I)$ mapped to the support of $\mathbf{z}_i \in [-1, 1]$. 
-We used an augmented Lagrangian coefficient of $c_0 = 10^{3}$, a batch size $n=200$, $\beta=4$, and chose to use $500$ iterations per augmented Lagrangian epoch.
+We used an augmented Lagrangian coefficient of $c_0 = 10^{3}$, a batch size $n=200$, $\beta=4$, and chose to use $500$ iterations per augmented Lagrangian epoch and emergent property constraint convergence was evaluated at $N_{\text{test}} = 200$ (Fig. \ref{fig:LRRNN}B blue line, and Fig. \ref{fig:LRRNN}C-D blue).
 
-
-ABC methods define a tolerance $\epsilon$ from observed data $x_0$ for which we keep sampled parameters.
-To make this ABC approach as similar as possible to the EPI program defined by Equation \ref{eq:EP_LRRNN}, we chose $\epsilon = 0.5$, an $l$-$2$ distance metric, and 
-\begin{equation}\label{eq:SNPE_stab_amp_x0}
-x_0 = \begin{bmatrix} \text{real}(\lambda_1) \\ \lambda^s_1 \end{bmatrix} = \begin{bmatrix} 0.5 \\ 1.5 \end{bmatrix}
+We compared EPI to two alternative likelihood-free inference (LFI) techniques, since the likelihood of these eigenvalues given $\mathbf{z}$ is not available.
+Appoximate Bayesian computation (ABC) \cite{beaumont2002approximate} is a rejection sampling technique for obtaining sets of parametes $\mathbf{z}$ that produce activity $\mathbf{x}$ close to some observed data $\mathbf{x}_0$.
+Sequential Monte Carlo approximate Bayesian computation (SMC-ABC) is the state-of-the-art ABC method, which leverages SMC techniques to improve sampling speed.
+We ran SMC-ABC with the pyABC package \cite{klinger2018pyabc} to infer RNNs with stable amplification: connectivities having eigenvalues within an $\epsilon$-defined $l$-$2$ distance of
+\begin{equation}\label{eq:stab_amp_x0}
+x_0 = \begin{bmatrix} \text{real}(\lambda_1) \\ \lambda^s_1 \end{bmatrix} = \begin{bmatrix} 0.5 \\ 1.5 \end{bmatrix}.
 \end{equation}
-located at the mean of our desired emergent property.
-We use sequential Monte Carlo ABC (SMC-ABC), to compare efficiency, since it is considered the most efficient ABC approach.
-SNPE \cite{gonccalves2019training} is another deep likelihood-free inference method that emerged along with this work.
-In contrast to EPI, SNPE cannot condition on the variance of the posterior predictive distribution. 
-Also, there is no tolerance parameter for SNPE like $\epsilon$ in ABC, so the comparative SNPE approach simply conditions on observation $x_0$.
-
-\textbf{How we did EPI} \\
-
-\textbf{How we did SNPE} \\
-SMC-ABC has many hyperparameters, of which pyABC selects automatically by running some initial diagnostics upon initialization.
-In concurrence with the literature, SMC-ABC fails to converge around 25-30 dimensions, since it's proposal samples never get close enough to the target statistics.
-
-\textbf{How we did SNPE} \\
-We searched over many SNPE hyperparameter choices: $n_{\text{train}} \in [2,000, 10,000, 100,000]$ is the number of simulations run per training epoch, and $n_{\text{mades}} \in [2, 3]$ is the number of masked autoregressive density estimators in the deep parameter distribution architecture.  
-The greater $n_{\text{train}}$, the longer each epoch will take, but the more likely SNPE may converge during that epoch.
-Greater $n_{\text{mades}}$ increases the flexibility of the deep parameter distribution of SNPE, but slows optimization.
-For the timing plot, we show the fastest among all of these choices, and for the convergence plot, we show the best convergence among all of these choices.
-During optimization, we used $n_{\text{atom}}$=100 atomic proposals as is recommended.
-
-\begin{figure}
-\begin{center}
-\includegraphics[scale=0.8]{figures/figRNN1/figRNN1.pdf}
-\end{center}
-\caption{\small (RNN1): Model characteristics affect predictions of posteriors inferred by SNPE, while predictions of parameters inferred by EPI remain fixed.
-\textbf{A}. Predictive distribution of EPI (blue) and SNPE (orange) inferred connectivity of RNNs exhibiting stable amplification with $N=2$ (top), $N=10$ (bottom), $g=0.01$ (left), and $g=0.1$ (right).
-\textbf{B}. Entropy of parameter distribution approximations throughout optimization with $N=2$ (top), $N=10$ (bottom), $g=0.1$ (dark shade), and $g=0.01$ (light shade).
-\textbf{C}. Validation log probabilities throughout SNPE optimization. Same conventions as B.
-\textbf{D}. Adherance to EPI constraints. Same conventions as B.
-}
-\label{fig:RNN1}
-\end{figure}
-
+SMC-ABC was run with a uniform prior over $\mathbf{z} \in \left[-1, 1 \right]^{(4N)}$, a population size of 1,000 particles with simulations parallelized over 32 cores, and a multivariate normal transition model.
 
 \begin{figure}
 \begin{center}
 \includegraphics[scale=0.7]{figures/figRNN2/figRNN2.pdf}
 \end{center}
-\caption{\small (RNN2): 
+\caption{\small (RNN1): 
 Number of parameters in deep probability distribution architectures of EPI (blue) and SNPE (orange) by RNN size ($N$).
+}
+\label{fig:RNN1}
+\end{figure}
+
+SNPE, the next LFI approach in our comparison, is far more similar to EPI.
+Like EPI, SNPE models parameters in mechanistic models with deep probability distributions, yet their learning algorithms are categorically different.
+SNPE uses a two-network architecture to approximate the posterior distribution of the model conditioned on observed data $\mathbf{x}_0$.
+The amortizing network maps observations $\mathbf{x}_i$ to the parameters of the deep probability distribution. 
+The weights and biases of the parameter network are optimized by sequentially augmenting the training data with additional pairs ($\mathbf{z}_i$, $\mathbf{x}_i$) based on the most recent posterior approximation.
+This sequential procedure is important to get training data $\mathbf{z}_i$ to be closer to the true posterior, and $\mathbf{x}_i$ to be closer to the observed data.
+For the deep probability distribution architecture, we chose a masked autoregressive flow with affine couplings (the default choice), three transforms, 50 hidden units, and a normalizing flow mapping to the support as in EPI.
+This architectural choice closely tracked the size of the architecture used by EPI (Fig. \ref{fig:RNN1}).
+As in SMC-ABC, we ran SNPE with $\mathbf{x}_0 = \mu$.
+All SNPE optimizations were run for a limit of 1.5 days on a Tesla V100 GPU, or until two consecutive rounds resulted in a validation log probability lower than the maximum observed.
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.8]{figures/figRNN1/figRNN1.pdf}
+\end{center}
+\caption{\small (RNN2): Model characteristics affect predictions of posteriors inferred by SNPE, while predictions of parameters inferred by EPI remain fixed.
+\textbf{A}. Predictive distribution of EPI (blue) and SNPE (orange) inferred connectivity of RNNs exhibiting stable amplification with $N=2$ (top), $N=10$ (bottom), $g=0.01$ (left), and $g=0.1$ (right).
+\textbf{B}. Entropy of parameter distribution approximations throughout optimization with $N=2$ (top), $N=10$ (bottom), $g=0.1$ (dark shade), and $g=0.01$ (light shade).
+\textbf{C}. Validation log probabilities throughout SNPE optimization. Same conventions as B.
+\textbf{D}. Adherance to EPI constraints. Same conventions as B.
 }
 \label{fig:RNN2}
 \end{figure}
 
+To clarify the difference in objectives of EPI and SNPE, we show their results on RNN models with different numbers of neurons $N$ and random strength $g$.  
+The parameters inferred by EPI consistently produces the same mean and variance of $\text{real}(\lambda_1)$ and $\lambda_1^s$, while those inferred by SNPE change according to the model definition (Fig. \ref{fig:RNN2}A).
+For $N=2$ and $g=0.01$, the SNPE posterior has greater concentration in eigenvalues around $\mathbf{x}_0$ than at $g=0.1$, where the model has greater uncertainty (Fig. \ref{fig:RNN2}B top, orange).
+At both levels of $g$ when $N=2$, the posterior of SNPE has lower entropy than EPI at convergence (Fig. \ref{fig:RNN2}B top).
+However at $N=10$, SNPE results in a predictive distribution of more widely dispersed eigenvalues (Fig. \ref{fig:RNN2}A bottom), and an inferred posterior with greater entropy than EPI (Fig. \ref{fig:RNN2}B bottom).
+We highlight these differences not to focus on an insightful trend, but to emphasize that these methods optimize different objectives with different implications.
+
+Note that SNPE converges when it's validation log probability has saturated after several rounds of optimization (Fig. \ref{fig:RNN2}C), and that EPI converges after several epochs of its own optimization to enforce the emergent property constraints (Fig. \ref{fig:RNN2}D blue).
+Importantly, as SNPE optimizes its posterior approximation, the predictive means change, and at convergence may be different than $\mathbf{x}_0$ (Fig. \ref{fig:RNN2}D orange, left).
+It is sensible to assume that predictions of a well-approximated SNPE posterior should closely reflect the data on average (especially given a uniform prior and a low degree of stochasticity), however this is not a given.
+Furthermore, no aspect of the SNPE optimization controls the variance of the predictions (Fig. \ref{fig:RNN2}D orange, right).
+
+To compare the efficiency of these algorithms, we start with the basic principle that you want z to produce x.
+In EPI this is blah with varince.
+In SNPE this is implicitly a goal of posterior inference.
+In SMC this is explicitly a goal, accuracy controlled by epsilon.
+Therefore we measure time to convergence and simulation counts as x 
 
 \begin{figure}
 \begin{center}
@@ -1725,6 +1737,11 @@ Each line shows an individual random seed.
 \label{fig:RNN3}
 \end{figure}
 
+The hyperparameters of SNPE have a serous affect.
+Need to check whether more aggressive might lead to converge.
+Nsims
+Natoms
+Nsims at 100.
 
 \end{document}
 
