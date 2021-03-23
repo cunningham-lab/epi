@@ -418,7 +418,7 @@ def get_SMC_conv(N, random_seeds):
     smc_sims = []
     for _rs in random_seeds:
         base_path = os.path.join("data", "smc")
-        save_dir = "SMC_RNN_stab_amp_N=%d_rs=%d" % (N, _rs)
+        save_dir = "SMC_RNN_stab_amp_N=%d_eps=%.2f_rs=%d" % (N,0.5, _rs)
         save_path = os.path.join(base_path, save_dir)
     
         try:
