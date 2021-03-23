@@ -1717,11 +1717,14 @@ Importantly, as SNPE optimizes its posterior approximation, the predictive means
 It is sensible to assume that predictions of a well-approximated SNPE posterior should closely reflect the data on average (especially given a uniform prior and a low degree of stochasticity), however this is not a given.
 Furthermore, no aspect of the SNPE optimization controls the variance of the predictions (Fig. \ref{fig:RNN2}D orange, right).
 
-To compare the efficiency of these algorithms, we start with the basic principle that you want z to produce x.
-In EPI this is blah with varince.
-In SNPE this is implicitly a goal of posterior inference.
-In SMC this is explicitly a goal, accuracy controlled by epsilon.
-Therefore we measure time to convergence and simulation counts as x 
+To compare the efficiency of these algorithms for infering RNN connectivity distributions producing stable amplification, we develop a convergence criteria that can be used across methods.
+While EPI has its own hypothesis testing convergence criteria for the emergent property, it would not make sense to use this criteria on SNPE and SMC-ABC which do not constrain the means and variances of their predictions.
+Instead, we consider EPI and SNPE to have converged after completing its most recent optimization epoch (EPI) or round (SNPE) in which the distance
+\begin{equation}
+d(q_\theta(z)) = |\mathbb{E}_{\mathbf{z}, \mathbf{x}} \left[f(\mathbf{x}; \mathbf{z}) \right] - \bm{\mu}|_2
+\end{equation}
+is less than 0.25.
+We consider SMC-ABC to have converged once the population produces samples within the $\epsilon = 0.5$ ball ensuring stable amplification.
 
 \begin{figure}
 \begin{center}
@@ -1737,11 +1740,16 @@ Each line shows an individual random seed.
 \label{fig:RNN3}
 \end{figure}
 
-The hyperparameters of SNPE have a serous affect.
-Need to check whether more aggressive might lead to converge.
-Nsims
-Natoms
-Nsims at 100.
+When assessing the scalability of SNPE, it is important to check that alternative hyperparamterizations could not yield better performance.
+Key hyperparameters of the SNPE optimization are the number of simulations per round $n_{\text{round}}$, the number of atoms used in the atomic proposals of the SNPE-C algorithm \cite{greenberg2019automatic}, and the batch size $n$.
+To match EPI, we used a batch size of $n = 200$ for $N <= 25$, however we found $n=1,000$ to be helpful for SNPE in higher dimensions.
+While $n_{\text{round}} = 1,000$ yielded SNPE convergence for $N <= 25$, we found that a substantial increase to $n_{\text{round}} = 25,000$ yielded more consistent convergence at $N=50$ (Fig. \ref{fig:RNN3}A).
+By increasing $n_{\text{round}}$, we also necessarily increase the duration of each round.
+At $N=100$, we tried two hyperparameter modifications.
+As suggested in \cite{greenberg2019automatic}, we increased $n_{\text{atom}}$ by an order of magnitude to improve gradient quality, but this had little effect on the optimization (much overlap between same random seeds) (Fig. \ref{fig:RNN3}B).
+Finally we increased $n_{\text{round}}$ by an order of magnitude, which yielded convergence in one case, but no others.
+We found no way to improve the convergence rate of SNPE without making more aggressive hyperparameter choices requiring high numbers of simulations.
+
 
 \end{document}
 
