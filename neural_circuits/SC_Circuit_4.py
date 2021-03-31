@@ -396,7 +396,7 @@ def perturbed_acc_plots(facs, pPs, pAs, c_stars, fontsize=12, label="", figdir=N
                          np.mean(_ps, axis=0), 
                          np.std(_ps, axis=0)/np.sqrt(N_sim), 
                          c=c_stars[i], 
-                         lw=3)
+                         lw=2)
         ax.set_yticks(yticks)
         ax.set_yticklabels(["%d%%" % tick for tick in yticks], fontsize=fontsize)
         ax.set_xticks(xticks)
