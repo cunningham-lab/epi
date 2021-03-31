@@ -1696,7 +1696,8 @@ where $\beta = 100$.
 \begin{center}
 \includegraphics[scale=0.8]{figures/figSC4/figSC4.pdf}
 \end{center}
-\caption{\small (SC4):  \textbf{A}. Shows how eigvals change throughout blah
+\caption{\small (SC4):  \textbf{A}. The individual parameters of each mode throughout the two regimes.
+\textbf{B}. The individual sensitivites of parameters of each mode throughout the two regimes.
 }
 \label{fig:SC4}
 \end{figure}
@@ -1707,8 +1708,7 @@ where $\beta = 100$.
 \end{center}
 \caption{\small (SC5): 
 \textbf{A}. Response of each parameter regime to optogenetic silencing during the delay period.
-\textbf{B}. Connectivity eigenvalues versus the task error induced by delay period inactivation.
-\textbf{C}. Error induced by delay period inactivation with increasing optogenetic strength.  Means and standard deviations are calculated across the entire EPI posterior.
+\textbf{B}. Error induced by delay period inactivation with increasing optogenetic strength.  Means and standard deviations are calculated across the entire EPI posterior.
 }
 \label{fig:SC5}
 \end{figure}
@@ -1740,41 +1740,61 @@ The initial distribution was a standard isotropic gaussian $z_0 \sim \mathcal{N}
 We used an augmented Lagrangian coefficient of $c_0 = 10^{2}$, a batch size $n=100$, and $\beta=2$.
 The distribution converged with criteria $N_{\text{test}} = 25$.
 
-To make sense of this inferred distribution, we identified two modes used to represent the two regimes of connectivity in this posterior:
+The EPI distribution of SC model connectivites producing rapid task switching has interesting structure.
+Throughout $q_{\bm{theta}}(\mathbf{z} \mid \mathcal{X})$, we see that the probability distribution is narrow in $hW$ (Fig. \ref{fig:SC}C).
+This suggests that rapid task switching is sensitive to changes in $hW$, but this is only a single parameter.
+The local structure of the distribution varies across parameter space, and thus the nature in which parameter combinations affect rapid task switching.
+From visual inspection, we may hypothesize that there are two distinct regimes, most easily visualized in the $sW$-$hW$ marginal distribution: one where $sW$ and $hW$ are correlated for greater $sW$ and one where $sW$ and $hW$ are anticorrelated for lesser $sW$.
+
+We sought two sets of parameters in this distribution representative of each regime, so that we could assess their implications on computation.
+For fixed values of $hW$, we hypothesized that there are two modes: one in each regime of greater and lesser $sW$.
+To begin, we found one mode for each regime at $hW_{\text{fixed}} = -1.5$ using 200 steps of gradient ascent of the deep probability distribution $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$.
+In regime 1, the initialization had positive $sW$, and the initialization had negative $sW$ in regime 2, which led to disparate modes (Fig. \ref{fig:SC4} top).
+These modes were then used as the initialization to find the next mode at $hW_{\text{fixed}} = -1.4$ and so on.
+200 steps of gradient ascent were always taken, and learning rates of $2.5 \times 10^-4$ and $5 \times 10^-4$ were used for regimes 1 and 2, respectively.
+Each of these modes is denoted $\mathbf{z}^*(hW_{\text{fixed}}, r)$ for regime $r \in \{1, 2\}$.
+
+At each mode, we measure the sensitivity dimension (that of most negative eigenvalue in the Hessian of the EPI distribution) $\mathbf{v}_1(\mathbf{z}^*)$.
+To resolve sign degeneracy in eigenvectors, we chose $\mathbf{v}_1(\mathbf{z}^*)$ to have negative element in $hW$.
+This tells us what parameter combination rapid task switching is most sensitive to at this parameter choice in the regime.
+We see that while the modes of each regime gradually converge to similar connectivites at $hW_{\text{fixed}} = -1.05$ (Fig. \ref{fig:SC4} top), the sensitivity dimensions remain categorically different throughout the two regimes (Fig. \ref{fig:SC4} bottom)
+Only at $hW_{\text{fixed}} = -1.05$ is there a flip in sensitivity from regime 2 to regime 1 (in $\mathbf{v}_1(\mathbf{z}^*)_{sW}$ and $\mathbf{v}_1(\mathbf{z}^*)_{hW}$).
+There is thus some ambiguity regarding the ``regime" of $\mathbf{z}^*(-1.05, 2)$, since the mode is derived from an initialization in regime 2, but has sensitivity like regime 1.
+We can consider this as an intermediate tranisitionary region of parameter space between the two regimes.
+To emphasize this, $\mathbf{z}^*(-1.05, 1)$ and $\mathbf{z}^*(-1.05, 2)$ have the same color.
+
+To understand the connectivity mechanisms governing task accuracy, we took the eigendecomposition of the symmetric connectivity matrices $W = Q\Lambda Q^{-1}$, which results in the same basis vectors $\mathbf{q}_i$ for all $W$ parameterized by $\mathbf{z}$ (Fig. \ref{fig:SC3}A). 
+These basis vectors have intuitive roles in processing for this task, and are accordingly named the \textit{all} eigenmode - all neurons co-fluctuate, \textit{side} eigenmode - one side dominates the other, \textit{task} eigenmode - the Pro or Anti populations dominate the other, and \textit{diag} mode - Pro- and Anti-populations of opposite hemispheres dominate the opposite pair. 
+Due to the parametric structure of the connectivity matrix, the parameters $\mathbf{z}$ are a linear function of the eigenvalues $\bm{\lambda} = [\lambda_{\text{all}}, \lambda_{\text{side}}, \lambda_{\text{task}}\lambda_{\text{diag}}]^\top$ associated with these eigenmodes.
 \begin{equation}
-\begin{split}
-\mathbf{z}_1 = &\argmax_{\mathbf{z}} \log q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}) \\
-&\text{s.t. }  hw = -1.25\text{, }  sW > 0
-\end{split}
+\mathbf{z} = A\bm{\lambda}
 \end{equation}
-and 
 \begin{equation}
-\begin{split}
-\mathbf{z}_2 = &\argmax_{\mathbf{z}} \log q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}) \\
-&\text{s.t. } hw = -1.25\text{, } sW < 0
-\end{split}
+A = \frac{1}{4} \begin{bmatrix} 1 & 1 & 1 & 1 \\ 1 & -1 & -1 & 1 \\ 1 & 1 & -1 & -1 \\ 1 & -1 & 1 & -1 \end{bmatrix}.
 \end{equation}
 
-To understand the connectivity mechanisms governing task accuracy, we took the eigendecomposition of the symmetric connectivity matrices $W = V\Lambda V^{-1}$, which results in the same basis vectors $\mathbf{v}_i$ for all $W$ parameterized by $\mathbf{z}$ (Fig. \ref{fig:SC3}A). 
-These basis vectors have intuitive roles in processing for this task, and are accordingly named the \textit{all} mode - all neurons co-fluctuate, \textit{side} mode - one side dominates the other, \textit{task} mode - the Pro or Anti populations dominate the other, and \textit{diag} mode - Pro- and Anti-populations of opposite hemispheres dominate the opposite pair. 
-We found significant trends across the EPI posterior connectivities: the eigenvalues $\lambda_{\text{task}}$ and $\lambda_{\text{diag}}$ were correlated with $p_P$, while $\lambda_{\text{all}}$ was anticorrelated with $p_P$.
-$\lambda_{\text{all}}$, $\lambda_{\text{side}}$, and $\lambda_{\text{diag}}$ were all significantly anticorrelated with $p_A$.
+We are interested in the effect of raising or lowering the amplification of each eigenmode in the connectivity matrix.
+To test this, we calculate the the unit vector of changes in the connectivity $\mathbf{z}$ that result form a change in the associated eigenvalues
+\begin{equation}
+\mathbf{v}_{\text{a}} = \frac{\frac{\partial \mathbf{z}}{\partial \lambda_{\text{a}}}}{|\frac{\partial \mathbf{z}}{\partial \lambda_{\text{a}}}|_2},
+\end{equation}
+where
+\begin{equation} \label{eq:dzdlambda}
+\frac{\partial \mathbf{z}}{\partial \lambda_{\text{a}}} = A\mathbf{e}_{\text{a}},
+\end{equation}
+and e.g. $\mathbf{e}_{\text{all}} = [1, 0, 0, 0]^\top$.
+So $\mathbf{v}_{\text{a}}$ is the normalized column of A corresponding to eigenmode $a$.
+While perturbations in the sensitivity dimension $\mathbf{v}_1(\mathbf{z}^*)$ adapt with the mode $\mathbf{z}^*$ chosen, perturbations in $\mathbf{v}_a$ for $a \in \{\text{all}, \text{side}, \text{text}, \text{diag}\}$ are invariant to $\mathbf{z}$ (Equation \ref{eq:dzdlambda}).
+%
+%These eigenvalue changes are evident in the simulations of connectivity perturbations away from the modes (Fig. \ref{fig:SC2}).
+%As the component of connectivity along $\mathbf{v}_1$ and $\mathbf{v}_2$ becomes stronger (left-to-right), there is less separation between Pro an Anti populations (lower $\lambda_{\text{task}}$) and greater separation between Left and Right populations following stimulus presentation (greater $\lambda_{\text{side}}$).
+%A key differentiating factor is that $\mathbf{v}_1$ substantially increases $\lambda_{\text{diag}}$, while $\mathbf{v}_2$ does not.
 
-Under this decomposition, we can re-visualize the posterior in eigenvalue space (Fig. \ref{fig:SC4}).
-Furthermore, we can project the dimensions of sensitivity into eigenvalue space as well, giving us a more intuitive sense of how connectivity affects computation in each regime.
-We see that sensitivity dimensions $\mathbf{v}_1$ and $\mathbf{v}_2$, which cause $p_P$ to increase and a regime dependent change in $p_A$, both point in the direction of increasing $\lambda_{\text{side}}$ and decreasing $\lambda_{\text{task}}$.
-These eigenvalue changes are evident in the simulations of connectivity perturbations away from the modes (Fig. \ref{fig:SC2}).
-As the component of connectivity along $\mathbf{v}_1$ and $\mathbf{v}_2$ becomes stronger (left-to-right), there is less separation between Pro an Anti populations (lower $\lambda_{\text{task}}$) and greater separation between Left and Right populations following stimulus presentation (greater $\lambda_{\text{side}}$).
-A key differentiating factor is that $\mathbf{v}_1$ substantially increases $\lambda_{\text{diag}}$, while $\mathbf{v}_2$ does not.
-
-\textbf{OPTO} \\
-During periods of optogenetic inactivation, activity was decreased proportional to the optogenetic strength $\gamma$
+We tested whether the inferred SC model connectivites could reproduce experimental effects of optogenetic inactivation in rats \cite{duan2015requirement}.
+During periods of simulated optogenetic inactivation, activity was decreased proportional to the optogenetic strength $\gamma$
 \begin{equation}
 x_\alpha = (1-\gamma)\phi(u_\alpha).
 \end{equation}
-
-During optogenetic silencing simulations, activations $x_\alpha(t)$ were set to a fraction of their values ($1 - \gamma$), where $\gamma$ is the optogenetic perturbation strength.
-We found that $\lambda_{\text{all}}$ and $\lambda_{\text{diag}}$ were significantly anticorrelated with Anti error during delay period inactivation.
 Delay period inactivation was from $0.8 < t < 1.2$, choice period inactivation was for $t > 1.2$ and total inactivation was for the entire trial.
 
 \end{document}
