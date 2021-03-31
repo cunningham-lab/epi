@@ -500,10 +500,9 @@ Model responses are bounded from 0 to 1 as a function $\phi$ of a dynamically ev
 \begin{equation}
 \begin{split}
 \tau \frac{d\mathbf{u}}{dt} &= -\mathbf{u} + W\mathbf{x} + \mathbf{h} + d\mathbf{B} \\
-\mathbf{x} &= \phi(\mathbf{u})
+\mathbf{x} &= \phi(\mathbf{u}).
 \end{split}
 \end{equation}
-where $\tau= 90\text{ms}$ and there is white noise of variance $0.2^2$.
 The model responds to the side with greater Pro neuron activation; e.g. the response is left if $x_{LP} > x_{RP}$ at the end of the trial.  
 Here, we use EPI to determine the network connectivity $\mathbf{z} = [sW, vW, dW, hW]^{\top}$ that produces rapid task switching.
 
@@ -538,27 +537,33 @@ We formulate rapid task switching as an emergent property by stipulating that th
 
 The EPI inferred distribution  (Fig. \ref{fig:SC}C) produces task accuracies (Fig. \ref{fig:SC}C, middle-left) according to our mathematical definition of rapid task switching (Equation \ref{eq:SC_EP}).
 The patterns of connectivity that govern each task accuracy are nonlinear (Fig. \ref{fig:SC1}A-B); they are not captured well by linear prediction (Fig. \ref{fig:SC1}C).
-For example, the patterns in connectivity increasing Pro accuracy change dramatically after crossing a threshold of $sW$ (Fig. \ref{fig:SC1}A $sW$-$hW$ marginal distribution).
-Not only has EPI captured this intricate, nonlinear posterior, it offers probabilistic tools for understanding the different regimes of model behavior.
+For example, there appear to be two regimes of connectivity: the local structure of the EPI distribution changes dramatically after crossing a threshold of $sW$ (Fig. \ref{fig:SC1}A $sW$-$hW$ marginal distribution).
+Not only has EPI captured this intricate, nonlinear distribution, we can use the probabilistic toolkit on the deep probability distribution $q_{\bm{theta}}(\mathbf{z} \mid \mathcal{X})$ to understand these two parametric regimes of SC connectivity.
 
-To establish these two regimes of connectivity, we took gradient steps along $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ to produce modes $\mathbf{z}_1$ and $\mathbf{z}_2$  (Fig. \ref{fig:SC}C red and purple stars, Section \ref{methods_SC}).
-Simulations from these two regimes reveal different responses in each task (Fig. \ref{fig:SC}D).
-We charcaterized these regimes by identifying the dimensions of connectivity that rapid task switching is most sensitive to.
-The sensitivity dimensions $\mathbf{v}_1$ and  $\mathbf{v}_2$ (Fig. \ref{fig:SC}C, red and purple arrows) point in different directions, resulting in different changes to task accuracy (Fig. \ref{fig:SC}D, bottom-left, Fig. \ref{fig:SC2}).
-In regime 1, Anti accuracy diminishes in either direction of sensitivity away from the mode, while in regime 2, Anti accuracy matches monotonic increases in Pro accuracy.
+To identify the parameters of these two parametric regimes, we point out that for many fixed values of parameter $hW$, there are two modes in the EPI distribution.  
+Thus, by fixing $hW$ to different values and doing gradient ascent on $\log q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ in the parameter spaces proximal to each regime, we can identify modes $\mathbf{z}^*(hW_{\text{fixed}}, r)$ for each regime $r \in \{1, 2\}$ (see Section \ref{methods_SC}).
+As $hW_{\text{fixed}}$ increases, the modes eventually coalesce to intermediate parameters reflecting a transition between the two regimes (Fig. \ref{fig:SC4} top).
+However the sensitivity dimensions of these modes $\mathbf{v}_1$ (refer to Section \ref{results_dgm}), which reflect the structure of the EPI distribution around those modes, are very similar throughout the entirety of each regime independent of $hW_{\text{fixed}}$.
+This suggests that there are categorically different ways in which connectivity governs computation in each regime.
 
-To understand why these distinct connectivity regimes have different failure modes, we can analyze the properties of connectivity in each regime.
-By taking the eigendecomposition of $W$, we can quantify how strongly different modes of processing are reflected in the connectivity matrix (see Section \ref{methods_SC}).  
-\textbf{Note SB: I need to alter these plots a tad to confirm and support the mechanistic explanation.}
+To understand how SC connectivity governs computation in each regime, we can examine how perturbations along $\mathbf{v}_1(\mathbf{z}^*)$ affect task performance in each regime.
+While the increase in Pro accuracy with $\mathbf{v}_1$ perturbation is largely unnaffected by regime (Fig. \ref{fig:SC}D, top-left), we see a stark difference in Anti accuracy: Anti accuracy falls in either direction of $\mathbf{v}_1$ in regime 1, yet monotically increases in regime 2 (Fig. \ref{fig:SC}D, top-right).
+Therefore, the sharp change in structure of the EPI distribution can be attributed to this changing pathology in rapid task switching behavior.
+
+The relation of biologically interpretable variables to regime and sensitivity dimension are salient from the pairplot in (Fig. \ref{fig:SC}C), but we may seek to gain a more computation-driven understanding of each regime.
+A convenient property of this connectivity parameterization is that there are $\mathbf{z}$-invariant eigenmodes of connectivity, whose eigenvalues (or degree of amplification) change with $\mathbf{z}$ (see Section \ref{methods_SC}). \textbf{explain eigenmode intuition}. 
+\textbf{Summarize with concise description and inuition from Fig. \ref{fig:SC}D.}
+
+\subsection{EPI inferred SC connectivities reproduce results from optogenetic inactivation experiements} \label{results_SC}
 
 During the delay period of this task, the circuit must prepare to execute the correct task based on the cue input.
-Experimental results from Duan et al. found that optogenetic inactivation of SC during the delay period consistently decreased performance in the Anti task, but had no effect on the Pro task (Fig. \ref{fig:SC}E)).
+Experimental results from Duan et al. found that optogenetic inactivation of SC during the delay period consistently decreased performance in the Anti task, but had no effect on the Pro task (Fig. \ref{fig:SC_opto}A).
 All network connectivities inferred by EPI exhibited this same effect, when network activities were silenced during the delay period (see Section \ref{methods_SC}).
 Notably, EPI inferred connectivities were only conditioned upon the emergent property of rapid task switching, not on Anti task failure during delay period silencing.
 
-Similarities across Pro and Anti trials in choice period responses following delay period inactivation (Fig. \ref{fig:SC5}A) suggested that connectivity patterns inducing greater Pro task accuracy increase error in delay period inactivated Anti trials (Fig. \ref{fig:SC}F).
+Similarities across Pro and Anti trials in choice period responses following delay period inactivation (Fig. \ref{fig:SC5}A) suggested that connectivity patterns inducing greater Pro task accuracy increase error in delay period inactivated Anti trials (Fig. \ref{fig:SC_opto}B).
 The strong anticorrelation between $p_P$ and $p_{A, opto}$ across EPI inferred connectivities led to the following hypothesis about each connectivity regime: the sensitivity dimension of each regime decreases $p_{A,opto}$ irrespective of its effect on $p_A$, since both $\mathbf{v}_1$ and $\mathbf{v}_2$ increase $p_P$.
-Indeed, in regimes 1 and 2 where sensitivity dimensions elicit different responses in $p_A$, $p_{A,opto}$ decreases since the connectivity changes enhancing $p_P$ exacerbate Anti trial error (Fig. \ref{fig:SC}F).
+Indeed, in regimes 1 and 2 where sensitivity dimensions elicit different responses in $p_A$, $p_{A,opto}$ decreases since the connectivity changes enhancing $p_P$ exacerbate Anti trial error (Fig. \ref{fig:SC_opto}C).
 Thus, the altered state caused by delay period silencing makes the $p_P$ connectivity better than the $p_A$ down connectivity.
 
 \begin{figure}
@@ -570,13 +575,22 @@ Thus, the altered state caused by delay period silencing makes the $p_P$ connect
 \textbf{B}. Accuracy in the Anti task during delay period optogenetic inactivation $p_{A,\text{opto}}$ is strongly anticorrelated with accuracy in the Pro task.
 \textbf{C}. Mean and standard error ($N_{\text{test}}$ = 25) of accuracy with respect to perturbation along the sensitivity dimension of each mode $\mathbf{z}^*$.
 }
-\label{fig:SC_opt}
+\label{fig:SC_opto}
 \end{figure}
 
 In summary, we used EPI to obtain the full distribution of connectivities that execute rapid task switching.
 This EPI distribution revealed multiple regimes of rapid task switching, which we characterized using the probabilistic toolkit EPI seemlessly affords.
 EPI allowed us to conclude that since \textit{all} parameters of this model producing rapid task switching make an experimentally verified prediction, the model is well-chosen in that regard.
 Finally, we used our knowledge about how $\mathbf{z}$ governs $p_{A,opto}$ to make accurate predictions about each identified regime of connectivity.
+
+%To establish these two regimes of connectivity, we took gradient steps along $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ to produce modes $\mathbf{z}_1$ and $\mathbf{z}_2$  (Fig. \ref{fig:SC}C red and purple stars, Section \ref{methods_SC}).
+%Simulations from these two regimes reveal different responses in each task (Fig. \ref{fig:SC}D).
+%We charcaterized these regimes by identifying the dimensions of connectivity that rapid task switching is most sensitive to.
+%The sensitivity dimensions $\mathbf{v}_1$ and  $\mathbf{v}_2$ (Fig. \ref{fig:SC}C, red and purple arrows) point in different directions, resulting in different changes to task accuracy (Fig. \ref{fig:SC}D, bottom-left, Fig. \ref{fig:SC2}).
+%In regime 1, Anti accuracy diminishes in either direction of sensitivity away from the mode, while in regime 2, Anti accuracy matches monotonic increases in Pro accuracy.
+%
+%To understand why these distinct connectivity regimes have different failure modes, we can analyze the properties of connectivity in each regime.
+%By taking the eigendecomposition of $W$, we can quantify how strongly different modes of processing are reflected in the connectivity matrix (see Section \ref{methods_SC}).  
 
 %\subsection{Novel hypotheses from EPI} 
 \section{Discussion} 
