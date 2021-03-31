@@ -516,15 +516,13 @@ Here, we use EPI to determine the network connectivity $\mathbf{z} = [sW, vW, dW
 \textbf{B}. Model of superior colliculus (SC). Neurons: LP - left pro, RP - right pro, LA - left anti, RA - right anti. 
 Parameters: $sW$ - self, $hW$ - horizontal, $vW$ -vertical, $dW$ - diagonal weights.  
 \textbf{C}. The EPI inferred distribution of rapid task switching networks.  
-Red and purple stars ($\mathbf{z}_1$ and $\mathbf{z}_2$) indicate different connectivity regimes with different sensitivity vectors $\mathbf{v}_1$ and $\mathbf{v}_2$.
-(Middle-left) EPI predictive distribution of task accuracies.
-(Bottom-left) Task accuracy along dimensions of sensitivity in each connectivity regime.
-\textbf{D}. Means (solid) and standard deviations (shaded) of each population across random simulated trials.
-Top plots show Pro (top) and Anti (bottom) responses for connectivity $\mathbf{z}_1$.
-Bottom rows show the same $\mathbf{z}_2$.
-\textbf{E}. The EPI distribution predicts experimental results (left) showing no change in the Pro task, but larger error in the Anti task (right).
-\textbf{F}. Accuracy in the Anti task during delay period optogenetic inactivation $p_{A,\text{opto}}$ is strongly anticorrelated with accuracy in the Pro task.
-\textbf{G}. Accuracy with delay period inactivation along each connectivity regime's dimension of sensitivity.
+Red and purple stars indicate modes $\mathbf{z}^*$ of each connectivity regime.
+Sensitivity vectors $\mathbf{v}_1(\mathbf{z}^*)$ are shown by arrows.
+(Bottom-left) EPI predictive distribution of task accuracies.
+\textbf{D}. The connectivity regimes have different responses to perturbation.
+(Top) Mean and standard error ($N_{\text{test}}$ = 25) of accuracy with respect to perturbation along the sensitivity dimension of each mode $\mathbf{z}^*$.
+(Middle) Same with perturbation in the dimension of increasing $\lambda_{\text{task}}$ ($\mathbf{v}_{\text{task}}$).
+(Bottom) Same with perturbation in the dimension of increasing $\lambda_{\text{diag}}$ ($\mathbf{v}_{\text{diag}}$).
 }
 \label{fig:SC}
 \end{figure}
@@ -562,6 +560,18 @@ Similarities across Pro and Anti trials in choice period responses following del
 The strong anticorrelation between $p_P$ and $p_{A, opto}$ across EPI inferred connectivities led to the following hypothesis about each connectivity regime: the sensitivity dimension of each regime decreases $p_{A,opto}$ irrespective of its effect on $p_A$, since both $\mathbf{v}_1$ and $\mathbf{v}_2$ increase $p_P$.
 Indeed, in regimes 1 and 2 where sensitivity dimensions elicit different responses in $p_A$, $p_{A,opto}$ decreases since the connectivity changes enhancing $p_P$ exacerbate Anti trial error (Fig. \ref{fig:SC}F).
 Thus, the altered state caused by delay period silencing makes the $p_P$ connectivity better than the $p_A$ down connectivity.
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.8]{figures/fig5/fig5.pdf}
+\end{center}
+\caption{\footnotesize 
+\textbf{A}. The EPI distribution predicts experimental results (left) showing no change in the Pro task, but larger error in the Anti task (right).
+\textbf{B}. Accuracy in the Anti task during delay period optogenetic inactivation $p_{A,\text{opto}}$ is strongly anticorrelated with accuracy in the Pro task.
+\textbf{C}. Mean and standard error ($N_{\text{test}}$ = 25) of accuracy with respect to perturbation along the sensitivity dimension of each mode $\mathbf{z}^*$.
+}
+\label{fig:SC_opt}
+\end{figure}
 
 In summary, we used EPI to obtain the full distribution of connectivities that execute rapid task switching.
 This EPI distribution revealed multiple regimes of rapid task switching, which we characterized using the probabilistic toolkit EPI seemlessly affords.
@@ -1605,11 +1615,11 @@ These hyperparameter values are motivated by modeling choices and results from \
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.8]{figures/figSC2/figSC2.pdf}
+\includegraphics[scale=0.7]{figures/figSC2/figSC2.pdf}
 \end{center}
 \caption{\small (SC2):  
-\textbf{A}. Simulations in network regime $\mathbf{z}_1$ (center) with simulations given connectivity perturbations in the negative direction of the sensitivity vector $\mathbf{v}_1$ (left) and positive direction (right).
-\textbf{B}. Same as A for network regime $\mathbf{z}_2$.
+\textbf{A}. Simulations in network regime 1 ($hW_{\text{fixed}} = -1.2$) (center) with simulations given connectivity perturbations in the negative direction of the sensitivity vector $\mathbf{v}_1$ (left) and positive direction (right).
+\textbf{B}. Same as A for network regime 2.
 }
 \label{fig:SC2}
 \end{figure}
@@ -1663,7 +1673,7 @@ The input parameterization was fixed to $I_{\text{constant}} = 0.75$, $I_{\text{
 \end{center}
 \caption{\small (SC3):  
 \textbf{A}. Invariant eigenvectors of connectivity matrix $W$.
-\textbf{B}. Eigenvalues of connectivities of EPI distribution versus task accuracies.
+\textbf{B}. Accuracies for connectivity perturbations for increasing $\lambda_{\text{all}}$ and $\lambda_{\text{side}}$ (rest shown in Fig. \ref{fig:SC}D).
 }
 \label{fig:SC3}
 \end{figure}
@@ -1683,10 +1693,10 @@ given that the stimulus is on the left side, where $\Theta$ is the Heaviside ste
 where $\beta = 100$.
 
 \begin{figure}
-%\begin{center}
-%\includegraphics[scale=0.8]{figures/figSC4/figSC4.pdf}
-%\end{center}
-\caption{\small (SC4):  \textbf{A}. Something showing differences in regimes.
+\begin{center}
+\includegraphics[scale=0.8]{figures/figSC4/figSC4.pdf}
+\end{center}
+\caption{\small (SC4):  \textbf{A}. Shows how eigvals change throughout blah
 }
 \label{fig:SC4}
 \end{figure}
@@ -1710,8 +1720,8 @@ T(\mathbf{x}; \mathbf{z}) = \begin{bmatrix} p_P(\mathbf{x}; \mathbf{z}) \\ p_A(\
 \begin{equation} 
 \bm{\mu}_{\text{opt}} = \begin{bmatrix} 75\% \\ 75\% \\ 7.5\%^2 \\ 7.5\%^2 \end{bmatrix}.
 \end{equation}
-Throughout optimization, the augmented Lagrangian parameters $\eta$ and $c$, were updated after each epoch of 2,000 iterations(see Section \ref{methods_AL_opt}).  
-The optimization converged after six epochs (Fig. \ref{fig:SC5}).
+Throughout optimization, the augmented Lagrangian parameters $\eta$ and $c$, were updated after each epoch of 2,000 iterations (see Section \ref{methods_AL_opt}).  
+The optimization converged after ten epochs (Fig. \ref{fig:SC6}).
 
 
 \begin{figure}
@@ -1722,13 +1732,13 @@ The optimization converged after six epochs (Fig. \ref{fig:SC5}).
 \textbf{A}. Entropy throughout optimization. 
 \textbf{B}. The emergent property statistic means and variances converge to their constraints at 20,000 iterations following the tenth augmented Lagrangian epoch.
 }
-\label{fig:SC5}
+\label{fig:SC6}
 \end{figure}
 
 For EPI in Fig. \ref{fig:SC}C, we used a real NVP architecture with three coupling layers of affine transformations parameterized by two-layer neural networks of 50 units per layer.
 The initial distribution was a standard isotropic gaussian $z_0 \sim \mathcal{N}(\mathbf{0}, I)$ mapped to a support of $\mathbf{z}_i \in [-5, 5]$. 
 We used an augmented Lagrangian coefficient of $c_0 = 10^{2}$, a batch size $n=100$, and $\beta=2$.
-The distribution shown is that of the architecture converging with criteria $N_{\text{test}} = 25$ at greatest entropy across random seeds.
+The distribution converged with criteria $N_{\text{test}} = 25$.
 
 To make sense of this inferred distribution, we identified two modes used to represent the two regimes of connectivity in this posterior:
 \begin{equation}
