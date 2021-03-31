@@ -494,7 +494,7 @@ These results motivated a model of SC that is a four-population dynamical system
 Here, our goal is to understand how connectivity in this circuit model governs the ability to switch tasks rapidly.
 
 In this SC model, there are Pro- and Anti-populations in each hemisphere (left (L) and right (R)) with activity variables $\mathbf{x} = [x_{LP}, x_{LA}, x_{RP}, x_{RA}]^\top$.
-The connectivity of these populations is parameterized by self- $sW$, vertical- $vW$, diagonal- $dW$ and horizontal-connections $hW$  (Fig. \ref{fig:SC}B).
+The connectivity of these populations is parameterized by self $sW$, vertical $vW$, diagonal $dW$ and horizontal $hW$ connections (Fig. \ref{fig:SC}B).
 The input $\mathbf{h}$ is comprised of a positive cue-dependent signal to the Pro or Anti populations, a positive stimulus-dependent input to either the Left or Right populations, and a choice-period input to the entire network (see Section \ref{methods_SC}).
 Model responses are bounded from 0 to 1 as a function $\phi$ of a dynamically evolving internal variable $\mathbf{u}$
 \begin{equation}
@@ -1570,19 +1570,27 @@ Optimization for V1
 TODO Agostina and I are putting this together now.
 
 \subsubsection{Superior colliculus}\label{methods_SC}
-In the model of Duan et al \cite{duan2018collicular}, there are four total units: two in each hemisphere corresponding to the Pro/Contra and Anti/Ipsi populations.  
-Neural recordings in the midbrain superior colliculus (SC) exhibited two populations of neurons that simultaneously represented both task context (Pro or Anti) and motor response (contralateral or ipsilateral to the recorded side): the Pro/Contra and Anti/Ipsi neurons \cite{duan2018collicular}.
-They are denoted as left Pro (LP), left Anti (LA), right Pro (RP) and right Anti (RA).  
+The ability to switch between two separate tasks throughout randomly interleaved trials, or ``rapid task switching," has been studied in rats, and midbrain superior colliculus (SC) has been show to play an important in this computation \cite{duan2015requirement}.
+Neural recordings in SC exhibited two populations of neurons that simultaneously represented both task context (Pro or Anti) and motor response (contralateral or ipsilateral to the recorded side), which led to the distinction of two functional classes: the Pro/Contra and Anti/Ipsi neurons \cite{duan2018collicular}.
+Given this evidence, Duan et al. proposed a model with four functionally-defined neuron-type populations: two in each hemisphere corresponding to the Pro/Contra and Anti/Ipsi populations.  
+We study how the connectivity of this neural circuit governs rapid task switching ability.
+
+The four populations of this model are denoted as left Pro (LP), left Anti (LA), right Pro (RP) and right Anti (RA).  
 Each unit has an activity ($x_\alpha$) and internal variable ($u_\alpha$) related by
 \begin{equation}
-x_\alpha = \phi(u_\alpha) = \left(\frac{1}{2}\tanh\left(\frac{u_\alpha - a}{b}\right)+ \frac{1}{2} \right)
+x_\alpha = \phi(u_\alpha) = \left(\frac{1}{2}\tanh\left(\frac{u_\alpha - a}{b}\right)+ \frac{1}{2} \right),
 \end{equation}
-where $\alpha \in \{LP, LA, RA, RP\}$, $a = 0.05$ and $b = 0.5$ control the position and shape of the nonlinearity, respectively.
-During periods of optogenetic inactivation, activity was decreased proportional to the optogenetic strength $\gamma$
+where $\alpha \in \{LP, LA, RA, RP\}$, $a = 0.05$ and $b = 0.5$ control the position and shape of the nonlinearity.
+We order the neural populations of $x$ and $u$ in the following manner
 \begin{equation}
-x_\alpha = (1-\gamma)\phi(u_\alpha).
+\mathbf{x} = \begin{bmatrix} x_{LP} \\ x_{LA} \\ x_{RP} \\ x_{RA} \end{bmatrix} \hspace{2cm} \mathbf{u} = \begin{bmatrix} u_{LP} \\ u_{LA} \\ u_{RP} \\ u_{RA} \end{bmatrix},
 \end{equation}
-
+which evolve according to
+\begin{equation}
+\tau \frac{d\mathbf{u}}{dt} = -\mathbf{u} + W\mathbf{x} + \mathbf{h} + d\mathbf{B}.
+\end{equation}
+with time constant $\tau = 0.09s$, step size 24ms and Gaussian noise $d\mathbf{B}$ of variance $0.2^2$.
+These hyperparameter values are motivated by modeling choices and results from \cite{duan2018collicular}.
 
 \begin{figure}
 \begin{center}
@@ -1606,26 +1614,16 @@ x_\alpha = (1-\gamma)\phi(u_\alpha).
 \label{fig:SC2}
 \end{figure}
 
-We order the neural populations of $x$ and $u$ in the following manner
-\begin{equation}
-\mathbf{x} = \begin{bmatrix} x_{LP} \\ x_{LA} \\ x_{RP} \\ x_{RA} \end{bmatrix} \hspace{2cm} \mathbf{u} = \begin{bmatrix} u_{LP} \\ u_{LA} \\ u_{RP} \\ u_{RA} \end{bmatrix},
-\end{equation}
-
-which evolve according to
-\begin{equation}
-\tau \frac{d\mathbf{u}}{dt} = -\mathbf{u} + W\mathbf{x} + \mathbf{h} + d\mathbf{B}.
-\end{equation}
-with time constant $\tau = 0.09s$, step size 24ms and Gaussian noise $d\mathbf{B}$ of variance $0.2^2$.  
-The weight matrix has 4 parameters $sW$, $vW$, $hW$, and $dW$:
+The weight matrix has 4 parameters for self $sW$, vertical $vW$, horizontal $hW$, and diagonal $dW$ connections:
 \begin{equation}
 W = \begin{bmatrix} sW & vW & hW & dW \\ vW & sW & dW  & hW \\ hW & dW & sW & vW \\ dW  & hW & vW  & sW \end{bmatrix}.
 \end{equation}
+We study the role of parameters $\mathbf{z} = [sW, vW, hW, dW]^\top$ in rapid task switching.
 
 The circuit receives four different inputs throughout each trial, which has a total length of 1.8s.
 \begin{equation}
 \mathbf{h} = \mathbf{h}_{\text{constant}}  + \mathbf{h}_{\text{P,bias}} + \mathbf{h}_{\text{rule}} +  \mathbf{h}_{\text{choice-period}} + \mathbf{h}_{\text{light}}.
 \end{equation}
-
 There is a constant input to every population,
 \begin{equation}\mathbf{h}_{\text{constant}} = I_{\text{constant}} [1, 1, 1, 1]\top,
 \end{equation}
@@ -1670,13 +1668,13 @@ The input parameterization was fixed to $I_{\text{constant}} = 0.75$, $I_{\text{
 \label{fig:SC3}
 \end{figure}
 
-The accuracies of $p_P$ and $p_A$ are calculated as
+The accuracies of each task $p_P$ and $p_A$ are calculated as
 \begin{equation}
-p_P(\mathbf{x}; \mathbf{z}) = \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z})}\left[\Theta[x_{LP}(t=1.8s) - x_{RP}(t=1.8s)]\right]
+p_P(\mathbf{x}; \mathbf{z}) = \mathbb{E}_{\mathbf{x}}\left[\Theta[x_{LP}(t=1.8s) - x_{RP}(t=1.8s)]\right]
 \end{equation}
 and 
 \begin{equation}
-p_A(\mathbf{x}; \mathbf{z}) = \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z})}\left[\Theta[x_{RP}(t=1.8s) - x_{LP}(t=1.8s)]\right]
+p_A(\mathbf{x}; \mathbf{z}) = \mathbb{E}_{\mathbf{x}}\left[\Theta[x_{RP}(t=1.8s) - x_{LP}(t=1.8s)]\right]
 \end{equation}
 given that the stimulus is on the left side, where $\Theta$ is the Heaviside step function, and the accuracy is averaged over 200 independent trials.  The Heaviside step function is approximated as
 \begin{equation}
@@ -1685,10 +1683,10 @@ given that the stimulus is on the left side, where $\Theta$ is the Heaviside ste
 where $\beta = 100$.
 
 \begin{figure}
-\begin{center}
-\includegraphics[scale=0.8]{figures/figSC4/figSC4.pdf}
-\end{center}
-\caption{\small (SC4):  \textbf{A}. Pairplots of eigenvalues of connectivity matrices in EPI distribution colored by Pro task accuracy.  Red and purple stars and arrows correspond to eigenvalues and sensitivity directions $\mathbf{z}_1$, $\mathbf{z}_2$, $\mathbf{v}_1$, and $\mathbf{v}_2$. \textbf{B}. Same colored by Anti task accuracy.
+%\begin{center}
+%\includegraphics[scale=0.8]{figures/figSC4/figSC4.pdf}
+%\end{center}
+\caption{\small (SC4):  \textbf{A}. Something showing differences in regimes.
 }
 \label{fig:SC4}
 \end{figure}
@@ -1705,9 +1703,9 @@ where $\beta = 100$.
 \label{fig:SC5}
 \end{figure}
 
-Writing the EPI posterior as a maximum entropy distribution, $T(\mathbf{x}, \mathbf{z})$ is comprised of both these first and second moments of the accuracy in each task (as in Equations \ref{eq:moments} and \ref{eq:mu_opt})
+Writing the EPI distribution as a maximum entropy distribution, $T(\mathbf{x}, \mathbf{z})$ is comprised of both these first and second moments of the accuracy in each task (as in Equations \ref{eq:moments} and \ref{eq:mu_opt})
 \begin{equation} 
-T(\mathbf{x}; \mathbf{z}) = \begin{bmatrix} p(\mathbf{x}; \mathbf{z})_P \\ p(\mathbf{x}; \mathbf{z})_A \\ \left(p(\mathbf{x}; \mathbf{z})_P - 75\% \right)^2 \\ \left(p(\mathbf{x}; \mathbf{z})_A - 75\% \right)^2 \end{bmatrix},
+T(\mathbf{x}; \mathbf{z}) = \begin{bmatrix} p_P(\mathbf{x}; \mathbf{z}) \\ p_A(\mathbf{x}; \mathbf{z}) \\ \left(p_P(\mathbf{x}; \mathbf{z}) - 75\% \right)^2 \\ \left(p_A(\mathbf{x}; \mathbf{z}) - 75\% \right)^2 \end{bmatrix},
 \end{equation}
 \begin{equation} 
 \bm{\mu}_{\text{opt}} = \begin{bmatrix} 75\% \\ 75\% \\ 7.5\%^2 \\ 7.5\%^2 \end{bmatrix}.
@@ -1758,6 +1756,12 @@ We see that sensitivity dimensions $\mathbf{v}_1$ and $\mathbf{v}_2$, which caus
 These eigenvalue changes are evident in the simulations of connectivity perturbations away from the modes (Fig. \ref{fig:SC2}).
 As the component of connectivity along $\mathbf{v}_1$ and $\mathbf{v}_2$ becomes stronger (left-to-right), there is less separation between Pro an Anti populations (lower $\lambda_{\text{task}}$) and greater separation between Left and Right populations following stimulus presentation (greater $\lambda_{\text{side}}$).
 A key differentiating factor is that $\mathbf{v}_1$ substantially increases $\lambda_{\text{diag}}$, while $\mathbf{v}_2$ does not.
+
+\textbf{OPTO} \\
+During periods of optogenetic inactivation, activity was decreased proportional to the optogenetic strength $\gamma$
+\begin{equation}
+x_\alpha = (1-\gamma)\phi(u_\alpha).
+\end{equation}
 
 During optogenetic silencing simulations, activations $x_\alpha(t)$ were set to a fraction of their values ($1 - \gamma$), where $\gamma$ is the optogenetic perturbation strength.
 We found that $\lambda_{\text{all}}$ and $\lambda_{\text{diag}}$ were significantly anticorrelated with Anti error during delay period inactivation.
