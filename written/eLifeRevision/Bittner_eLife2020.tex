@@ -485,7 +485,7 @@ This emphasizes the need for streamlined methods for gaining understanding about
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{EPI identifies multiple regimes of rapid task switching} \label{results_SC}
+\subsection{EPI identifies two regimes of rapid task switching} \label{results_SC}
 It has been shown that rats can learn to switch from one behavioral task to the next on randomly interleaved trials \cite{duan2015requirement}, and an important question is what types of neural connectivity allow this ability.
 In this experimental setup, rats were explicitly cued on each trial to either orient towards a visual stimulus in the Pro (P) task or orient away from a visual stimulus in the Anti (A) task (Fig. \ref{fig:SC}A). 
 Neural recordings in superior colliculus (SC) exhibited two populations of neurons that represented task context (Pro or Anti).
@@ -496,7 +496,7 @@ Here, our goal is to understand how connectivity in this circuit model governs t
 In this SC model, there are Pro- and Anti-populations in each hemisphere (left (L) and right (R)) with activity variables $\mathbf{x} = [x_{LP}, x_{LA}, x_{RP}, x_{RA}]^\top$.
 The connectivity of these populations is parameterized by self $sW$, vertical $vW$, diagonal $dW$ and horizontal $hW$ connections (Fig. \ref{fig:SC}B).
 The input $\mathbf{h}$ is comprised of a positive cue-dependent signal to the Pro or Anti populations, a positive stimulus-dependent input to either the Left or Right populations, and a choice-period input to the entire network (see Section \ref{methods_SC}).
-Model responses are bounded from 0 to 1 as a function $\phi$ of a dynamically evolving internal variable $\mathbf{u}$
+Model responses are bounded from 0 to 1 as a function $\phi$ of an internal variable $\mathbf{u}$
 \begin{equation}
 \begin{split}
 \tau \frac{d\mathbf{u}}{dt} &= -\mathbf{u} + W\mathbf{x} + \mathbf{h} + d\mathbf{B} \\
@@ -536,25 +536,34 @@ We formulate rapid task switching as an emergent property by stipulating that th
 \end{equation}
 
 The EPI inferred distribution  (Fig. \ref{fig:SC}C) produces task accuracies (Fig. \ref{fig:SC}C, middle-left) according to our mathematical definition of rapid task switching (Equation \ref{eq:SC_EP}).
-The patterns of connectivity that govern each task accuracy are nonlinear (Fig. \ref{fig:SC1}A-B); they are not captured well by linear prediction (Fig. \ref{fig:SC1}C).
+The patterns of connectivity that govern each task accuracy are nonlinear (Fig. \ref{fig:SC1}A-B); they are not captured well by linear correlations (Fig. \ref{fig:SC1}C).
 For example, there appear to be two regimes of connectivity: the local structure of the EPI distribution changes dramatically after crossing a threshold of $sW$ (Fig. \ref{fig:SC1}A $sW$-$hW$ marginal distribution).
-Not only has EPI captured this intricate, nonlinear distribution, we can use the probabilistic toolkit on the deep probability distribution $q_{\bm{theta}}(\mathbf{z} \mid \mathcal{X})$ to understand these two parametric regimes of SC connectivity.
+Not only has EPI captured this intricate, nonlinear distribution, we can use the distribution $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ returned by EPI to understand these two parametric regimes of SC connectivity.
 
-To identify the parameters of these two parametric regimes, we point out that for many fixed values of parameter $hW$, there are two modes in the EPI distribution.  
-Thus, by fixing $hW$ to different values and doing gradient ascent on $\log q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ in the parameter spaces proximal to each regime, we can identify modes $\mathbf{z}^*(hW_{\text{fixed}}, r)$ for each regime $r \in \{1, 2\}$ (see Section \ref{methods_SC}).
-As $hW_{\text{fixed}}$ increases, the modes eventually coalesce to intermediate parameters reflecting a transition between the two regimes (Fig. \ref{fig:SC4} top).
-However the sensitivity dimensions of these modes $\mathbf{v}_1$ (refer to Section \ref{results_dgm}), which reflect the structure of the EPI distribution around those modes, are very similar throughout the entirety of each regime independent of $hW_{\text{fixed}}$.
-This suggests that there are categorically different ways in which connectivity governs computation in each regime.
+To distinguish these two parts of the distribution, we point out that for many fixed values of parameter $hW$, there are two modes in the EPI distribution.  
+Thus, by fixing $hW$ to different values and doing gradient ascent on $\log q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ in the parameter spaces proximal to each mode, we can identify a set of modes $\mathbf{z}^*(hW_{\text{fixed}}, r)$ for each putative regime $r \in \{1, 2\}$ (see Section \ref{methods_SC}).
+As $hW_{\text{fixed}}$ increases, the modes coalesce to intermediate parameters reflecting a transition between the two sets of modes (Fig. \ref{fig:SC4} top).
+However, the sensitivity dimensions of these modes $\mathbf{v}_1$ (refer to Section \ref{results_dgm}), which reflect the structure of the EPI distribution around each mode, are different across putative regime, yet consistent across $hW_{\text{fixed}}$.
+This categorical difference in sensitivity dimension across the two sets of modes shows that they indeed represent two different regimes of computation in which connectivity governs computation in different ways.
 
-To understand how SC connectivity governs computation in each regime, we can examine how perturbations along $\mathbf{v}_1(\mathbf{z}^*)$ affect task performance in each regime.
-While the increase in Pro accuracy with $\mathbf{v}_1$ perturbation is largely unnaffected by regime (Fig. \ref{fig:SC}D, top-left), we see a stark difference in Anti accuracy: Anti accuracy falls in either direction of $\mathbf{v}_1$ in regime 1, yet monotically increases in regime 2 (Fig. \ref{fig:SC}D, top-right).
-Therefore, the sharp change in structure of the EPI distribution can be attributed to this changing pathology in rapid task switching behavior.
+To understand how SC connectivity governs computation in each regime, we can examine how perturbations along $\mathbf{v}_1(\mathbf{z}^*)$ affect task performance in each regime; we measure task accuracy for connectivity changes in the dimension that rapid task switching is most sensitive.
+While the monotonic increase in Pro accuracy with $\mathbf{v}_1$ perturbation is largely unaffected by regime (Fig. \ref{fig:SC}D, top-left), we see a stark difference in Anti accuracy: Anti accuracy falls in either direction of $\mathbf{v}_1$ in regime 1, yet monotonically increases along with Pro accuracy in regime 2 (Fig. \ref{fig:SC}D, top-right).
+These two rapid task switching pathologies are caused by distinct connectivity changes ($\mathbf{v}_1(\mathbf{z}^*(\cdot, 1))$ vs $\mathbf{v}_1(\mathbf{z}^*(\cdot, 2))$) and explain the sharp change in local structure of the EPI distribution.
 
-The relation of biologically interpretable variables to regime and sensitivity dimension are salient from the pairplot in (Fig. \ref{fig:SC}C), but we may seek to gain a more computation-driven understanding of each regime.
-A convenient property of this connectivity parameterization is that there are $\mathbf{z}$-invariant eigenmodes of connectivity, whose eigenvalues (or degree of amplification) change with $\mathbf{z}$ (see Section \ref{methods_SC}). \textbf{explain eigenmode intuition}. 
-\textbf{Summarize with concise description and inuition from Fig. \ref{fig:SC}D.}
+To understand the connectivity mechanisms that distinguish these two regimes, we perturb connectivity at each mode in dimensions that have well defined roles in processing for the Pro and Anti tasks.
+A convenient property of this connectivity parameterization is that there are $\mathbf{z}$-invariant eigenmodes of connectivity, whose eigenvalues (or degree of amplification) change with $\mathbf{z}$.
+These eigenmodes have intuitive roles in processing in each task, and are accordingly named the \textit{all}, \textit{side}, \textit{task}, and \textit{diag} eigenmodes (see Section \ref{methods_SC}).
+Furthermore, the parameter dimension $\mathbf{v}_a$ ($a \in \{\text{all}, \text{side}, \text{task}, \text{ and diag}\}$) that increases the eigenvalue of connectivity $\lambda_a$ is $\mathbf{z}$-invariant (unlike the sensitivity dimension $\mathbf{v}_1(\mathbf{z})$) and $\mathbf{v}_a \perp \mathbf{v}_{b \neq a}$.
+Thus, by changing the degree of amplification of each processing mode by  perturbing $\mathbf{z}$ along $\mathbf{v}_a$, we can elicit the differentiating properties of the two regimes.
 
-\subsection{EPI inferred SC connectivities reproduce results from optogenetic inactivation experiements} \label{results_SC}
+Through these connectivity perturbation analyses, we found that increasing $\lambda_{\text{task}}$ strongly reduced Pro accuracy in regime 1, yet strongly reduced Anti accuracy in regime 2.
+This suggests that stronger task representations can inhibit both Pro and Anti task performance in different contexts.
+Furthermore, changing $\lambda_{\text{task}}$ in either direction decreases Anti performance in regime 1, showing that Anti task performance in regime 1 is dependent on a specific level of task representation.
+We also found that with increasing $\lambda_{\text{diag}}$, Pro accuracy increased in both regimes, but there were opposite effects on Anti accuracy.
+In regime 1, stronger amplification of diagonal population patterns decreased Anti accuracy, while in regime 2 accuracy increased.
+These findings give us an understanding of the mechanistic differences in computation enabling rapid task switching in each regime.
+
+\subsection{EPI inferred SC connectivities reproduce results from optogenetic inactivation experiments} \label{results_SC}
 
 During the delay period of this task, the circuit must prepare to execute the correct task based on the cue input.
 Experimental results from Duan et al. found that optogenetic inactivation of SC during the delay period consistently decreased performance in the Anti task, but had no effect on the Pro task (Fig. \ref{fig:SC_opto}A).
@@ -564,7 +573,7 @@ Notably, EPI inferred connectivities were only conditioned upon the emergent pro
 Similarities across Pro and Anti trials in choice period responses following delay period inactivation (Fig. \ref{fig:SC5}A) suggested that connectivity patterns inducing greater Pro task accuracy increase error in delay period inactivated Anti trials (Fig. \ref{fig:SC_opto}B).
 The strong anticorrelation between $p_P$ and $p_{A, opto}$ across EPI inferred connectivities led to the following hypothesis about each connectivity regime: the sensitivity dimension of each regime decreases $p_{A,opto}$ irrespective of its effect on $p_A$, since both $\mathbf{v}_1$ and $\mathbf{v}_2$ increase $p_P$.
 Indeed, in regimes 1 and 2 where sensitivity dimensions elicit different responses in $p_A$, $p_{A,opto}$ decreases since the connectivity changes enhancing $p_P$ exacerbate Anti trial error (Fig. \ref{fig:SC_opto}C).
-Thus, the altered state caused by delay period silencing makes the $p_P$ connectivity better than the $p_A$ down connectivity.
+Thus, the altered state caused by delay period silencing makes the connectivity governing $p_P$ more influential than the connectivity governing $p_A$.
 
 \begin{figure}
 \begin{center}
@@ -621,7 +630,7 @@ Indeed, EPI is an adaptive variational inference program, and may be considered 
 
 Biologically realistic models of neural circuits often prove formidable to analyze for two main reasons.
 A primary challenge is that the number of parameters scales dramatically with the number of neurons, limiting analysis of its parameter space.
-We see in Section \ref{results_LRRNN} that EPI scales seemlessly to high dimensional parameter spaces of RNN connectivities, while maintaining the production of the specified emergent property.
+We see in Section \ref{results_LRRNN} that EPI scales seamlessly to high dimensional parameter spaces of RNN connectivities, while maintaining the production of the specified emergent property.
 EPI strongly outperforms the standard likelihood-free inference technique (SMC-ABC \cite{sisson2007sequential}), and a recently developed deep likelihood-free inference technique (SNPE \cite{gonccalves2019training}), most likely because of it's ability to leverage the gradient information of the emergent property statistics and to adapt it's paramter sampling distribution at every step of gradient descent.
 
 A secondary challenge is that the structure of the parametric regimes governing emergent properties is intricate.  
@@ -1711,7 +1720,7 @@ where $\beta = 100$.
 \includegraphics[scale=0.8]{figures/figSC4/figSC4.pdf}
 \end{center}
 \caption{\small (SC4):  \textbf{A}. The individual parameters of each mode throughout the two regimes.
-\textbf{B}. The individual sensitivites of parameters of each mode throughout the two regimes.
+\textbf{B}. The individual sensitivities of parameters of each mode throughout the two regimes.
 }
 \label{fig:SC4}
 \end{figure}
@@ -1754,7 +1763,7 @@ The initial distribution was a standard isotropic gaussian $z_0 \sim \mathcal{N}
 We used an augmented Lagrangian coefficient of $c_0 = 10^{2}$, a batch size $n=100$, and $\beta=2$.
 The distribution converged with criteria $N_{\text{test}} = 25$.
 
-The EPI distribution of SC model connectivites producing rapid task switching has interesting structure.
+The EPI distribution of SC model connectivities producing rapid task switching has interesting structure.
 Throughout $q_{\bm{theta}}(\mathbf{z} \mid \mathcal{X})$, we see that the probability distribution is narrow in $hW$ (Fig. \ref{fig:SC}C).
 This suggests that rapid task switching is sensitive to changes in $hW$, but this is only a single parameter.
 The local structure of the distribution varies across parameter space, and thus the nature in which parameter combinations affect rapid task switching.
@@ -1771,10 +1780,10 @@ Each of these modes is denoted $\mathbf{z}^*(hW_{\text{fixed}}, r)$ for regime $
 At each mode, we measure the sensitivity dimension (that of most negative eigenvalue in the Hessian of the EPI distribution) $\mathbf{v}_1(\mathbf{z}^*)$.
 To resolve sign degeneracy in eigenvectors, we chose $\mathbf{v}_1(\mathbf{z}^*)$ to have negative element in $hW$.
 This tells us what parameter combination rapid task switching is most sensitive to at this parameter choice in the regime.
-We see that while the modes of each regime gradually converge to similar connectivites at $hW_{\text{fixed}} = -1.05$ (Fig. \ref{fig:SC4} top), the sensitivity dimensions remain categorically different throughout the two regimes (Fig. \ref{fig:SC4} bottom)
+We see that while the modes of each regime gradually converge to similar connectivities at $hW_{\text{fixed}} = -1.05$ (Fig. \ref{fig:SC4} top), the sensitivity dimensions remain categorically different throughout the two regimes (Fig. \ref{fig:SC4} bottom)
 Only at $hW_{\text{fixed}} = -1.05$ is there a flip in sensitivity from regime 2 to regime 1 (in $\mathbf{v}_1(\mathbf{z}^*)_{sW}$ and $\mathbf{v}_1(\mathbf{z}^*)_{hW}$).
 There is thus some ambiguity regarding the ``regime" of $\mathbf{z}^*(-1.05, 2)$, since the mode is derived from an initialization in regime 2, but has sensitivity like regime 1.
-We can consider this as an intermediate tranisitionary region of parameter space between the two regimes.
+We can consider this as an intermediate transitionary region of parameter space between the two regimes.
 To emphasize this, $\mathbf{z}^*(-1.05, 1)$ and $\mathbf{z}^*(-1.05, 2)$ have the same color.
 
 To understand the connectivity mechanisms governing task accuracy, we took the eigendecomposition of the symmetric connectivity matrices $W = Q\Lambda Q^{-1}$, which results in the same basis vectors $\mathbf{q}_i$ for all $W$ parameterized by $\mathbf{z}$ (Fig. \ref{fig:SC3}A). 
@@ -1788,7 +1797,7 @@ A = \frac{1}{4} \begin{bmatrix} 1 & 1 & 1 & 1 \\ 1 & -1 & -1 & 1 \\ 1 & 1 & -1 &
 \end{equation}
 
 We are interested in the effect of raising or lowering the amplification of each eigenmode in the connectivity matrix.
-To test this, we calculate the the unit vector of changes in the connectivity $\mathbf{z}$ that result form a change in the associated eigenvalues
+To test this, we calculate the unit vector of changes in the connectivity $\mathbf{z}$ that result from a change in the associated eigenvalues
 \begin{equation}
 \mathbf{v}_{\text{a}} = \frac{\frac{\partial \mathbf{z}}{\partial \lambda_{\text{a}}}}{|\frac{\partial \mathbf{z}}{\partial \lambda_{\text{a}}}|_2},
 \end{equation}
@@ -1804,7 +1813,7 @@ While perturbations in the sensitivity dimension $\mathbf{v}_1(\mathbf{z}^*)$ ad
 %As the component of connectivity along $\mathbf{v}_1$ and $\mathbf{v}_2$ becomes stronger (left-to-right), there is less separation between Pro an Anti populations (lower $\lambda_{\text{task}}$) and greater separation between Left and Right populations following stimulus presentation (greater $\lambda_{\text{side}}$).
 %A key differentiating factor is that $\mathbf{v}_1$ substantially increases $\lambda_{\text{diag}}$, while $\mathbf{v}_2$ does not.
 
-We tested whether the inferred SC model connectivites could reproduce experimental effects of optogenetic inactivation in rats \cite{duan2015requirement}.
+We tested whether the inferred SC model connectivities could reproduce experimental effects of optogenetic inactivation in rats \cite{duan2015requirement}.
 During periods of simulated optogenetic inactivation, activity was decreased proportional to the optogenetic strength $\gamma$
 \begin{equation}
 x_\alpha = (1-\gamma)\phi(u_\alpha).
