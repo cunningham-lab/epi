@@ -97,19 +97,17 @@ Unfortunately, as circuit models include more biological realism, theory via ana
 Still, we can gain insight into these complex models by identifying the distribution of parameters that produce computations.
 By solving the inverse problem in this way, scientific analysis of biologically realistic models is made possible \cite{foster1993significance, prinz2004similar, achard2006complex, o2014cell, alonso2019visualization}.
 
-As models of computation become more complex, two problems arise with existing approaches.
-First, the level of insight into computation afforded by parameter inference techniques \cite{kass2001spike, brown1998statistical, paninski2004maximum, truccolo2005point, schneidman2006weak, druckmann2007novel, turner2007maximum, byron2009gaussian, macke2011empirical, park2011bayesian, granot2013stimulus, latimer2015single, lakshminarasimhan2018dynamic, duncker2019learning, ladenbauer2019inferring, gao2016linear, zhao2017recursive, barello2018sparse, pandarinath2018inferring, wiltschko2015mapping, johnson2016composing, batty2019behavenet} (see review, \cite{paninski2018neural}) is limited by the quantity and quality of available data.
-Even with vast amounts of data recorded with state-of-the-art equipment, neural activity in non-movement generating brain areas have been shown to strongly encode uninstructed behavior \cite{niell2010modulation, saleem2013integration, musall2019single}.
-Thus, the observational datasets we use to constrain our models of computation represent computations embedded in a sea of task-irrelevant factors like behavioral idiosyncrasies and likely other factors like hunger and thirst state, and abstract internal thoughts.
-Thus, when examining parameters inferred from neural datasets, rather than the specific computational properties -- the \emph{emergent phenomena} -- of neural circuit models \cite{hopfield1982neural, sompolinsky1988chaos, tsodyks1997paradoxical, wong2006recurrent}, it’s impossible to identify which aspect of the neural data is determining the inferred parameters: the computation or extraneous factors.
+While theoretical neuroscience is concerned with how model parameters govern  computational properties, existing methodology for statistical inference in neuroscience \cite{kass2001spike, brown1998statistical, paninski2004maximum, truccolo2005point, schneidman2006weak, druckmann2007novel, turner2007maximum, byron2009gaussian, macke2011empirical, park2011bayesian, granot2013stimulus, latimer2015single, lakshminarasimhan2018dynamic, duncker2019learning, ladenbauer2019inferring, gao2016linear, zhao2017recursive, barello2018sparse, pandarinath2018inferring, wiltschko2015mapping, johnson2016composing, batty2019behavenet} (see review, \cite{paninski2018neural}) requires that parameters be conditioned on an explicit dataset.
+The scientific insight for a model of computation is then limited by the quantity and quality of available neural data.
+Even with a vast amount of high-quality recordings, neural data often reflect uninstructed behaviors \cite{niell2010modulation, saleem2013integration, musall2019single}, and thus may only reflect the computation of interest amidst a sea of task-irrelevant factors. 
+A common alternative is to synthesize an explicit dataset that is exemplary of that computation, so that the framework of statistical inference can be applied for parameter identification.
+In this case, well-defined computational properties are being shoehorned into artificial datasets for the purpose of methodological compatibility.
 
-%A common alternative is to synthesize data that is exemplary of that computation, so that the framework of statistical inference can be applied for parameter identification.
-%In this case, mathematical criteria are being shoehorned into artificial datasets for the purpose of methodological compatability.
-
-Second, most neural circuit models in theoretical neuroscience are noisy systems of differential equations that can only be sampled or realized through forward simulation; they lack a tractable likelihood function, which is necessary for statistical inference.
-Therefore, the most popular approaches to theoretical inverse problems have been likelihood-free inference methods \cite{sisson2007sequential, liepe2014framework}, in which reasonable parameters are obtained via simulation and rejection.
+Another key challenge is that as models of computation become more complex, statistical inference becomes intractable.
+Such mechanistic models in theoretical neuroscience are noisy systems of differential equations that can only be sampled or realized through forward simulation \cite{dayan2003theoretical, izhikevich2007dynamical}; they lack a tractable likelihood function, which is necessary for statistical inference.
+Therefore, the most popular approaches to parameter inference in mechanistic models have been likelihood-free inference methods \cite{sisson2007sequential, liepe2014framework}, in which reasonable parameters are obtained via simulation and rejection.
 A new class of techniques \cite{gonccalves2019training, papamakarios2019sequential, hermans2020likelihood} use deep learning to improve upon traditional likelihood-free inference approaches.
-However, to use these methods in theoretical neuroscience, we still must represent computation with an explicit dataset in some way.
+However, to use these methods in theoretical neuroscience, we must represent computation with an explicit dataset in some way.
 Theorists are therefore barred from using the probabilistic modeling toolkit for science with circuit models, unless they reformulate their inverse problem into a framework for observational datasets.
 
 %
@@ -131,13 +129,20 @@ Theorists are therefore barred from using the probabilistic modeling toolkit for
 %Conditioning on an emergent property requires a variant of deep probabilistic inference methods, which we have previously introduced \cite{loaiza2017maximum}.
 %Taken together, emergent property inference (EPI) provides a methodology for inferring parameter configurations consistent with a particular emergent phenomena in theoretical models.
 %We use a classic example of parametric degeneracy in a biological system, the stomatogastric ganglion \cite{goldman2001global}, to motivate and clarify the technical details of EPI.
+%
+%These challenges motivate the development of a novel inference framework called emergent property inference (EPI).
+%As an adaption of variational inference \cite{saul1998mean}, EPI infers parameter distributions that produce an emergent property: not a singular dataset, but a collection of datasets exhibiting some mathematical criteria.
+%EPI constrains the predictions of the inferred parameter distribution to produce the emergent property, which requires a variant of probabilistic inference methods \cite{loaiza2017maximum}.
+%Importantly, EPI uses deep learning to make rich, flexible approximations to the parameter distribution \cite{rezende2015variational} that produces an emergent property.
+%The structure captured by these deep probability distributions are scientifically valuable, revealing the sensitivity and robustness of the emergent property to different parameter combinations.
+%Perhaps most powerfully, EPI facilitates inference in mechanistic models, allowing theorists to capture rich parametric structure in biologically realistic models that is conditioned upon the emergent phenomena of interest.
 
-These challenges motivate the development of a novel inference framework called emergent property inference (EPI).
-As an adaption of variational inference \cite{saul1998mean}, EPI infers parameter distributions that produce an emergent property: not a singular dataset, but a collection of datasets exhibiting some mathematical criteria.
-EPI constrains the predictions of the inferred parameter distribution to produce the emergent property, which requires a variant of probabilistic inference methods \cite{loaiza2017maximum}.
-Importantly, EPI uses deep learning to make rich, flexible approximations to the parameter distribution \cite{rezende2015variational} that produces an emergent property.
-The structure captured by these deep probability distributions are scientifically valuable, revealing the sensitivity and robustness of the emergent property to different parameter combinations.
-Perhaps most powerfully, EPI facilitates inference in mechanistic models, allowing theorists to capture rich parametric structure in biologically realistic models that is conditioned upon the emergent phenomena of interest.
+To address the methodological incongruity between explicit datasets and emergent properties, we present a statistical inference method for conditioning parameters of neural circuit models directly on computation.
+In this work, we define computation by an emergent property, which is a statistical description of the phenomena to be produced by the neural circuit model.
+In emergent property inference (EPI), we infer the distribution of model parameters that produce this emergent property.
+With EPI, parameters are conditioned directly on an implicit dataset defined by the computation of interest.
+By using recent optimization techniques \cite{loaiza2017maximum}, EPI uses deep learning to make rich, flexible approximations to the parameter distributions \cite{rezende2015variational}, the structure of which reveals scientific insight about how parameters govern the emergent property.
+
 
 Equipped with this method, we prove out the potential of EPI by demonstrating its capabilities and presenting novel theoretical findings borne from its analysis.
 First, we show EPI's ability to handle mechanistic models using a classic model of parametric degeneracy in biology: the stomatogastric ganglion \cite{goldman2001global, gutierrez2013multiple}.
