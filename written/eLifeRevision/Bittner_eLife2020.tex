@@ -13,6 +13,7 @@
 \usepackage{lineno}
 \usepackage{floatrow}
 \usepackage{bm}
+\usepackage{cite}
 
 \DeclareMathOperator*{\argmin}{argmin}
 \DeclareMathOperator*{\argmax}{argmax}
@@ -85,30 +86,31 @@ Beyond its scientific contribution, this work illustrates the variety of analyse
 
 \section{Introduction}
 The fundamental practice of theoretical neuroscience is to use a mathematical model to understand neural computation, whether that computation enables perception, action, or some intermediate processing.  
-A neural circuit is systematized with a set of equations -- the model -- and these equations are motivated by biophysics, neurophysiology, and other conceptual considerations \cite{kopell1988coupled,  marder1998biophysics, abbott2008theoretical, wang2010neurophysiological}.
+A neural circuit is systematized with a set of equations -- the mechanistic model -- and these equations are motivated by biophysics, neurophysiology, and other conceptual considerations \cite{kopell1988coupled,  marder1998biophysics, abbott2008theoretical, wang2010neurophysiological}.
 The function of this system is governed by the choice of model \emph{parameters}, which when configured in a particular way, give rise to a measurable signature of a computation.   
 The work of analyzing a model then requires solving the inverse problem: given a computation of interest, how can we reason about particular parameter configurations?  
 The inverse problem is crucial for reasoning about likely parameter values, uniquenesses and degeneracies, and predictions made by the model \cite{gutenkunst2007universally, o2014cell}.
 
 Consider the idealized practice: one carefully designs a model and analytically derives how computational properties determine model parameters.
-Seminal examples of this gold standard (which often adopt approaches from statistical physics) include our field's understanding of memory capacity in associative neural networks \cite{hopfield1982neural}, chaos and autocorrelation timescales in random neural networks \cite{sompolinsky1988chaos}, the paradoxical effect \cite{tsodyks1997paradoxical}, and decision making \cite{wong2006recurrent}.
+Seminal examples of this gold standard include our field's understanding of memory capacity in associative neural networks \cite{hopfield1982neural}, chaos and autocorrelation timescales in random neural networks \cite{sompolinsky1988chaos}, the paradoxical effect \cite{tsodyks1997paradoxical}, and decision making \cite{wong2006recurrent}.
 Unfortunately, as circuit models include more biological realism, theory via analytical derivation becomes intractable.
 Still, we can gain insight into these complex models by identifying the distribution of parameters that produce computations.
-By solving the inverse problem in this way, scientific analysis of complex biologically realistic models is made possible \cite{foster1993significance, prinz2004similar, achard2006complex, o2014cell, alonso2019visualization}.
-However, this work clarifies an important incongruity between this methodology and theoretical approaches to neuroscience.
+By solving the inverse problem in this way, scientific analysis of biologically realistic models is made possible \cite{foster1993significance, prinz2004similar, achard2006complex, o2014cell, alonso2019visualization}.
 
-A pivotal detail in theoretical neuroscience is the manner in which the computation is specified.
-One common approach is to use data that is exemplary of that computation, so that the framework of statistical inference can be applied for parameter identification.
-While a host of suitable algorithms have been developed for inferring parameters in models of neural data \cite{kass2001spike, brown1998statistical, paninski2004maximum, truccolo2005point, schneidman2006weak, druckmann2007novel, turner2007maximum, byron2009gaussian, macke2011empirical, park2011bayesian, granot2013stimulus, latimer2015single, lakshminarasimhan2018dynamic, duncker2019learning, ladenbauer2019inferring, gao2016linear, zhao2017recursive, barello2018sparse, pandarinath2018inferring, wiltschko2015mapping, johnson2016composing, batty2019behavenet} (see review, \cite{paninski2018neural}), the level of insight gained strongly depends on the quantity and quality of available data.
-Ultimately theoretical neuroscience is concerned with the computational properties -- the \emph{emergent phenomena} -- of our models \cite{hopfield1982neural, sompolinsky1988chaos, tsodyks1997paradoxical, wong2006recurrent}, not noisy observed datasets.
-To use the aforementioned inference paradigm, scientists must shoehorn such mathematical criteria into an artificial dataset compatible with existing statistical approaches.
+As models of computation become more complex, two problems arise with existing approaches.
+First, the level of insight into computation afforded by parameter inference techniques \cite{kass2001spike, brown1998statistical, paninski2004maximum, truccolo2005point, schneidman2006weak, druckmann2007novel, turner2007maximum, byron2009gaussian, macke2011empirical, park2011bayesian, granot2013stimulus, latimer2015single, lakshminarasimhan2018dynamic, duncker2019learning, ladenbauer2019inferring, gao2016linear, zhao2017recursive, barello2018sparse, pandarinath2018inferring, wiltschko2015mapping, johnson2016composing, batty2019behavenet} (see review, \cite{paninski2018neural}) is limited by the quantity and quality of available data.
+Even with vast amounts of data recorded with state-of-the-art equipment, neural activity in non-movement generating brain areas have been shown to strongly encode uninstructed behavior \cite{niell2010modulation, saleem2013integration, musall2019single}.
+Thus, the observational datasets we use to constrain our models of computation represent computations embedded in a sea of task-irrelevant factors like behavioral idiosyncrasies and likely other factors like hunger and thirst state, and abstract internal thoughts.
+Thus, when examining parameters inferred from neural datasets, rather than the specific computational properties -- the \emph{emergent phenomena} -- of neural circuit models \cite{hopfield1982neural, sompolinsky1988chaos, tsodyks1997paradoxical, wong2006recurrent}, it’s impossible to identify which aspect of the neural data is determining the inferred parameters: the computation or extraneous factors.
 
-In addition, another crucial challenge in neuroscientific modeling has been the inversion of biologically realistic or ``mechanistic" models.
-Most neural circuit models in theoretical neuroscience are noisy systems of differential equations that can only be sampled or realized through forward simulation; they lack the explicit likelihood necessary for statistical inference.
-Therefore, the most popular approaches to theoretical inverse problems have been likelihood-free inference (LFI) methods \cite{sisson2007sequential, liepe2014framework}, in which reasonable parameters are obtained via simulation and rejection.
-A flourishing new class of techniques \cite{gonccalves2019training, papamakarios2019sequential, hermans2020likelihood} use deep learning to improve upon traditional LFI approaches.
-However, to use these methods in theoretical neuroscience, we still must represent computation with data in some way.
-Theorists are therefore barred from using the probabilistic modeling toolkit for science with circuit models, unless they reformulate their inverse problem into an empirical framework.
+%A common alternative is to synthesize data that is exemplary of that computation, so that the framework of statistical inference can be applied for parameter identification.
+%In this case, mathematical criteria are being shoehorned into artificial datasets for the purpose of methodological compatability.
+
+Second, most neural circuit models in theoretical neuroscience are noisy systems of differential equations that can only be sampled or realized through forward simulation; they lack a tractable likelihood function, which is necessary for statistical inference.
+Therefore, the most popular approaches to theoretical inverse problems have been likelihood-free inference methods \cite{sisson2007sequential, liepe2014framework}, in which reasonable parameters are obtained via simulation and rejection.
+A new class of techniques \cite{gonccalves2019training, papamakarios2019sequential, hermans2020likelihood} use deep learning to improve upon traditional likelihood-free inference approaches.
+However, to use these methods in theoretical neuroscience, we still must represent computation with an explicit dataset in some way.
+Theorists are therefore barred from using the probabilistic modeling toolkit for science with circuit models, unless they reformulate their inverse problem into a framework for observational datasets.
 
 %
 %Existing approaches to the inverse problem in theoretical neuroscience fall short in three key ways. 
@@ -139,12 +141,12 @@ Perhaps most powerfully, EPI facilitates inference in mechanistic models, allowi
 
 Equipped with this method, we prove out the potential of EPI by demonstrating its capabilities and presenting novel theoretical findings borne from its analysis.
 First, we show EPI's ability to handle mechanistic models using a classic model of parametric degeneracy in biology: the stomatogastric ganglion \cite{goldman2001global, gutierrez2013multiple}.
-Then, we show EPI's superior scaling properties by inferring connectivities of recurrent neural networks (RNNs) that exhibit stable, yet amplified responses -- a hallmark of neural responses throughout the brain \cite{murphy2009balanced, hennequin2014optimal, bondanelli2019population}.
-In a model of primary visual cortex (V1) with different neuron-types, we show that the equation for excitatory variability become analytically intractable as more populations are added.
+Then, we show EPI's scalability to high dimensional parameter distributions by inferring connectivities of recurrent neural networks (RNNs) that exhibit stable, yet amplified responses -- a hallmark of neural responses throughout the brain \cite{murphy2009balanced, hennequin2014optimal, bondanelli2019population}.
+In a model of primary visual cortex (V1) \cite{litwin2016inhibitory, palmigiano2020structure} with different neuron-types, we show that the equation for excitatory variability become analytically intractable as more populations are added.
 Strikingly, the way in which noisy inputs across neuron-types governs excitatory variability is salient in the visualized structure of the EPI inferred parameter distribution.
-Finally, we investigated the possible connectivities of superior colliculus (SC) that allow execution of different tasks on intervleaved trials.
+Finally, we investigated the possible connectivities of superior colliculus (SC) that allow execution of different tasks on intervleaved trials \cite{duan2018collicular}.
 EPI discovered a rich distribution containing two connectivity regimes with different solution classes.
-We quantified parametric sensitivity and robustness in each regime by simply querying the deep probability distribution learned by EPI, which produced a mechanistic understanding of cortical responses in each regime. 
+We queried the deep probability distribution learned by EPI to produce a mechanistic understanding of cortical responses in each regime. 
 Intriguingly, all inferred connectivities reproduced results from optogenetic inactivation experiments in this behavioral paradigm -- emergent phenomena that EPI was not conditioned upon.
 These theoretical insights afforded by EPI illustrate the value of deep inference for the interrogation of neural circuit models.
 
@@ -341,11 +343,11 @@ This work is the first to produce this level of theoretical insight via the quan
 Transient amplification is a hallmark of neural activity throughout cortex, and is often thought to be intrinsically generated by recurrent connectivity in the responding cortical area \cite{murphy2009balanced, hennequin2014optimal, bondanelli2019population}.
 It has been shown that to generate such amplified, yet stabilized responses, the connectivity of RNNs must be non-normal \cite{goldman2009memory, murphy2009balanced}, and satisfy additional constraints \cite{bondanelli2020coding}.
 In theoretical neuroscience, RNNs are optimized and then examined to show how dynamical systems could execute a given computation \cite{sussillo2014neural, barak2017recurrent}, but such biologically realistic constraints on connectivity are  ignored during optimization for practical reasons.
-In general, access to distributions of connectivity adhering to theoretical criteria like stable amplification, chaotic fluctuations \cite{sompolinsky1988chaos}, or low tangling \cite{russo2018motor} would add great scientific value and contextualization to existing research with RNNs.
+In general, access to distributions of connectivity adhering to theoretical criteria like stable amplification, chaotic fluctuations \cite{sompolinsky1988chaos}, or low tangling \cite{russo2018motor} would add scientific value and context to existing research with RNNs.
 Here, we use EPI to learn RNN connectivities producing stable amplification, and demonstrate the superior scalability and efficiency of EPI to alternative approaches.
 \begin{figure}
 \begin{center}
-\includegraphics[scale=.8]{figures/fig4/fig4.pdf}
+\includegraphics[scale=.8]{figures/fig2/fig2.pdf}
 \end{center}
 \caption{\small 
 \textbf{A}. Wall time of EPI (blue), SNPE (orange), and SMC-ABC (green) to converge on RNN connectivities producing stable amplification.  
@@ -358,7 +360,7 @@ For reference, the mean wall time for EPI to achieve its full constraint converg
 \label{fig:LRRNN}
 \end{figure}
 
-We consider a rank-2 RNN with N neurons having connectivity $W = UV^\top$
+We consider a rank-2 RNN with $N$ neurons having connectivity $W = UV^\top$
  and dynamics
  \begin{equation}
  \tau \dot{\mathbf{x}} = -\mathbf{x} + W\mathbf{x},
@@ -366,7 +368,7 @@ We consider a rank-2 RNN with N neurons having connectivity $W = UV^\top$
 where $U = \begin{bmatrix} \mathbf{u}_1 & \mathbf{u}_2 \end{bmatrix} + g \chi^{(U)}$, $V = \begin{bmatrix} \mathbf{v}_1 & \mathbf{v}_2 \end{bmatrix} + g\chi^{(V)}$, $\mathbf{u}_1 \mathbf{u}_2, \mathbf{v}_1, \mathbf{v}_2 \in \left[-1, 1 \right]^N$, and $\chi^{(U)}_{i,j}, \chi^{(V)}_{i,j} \sim \mathcal{N}(0, 1)$.
 We infer connectivity parameterizations $\mathbf{z} = \left[\mathbf{u}_1^\top, \mathbf{u}_2^\top, \mathbf{v}_1^\top, \mathbf{v}_2^\top \right]^\top$   that produce stable amplification.
 Two conditions are necessary and sufficient for RNNs to exhibit stable amplification \cite{bondanelli2020coding}:  $\text{real}(\lambda_1) < 1$ and
-$\lambda^s_1 > 1$, where $\lambda_1$ is the eigenvalue of $W$ with greatest real part and $\lambda^s$ is the maximum eigenvalue of $W^s = \frac{W + W\top}{2}$.
+$\lambda^s_1 > 1$, where $\lambda_1$ is the eigenvalue of $W$ with greatest real part and $\lambda^s$ is the maximum eigenvalue of $W^s = \frac{W + W^\top}{2}$.
 RNNs  with $\text{real}(\lambda_1) = 0.5 \pm 0.5$ and $\lambda_1^s = 1.5 \pm 0.5$ will be stable with modest decay rate ($\text{real}(\lambda_1)$ close to its upper bound of 1) and exhibit modest amplification ($\lambda_1^s$ close to its lower bound of 1).
  EPI can naturally condition on this emergent property
 \begin{equation}\label{eq:EP_LRRNN}
@@ -383,11 +385,11 @@ SMC-ABC is a rejection sampling approach that SMC techniques to improve efficien
 Unlike EPI, these statistical inference techniques do not control the mean or variance of the predictive distribution, and these predictions of the inferred posteriors are typically affected by model characteristics (e.g. $N$ and $g$, Fig. \ref{fig:RNN2}).
 To compare the efficiency of these different techniques, we measured the time and number of simulations necessary for the distance of the predictive mean to be less than 0.5 from $\bm{\mu} = \mathbf{x}_0$ (see Section \ref{methods_RNN}).
 
-As the number of neurons $N$ in the RNN are scaled, and thus the dimension of the parameter space $\mathbf{z} \in [-1, 1]^{4N}$, we see that EPI converges at greater speed and at greater dimension than SMC-ABC and SNPE (Fig. \ref{fig:LRRNN}A).
+As the number of neurons $N$ in the RNN is scaled, and thus the dimension of the parameter space $\mathbf{z} \in [-1, 1]^{4N}$, we see that EPI converges at greater speed and at greater dimension than SMC-ABC and SNPE (Fig. \ref{fig:LRRNN}A).
 It also becomes most efficient to use EPI in terms of simulation count at $N=50$ (Fig. \ref{fig:LRRNN}B).
-It is well known that ABC techniques struggle mightily in dimensions greater than about 30 \cite{sisson2018handbook}, yet we were careful to assess the scalability of the more comparable approach SNPE.
+It is well known that ABC techniques struggle in dimensions greater than about 30 \cite{sisson2018handbook}, yet we were careful to assess the scalability of the more comparable approach SNPE.
 Between EPI and SNPE, we closely controlled the number of parameters in deep probability distributions by dimensionality (Fig. \ref{fig:RNN1}), and tested more aggressive SNPE hyperparameterizations when SNPE failed to converge (Fig. \ref{fig:RNN3}).
-From this analysis, we see that deep inference techniques EPI and SNPE are far more amenable to inference of high dimensional parameter distributions than rejection sampling techniques like SMC-ABC, and that EPI outperforms SNPE in both criteria in high-dimensions.
+From this analysis, we see that deep inference techniques EPI and SNPE are far more amenable to inference of high dimensional parameter distributions than rejection sampling techniques like SMC-ABC, and that EPI outperforms SNPE in both criteria in high dimensions.
 
 No matter the number of neurons, EPI always produces connectivity distributions with mean and variance of $\text{real}(\lambda_1)$ and $\lambda_1^s$ according to $\mathcal{X}$ (Fig. \ref{fig:LRRNN}C, blue).
 For the dimensionalities in which SMC-ABC is tractable, the inferred parameters are concentrated and offset from $\mathbf{x}_0$ (Fig. \ref{fig:LRRNN}C, green).
@@ -419,7 +421,7 @@ While scaling to high dimensions is important, we show in the next two sections 
 \begin{figure}
 \vspace{-1cm}
 \begin{center}
-\includegraphics[scale=0.8]{figures/fig2/fig2.pdf}
+\includegraphics[scale=0.8]{figures/fig3/fig3.pdf}
 \end{center}
 \vspace{-1cm}
 \caption{\small Emergent property inference in the stochastic stabilized supralinear network (SSSN)
@@ -457,7 +459,7 @@ This noise has a slower dynamical timescale $\tau_{\text{noise}} > \tau$ then th
 \begin{equation}
     \tau \frac{d\mathbf{x}}{dt} = -\mathbf{x} +\phi(W\mathbf{x} + \mathbf{h} + \bm{\epsilon}).
 \end{equation}
-This model is the stochastic stabilized supralinear network (SSSN) \cite{hennequin2018dynamical} generalized to have multiply inhibitory neuron types, and introduces stochasticity to previous four neuron-type models of V1 \cite{litwin2016inhibitory}.
+This model is the stochastic stabilized supralinear network (SSSN) \cite{hennequin2018dynamical} generalized to have multiple inhibitory neuron types, and introduces stochasticity to previous four neuron-type models of V1 \cite{litwin2016inhibitory}.
 Stochasticity and inhibitory multiplicity introduce substantial complexity to mathematical derivations (see Section \ref{methods_V1_complexity}) motivating the treatment of this model with EPI.
 Here, we consider fixed weights $W$ and input $\mathbf{h}$ \cite{palmigiano2020structure} (Fig. \ref{fig:V1}B), and study the effect of input variability $\mathbf{z} = [\sigma_E, \sigma_P, \sigma_S, \sigma_V]^\top$ on excitatory variability at 50\% contrast. 
 
@@ -475,11 +477,11 @@ From the marginal distribution of $\sigma_E$ and $\sigma_P$ (Fig. \ref{fig:V1}D,
 Alternatively, both $\sigma_S$ and $\sigma_V$ are degenerate with respect to $s_E(\mathbf{x}; \mathbf{z})$ evidenced by the high variability in those dimensions (Fig. \ref{fig:V1}D, bottom-right).
 Together, these observations imply a curved path of parametric degeneracy with respect to $s_E(\mathbf{x}; \mathbf{z})$ of 5 Hz, which is indicated by the modes along $\sigma_P$ (Fig. \ref{fig:V1}E).
 The dimensions of sensitivity conferred by EPI and this plain visual structure suggest a quadratic relationship in the emergent property statistic $s_E(\mathbf{x}; \mathbf{z})$ and parameters $\mathbf{z}$, which is preserved at a greater level of variability $\mathcal{X}(10\text{ Hz})$ (Fig. \ref{fig:V1}E).
-Indeed, the sum of squares of $\sigma_E$ and $\sigma_P$ is larger in $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(10\text{ Hz}))$ than $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{ Hz}))$ (Fig \ref{fig:V1}F, $p=0$), while the sum of squares of $\sigma_S$ and $\sigma_V$ are not significantly different in the two EPI distributions (Fig. \ref{fig:V1_3}, $p=.402$).
+Indeed, the sum of squares of $\sigma_E$ and $\sigma_P$ is larger in $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(10\text{ Hz}))$ than $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{ Hz}))$ (Fig \ref{fig:V1}F, $p < 1 \times 10{-10}$), while the sum of squares of $\sigma_S$ and $\sigma_V$ are not significantly different in the two EPI distributions (Fig. \ref{fig:V1_3}, $p=.40$).
 The strong compensatory influence of the E- and P-population input variability on excitatory varability is intriguing, since this circuit exhibited a paradoxical effect in the P-population (and no other inhibitory types) at 50\% contrast (Fig. \ref{fig:V1_3}) meaning that the E-population is P-stabilized.
-Future research may uncover a link between the populationsof stabilizations and compensatory interactions governing excitatory variability.
+Future research may uncover a link between the populations of stabilizations and compensatory interactions governing excitatory variability.
 
-By defining a clear theoretical question and executing the EPI optimization, we used EPI to reveal the quadratic relationship between $s_E(\mathbf{x}; \mathbf{z})$ and $\mathbf{z}$ .
+EPI revealed the quadratic relationship between $s_E(\mathbf{x}; \mathbf{z})$ and $\mathbf{z}$ .
 While this property is ultimately derivable, we show that with each additional neuron-type population, the formula becomes quite unruly and likely escapes comprehensible analysis in our case (see Section \ref{methods_V1_complexity}).
 This emphasizes the need for streamlined methods for gaining understanding about theoretical models when mathematical analysis becomes prohibitive.
 
@@ -508,7 +510,7 @@ Here, we use EPI to determine the network connectivity $\mathbf{z} = [sW, vW, dW
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.8]{figures/fig3/fig3.pdf}
+\includegraphics[scale=0.8]{figures/fig4/fig4.pdf}
 \end{center}
 \caption{\footnotesize 
 \textbf{A}. Rapid task switching behavioral paradigm (see text). 
@@ -1158,105 +1160,6 @@ In this study, we used emergent property inference to examine several models rel
 Here, we provide the details of each model  and the related analyses.
 
 \subsubsection{Stomatogastric ganglion}\label{methods_STG}
-%We analyze how the parameters $\mathbf{z} = [ g_{\text{el}}, g_{\text{synA}}]$ govern the emergent phenomena of network syncing in a model of the stomatogastric ganglion (STG) \cite{gutierrez2013multiple} shown in Figure \ref{fig:STG}A with activity $\mathbf{x} = \left[ x_{\text{f1}}, x_{\text{f2}}, x_{\text{hub}}, x_{\text{s1}}, x_{\text{s2}} \right]$, using the same hyperparameter choices as Gutierrez et al.
-%Each neuron's membrane potential $x_\alpha(t)$ for $\alpha \in \{ \text{f1}, \text{f2}, \text{hub}, \text{s1}, \text{s2} \}$ is the solution of the following differential equation:
-%\begin{equation} C_m \frac{dx_\alpha}{dt} = - \left[ h_{leak}(\mathbf{x}; \mathbf{z}) + h_{Ca}(\mathbf{x}; \mathbf{z}) + h_K(\mathbf{x}; \mathbf{z}) + h_{hyp}(\mathbf{x}; \mathbf{z}) + h_{elec}(\mathbf{x}; \mathbf{z}) + h_{syn}(\mathbf{x}; \mathbf{z})\right].
-%\end{equation} 
-%The membrane potential of each neuron is affected by the leak, calcium, potassium, hyperpolarization, electrical and synaptic currents, respectively, which are functions of  all membrane potentials and the conductance parameters $\mathbf{z}$.  
-%The capacitance of the cell membrane was set to $C_m = 1nF$. Specifically, the currents are the difference in the neuron's membrane potential and that current type's reversal potential multiplied by a conductance:
-%\begin{equation}  h_{leak}(\mathbf{x}; \mathbf{z}) = g_{leak} (x_\alpha - V_{leak}) 
-%\end{equation} 
-%\begin{equation}  h_{elec}(\mathbf{x}; \mathbf{z}) = g_{\text{el}} (x_\alpha^{post} - x_\alpha^{pre})
-%\end{equation} 
-%\begin{equation}  h_{syn}(\mathbf{x}; \mathbf{z}) = g_{syn} S_\infty^{pre} (x_\alpha^{post} - V_{syn}) \end{equation} 
-%\begin{equation}  h_{Ca}(\mathbf{x}; \mathbf{z}) = g_{Ca} M_\infty (x_\alpha - V_{Ca}) 
-%\end{equation} 
-%\begin{equation}  h_K(\mathbf{x}; \mathbf{z}) = g_K N (x_\alpha - V_K) 
-%\end{equation} 
-%\begin{equation}  h_{hyp}(\mathbf{x}; \mathbf{z}) = g_h H(x_\alpha - V_{hyp}).
-%\end{equation} 
-%The reversal potentials were set to $V_{leak} = -40mV$, $V_{Ca} = 100mV$, $V_K = -80mV$, $V_{hyp} = -20mV$, and $V_{syn} = -75mV$.  
-%The other conductance parameters were fixed to $g_{leak} = 1 \times 10^{-4} \mu S$. $g_{Ca}$, $g_{K}$, and $g_{hyp}$ had different values based on fast, intermediate (hub) or slow neuron.  
-%The fast conductances had values $g_{Ca} = 1.9 \times 10^{-2}$, $ g_K = 3.9 \times 10^{-2} $, and $ g_{hyp} = 2.5 \times 10^{-2} $.  
-%The intermediate conductances had values $g_{Ca} = 1.7 \times 10^{-2}$, $ g_K = 1.9 \times 10^{-2} $, and $ g_{hyp} = 8.0 \times 10^{-3} $.  
-%Finally, the slow conductances had values $g_{Ca} = 8.5 \times 10^{-3}$, $ g_K = 1.5 \times 10^{-2} $, and $ g_{hyp} = 1.0 \times 10^{-2} $.
-%
-%Furthermore, the Calcium, Potassium, and hyperpolarization channels have time-dependent gating dynamics dependent on steady-state gating variables $M_\infty$, $N_\infty$ and $H_\infty$, respectively:
-%\begin{equation}  M_{\infty} = 0.5 \left( 1 + \tanh \left( \frac{x_\alpha - v_1}{v_2} \right) \right) \end{equation}
-%\begin{equation}  \frac{dN}{dt} = \lambda_N (N_\infty - N)  \end{equation}
-%\begin{equation}  N_\infty = 0.5 \left( 1 + \tanh \left( \frac{x_\alpha - v_3}{v_4} \right) \right) \end{equation}
-%\begin{equation}  \lambda_N = \phi_N \cosh \left( \frac{x_\alpha - v_3}{2 v_4} \right) \end{equation}
-%\begin{equation}  \frac{dH}{dt} = \frac{\left( H_\infty - H \right)}{\tau_h} \end{equation}
-%\begin{equation}  H_\infty = \frac{1}{1 + \exp \left( \frac{x_\alpha + v_5}{v_6} \right)} \end{equation}
-%\begin{equation}  \tau_h = 272 - \left( \frac{-1499}{1 + \exp \left( \frac{-x_\alpha + v_7}{v_8} \right)} \right).
-% \end{equation}
-%where we set $v_1 = 0mV$, $v_2  = 20mV$, $v_3 = 0mV$, $v_4 = 15mV$, $v_5 = 78.3mV$,
-%$v_6 = 10.5mV$, $v_7 = -42.2mV$, $v_8 = 87.3mV$, $v_9 = 5mV$, and $v_{th} = -25mV$.  
-%
-%Finally, there is a synaptic gating variable as well:
-%\begin{equation} S_\infty = \frac{1}{1 + \exp \left( \frac{v_{th} - x_\alpha}{v_9} \right)} .
-%\end{equation}
-%When the dynamic gating variables are considered, this is actually a 15-dimensional nonlinear dynamical system.
-%
-%In order to measure the frequency of the hub neuron during EPI, the STG model was simulated for $T = 200$ time steps of $dt = 25ms$.  
-%In EPI, since gradients are taken through the simulation process, the number of time steps are kept modest if possible. 
-%The chosen $dt$ and $T$ were the most computationally convenient choices yielding accurate frequency measurement.  
-%Poor resolution afforded by the discrete Fourier transform motivated the use of an alternative basis of complex exponentials to measure spiking frequency.  
-%Instead, we used a basis of complex exponentials with frequencies from 0.0-1.0 Hz at 0.01Hz resolution, $\Phi = \left[ 0.0, 0.01, ..., 1.0 \right]^\top$
-%
-%Another consideration was that the frequency spectra of the neuron membrane potentials had several peaks.  
-%High-frequency sub-threshold activity obscured the maximum frequency measurement in the complex exponential basis.  
-%Accordingly, subthreshold activity was set to zero, and the whole signal was low-pass filtered with a moving average window of length 20.  
-%The signal was subsequently mean centered.  
-%After this preprocessing, the maximum frequency in the filter bank accurately reflected the firing frequency.
-%
-%Finally, to differentiate through the maximum frequency identification, we used a sum-of-powers normalization.  
-%Let $\mathcal{X}_\alpha \in \mathcal{C}^{|\Phi|}$ be the complex exponential filter bank dot products with the signal $x_\alpha \in \mathbb{R}^{N}$, where $\alpha \in \{ \text{f1}, \text{f2}, \text{hub}, \text{s1}, \text{s2} \}$.  
-%The ``frequency identification" vector is 
-%\begin{equation}
-%v_\alpha = \frac{|\mathcal{X}_\alpha|^\beta}{\sum_{k=1}^N |\mathcal{X}_\alpha(k)|^\beta}.
-%\end{equation}
-%The frequency is then calculated as $\omega_\alpha = v_\alpha^\top \Phi$ with $\beta = 100$.
-%
-%Network syncing, like all other emergent properties in this work, are defined by the emergent property statistics and values.  
-%The emergent property statistics are the first and second moments of the firing frequencies. 
-%The first moments were set to 0.53Hz, and the second moments were set to 0.025Hz$^2$:
-%\begin{equation}
-%E \begin{bmatrix} \omega_{\text{f1}} \\ \omega_{\text{f2}} \\ \omega_{\text{hub}} \\ \omega_{\text{s1}} \\ \omega_{\text{s2}} \\ (\omega_{\text{f1}} - 0.53)^2 \\ (\omega_{\text{f2}} - 0.53)^2 \\ (\omega_{\text{hub}} - 0.53)^2 \\ (\omega_{\text{s1}} - 0.53)^2 \\ (\omega_{\text{s2}} - 0.53)^2  \end{bmatrix} = \begin{bmatrix} 0.53 \\ 0.53 \\ 0.53 \\ 0.53 \\ 0.53 \\ 0.025^2 \\ 0.025^2 \\ 0.025^2 \\ 0.025^2 \\ 0.025^2 \end{bmatrix}
-%\end{equation}
-%for the EPI distribution shown in Fig. \ref{fig:STG}B.
-%Throughout optimization, the augmented Lagrangian parameters $\eta$ and $c$, were updated after each epoch of 2,500 iterations (see Section \ref{methods_AL_opt}).  
-%The optimization converged after four epochs (Fig. S4).
-%
-%\begin{figure}
-%\begin{center}
-%\includegraphics[scale=0.6]{figures/figS4/figS4.pdf}
-%\end{center}
-%\begin{flushleft}
-%{\small Fig. S4: EPI optimization of the STG model producing network syncing. 
-%A. Entropy throughout optimization. 
-%B. The first moment emergent property statistics converge to the emergent property values at 10,000 iterations, following the fourth augmented Lagrangian epoch of 2,500 iterations.  
-%Since $q_{\bm{\theta}}(\mathbf{z})$ failed to produce enough samples yielding $\omega_{\text{f1}}(\mathbf{x})$ less than $0.53$Hz, the convergence criteria were not satisfied after the third epoch at 7,500 iterations.    
-%C. The second moment emergent property statistics converge to the emergent property values.}
-%\end{flushleft}
-%\end{figure}
-%
-%For EPI in Fig 2C, we used a real NVP architecture with four masks and two layers of 10 units per mask, and batch normalization momentum of 0.99 mapped onto a support of $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}] \in [4,8] \times [0,4]$. 
-%We used an augmented Lagrangian coefficient of $c_0 = 10^{2}$, a batch size $n=300$, set $\nu = 0.1$, and initialized $q_{\bm{\theta}}(\mathbf{z})$ to produce an isotropic 
-%Gaussian with mean $\mu_{\text{init}} = [6, 2]$ with standard deviation $\sigma_{\text{init}} = 0.5$.
-%
-%We calculated the Hessian at the mode of the inferred EPI distribution.  
-%The Hessian of a probability model is the second order gradient of the log probability density $\log q_{\bm{\theta}}(\mathbf{z})$ with respect to the parameters $\mathbf{z}$:  $\frac{\partial^2 \log q_{\bm{\theta}}(\mathbf{z})}{\partial \mathbf{z} \partial \mathbf{z}^\top}$.  
-%With EPI, we can examine the Hessian, which is analytically available throughout distribution, to indicate the dimensions of parameter space that are sensitive (high magnitude eigenvalue), and which are degenerate (low magnitude eigenvalue) with respect to the emergent property produced. 
-%In Figure \ref{fig:STG}B, the eigenvectors of the Hessian $v_1$ and $v_2$ are shown evaluated at the mode of the distribution.  
-%The length of the arrows is inversely proportional to the square root of absolute value of their eigenvalues $\lambda_1 = -10.8$ and $\lambda_2 = -2.27$.
-%We quantitatively measured the sensitivity of the model with respect to network syncing along the eigenvectors of the Hessian (Fig. \ref{fig:STG}B, inset).
-%Sensitivity was measured as the slope coefficient of linear regression fit to network syncing error (the sum of squared differences of each neuron's frequency from 0.53Hz) as a function of parametric perturbation magnitude (maximum 0.25) away from the mode along both orientations indicated by the eigenvector with 100 equally spaced samples.
-%The sensitivity slope coefficient of eigenvector $v_1$ with respect to network syncing was significant ($\beta = 4.82 \times 10^{-2}$, $p<10^{-4}$).
-%In contrast, eigenvector $v_2$ did not identify a dimension of parameter space significantly sensitive to network syncing ($\beta = 8.65 \times 10^{-4}$ with $p=.67$).
-%These sensitivities were compared to all other dimensions of parameter space (100 equally spaced angles from 0 to $\pi$), revealing that the Hessian eigenvectors indeed identified the directions of greatest sensitivity and degeneracy (Fig. \ref{fig:STG}B, inset).
-%The contours of Figure \ref{fig:STG} were calculated as error in $T(\mathbf{x})$ from $\mu$ in both the first and second moment emergent property statistics.
-
 We analyze how the parameters $\mathbf{z} = [ g_{\text{el}}, g_{\text{synA}}]$ govern the emergent phenomena of intermediate hub frequency in a model of the stomatogastric ganglion (STG) \cite{gutierrez2013multiple} shown in Figure \ref{fig:STG}A with activity $\mathbf{x} = \left[ x_{\text{f1}}, x_{\text{f2}}, x_{\text{hub}}, x_{\text{s1}}, x_{\text{s2}} \right]$, using the same hyperparameter choices as Gutierrez et al.
 Each neuron's membrane potential $x_\alpha(t)$ for $\alpha \in \{ \text{f1}, \text{f2}, \text{hub}, \text{s1}, \text{s2} \}$ is the solution of the following stochastic differential equation:
 \begin{equation} C_m \frac{dx_\alpha}{dt} = - \left[ h_{leak}(\mathbf{x}; \mathbf{z}) + h_{Ca}(\mathbf{x}; \mathbf{z}) + h_K(\mathbf{x}; \mathbf{z}) + h_{hyp}(\mathbf{x}; \mathbf{z}) + h_{elec}(\mathbf{x}; \mathbf{z}) + h_{syn}(\mathbf{x}; \mathbf{z})\right] + dB.
@@ -1406,7 +1309,7 @@ SMC-ABC was run with a uniform prior over $\mathbf{z} \in \left[-1, 1 \right]^{(
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.7]{figures/figRNN2/figRNN2.pdf}
+\includegraphics[scale=0.7]{figures/figRNN1/figRNN1.pdf}
 \end{center}
 \caption{\small (RNN1): 
 Number of parameters in deep probability distribution architectures of EPI (blue) and SNPE (orange) by RNN size ($N$).
@@ -1427,7 +1330,7 @@ All SNPE optimizations were run for a limit of 1.5 days on a Tesla V100 GPU, or 
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.8]{figures/figRNN1/figRNN1.pdf}
+\includegraphics[scale=0.8]{figures/figRNN2/figRNN2.pdf}
 \end{center}
 \caption{\small (RNN2): Model characteristics affect predictions of posteriors inferred by SNPE, while predictions of parameters inferred by EPI remain fixed.
 \textbf{A}. Predictive distribution of EPI (blue) and SNPE (orange) inferred connectivity of RNNs exhibiting stable amplification with $N=2$ (top), $N=10$ (bottom), $g=0.01$ (left), and $g=0.1$ (right).
