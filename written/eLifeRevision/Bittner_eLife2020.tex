@@ -206,27 +206,26 @@ Note that the behavior of this model will be critically dependent on its paramet
 Specifically, the two fast neurons ($f1$ and $f2$) mutually inhibit one another, and oscillate at a faster frequency than the mutually inhibiting slow neurons ($s1$ and $s2$).  
 The hub neuron (hub) couples with either the fast or slow population, or both.  
 
-%Second, once the model is selected, one defines the emergent property, the measurable signal of scientific interest.  
 Second, once the model is selected, one must specify what the model should produce.
-In typical statistical inference, this is a dataset -- either collected experimentally or constructed by scientists to fit this emprical paradigm.
-In EPI, a different approach is taken, in which we define an emergent property: a set of mathematical criteria to be obeyed by the datasets predicted by the inferred distribution.
-%To continue our running STG example, one such emergent property is the phenomenon of \emph{network syncing} -- in certain parameter regimes, the frequency of the hub neuron matches that of the fast and slow populations at an intermediate frequency.
-In the STG example, we are concerned with neural spiking frequency, which emerges from the dynamics of the circuit model \ref{fig:STG}B.
-%One such emergent property is the phenomenon of \emph{unified intermediacy} -- in certain parameter regimes, the frequency of all neurons match at an intermediate firing rate.
-An interesting emergent property of this stochastic model is when the hub neuron fires at an intermediate frequency between the intrinsic spiking rates of the fast and slow populations.
+In this STG model, we are concerned with neural spiking frequency, which emerges from the dynamics of the circuit model \ref{fig:STG}B.
+An emergent property studied by Guttierez et al. of this stochastic model is the hub neuron firing at an intermediate frequency between the intrinsic spiking rates of the fast and slow populations.
 This emergent property is shown in Figure \ref{fig:STG}C at an average frequency of 0.55Hz.
+Our notion of intermediate hub frequency is not strictly 0.55Hz, but also moderate deviations of this frequency between the fast (.35Hz) and and slow (.68Hz) frequencies, which are quantified in the emergent property with variance {0.025$^2$Hz$^2$}.
+%To continue our running STG example, one such emergent property is the phenomenon of \emph{network syncing} -- in certain parameter regimes, the frequency of the hub neuron matches that of the fast and slow populations at an intermediate frequency.
+
 
 %Third, qualitative parameter analysis ensues: since precise mathematical analysis is intractable in this model, a brute force sweep of parameters is done \cite{gutierrez2013multiple}.
 %Subsequently, a qualitative description is formulated to describe the different parameter configurations that lead to the emergent property.  
 %In this last step lies the opportunity for a precise quantification of the emergent property as a statistical feature of the model. 
 % Once we have such a methodology, we can infer a probability distribution over parameter configurations that produce this emergent property.
-Third, the model parameters producing these outputs are inferred.
-Most often, brute-force parameter sweeps or rejection sampling techniques \cite{liepe2014framework} are used to identify parameters whose model simulations are close to data or some desired feature.
 %Sensitivity analyses \cite{raue2009structural} are also used to identify which parameter contributions have the greatest effect.
 %In this last step lies the opportunity for a precise quantification of the emergent property as a statistical feature of the model.
-In this last step lies the opportunity for a paradigmatic shift away from empirical data-oriented representations of model output.
-By precisely quantifying the emergent property of interest as a statistical feature of the model, we can infer a probability distribution over parameter configurations that produce this emergent property.
-This unlocks the deep probabilistic modeling toolkit for treating theoretical inverse problems.
+Third, the model parameters producing these outputs are inferred.
+To infer the STG parameters of intermediate hub frequency with existing methodology, we  need an explicit dataset: experimentally recorded or synthesized.
+By precisely quantifying the emergent property of interest as a statistical feature of the model, we use EPI to condition directly on this emergent property.
+EPI learns a probability distribution of model parameters constrained to produce the emergent property.
+In this last step lies the opportunity for a shift away from a dataset-oriented representation of model output towards that of an implicit dataset, where the only structure is the emergent property of interest.
+%Most often, brute-force parameter sweeps or rejection sampling techniques \cite{liepe2014framework} are used to identify parameters whose model simulations are close to data or some desired feature.
 
 \begin{figure}
 \begin{center}
@@ -253,53 +252,73 @@ The black and gray dashed lines show the mean and two standard deviations accord
 
 
 %Before presenting technical details (in the following section), let us understand emergent property inference schematically:  EPI (Fig. \ref{fig:STG}A gray box) takes, as input, the model and the specified emergent property, and as its output, produces the parameter distribution shown in Figure \ref{fig:STG}B.
-Before presenting technical details (in the following section), let us understand emergent property inference schematically:  EPI (Fig. \ref{fig:STG}D) takes, as input, the model and the specified emergent property, and as its output, produces the parameter distribution  EPI (Fig. \ref{fig:STG}E).  
-This distribution -- represented for clarity as samples from the distribution -- is a parameter distribution producing the emergent property. 
-In the STG model, this distribution can be specifically queried to reveal the prototypical parameter configuration for intermediate hub frequency (the mode; Figure \ref{fig:STG}E yellow star), and how it decays based on changes away from the mode.
-Indeed, samples equidistant from the mode along these EPI-identified dimensions of sensitivity ($v_1$) and degeneracy ($v_2$) (Fig. \ref{fig:STG}E, arrows) agree with error contours (Fig. \ref{fig:STG}E contours) and have diminished or preserved hub frequency, respectively (Fig. \ref{fig:STG}F activity traces) (see Section \ref{methods_STG}).
+Before presenting technical details (in the following section), let us understand emergent property inference schematically.
+EPI (Fig. \ref{fig:STG}D) takes, as input, the model and the specified emergent property, and as its output, produces the parameter distribution  EPI (Fig. \ref{fig:STG}E).  
+This distribution -- represented for clarity as samples from the distribution -- is a parameter distribution that produces the emergent property. 
+%In the STG model, this distribution can be specifically queried to reveal the prototypical parameter configuration for intermediate hub frequency (the mode; Figure \ref{fig:STG}E yellow star), and how it decays based on changes away from the mode.
+%Indeed, samples equidistant from the mode along these EPI-identified dimensions of sensitivity ($v_1$) and degeneracy ($v_2$) (Fig. \ref{fig:STG}E, arrows) agree with error contours (Fig. \ref{fig:STG}E contours) and have diminished or preserved hub frequency, respectively (Fig. \ref{fig:STG}F activity traces) (see Section \ref{methods_STG}).
 
 \subsection{A deep generative modeling approach to emergent property inference} \label{results_dgm}
 Emergent property inference (EPI) formalizes the three-step procedure of the previous section with deep probability distributions.
 %First, we consider the model as a coupled set of differential (and potentially stochastic) equations \cite{gutierrez2013multiple}.  
-First, as is typical, we consider the model as a coupled set of differential equations \cite{gutierrez2013multiple}.  
-In the running STG example, the model activity $\mathbf{x} = \left[ x_{\text{f1}}, x_{\text{f2}}, x_{\text{hub}}, x_{\text{s1}}, x_{\text{s2}} \right]$ is the membrane potential for each neuron, which evolves according to the biophysical conductance-based equation:
+First, as is typical, we consider the model as a coupled set of differential equations.  
+In this STG example, the model activity $\mathbf{x} = \left[ x_{\text{f1}}, x_{\text{f2}}, x_{\text{hub}}, x_{\text{s1}}, x_{\text{s2}} \right]$ is the membrane potential for each neuron, which evolves according to the biophysical conductance-based equation:
 \begin{equation} 
 \begin{split}
 C_m \frac{d\mathbf{x}(t)}{dt} = -h(\mathbf{x}(t); \mathbf{z}) + d\mathbf{B}
  \end{split}
 \end{equation} 
-where $C_m$=1nF, and $\mathbf{h}$ is a sum of the leak, calcium, potassium, hyperpolarization, electrical, and synaptic currents, all of which have their own complicated dependence on activity $\mathbf{x}$ and parameters $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}]$, and $d\mathbf{B}$ is white gaussian noise (see Section \ref{methods_STG} for more detail).
+where $C_m$=1nF, and $\mathbf{h}$ is a sum of the leak, calcium, potassium, hyperpolarization, electrical, and synaptic currents, all of which have their own complicated dependence on activity $\mathbf{x}$ and parameters $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}]$, and $d\mathbf{B}$ is white gaussian noise \cite{morris1981voltage, gutierrez2013multiple} (see Section \ref{methods_STG} for more detail).
 
 %Second, we define the emergent property, which as above is network syncing: oscillation of the entire population at an intermediate frequency of our choosing (Figure \ref{fig:STG}A bottom).
-Second, we define the emergent property, which as above is ``intermediate hub  frequency" (Figure \ref{fig:STG}C).
 %Quantifying this phenomenon is straightforward: we define network syncing to be that each neuron's spiking frequency -- denoted $\omega_{\text{f1}}(\mathbf{x})$, $\omega_{\text{f2}}(\mathbf{x})$, etc. -- is close to an intermediate frequency of 0.53Hz.  
 %Mathematically, we achieve this via constraints on the mean and variance of $\omega_\alpha(\mathbf{x})$ for each neuron $\alpha \in \{ \text{f1}, \text{f2}, \text{hub}, \text{s1}, \text{s2} \}$:
-Quantifying this phenomenon is straightforward: we stipulate that the hub neuron's spiking frequency -- denoted $\omega_{\text{hub}}(\mathbf{x})$ is close to a frequency of 0.55Hz.  
 %Mathematically, we achieve this via constraints on the mean and variance of the hub neuron spiking frequency.
-Mathematically, we achieve this with two constraints: by fixing the mean hub frequency over the inferred parameter distribution of $\mathbf{z}$ and its resulting simulations $\mathbf{x}$ to 0.55Hz,
-\begin{equation}\label{eq:EP_STG1}
- \mathbb{E}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.55 \end{bmatrix}
-\end{equation}
-and requiring that the variance of the hub frequency over the produced simulations is small
-\begin{equation}\label{eq:EP_STG2}
-\text{Var}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.025^2 \end{bmatrix}.
-\end{equation}
-This level of variance was chosen to be low enough to exclude the fast and slow frequencies of the two populations, but large enough to allow structural examination of the inferred parameter distribution.
-By constraining the means and variances of emergent property statistics over $\mathbf{z}$ as well as the stochasticity of $\mathbf{x}$, we can precisely control the behavior that the inferred distribution that EPI infers.
-In general, an emergent property
-\begin{equation}\label{eq:EP_STG}
-\mathcal{X}:~~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\mu}, \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2
-\end{equation}
-defines a collection of datasets with a statistic $f(\mathbf{x}; \mathbf{z})$ (which may be comprised of multiple statistics) and the means $\bm{\mu}$ and variances $\bm{\sigma}^2$ of those statistics over the datasets.
-The choice of $\bm{\sigma}^2$ predicates the degree of variability around the mean $\bm{\mu}$ that is consistent with the emergent property.
 
-Third, we perform emergent property inference: we find a distribution over parameter configurations $\mathbf{z}$, and insist that samples from this distribution produce the emergent property; in other words, they obey the constraints introduced in Equation \ref{eq:EP_STG}.  
+%Second, we define the emergent property, which as above is ``intermediate hub  frequency" (Figure \ref{fig:STG}C).
+%Quantifying this phenomenon is straightforward: we stipulate that the hub neuron's spiking frequency -- denoted $\omega_{\text{hub}}(\mathbf{x})$ is close to a frequency of 0.55Hz.  
+%Mathematically, we achieve this with two constraints: by fixing the mean hub frequency over the inferred parameter distribution of $\mathbf{z}$ and its resulting simulations $\mathbf{x}$ to 0.55Hz,
+%\begin{equation}\label{eq:EP_STG1}
+% \mathbb{E}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.55 \end{bmatrix}
+%\end{equation}
+%and requiring that the variance of the hub frequency over the produced simulations is small
+%\begin{equation}\label{eq:EP_STG2}
+%\text{Var}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~  \begin{bmatrix} 0.025^2 \end{bmatrix}.
+%\end{equation}
+%This level of variance was chosen to be low enough to exclude the fast and slow frequencies of the two populations, but large enough to allow structural examination of the inferred parameter distribution.
+%By constraining the means and variances of emergent property statistics over $\mathbf{z}$ as well as the stochasticity of $\mathbf{x}$, we can precisely control the behavior that the inferred distribution that EPI infers.
+%In general, an emergent property
+%\begin{equation}\label{eq:EP_STG}
+%\mathcal{X}:~~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\mu}, \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2
+%\end{equation}
+%defines a collection of datasets with a statistic $f(\mathbf{x}; \mathbf{z})$ (which may be comprised of multiple statistics) and the means $\bm{\mu}$ and variances $\bm{\sigma}^2$ of those statistics over the datasets.
+%The choice of $\bm{\sigma}^2$ predicates the degree of variability around the mean $\bm{\mu}$ that is consistent with the emergent property.
+
+Second, we stipulate that our model should produce the emergent property of ``intermediate hub frequency" (Figure \ref{fig:STG}C).
+We stipulate that the hub neuron's spiking frequency -- denoted $\omega_{\text{hub}}(\mathbf{x})$ is close to a frequency of 0.55Hz, between that of the slow and fast frequencies.
+Mathematically, we define this emergent property with two statistical constraints: that the mean hub frequency is 0.55Hz,
+\begin{equation}\label{eq:EP_STG1}
+ \mathbb{E}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~  0.55 
+\end{equation}
+and that the variance of the hub frequency is moderate
+\begin{equation}\label{eq:EP_STG2}
+\text{Var}_{\mathbf{z},\mathbf{x}}\begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~   0.025^2.
+\end{equation}
+The hub neuron frequency is constrained over the distribution of parameters $\mathbf{z}$  and the distribution of the data $\mathbf{x}$ that those parameters produce.
+Formally, the emergent property is the collection of these two constraints
+\begin{equation}\label{eq:EP_STG}
+\mathcal{X}:~~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[\omega_{\text{hub}}(\mathbf{x}; \mathbf{z})\right] = 0.55,~~\text{Var}_{\mathbf{z},\mathbf{x}}\left[\omega_{\text{hub}}(\mathbf{x}; \mathbf{z})\right] =0.025^2.
+\end{equation}
+In general, an emergent property is a collection of first-, second- and higher moments of  statistics that together define the phenomena.
+
+Third, we perform emergent property inference: we find a distribution over parameter configurations $\mathbf{z}$ that produces the emergent property; in other words, they obey the constraints introduced in Equation \ref{eq:EP_STG}.  
 This distribution will be chosen from a family of probability distributions $\mathcal{Q} = \left\{ q_{\bm{\theta}}(\mathbf{z}) : \bm{\theta} \in \Theta \right\}$, defined by a deep neural network \cite{rezende2015variational, dinh2017density, papamakarios2017masked} (Figure \ref{fig:STG}D, EPI box).
-Deep probability distributions map a simple random variable $\mathbf{z}_0$ through a deep neural network with weights and biases $\bm{\theta}$ to parameters $\mathbf{z} = g_{\bm{\theta}}(\mathbf{z}_0)$ to a suitable complicated distribution (see Section \ref{methods_NF} for more details).
-Many distributions in $\mathcal{Q}$ will respect the emergent property constraints, so we select the most random (or ``entropic") distribution, which is the same choice made in Bayesian inference (see Section \ref{methods_VI}).
+Deep probability distributions map a simple random variable $\mathbf{z}_0$ through a deep neural network with weights and biases $\bm{\theta}$ to parameters $\mathbf{z} = g_{\bm{\theta}}(\mathbf{z}_0)$ to a suitably complicated distribution (see Section \ref{methods_NF} for more details).
+Many distributions in $\mathcal{Q}$ will respect the emergent property constraints, so we select the most random (highest entropy) distribution, which is the same choice made in Bayesian posterior inference (see Section \ref{methods_VI}).
 %\cite{jaynes1957information, elsayed2017structure, loaiza2017maximum, savin2017maximum}
 In EPI optimization, stochastic gradient steps in $\bm{\theta}$ are taken such that entropy is maximized, and the emergent property $\mathcal{X}$ is produced (see Section \ref{methods_EPI})
-The inferred EPI distribution is denoted $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$, to emphasize that we have conditioned our parameter distribution on emergent property $\mathcal{X}$.
+The inferred EPI distribution is denoted $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$, since it is conditioned upon emergent property $\mathcal{X}$. 
+This is meant to share the same notation as a posterior distribution $q_{\bm{\theta}}(\mathbf{z} \mid \mathbf{x})$ that is conditioned upon an explicit dataset.
 
 %Third, we perform emergent property inference: we find a distribution over parameter configurations $\mathbf{z}$, and insist that samples from this distribution produce the emergent property; in other words, they obey the constraints introduced in Equation \ref{eq:EP_STG}.  
 %This distribution will be chosen from a family of probability distributions $\mathcal{Q} = \left\{ q_{\bm{\theta}}(\mathbf{z}) : \bm{\theta} \in \Theta \right\}$, defined by a deep generative distribution of the normalizing flow class \cite{rezende2015variational, dinh2017density, papamakarios2017masked} -- neural networks which transform a simple distribution into a suitably complicated distribution (as is needed here).  
