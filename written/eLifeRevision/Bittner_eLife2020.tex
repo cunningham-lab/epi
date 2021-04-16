@@ -105,8 +105,8 @@ In this case, well-defined computational properties are being shoehorned into ar
 
 Another key challenge is that as models of computation become more complex, statistical inference becomes intractable.
 Such mechanistic models in theoretical neuroscience are noisy systems of differential equations that can only be sampled or realized through forward simulation \cite{dayan2003theoretical, izhikevich2007dynamical}; they lack a tractable likelihood function, which is necessary for statistical inference.
-Therefore, the most popular approaches to parameter inference in mechanistic models have been likelihood-free inference methods \cite{sisson2007sequential, liepe2014framework}, in which reasonable parameters are obtained via simulation and rejection.
-A new class of techniques \cite{gonccalves2019training, papamakarios2019sequential, hermans2020likelihood} use deep learning to improve upon traditional likelihood-free inference approaches.
+Therefore, the most popular approaches to parameter inference in mechanistic models have been simulation-based inference methods \cite{sisson2007sequential, liepe2014framework}, in which reasonable parameters are obtained via simulation and rejection.
+A new class of techniques \cite{gonccalves2019training, papamakarios2019sequential, hermans2020likelihood} use deep learning to improve upon traditional simulation-based inference approaches.
 However, to use these methods in theoretical neuroscience, we must represent computation with an explicit dataset in some way.
 Theorists are therefore barred from using the probabilistic modeling toolkit for science with circuit models, unless they reformulate their inverse problem into a framework for observational datasets.
 
@@ -241,7 +241,7 @@ Simulated activity traces are colored by $\log q_{\bm{\theta}}(\mathbf{z} \mid \
 \textbf{E}. The EPI distribution producing intermediate hub frequency.
 Samples are colored by log probability density.  
 Contours of hub neuron frequency error are shown at levels of $.525$, $.53$, ... $.575$ Hz (dark to light gray away from mean).
-Dimension of sensitivity $\mathbf{v}_1$ (solid) and degeneracy $\mathbf{v}_2$.
+Dimension of sensitivity $\mathbf{v}_1$ (solid) and degeneracy $\mathbf{v}_2$ (dashed).
 %(Inset) Sensitivity of the system with respect to network syncing along all dimensions of parameter space away from the mode.  
 \textbf{F} (Top) The predictive distribution of EPI.
 The black and gray dashed lines show the mean and two standard deviations according the emergent property.
@@ -320,6 +320,21 @@ In EPI optimization, stochastic gradient steps in $\bm{\theta}$ are taken such t
 The inferred EPI distribution is denoted $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$, since it is conditioned upon emergent property $\mathcal{X}$. 
 This is meant to share the same notation as a posterior distribution $q_{\bm{\theta}}(\mathbf{z} \mid \mathbf{x})$ that is conditioned upon an explicit dataset.
 
+EPI produces parameter distributions that can be queried for scientific insight.
+The modes of $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ indicate parameter choices exemplary of the emergent property (Fig. \ref{fig:STG}E yellow star).
+As probability in the EPI inferred distribution decreases, the emergent property deteriorates.
+Perturbing $\mathbf{z}$ along a dimension in which $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ does not change will not disturb the emergent property, making this parameter combination \emph{degenerate} with respect to the emergent property.
+In contrast, if $\mathbf{z}$ is perturbed along a dimension that strongly decreases $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$, we call that parameter combination \emph{sensitive}.
+By querying the second order derivative (Hessian) of $\log q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ at a mode, we can quantitatively identify how sensitive (or robust) each eigenvector is by its eigenvalue; the more negative the eigenvalue, the more sensitive.
+Indeed, samples equidistant from the mode along these EPI-identified dimensions of sensitivity ($v_1$, smaller eigenvalue) and robustness ($v_2$, greater eigenvalue) (Fig. \ref{fig:STG}E, arrows) agree with error contours (Fig. \ref{fig:STG}E contours) and have diminished or preserved hub frequency, respectively (Fig. \ref{fig:STG}F activity traces).
+Once an EPI distribution has been inferred, this Hessian calculation requires trivial computation (when the correct architecture class is chosen, see Section \ref{methods_NF}).
+
+In the following sections, we demonstrate EPI on three neural circuit models across ranges of biological realism, neural system function, and network scale.
+First, we demonstrate the superior scalability of EPI compared to alternative techniques by inferring high-dimensional distributions of recurrent neural network (RNN) connectivities that exhibit amplified, yet stable responses.
+Also in this RNN example, we emphasize that EPI is the only technique that controls the predictions made by the inferred parameter distribution.
+Next, in a model of primary visual cortex \cite{litwin2016inhibitory, palmigiano2020structure}, we show how EPI captures a curved manifold of parametric degeneracy, revealing how input variability across neuron types affects the excitatory population.
+Finally, in a model of superior colliculus \cite{duan2018collicular}, we used EPI to capture multiple parametric regimes of task switching, and queried the dimensions of sensitivity ($\mathbf{v}_1(\mathbf{z})$) to mechanistically characterize each regime.
+
 %Third, we perform emergent property inference: we find a distribution over parameter configurations $\mathbf{z}$, and insist that samples from this distribution produce the emergent property; in other words, they obey the constraints introduced in Equation \ref{eq:EP_STG}.  
 %This distribution will be chosen from a family of probability distributions $\mathcal{Q} = \left\{ q_{\bm{\theta}}(\mathbf{z}) : \bm{\theta} \in \Theta \right\}$, defined by a deep generative distribution of the normalizing flow class \cite{rezende2015variational, dinh2017density, papamakarios2017masked} -- neural networks which transform a simple distribution into a suitably complicated distribution (as is needed here).  
 %This deep distribution is represented in Figure \ref{fig:STG}E (see Section \ref{methods_EPI}).  
@@ -347,21 +362,14 @@ This is meant to share the same notation as a posterior distribution $q_{\bm{\th
 %Specifically, EPI executes a novel variant of  Bayesian inference with a uniform prior and a gaussian likelihood on the emergent property statistic (see Section \ref{methods_ME_EF}).
 %A key advantage of EPI over established Bayesian inference is that the predictions made by the inferred distribution are constrained to produce the specified emergent property.
 
-The major scientific value of EPI is in the rich, queryable structure of these deep probability distributions.
-The probabilities of $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ are the densities of these parameters in the distribution producing the emergent property.
-The greatest probabilities (the modes) indicate prototypical parameter configurations, and the manner in which probabilities change away from the modes shows how different parameter combinations preserve or diminish the emergent property.
-The dimensions of greatest sensitivity (e.g. Fig. 1E solid arrow) or degeneracy (e.g. Fig. 1E dashed arrow) can be measured directly from the second order derivative of $\log q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ called the ``Hessian."
-Around the mode, eigenvalues of the Hessian are negative; probabilities decrease locally in all directions away from the mode.
-The eigenvector with most negative eigenvalue is the parameter combination causing probability to decrease the fastest, making it the most sensitive dimension.
-Likewise, the flattest eigenvector, corresponding to the least negative eigenvalue, points in the most degenerate dimension.
-Once an EPI distribution has been inferred, this second order derivative requires trivial computation (when correct architecture class is chosen, see Section \ref{methods_NF}).
-
-In the following sections, we showcase the versatility of EPI for scientific analysis on three neural circuit models across ranges of biological realism, neural system function, and network scale.
-First, we demonstrate the superior scalability of EPI compared to alternative techniques by inferring high-dimensional distributions of RNN connectivities that exhibit amplified, yet stable responses.
-Also in this RNN example, we emphasize that EPI is the only technique that controls the predictions made by the inferred parameter distribution.
-Next, in a model of primary visual cortex \cite{litwin2016inhibitory, palmigiano2020structure}, we show how to gain insight by comparing multiple inferred distributions.
-Finally, we used EPI to capture subtle parametric structure allowing the mechanistic characterization of multiple parametric regimes of superior colliculus activity in a model of task switching \cite{duan2018collicular}.
-This work is the first to produce this level of theoretical insight via the quantification and examination of the intricate structure captured by deep probability distributions.
+%The major scientific value of EPI is in the rich, queryable structure of these deep probability distributions.
+%The probabilities of $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ are the densities of these parameters in the distribution producing the emergent property.
+%The greatest probabilities (the modes) indicate prototypical parameter configurations, and the manner in which probabilities change away from the modes shows how different parameter combinations preserve or diminish the emergent property.
+%The dimensions of greatest sensitivity (e.g. Fig. 1E solid arrow) or degeneracy (e.g. Fig. 1E dashed arrow) can be measured directly from the second order derivative of $\log q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ called the ``Hessian."
+%Around the mode, eigenvalues of the Hessian are negative; probabilities decrease locally in all directions away from the mode.
+%The eigenvector with most negative eigenvalue is the parameter combination causing probability to decrease the fastest, making it the most sensitive dimension.
+%Likewise, the flattest eigenvector, corresponding to the least negative eigenvalue, points in the most degenerate dimension.
+%Once an EPI distribution has been inferred, this second order derivative requires trivial computation (when correct architecture class is chosen, see Section \ref{methods_NF}).
 
 \subsection{Scaling inference of RNN connectivity with EPI} \label{results_LRRNN}
 Transient amplification is a hallmark of neural activity throughout cortex, and is often thought to be intrinsically generated by recurrent connectivity in the responding cortical area \cite{murphy2009balanced, hennequin2014optimal, bondanelli2019population}.
@@ -403,10 +411,10 @@ RNNs  with $\text{real}(\lambda_1) = 0.5 \pm 0.5$ and $\lambda_1^s = 1.5 \pm 0.5
 \end{equation}
 under the notion that variance constraints with standard deviation 0.25 predicate that the vast majority of samples (those within two standard deviations) are within the specified ranges.
 
-For comparison, we infer the parameters $\mathbf{z}$ likely to produce stable amplification using two alternative likelihood-free inference approaches.
+For comparison, we infer the parameters $\mathbf{z}$ likely to produce stable amplification using two alternative simulation-based inference approaches.
 We ran sequential Monte Carlo approximate Bayesian computation (SMC-ABC) \cite{sisson2007sequential} and sequential neural posterior estimation (SNPE) \cite{gonccalves2019training} with observation $\mathbf{x}_0 = \bm{\mu}$.
 SMC-ABC is a rejection sampling approach that SMC techniques to improve efficiency, and SNPE approximates posteriors with deep probability distributions using a two-network architecture (see Section \ref{methods_related}).
-Unlike EPI, these statistical inference techniques do not control the mean or variance of the predictive distribution, and these predictions of the inferred posteriors are typically affected by model characteristics (e.g. $N$ and $g$, Fig. \ref{fig:RNN2}).
+Unlike EPI, these statistical inference techniques do not constrain the statistics of the predictive distribution, and these predictions of the inferred posteriors are typically affected by model characteristics (e.g. $N$ and $g$, Fig. \ref{fig:RNN2}).
 To compare the efficiency of these different techniques, we measured the time and number of simulations necessary for the distance of the predictive mean to be less than 0.5 from $\bm{\mu} = \mathbf{x}_0$ (see Section \ref{methods_RNN}).
 
 As the number of neurons $N$ in the RNN is scaled, and thus the dimension of the parameter space $\mathbf{z} \in [-1, 1]^{4N}$, we see that EPI converges at greater speed and at greater dimension than SMC-ABC and SNPE (Fig. \ref{fig:LRRNN}A).
@@ -420,10 +428,16 @@ For the dimensionalities in which SMC-ABC is tractable, the inferred parameters 
 When using SNPE the predictions of the inferred parameters are highly concentrated at some RNN sizes and widely varied in others (Fig. \ref{fig:LRRNN}C, orange).
 We see these properties reflected in simulations from the inferred distributions: EPI produces a consistent variety of stable, amplified activity norms $|r(t)|$, SMC-ABC produces a limited variety of responses, and the changing variety of responses from SNPE emphasizes the control of EPI on parameter predictions.
 
-Through this example, we have shown that EPI can be used for well-controlled insight into RNNs with respect to their theoretical properties.
-EPI outperforms SNPE in high dimensions by using gradient information (from $\nabla_\mathbf{z} f(\mathbf{x}; \mathbf{z}) = \nabla_\mathbf{z} [\text{real}(\lambda_1), \lambda_1^s]^\top$) on each optimization iteration.
-This agrees with recent speculation that such gradient information could improve the efficiency of LFI techniques \cite{cranmer2020frontier}.
-While scaling to high dimensions is important, we show in the next two sections how insight can be gained by inspecting structure in lower dimensional parameter distributions.
+EPI outperforms SNPE in high dimensions by using gradient information (from $\nabla_\mathbf{z} f(\mathbf{x}; \mathbf{z}) = \nabla_\mathbf{z} [\text{real}(\lambda_1), \lambda_1^s]^\top$) on each iteration of optimization.
+This agrees with recent speculation that such gradient information could improve the efficiency of simulation-based inference techniques \cite{cranmer2020frontier}.
+Since gradients of the emergent property statistics are necessary in EPI optimization, gradient tractabillity is a key criteria when determining the suitability of a simulation-based inference technique.
+Evidenced by this analysis, EPI is a clear choice for inferring high dimensional parameter distributions when the emergent property gradient is efficiently calculated.
+This can be invaluable for understanding how RNNs produce complex emergent phenomena.
+Even with a high degree of biophysical realism and expensive emergent property gradients, EPI was run successfully on intermediate hub frequency in a 5-neuron subcircuit model of the STG (Section \ref{results_motivating}).
+However, conditioning on the pyloric rhythm \cite{marder1992dynamic} in a model of the pyloric subnetwork model \cite{prinz2004similar} proved to be prohibitive with EPI.
+The pyloric subnetwork requires many time steps for simulation and many key emergent property statistics (e.g. burst duration and phase gap) are not easily calculated or approximated with differentiable functions.
+In such cases, gradient-free approaches like SNPE have proved to be a powerful option \cite{gonccalves2019training}.
+In the next two sections, we use EPI for novel scientific insight by examining the structure of inferred distributions.
 
 %\section{Discussion}
 %\subsection{EPI is a general tool for theoretical neuroscience} 
@@ -795,8 +809,8 @@ No parameterized distribution is estimated, and additional samples are always ge
 Inference in models defined by systems of differential has been demonstrated with MCMC \cite{girolami2011riemann}, although this approach requires tractable likelihoods.
 Advancements have leveraged structure in stochastic differential equation models to improve likelihood approximations, thus expanding the domain of applicable models \cite{golightly2011bayesian}.
  
-Likelihood-free (or ``simulation-based") inference (LFI) \cite{cranmer2020frontier} is model parameter inference in the absence of a tractable likelihood function.
-The most prevalent approach to LFI is approximate Bayesian computation \cite{beaumont2002approximate}, in which satisfactory parameter samples are kept from random prior sampling according to a rejection heuristic.
+Simulation-based inference \cite{cranmer2020frontier} is model parameter inference in the absence of a tractable likelihood function.
+The most prevalent approach to simulation-based inference is approximate Bayesian computation \cite{beaumont2002approximate}, in which satisfactory parameter samples are kept from random prior sampling according to a rejection heuristic.
 The obtained set of parameters do not have a probabilities, and further insight about the model must be gained from examination of the parameter set and their generated activity.
 Methodological advances to ABC methods have come through the use of Markov chain Monte Carlo (MCMC-ABC) \cite{marjoram2003markov} and sequential Monte Carlo (SMC-ABC) \cite{sisson2007sequential} sampling techniques.
 SMC-ABC is considered state-of-the-art ABC, yet this approach still struggles to scale in dimensionality (cf. Fig. \ref{fig:LRRNN}).
@@ -804,7 +818,7 @@ Furthermore, once a parameter set has been obtained by SMC-ABC from a finite set
 
 For scientific model analysis, we seek a parameter distribution exhibiting the properties of a well-chosen variational approximation: a parametric form conferring analytic calculations, and trivial sampling time.
 For this reason, ABC and MCMC techniques are unattractive, since they only produce a set of parameter samples and have unchanging sampling rate.
-EPI infers parameters in likelihood-free models using the MEFN \cite{loaiza2017maximum} algorithm using a deep variational approximation.
+EPI infers parameters in mechanistic models using the MEFN \cite{loaiza2017maximum} algorithm using a deep variational approximation.
 The deep neural network of EPI defines the parametric form of the distribution approximation.
 Furthermore, the EPI distribution is constrained to produce an emergent property.
 In other words, the summary statistics of the posterior predictive distribution are fixed to have certain first and second moments.
@@ -815,7 +829,7 @@ The analytic relationship between EPI and variational inference is explained in 
 We are encouraged by this general problem being recognized by others in the community, and we emphasize that these works offer complementary neuroscientific contributions (different theoretical models of focus) and use different technical methodologies (ours is built on our prior work \cite{loaiza2017maximum}, theirs similarly \cite{LueckmannGoncalves_17}).
 
 The method EPI differs from SNPE in some key ways.
-SNPE belongs to a ``sequential" class of recently developed LFI methods in which two neural networks are used for posterior inference.
+SNPE belongs to a ``sequential" class of recently developed simulation-based inference methods in which two neural networks are used for posterior inference.
 This first neural network is a deep probability distribution (normalizing flow) used to estimate the posterior $p(\mathbf{z} \mid \mathbf{x})$ (SNPE) or the likelihood  $p(\mathbf{x} \mid \mathbf{z})$ (sequential neural likelihood (SNL \cite{papamakarios2019sequential})).
 A recent advance uses an unconstrained neural network to estimate the likelihood ratio (sequential neural ratio estimation (SNRE \cite{hermans2020likelihood}).
 In SNL and SNRE, MCMC sampling techniques are used to obtain samples from the approximated posterior.
@@ -829,13 +843,13 @@ This generalization property of the sequential methods can reduce the accuracy a
 Whereas in EPI, the entire expressivity of the deep probability distribution is dedicated to learning a single distribution as well as possible.
 Amortization is not possible in EPI, since EPI learns an exponential family distribution parameterized by its mean (see Section \ref{methods_ME_EF}).
 Since EPI distributions are defined by the mean $\bm{\mu}$ of their statistics, there is the well-known inverse mapping problem of exponential families \cite{wainwright2008graphical} that prohibits an amortization based approach.
-However, we have shown that the same two-network architecture of the sequential LFI methods can be used for amortized inference in intractable exponential family posteriors using their natural parameterization \cite{bittner2019approximating}.
+However, we have shown that the same two-network architecture of the sequential simulation-based inference methods can be used for amortized inference in intractable exponential family posteriors using their natural parameterization \cite{bittner2019approximating}.
 
-Finally, one important differentiating factor between EPI and sequential LFI methods is that EPI leverages gradients $\nabla_{\mathbf{z}} f(\mathbf{x}; \mathbf{z})$ during optimization.
+Finally, one important differentiating factor between EPI and sequential simulation-based inference methods is that EPI leverages gradients $\nabla_{\mathbf{z}} f(\mathbf{x}; \mathbf{z})$ during optimization.
 These gradients can improve convergence time and scalability, as we have shown on an example conditioning low-rank RNN connectivity on the property of stable amplification (see Section \ref{results_LRRNN}).
 With EPI, we prove out the suggestion that a deep inference technique can improve efficiency by leveraging these model gradients when they are tractable.
-Sequential LFI techniques may be better suited for sceintific problems where $\nabla_{\mathbf{z}} f(\mathbf{x}; \mathbf{z})$ is intractable or unavailable: when there is a nondifferentiable model or it requires lengthy simulations.
-However, the sequential LFI techniques cannot constrain the predictions of the inferred distribution in the manner of EPI.
+Sequential simulation-based inference techniques may be better suited for sceintific problems where $\nabla_{\mathbf{z}} f(\mathbf{x}; \mathbf{z})$ is intractable or unavailable: when there is a nondifferentiable model or it requires lengthy simulations.
+However, the sequential simulation-based inference techniques cannot constrain the predictions of the inferred distribution in the manner of EPI.
 
 Structural identifiability analysis involves the measurement of sensitivity and unidentifiabilities in natural models.
 Around a point, one can measure the Jacobian. One approach that scales well is EAR \cite{karlsson2012efficient}.
@@ -1322,7 +1336,7 @@ For EPI in Fig. \ref{fig:LRRNN}, we used a real NVP architecture with three coup
 The initial distribution was a standard isotropic gaussian $z_0 \sim \mathcal{N}(\mathbf{0}, I)$ mapped to the support of $\mathbf{z}_i \in [-1, 1]$. 
 We used an augmented Lagrangian coefficient of $c_0 = 10^{3}$, a batch size $n=200$, $\beta=4$, and chose to use $500$ iterations per augmented Lagrangian epoch and emergent property constraint convergence was evaluated at $N_{\text{test}} = 200$ (Fig. \ref{fig:LRRNN}B blue line, and Fig. \ref{fig:LRRNN}C-D blue).
 
-We compared EPI to two alternative likelihood-free inference (LFI) techniques, since the likelihood of these eigenvalues given $\mathbf{z}$ is not available.
+We compared EPI to two alternative simulation-based inference techniques, since the likelihood of these eigenvalues given $\mathbf{z}$ is not available.
 Approximate Bayesian computation (ABC) \cite{beaumont2002approximate} is a rejection sampling technique for obtaining sets of parameters $\mathbf{z}$ that produce activity $\mathbf{x}$ close to some observed data $\mathbf{x}_0$.
 Sequential Monte Carlo approximate Bayesian computation (SMC-ABC) is the state-of-the-art ABC method, which leverages SMC techniques to improve sampling speed.
 We ran SMC-ABC with the pyABC package \cite{klinger2018pyabc} to infer RNNs with stable amplification: connectivities having eigenvalues within an $\epsilon$-defined $l$-$2$ distance of
@@ -1341,7 +1355,7 @@ Number of parameters in deep probability distribution architectures of EPI (blue
 \label{fig:RNN1}
 \end{figure}
 
-SNPE, the next LFI approach in our comparison, is far more similar to EPI.
+SNPE, the next approach in our comparison, is far more similar to EPI.
 Like EPI, SNPE treats parameters in mechanistic models with deep probability distributions, yet the two learning algorithms are categorically different.
 SNPE uses a two-network architecture to approximate the posterior distribution of the model conditioned on observed data $\mathbf{x}_0$.
 The amortizing network maps observations $\mathbf{x}_i$ to the parameters of the deep probability distribution. 
