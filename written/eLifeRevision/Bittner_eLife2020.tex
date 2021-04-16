@@ -435,7 +435,7 @@ Evidenced by this analysis, EPI is a clear choice for inferring high dimensional
 This can be invaluable for understanding how RNNs produce complex emergent phenomena.
 Even with a high degree of biophysical realism and expensive emergent property gradients, EPI was run successfully on intermediate hub frequency in a 5-neuron subcircuit model of the STG (Section \ref{results_motivating}).
 However, conditioning on the pyloric rhythm \cite{marder1992dynamic} in a model of the pyloric subnetwork model \cite{prinz2004similar} proved to be prohibitive with EPI.
-The pyloric subnetwork requires many time steps for simulation and many key emergent property statistics (e.g. burst duration and phase gap) are not easily calculated or approximated with differentiable functions.
+The pyloric subnetwork requires many time steps for simulation and many key emergent property statistics (e.g. burst duration and phase gap) are not calculable or easily approximated with differentiable functions.
 In such cases, gradient-free approaches like SNPE have proved to be a powerful option \cite{gonccalves2019training}.
 In the next two sections, we use EPI for novel scientific insight by examining the structure of inferred distributions.
 
@@ -467,14 +467,14 @@ In the next two sections, we use EPI for novel scientific insight by examining t
 Some neuron-types largely do not form synaptic projections to others ($|W_{\alpha_1, \alpha_2})| < 0.025$).
 Each neural population receives a baseline input $\mathbf{h}_b$, and the E- and P-populations also receive a contrast-dependent input $\mathbf{h}_c$.
 Additionally, each neural population receives a slow noisy input $\bm{\epsilon}$.
-\textbf{B}. Steady-state responses of the SSN model (deterministic, $\bm{\sigma}=\bm{0}$) to varying contrasts.  The response at 50\% contrast (dots) is the focus of our analysis.
-\textbf{C}. Transient network responses of the SSSN model at 50 \% contrast. (Left) Traces are independent trials with varying initialization $\mathbf{x}(0)$ and noise realization. (Right) Mean (solid line) and standard deviation (shading) of responses.
+\textbf{B}. Transient network responses of the SSSN model. Traces are independent trials with varying initialization $\mathbf{x}(0)$ and noise $\bm{\epsilon}$. 
+\textbf{C}. Mean (solid line) and standard deviation $s_E(\mathbf{x}; \mathbf{z})$ (shading)  across 100 trials.
 \textbf{D}. EPI distribution of noise parameters $\mathbf{z}$ conditioned on E-population variability.
 The EPI predictive distribution of $s_E(\mathbf{x}; \mathbf{z})$ is show on the bottom-left.
 \textbf{E}. (Top) Enlarged visualization of the $\sigma_E$-$\sigma_P$ marginal distribution of EPI $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{ Hz})$ and $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(10\text{ Hz})$.
 Each black dot shows the mode at each $\sigma_P$.
 The arrows show the most sensitive dimensions of the Hessian evaluated at these modes.
-\textbf{F}. The predictive distributions of $\sigma_E^2 + \sigma_P^2$ of each parameter distribution $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{ Hz})$ and $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(10\text{ Hz})$.
+\textbf{F}. The predictive distributions of $\sigma_E^2 + \sigma_P^2$ of each inferred distribution $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{ Hz})$ and $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(10\text{ Hz})$.
 }
  \label{fig:V1}
 \end{figure}
@@ -491,17 +491,17 @@ Here, in a model of V1 with biologically realistic connectivity, we use EPI to s
 We considered response variability of a nonlinear dynamical V1 circuit model (Fig. \ref{fig:V1}A) with a state comprised of each neuron-type population's rate $\mathbf{x} = \left[x_E, x_P , x_S, x_V \right]^\top$.
 Each population receives recurrent input $W \mathbf{x}$, where $W$ is the effective connectivity estimated from post-synaptic potential and connectivity rate measurements (see Section \ref{methods_V1}).
 Each population also experiences an external input $\mathbf{h}$, which determines population rate via supralinear nonlinearity $\phi(\cdot) = \left[\cdot \right]^2_+$.
-To build on previous work, we model visual contrast-dependent input to the E- and P-populations $\mathbf{h} = \mathbf{b} + c\mathbf{h}_c$.
-There is also an additive noisy input $\bm{\epsilon}$ parameterized by variances for each neuron type population $\mathbf{z} = \bm{\sigma}^2 = \left[ \sigma_E^2, \sigma_P^2, \sigma_S^2, \sigma_V^2\right]$.
-This noise has a slower dynamical timescale $\tau_{\text{noise}} > \tau$ then the population rate, allowing fluctuations around a stimulus-dependent steady-state
+There is also an additive noisy input $\bm{\epsilon}$ parameterized by variances for each neuron type population $\bm{\sigma}^2 = \left[ \sigma_E^2, \sigma_P^2, \sigma_S^2, \sigma_V^2\right]$.
+This noise has a slower dynamical timescale $\tau_{\text{noise}} > \tau$ than the population rate, allowing fluctuations around a stimulus-dependent steady-state (Fig. \ref{fig:V1}B).
+This model is the stochastic stabilized supralinear network (SSSN) \cite{hennequin2018dynamical} 
 \begin{equation}
     \tau \frac{d\mathbf{x}}{dt} = -\mathbf{x} +\phi(W\mathbf{x} + \mathbf{h} + \bm{\epsilon}).
 \end{equation}
-This model is the stochastic stabilized supralinear network (SSSN) \cite{hennequin2018dynamical} generalized to have multiple inhibitory neuron types, and introduces stochasticity to previous four neuron-type models of V1 \cite{litwin2016inhibitory}.
+generalized to have multiple inhibitory neuron types, and introduces stochasticity to previous four neuron-type models of V1 \cite{litwin2016inhibitory}.
 Stochasticity and inhibitory multiplicity introduce substantial complexity to mathematical derivations (see Section \ref{methods_V1_complexity}) motivating the treatment of this model with EPI.
-Here, we consider fixed weights $W$ and input $\mathbf{h}$ \cite{palmigiano2020structure} (Fig. \ref{fig:V1}B), and study the effect of input variability $\mathbf{z} = [\sigma_E, \sigma_P, \sigma_S, \sigma_V]^\top$ on excitatory variability at 50\% contrast. 
+Here, we consider fixed weights $W$ and input $\mathbf{h}$ \cite{palmigiano2020structure}, and study the effect of input variability $\mathbf{z} = [\sigma_E, \sigma_P, \sigma_S, \sigma_V]^\top$ on excitatory variability.
 
-We quantify different levels $y$ of E-population variability with the emergent property
+We quantify levels $y$ of E-population variability with the emergent property
 \begin{equation}\label{eq:EP_V1}
 \begin{split}
 \mathcal{X}(y) ~~:~~  \mathbb{E}_{\mathbf{z}}\begin{bmatrix} s_E(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~ y \\ 
@@ -509,20 +509,23 @@ We quantify different levels $y$ of E-population variability with the emergent p
 \end{split}
 \end{equation}
 where $s_E(\mathbf{x}; \mathbf{z})$ is the standard deviation of the stochastic $E$-population response about its steady state (Fig. \ref{fig:V1}C).
+In the following analyses, we compare levels of 5Hz and 10Hz, and select 1 Hz$^2$ variance such that the two emergent properties do not overlap in $s_E(\mathbf{z}; \mathbf{x})$.
 
-We ran EPI to obtain parameter distribution $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{ Hz}))$ producing E-population variability around 5 Hz (Fig. \ref{fig:V1}D).
+First, we ran EPI to obtain parameter distribution $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{ Hz}))$ producing E-population variability around 5 Hz (Fig. \ref{fig:V1}D).
 From the marginal distribution of $\sigma_E$ and $\sigma_P$ (Fig. \ref{fig:V1}D, top-left), we can see that $s_E(\mathbf{x}; \mathbf{z})$ is sensitive to various combinations of $\sigma_E$ and $\sigma_P$.
 Alternatively, both $\sigma_S$ and $\sigma_V$ are degenerate with respect to $s_E(\mathbf{x}; \mathbf{z})$ evidenced by the high variability in those dimensions (Fig. \ref{fig:V1}D, bottom-right).
-Together, these observations imply a curved path of parametric degeneracy with respect to $s_E(\mathbf{x}; \mathbf{z})$ of 5 Hz, which is indicated by the modes along $\sigma_P$ (Fig. \ref{fig:V1}E).
-The dimensions of sensitivity conferred by EPI and this plain visual structure suggest a quadratic relationship in the emergent property statistic $s_E(\mathbf{x}; \mathbf{z})$ and parameters $\mathbf{z}$, which is preserved at a greater level of variability $\mathcal{X}(10\text{ Hz})$ (Fig. \ref{fig:V1}E).
-Indeed, the sum of squares of $\sigma_E$ and $\sigma_P$ is larger in $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(10\text{ Hz}))$ than $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{ Hz}))$ (Fig \ref{fig:V1}F, $p < 1 \times 10{-10}$), while the sum of squares of $\sigma_S$ and $\sigma_V$ are not significantly different in the two EPI distributions (Fig. \ref{fig:V1_3}, $p=.40$).
-The strong compensatory influence of the E- and P-population input variability on excitatory varability is intriguing, since this circuit exhibited a paradoxical effect in the P-population (and no other inhibitory types) at 50\% contrast (Fig. \ref{fig:V1_3}) meaning that the E-population is P-stabilized.
-Future research may uncover a link between the populations of stabilizations and compensatory interactions governing excitatory variability.
+Together, these observations imply a curved path with respect to $s_E(\mathbf{x}; \mathbf{z})$ of 5 Hz, which is indicated by the modes along $\sigma_P$ (Fig. \ref{fig:V1}E).
 
-EPI revealed the quadratic relationship between $s_E(\mathbf{x}; \mathbf{z})$ and $\mathbf{z}$ .
-While this property is ultimately derivable, we show that with each additional neuron-type population, the formula becomes quite unruly and likely escapes comprehensible analysis in our case (see Section \ref{methods_V1_complexity}).
-This emphasizes the need for streamlined methods for gaining understanding about theoretical models when mathematical analysis becomes prohibitive.
+Figure \ref{fig:V1}E suggests a quadratic relationship in E-population fluctuations and the standard deviation of E- and P-population input; as the square of either $\sigma_E$ or $\sigma_P$ increases, the other compensatorily decreases to preserve the level of $s_E(\mathbf{x}; \mathbf{z})$.
+This quadratic relationship is preserved at greater level of E-population variability $\mathcal{X}(10\text{ Hz})$ (Fig. \ref{fig:V1}E).
+Indeed, the sum of squares of $\sigma_E$ and $\sigma_P$ is larger in $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(10\text{ Hz}))$ than $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{ Hz}))$ (Fig \ref{fig:V1}F, $p < 1 \times 10^{-10}$), while the sum of squares of $\sigma_S$ and $\sigma_V$ are not significantly different in the two EPI distributions (Fig. \ref{fig:V1_3}, $p=.40$), in which parameters were bounded from 0 to 0.5.
+The strong interactive influence of E- and P-population input variability on excitatory varability is intriguing, since this circuit exhibits a paradoxical effect in the P-population (and no other inhibitory types) (Fig. \ref{fig:V1_3}), meaning that the E-population is P-stabilized.
+Future research may uncover a link between the population of network stabilization and compensatory interactions governing excitatory variability.
 
+EPI revealed the quadratic dependence of excitatory variability on input variability to the E- and P-populations, as well as its independence to input from the other two inhibitory populations.
+We show that with each neuron-type population added to this E-I model, calculations of excitatory variability with respect to noise parameters become unruly and challenging to work with (see Section \ref{methods_V1_complexity}).
+This emphasizes the value of streamlined methods for gaining understanding about theoretical models when mathematical analysis becomes onerous or impractical.
+While EPI can be used to investigate fundamental aspects of sensory processing, in the next section, we use the probabilistic tools of EPI to identify and characterize two distinct parametric regimes of a neural circuit executing a computation, and then relate these insights to  behavioral experiments.
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{EPI identifies two regimes of rapid task switching} \label{results_SC}
@@ -531,7 +534,7 @@ In this experimental setup, rats were explicitly cued on each trial to either or
 Neural recordings in superior colliculus (SC) exhibited two populations of neurons that represented task context (Pro or Anti).
 Furthermore, Pro/Anti neurons in each hemisphere were strongly correlated with the animal's decision \cite{duan2018collicular}.
 These results motivated a model of SC that is a four-population dynamical system with functionally-defined neuron-types.
-Here, our goal is to understand how connectivity in this circuit model governs the ability to switch tasks rapidly.
+Here, our goal is to understand how connectivity in this circuit model governs the ability to perform rapid task switching: to respond with satisfactory accuracy in both tasks on randomly interleaved trials.
 
 In this SC model, there are Pro- and Anti-populations in each hemisphere (left (L) and right (R)) with activity variables $\mathbf{x} = [x_{LP}, x_{LA}, x_{RP}, x_{RA}]^\top$.
 The connectivity of these populations is parameterized by self $sW$, vertical $vW$, diagonal $dW$ and horizontal $hW$ connections (Fig. \ref{fig:SC}B).
@@ -566,42 +569,37 @@ Sensitivity vectors $\mathbf{v}_1(\mathbf{z}^*)$ are shown by arrows.
 \label{fig:SC}
 \end{figure}
 
-We define the computation of rapid task switching as accurate execution of each task.  Inferred models should not exhibit fully random responses (50\%), or perfect performance (100\%), since perfection is never attained by even the best trained rats.
-We formulate rapid task switching as an emergent property by stipulating that the average accuracy in the Pro task $p_P(\mathbf{x}; \mathbf{z})$ and Anti task $p_A(\mathbf{x}; \mathbf{z})$ be $75\%$ with variance $7.5\%^2$.
+Rapid task switching is formalized mathematically as an emergent property with two statistics: accuracy in the Pro task $p_P(\mathbf{x}; \mathbf{z})$ and Anti task $p_A(\mathbf{x}; \mathbf{z})$.
+We stipulate that accuracy be on average $.75$ in each task with variance $.075^2$
 \begin{equation}\label{eq:SC_EP}
 \begin{split}
-\mathcal{X} ~~:~~ \mathbb{E}_{\mathbf{z}}\begin{bmatrix} p_P(\mathbf{x}; \mathbf{z}) \\ p_A(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~  \begin{bmatrix} 75\% \\ 75\% \end{bmatrix}  \\ 
- \text{Var}_{\mathbf{z}}\begin{bmatrix} p_P(\mathbf{x}; \mathbf{z}) \\ p_A(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~  \begin{bmatrix} 7.5\%^2 \\ 7.5\%^2  \end{bmatrix}
+\mathcal{X} ~~:~~ \mathbb{E}_{\mathbf{z}}\begin{bmatrix} p_P(\mathbf{x}; \mathbf{z}) \\ p_A(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~  \begin{bmatrix} .75 \\ .75 \end{bmatrix}  \\ 
+ \text{Var}_{\mathbf{z}}\begin{bmatrix} p_P(\mathbf{x}; \mathbf{z}) \\ p_A(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~  \begin{bmatrix} .075^2 \\ .075^2  \end{bmatrix}.
 \end{split}
 \end{equation}
+75\% accuracy is a realistic level of performance in each task, and with the chosen variance, inferred models will not exhibit fully random responses (50\%), nor perfect performance (100\%).
 
-The EPI inferred distribution  (Fig. \ref{fig:SC}C) produces task accuracies (Fig. \ref{fig:SC}C, middle-left) according to our mathematical definition of rapid task switching (Equation \ref{eq:SC_EP}).
-The patterns of connectivity that govern each task accuracy are nonlinear (Fig. \ref{fig:SC1}A-B); they are not captured well by linear correlations (Fig. \ref{fig:SC1}C).
-For example, there appear to be two regimes of connectivity: the local structure of the EPI distribution changes dramatically after crossing a threshold of $sW$ (Fig. \ref{fig:SC1}A $sW$-$hW$ marginal distribution).
-Not only has EPI captured this intricate, nonlinear distribution, we can use the distribution $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ returned by EPI to understand these two parametric regimes of SC connectivity.
+The EPI inferred distribution  (Fig. \ref{fig:SC}C) produces Pro and Anti task accuracies (Fig. \ref{fig:SC}C, middle-left) consistent with rapid task switching (Equation \ref{eq:SC_EP}).
+This parameter distribution has intricate structure, that is not captured well by simple linear correlations (Fig. \ref{fig:SC1}).
+Specifically, the shape of the EPI distribution changes dramatically on different sides of parameter space.
+This is most saliently pointed out in the marginal distribution of  $sW$-$hW$ (Fig. \ref{fig:SC}C top-right), where anticorrelation between $sW$ and $hW$ switches to correlation with decreasing $sW$.
+Not only has EPI captured this complicated distribution of connectivities producing rapid task switching, we can query the EPI distribution $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ to understand these two parametric regimes of SC connectivity.
 
-To distinguish these two parts of the distribution, we point out that for many fixed values of parameter $hW$, there are two modes in the EPI distribution.  
-Thus, by fixing $hW$ to different values and doing gradient ascent on $\log q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ in the parameter spaces proximal to each mode, we can identify a set of modes $\mathbf{z}^*(hW_{\text{fixed}}, r)$ for each putative regime $r \in \{1, 2\}$ (see Section \ref{methods_SC}).
+To distinguish these two regimes, we use the EPI distribution to identify two sets of modes.
+By fixing $hW$ to different values and doing gradient ascent on $\log q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$, we arrive at two solutions $\mathbf{z}^*(hW_{\text{fixed}}, r)$ where regime $r \in [1,2]$, and regime 1 is that of greater $sW$ (see Section \ref{methods_SC}).
 As $hW_{\text{fixed}}$ increases, the modes coalesce to intermediate parameters reflecting a transition between the two sets of modes (Fig. \ref{fig:SC4} top).
-However, the sensitivity dimensions of these modes $\mathbf{v}_1$ (refer to Section \ref{results_dgm}), which reflect the structure of the EPI distribution around each mode, are different across putative regime, yet consistent across $hW_{\text{fixed}}$.
-This categorical difference in sensitivity dimension across the two sets of modes shows that they indeed represent two different regimes of computation in which connectivity governs computation in different ways.
+By using EPI to connect these two regimes through this transitionary region of parameter space, we can explore what distinguishes the two regimes by stepping from the prototypical connectivity of regime 1 to that of regime 2.
 
-To understand how SC connectivity governs computation in each regime, we can examine how perturbations along $\mathbf{v}_1(\mathbf{z}^*)$ affect task performance in each regime; we measure task accuracy for connectivity changes in the dimension that rapid task switching is most sensitive.
-While the monotonic increase in Pro accuracy with $\mathbf{v}_1$ perturbation is largely unaffected by regime (Fig. \ref{fig:SC}D, top-left), we see a stark difference in Anti accuracy: Anti accuracy falls in either direction of $\mathbf{v}_1$ in regime 1, yet monotonically increases along with Pro accuracy in regime 2 (Fig. \ref{fig:SC}D, top-right).
-These two rapid task switching pathologies are caused by distinct connectivity changes ($\mathbf{v}_1(\mathbf{z}^*(\cdot, 1))$ vs $\mathbf{v}_1(\mathbf{z}^*(\cdot, 2))$) and explain the sharp change in local structure of the EPI distribution.
+While the connectivities gradually coalesce to the transitionary part of parameter space, the sensitivity dimensions $\mathbf{v}_1(\mathbf{z})$ are categorically different across regimes (Fig. \ref{fig:SC4} bottom).
+The sensitivity dimension identifies the parameter combination which causes the emergent property to diminish with the shortest perturbation.
+Since the two regimes have different $\mathbf{v}_1(\mathbf{z})$, this suggests they have different pathologies in their connectivity.
+By perturbing connectivity in each regime along the sensitivity dimension, we can get a sense of the differing nature of these pathologies.
 
-To understand the connectivity mechanisms that distinguish these two regimes, we perturb connectivity at each mode in dimensions that have well defined roles in processing for the Pro and Anti tasks.
-A convenient property of this connectivity parameterization is that there are $\mathbf{z}$-invariant eigenmodes of connectivity, whose eigenvalues (or degree of amplification) change with $\mathbf{z}$.
-These eigenmodes have intuitive roles in processing in each task, and are accordingly named the \textit{all}, \textit{side}, \textit{task}, and \textit{diag} eigenmodes (see Section \ref{methods_SC}).
-Furthermore, the parameter dimension $\mathbf{v}_a$ ($a \in \{\text{all}, \text{side}, \text{task}, \text{ and diag}\}$) that increases the eigenvalue of connectivity $\lambda_a$ is $\mathbf{z}$-invariant (unlike the sensitivity dimension $\mathbf{v}_1(\mathbf{z})$) and $\mathbf{v}_a \perp \mathbf{v}_{b \neq a}$.
-Thus, by changing the degree of amplification of each processing mode by  perturbing $\mathbf{z}$ along $\mathbf{v}_a$, we can elicit the differentiating properties of the two regimes.
-
-Through these connectivity perturbation analyses, we found that increasing $\lambda_{\text{task}}$ strongly reduced Pro accuracy in regime 1, yet strongly reduced Anti accuracy in regime 2.
-This suggests that stronger task representations can inhibit both Pro and Anti task performance in different contexts.
-Furthermore, changing $\lambda_{\text{task}}$ in either direction decreases Anti performance in regime 1, showing that Anti task performance in regime 1 is dependent on a specific level of task representation.
-We also found that with increasing $\lambda_{\text{diag}}$, Pro accuracy increased in both regimes, but there were opposite effects on Anti accuracy.
-In regime 1, stronger amplification of diagonal population patterns decreased Anti accuracy, while in regime 2 accuracy increased.
-These findings give us an understanding of the mechanistic differences in computation enabling rapid task switching in each regime.
+When perturbing connectivity along the sensitivity dimension, Pro accuracy monotonically increases in both regimes (Fig. \ref{fig:SC}D, top-left).
+However, there is a stark difference between regimes in Anti accuracy. 
+Anti accuracy falls in either direction of $\mathbf{v}_1$ in regime 1, yet monotonically increases along with Pro accuracy in regime 2 (Fig. \ref{fig:SC}D, top-right).
+These distinct pathologies of rapid task switching are caused by distinct connectivity changes ($\mathbf{v}_1(\mathbf{z}^*(r=1))$ vs $\mathbf{v}_1(\mathbf{z}^*(r=2))$) and explain the sharp change in local structure of the EPI distribution.
+With further perturbation analyses along dimensions of connectivity having established effects on processing, we are able to distinguish these two regimes with mechanistic insights (Fig. \ref{fig:SC}D, middle, bottom) (Section \ref{methods_SC}).
 
 \subsection{EPI inferred SC connectivities reproduce results from optogenetic inactivation experiments} \label{results_SC_opt}
 
@@ -610,10 +608,16 @@ Experimental results from Duan et al. found that optogenetic inactivation of SC 
 All network connectivities inferred by EPI exhibited this same effect, when network activities were silenced during the delay period (see Section \ref{methods_SC}).
 Notably, EPI inferred connectivities were only conditioned upon the emergent property of rapid task switching, not on Anti task failure during delay period silencing.
 
-Similarities across Pro and Anti trials in choice period responses following delay period inactivation (Fig. \ref{fig:SC5}A) suggested that connectivity patterns inducing greater Pro task accuracy increase error in delay period inactivated Anti trials (Fig. \ref{fig:SC_opto}B).
-The strong anticorrelation between $p_P$ and $p_{A, opto}$ across EPI inferred connectivities led to the following hypothesis about each connectivity regime: the sensitivity dimension of each regime decreases $p_{A,opto}$ irrespective of its effect on $p_A$, since both $\mathbf{v}_1$ and $\mathbf{v}_2$ increase $p_P$.
-Indeed, in regimes 1 and 2 where sensitivity dimensions elicit different responses in $p_A$, $p_{A,opto}$ decreases since the connectivity changes enhancing $p_P$ exacerbate Anti trial error (Fig. \ref{fig:SC_opto}C).
-Thus, the altered state caused by delay period silencing makes the connectivity governing $p_P$ more influential on Anti accuracy than the connectivity governing $p_A$.
+Following delay period inactivation, there are strong similarities in the responses of Pro and Anti trials during the choice period (Fig. \ref{fig:SC5}A).
+We interpreted these similarities to suggest that delay period inactivation flips the internal representation of task in the model.
+Connectivity patterns inducing greater Pro task accuracy would antagonistically reduce accuracy in Anti trials subject to delay period inactivation in which this flip in task representation occurs.
+In fact, across connectivities in the EPI inferred distribution, there was strong anti-correlation between Pro task accuracy $p_P$ and Anti task accuracy during delay period silencing $p_{A, opto}$ (Fig. \ref{fig:SC_opto}B).
+
+We explored whether this antagonism between $p_P$ and $p_{A, opto}$ was present in each connectivity regime.
+As in the previous section, we tested perturbations in the dimension of sensitivity $\mathbf{v}_1(\mathbf{z})$ from regime 1 to regime 2.
+In both regimes, we recall that perturbations along $\mathbf{v}_1(\mathbf{z})$ yield increasing $p_P$.
+We found that only in regime 2, does $p_{A,\text{opto}}$ decrease as $p_P$ increases(Fig. \ref{fig:SC_opto}C).
+This context further distinguishes the two regimes discovered with EPI.
 
 \begin{figure}
 \begin{center}
@@ -628,9 +632,9 @@ Thus, the altered state caused by delay period silencing makes the connectivity 
 \end{figure}
 
 In summary, we used EPI to obtain the full distribution of connectivities that execute rapid task switching.
-This EPI distribution revealed two regimes of rapid task switching, which we characterized using the probabilistic toolkit EPI seemlessly affords.
+This EPI distribution revealed two regimes of rapid task switching, which we characterized using the probabilistic toolkit afforded by EPI.
 We found that both of these parametric regimes identified by EPI reproduce results from optogenetic inactivation experiments: when activity is silenced during the delay period, only Anti accuracy suffers.
-We then identified the connectivity mechanisms governing Anti accuracy during delay period silencing, and showed that they are regime invariant.
+We then identified connectivity mechanisms governing Anti accuracy during delay period silencing, and showed the parametric regime they describe.
 
 %To establish these two regimes of connectivity, we took gradient steps along $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ to produce modes $\mathbf{z}_1$ and $\mathbf{z}_2$  (Fig. \ref{fig:SC}C red and purple stars, Section \ref{methods_SC}).
 %Simulations from these two regimes reveal different responses in each task (Fig. \ref{fig:SC}D).
@@ -647,24 +651,14 @@ In neuroscience, machine learning has primarily been used to reveal structure in
 Careful inference procedures are developed for these statistical models allowing precise, quantitative reasoning, which clarifies the way data informs beliefs about the model parameters.  
 However, these statistical models often lack resemblance to the underlying biology, making it unclear how to go from the structure revealed by these methods, to the neural mechanisms giving rise to it. 
 In contrast, theoretical neuroscience has focused on careful mechanistic modeling and the production of emergent properties of computation, rather than measuring structure in some noisy observed dataset.
-The careful steps of \emph{i}.) model design and \emph{ii}.) emergent property definition, are followed by \emph{iii}.) practical inference methods resulting in an opaque characterization of the way model parameters govern computation.  
+%The careful steps of \emph{i}.) model design and \emph{ii}.) emergent property definition, are followed by \emph{iii}.) practical inference methods resulting in an opaque characterization of the way model parameters govern computation.  
 In this work, we improve upon parameter inference techniques in theoretical neuroscience with emergent property inference, harnessing deep learning towards parameter inference with respect to emergent phenomena in  interpretable models of neural computation (see Section \ref{methods_related}).
 
 Methodology for statistical inference in mechanistic models of neural circuits has evolved considerably in recent years.
 Early work used rejection sampling techniques \cite{beaumont2002approximate, marjoram2003markov,sisson2007sequential}, but more recently developed methodology employs deep learning to improve efficiency or provide flexible distribution approximations.
 SNPE \cite{gonccalves2019training} and other sequential techniques for inference in mechanistic models developed along with EPI (see Section \ref{methods_related}) have been used for posterior inference with noisy experimental datasets.
-On the other hand, EPI is a deep inference technique designed to condition upon mathematical criteria, such that the parameter distribution only produces  the specified \textit{emergent properties} of computation.
+On the other hand, EPI is a deep inference technique designed to condition directly on emergent properties, such that the parameter distribution only produces the computation of interest.
 EPI is thus ideally suited for questions in theoretical neuroscience, and we show that it has superior scaling properties to these other inference techniques (see Section \ref{results_LRRNN}).
-
-In this work, we prove out the utility of deep probability distributions for theoretical neuroscience.
-While previous work has used SNPE to obtain flexible posterior approximations in mechanistic models conditioned on experimental datasets, we use the rich structure captured by deep probability distributions in EPI to gain new theoretical insights.
-This is first done in a complex model of V1, where we combine the modeling advancements \cite{litwin2016inhibitory, hennequin2018dynamical}, which make analytic characterization of excitatory variability very complicated.
-There, EPI clearly and simply revealed the parametric structure of input variability across neuron-type populations that governed excitatory variability, which has implications on the dimensionality and nature information transmission in visual cortex.
-
-Finally, we uesd EPI to identify two distinct regimes of SC connectivity that enabled rapid task switching.
-By systematically characterizing the local structure of the inferred distribution using the analytic capabilities deep probability distributions, we discerned a mechanistic understanding of each computational regime.
-Each of these regimes reproduced effects from optogenetic experiments \cite{duan2015requirement}, suggesting that both are biologically plausible.
-These analyses of the V1 and SC models serve as examples of how to leverage the probabilistic toolkit for theoretical insight into models of neural computation.
 
 
 %In neuroscience, machine learning has primarily been used to reveal structure in neural datasets \cite{paninski2018neural}.
@@ -1442,7 +1436,7 @@ The noisy process is parameterized as
 \tilde{\sigma}_\alpha = \sigma_\alpha \sqrt{1 + \frac{\tau}{\tau_{\text{noise}}}},
 \end{equation}
 so that $\bm{\sigma}$ parameterizes the variance of the noisy input in the abscence of recurrent connectivity ($W = \bm{0}$).
-As contrast increases, input to the E- and P-populations increases  relative to a baseline input $\mathbf{h} = \mathbf{h}_b + c\mathbf{h}_c$.
+As contrast $c \in [0, 1]$ increases, input to the E- and P-populations increases  relative to a baseline input $\mathbf{h} = \mathbf{h}_b + c\mathbf{h}_c$.
 Connectivity ($W_{\text{fit}}$) and input ($\mathbf{h}_{b,\text{fit}}$ and $\mathbf{h}_{c,\text{fit}}$) parameters were fit using the deterministic V1 circuit model \cite{palmigiano2020structure} 
 
 \begin{figure}
@@ -1763,6 +1757,21 @@ where
 and e.g. $\mathbf{e}_{\text{all}} = [1, 0, 0, 0]^\top$.
 So $\mathbf{v}_{\text{a}}$ is the normalized column of A corresponding to eigenmode $a$.
 While perturbations in the sensitivity dimension $\mathbf{v}_1(\mathbf{z}^*)$ adapt with the mode $\mathbf{z}^*$ chosen, perturbations in $\mathbf{v}_a$ for $a \in \{\text{all}, \text{side}, \text{text}, \text{diag}\}$ are invariant to $\mathbf{z}$ (Equation \ref{eq:dzdlambda}).
+
+To understand the connectivity mechanisms that distinguish these two regimes, we perturb connectivity at each mode in dimensions that have well defined roles in processing for the Pro and Anti tasks.
+A convenient property of this connectivity parameterization is that there are $\mathbf{z}$-invariant eigenmodes of connectivity, whose eigenvalues (or degree of amplification) change with $\mathbf{z}$.
+These eigenmodes have intuitive roles in processing in each task, and are accordingly named the \textit{all}, \textit{side}, \textit{task}, and \textit{diag} eigenmodes (see Section \ref{methods_SC}).
+Furthermore, the parameter dimension $\mathbf{v}_a$ ($a \in \{\text{all}, \text{side}, \text{task}, \text{ and diag}\}$) that increases the eigenvalue of connectivity $\lambda_a$ is $\mathbf{z}$-invariant (unlike the sensitivity dimension $\mathbf{v}_1(\mathbf{z})$) and $\mathbf{v}_a \perp \mathbf{v}_{b \neq a}$.
+Thus, by changing the degree of amplification of each processing mode by  perturbing $\mathbf{z}$ along $\mathbf{v}_a$, we can elicit the differentiating properties of the two regimes.
+
+Through these connectivity perturbation analyses, we found that increasing $\lambda_{\text{task}}$ strongly reduced Pro accuracy in regime 1, yet strongly reduced Anti accuracy in regime 2.
+This suggests that stronger task representations can inhibit both Pro and Anti task performance in different contexts.
+Furthermore, changing $\lambda_{\text{task}}$ in either direction decreases Anti performance in regime 1, showing that Anti task performance in regime 1 is dependent on a specific level of task representation.
+We also found that with increasing $\lambda_{\text{diag}}$, Pro accuracy increased in both regimes, but there were opposite effects on Anti accuracy.
+In regime 1, stronger amplification of diagonal population patterns decreased Anti accuracy, while in regime 2 accuracy increased.
+These findings give us an understanding of the mechanistic differences in computation enabling rapid task switching in each regime.
+
+
 %
 %These eigenvalue changes are evident in the simulations of connectivity perturbations away from the modes (Fig. \ref{fig:SC2}).
 %As the component of connectivity along $\mathbf{v}_1$ and $\mathbf{v}_2$ becomes stronger (left-to-right), there is less separation between Pro an Anti populations (lower $\lambda_{\text{task}}$) and greater separation between Left and Right populations following stimulus presentation (greater $\lambda_{\text{side}}$).
