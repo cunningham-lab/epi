@@ -252,6 +252,17 @@ Simon Musall, Matthew~T Kaufman, Ashley~L Juavinett, Steven Gluf, and Anne~K
   movements.
 \newblock {\em Nature neuroscience}, 22(10):1677--1686, 2019.
 
+\bibitem{dayan2003theoretical}
+Peter Dayan, Laurence~F Abbott, et~al.
+\newblock Theoretical neuroscience: computational and mathematical modeling of
+  neural systems.
+\newblock {\em Journal of Cognitive Neuroscience}, 15(1):154--155, 2003.
+
+\bibitem{izhikevich2007dynamical}
+Eugene~M Izhikevich.
+\newblock {\em Dynamical systems in neuroscience}.
+\newblock MIT press, 2007.
+
 \bibitem{sisson2007sequential}
 Scott~A Sisson, Yanan Fan, and Mark~M Tanaka.
 \newblock Sequential monte carlo without likelihoods.
@@ -285,12 +296,6 @@ Joeri Hermans, Volodimir Begy, and Gilles Louppe.
 \newblock Likelihood-free mcmc with amortized approximate ratio estimators.
 \newblock In {\em International Conference on Machine Learning}, pages
   4239--4248. PMLR, 2020.
-
-\bibitem{saul1998mean}
-Lawrence Saul and Michael Jordan.
-\newblock A mean field learning algorithm for unsupervised neural networks.
-\newblock In {\em Learning in graphical models}, pages 541--554. Springer,
-  1998.
 
 \bibitem{loaiza2017maximum}
 Gabriel Loaiza-Ganem, Yuanjun Gao, and John~P Cunningham.
@@ -355,6 +360,11 @@ Eve Marder and Vatsala Thirumalai.
 \newblock Cellular, synaptic and network effects of neuromodulation.
 \newblock {\em Neural Networks}, 15(4-6):479--493, 2002.
 
+\bibitem{morris1981voltage}
+Catherine Morris and Harold Lecar.
+\newblock Voltage oscillations in the barnacle giant muscle fiber.
+\newblock {\em Biophysical journal}, 35(1):193--213, 1981.
+
 \bibitem{dinh2017density}
 Laurent Dinh, Jascha Sohl-Dickstein, and Samy Bengio.
 \newblock Density estimation using real nvp.
@@ -405,6 +415,11 @@ Scott~A Sisson, Yanan Fan, and Mark Beaumont.
 Kyle Cranmer, Johann Brehmer, and Gilles Louppe.
 \newblock The frontier of simulation-based inference.
 \newblock {\em Proceedings of the National Academy of Sciences}, 2020.
+
+\bibitem{marder1992dynamic}
+Eve Marder and Allen~I Selverston.
+\newblock {\em Dynamic biological networks: the stomatogastric nervous system}.
+\newblock MIT press, 1992.
 
 \bibitem{ozeki2009inhibitory}
 Hirofumi Ozeki, Ian~M Finn, Evan~S Schaffer, Kenneth~D Miller, and David
@@ -477,6 +492,12 @@ Paul Marjoram, John Molitor, Vincent Plagnol, and Simon Tavar{\'e}.
 \newblock Markov chain monte carlo without likelihoods.
 \newblock {\em Proceedings of the National Academy of Sciences},
   100(26):15324--15328, 2003.
+
+\bibitem{saul1998mean}
+Lawrence Saul and Michael Jordan.
+\newblock A mean field learning algorithm for unsupervised neural networks.
+\newblock In {\em Learning in graphical models}, pages 541--554. Springer,
+  1998.
 
 \bibitem{metropolis1953equation}
 Nicholas Metropolis, Arianna~W Rosenbluth, Marshall~N Rosenbluth, Augusta~H
