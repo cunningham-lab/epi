@@ -1,5 +1,6 @@
-"""SNPE: RNN stable amplification. """
+"""SMC: RNN stable amplification. """
 
+from neural_circuits.LRRNN import get_W_eigs_np
 import numpy as np
 import os
 import pickle
@@ -17,6 +18,8 @@ DTYPE = np.float32
 # Get random seed.
 parser = argparse.ArgumentParser()
 parser.add_argument('--N', type=int)
+parser.add_argument('--g', type=float, default=0.01)
+parser.add_argument('--K', type=int, default=1)
 parser.add_argument('--rs', type=int, default=1)
 args = parser.parse_args()
 
@@ -40,6 +43,7 @@ if os.path.exists(os.path.join(base_path, save_dir, "optim.pkl")):
     print("SMC optimization already run. Exitting.")
     exit()    
 
+W_eigs = get_W_eigs_np(g, K)
 def model(parameter):
     u1 = np.array([parameter["U%d1" % i] for i in range(1, N+1)])
     u2 = np.array([parameter["U%d2" % i] for i in range(1, N+1)])
@@ -49,21 +53,9 @@ def model(parameter):
     U = np.stack((u1, u2), axis=1)
     V = np.stack((v1, v2), axis=1)
 
-    J = np.matmul(U, np.transpose(V))
-    J = J + np.random.normal(0., 0.01, J.shape)
-    Js = (J + np.transpose(J)) / 2.
-    Js_eigs = np.linalg.eigvalsh(Js)
-    Js_eig_max = np.max(Js_eigs, axis=0)
+    x = W_eigs(U, V)
 
-    # Take eig of low rank similar mat
-    Jr = np.matmul(np.transpose(V), U) + 0.01*np.eye(2)
-    Jr_tr = np.trace(Jr)
-    sqrt_term = np.square(Jr_tr) + -4.*np.linalg.det(Jr)
-    if sqrt_term < 0.:
-        sqrt_term = 0.
-    J_eig_realmax = 0.5 * (Jr_tr + np.sqrt(sqrt_term))
-    
-    return {"data": np.array([J_eig_realmax, Js_eig_max])}
+    return {"data": x}
 
 parameters = [("U%d1" % i,  pyabc.RV("uniform", -1., 1.)) for i in range(1, N+1)]
 parameters += [("U%d2" % i, pyabc.RV("uniform", -1., 1.)) for i in range(1, N+1)]

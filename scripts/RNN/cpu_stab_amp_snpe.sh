@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --account=stats
-#SBATCH --job-name=sa_snpe
+#SBATCH --job-name=cpu_snpe
 #SBATCH -c 1
-#SBATCH --time=11:30:00
-#SBATCH --mem-per-cpu=1gb
+#SBATCH --time=6:00:00
+#SBATCH --mem-per-cpu=2gb
 
-source activate delfi
-python3 stab_amp_snpe.py --N $1 --n_train $2 --n_mades $3 --n_atoms $4 --rs $5
+source activate sbi
+python3 stab_amp_snpe.py --N $1 --num_sims $2 --num_batch $3 --num_transforms $4 --num_atoms $5 --g $6 --K $7 --rs $8 --max_rounds 100

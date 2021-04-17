@@ -4,6 +4,7 @@ import scipy
 from scipy.special import expit
 import matplotlib.pyplot as plt
 import os
+from epi.util import get_conditional_mode
 
 DTYPE = tf.float32
 
@@ -24,8 +25,7 @@ E_choice = 0.25
 E_light = 0.5
 
 # set constant parameters
-C = 2
-
+C = 2 
 theta = 0.05
 beta = 0.5
 tau = 0.09
@@ -111,7 +111,7 @@ def unwrap(z):
 
 
 def SC_acc(sW, vW, dW, hW):
-    N = 500
+    N = 200
     Wrow1 = tf.stack([sW, vW, dW, hW], axis=2)
     Wrow2 = tf.stack([vW, sW, hW, dW], axis=2)
     Wrow3 = tf.stack([dW, hW, sW, vW], axis=2)
@@ -175,7 +175,6 @@ C_opto = 4
 I_opto = tf.concat((I_LP, I_LA, I_LP, I_LA), axis=2)
 
 def SC_sim_opto(strength, period):
-    print('str', strength)
     eta = np.ones((T, 1, C_opto, 1, 1), dtype=np.float32)
     if period == 'delay':
         eta[np.logical_and(0.8 <= t, t <= 1.2), :, 2:, :, :] = strength
@@ -226,7 +225,7 @@ def SC_acc_opto(strength, period):
         eta[:, :, 2:, :, :] = strength
 
     def _SC_acc_opto(sW, vW, dW, hW):
-        N = 500
+        N = 200
         Wrow1 = tf.stack([sW, vW, dW, hW], axis=2)
         Wrow2 = tf.stack([vW, sW, hW, dW], axis=2)
         Wrow3 = tf.stack([dW, hW, sW, vW], axis=2)
@@ -275,16 +274,18 @@ def z_to_W(z):
     W = tf.stack([Wrow1, Wrow2, Wrow3, Wrow4], axis=1)
     return W
 
+MODES = np.array([[1.0, 1.0, 1.0, 1.0],   # all mode
+                  [-1.0, -1.0, 1.0, 1.0], # side mode
+                  [1.0, -1.0, -1.0, 1.0], # task mode
+                  [-1.0, 1.0, -1.0, 1.0]]) # diag mode
+
 def get_schur_eigs(W):
     # returns 
     T, Z = scipy.linalg.schur(W)
     b = Z.copy()
     b[b<0.0] = -1
     b[b>0.0] = 1
-    modes = 0.25*np.array([[1.0, 1.0, 1.0, 1.0],   # all mode
-                          [-1.0, -1.0, 1.0, 1.0], # side mode
-                          [1.0, -1.0, -1.0, 1.0], # task mode
-                          [-1.0, 1.0, -1.0, 1.0]]) # diag mode
+    modes = 0.25*MODES
     X = np.abs(np.dot(modes,b))  # (template_mode x z_col)
     eigs = np.zeros((4,))
     z_inds = []
@@ -295,6 +296,117 @@ def get_schur_eigs(W):
     #print(z_inds)
     #print(T)
     return eigs
+
+MODE_INDS = {'all':0, 'side':1, 'task':2, 'diag':3}
+A_EIG = 0.25*np.array([[1., 1., 1., 1.],
+                       [1. ,1., -1., -1.],
+                       [1., -1., -1., 1.],
+                       [1., -1., 1., -1.]])
+A_EIG_inv = np.linalg.inv(A_EIG)
+
+def z_from_eigs(eigs, V):
+    W = np.matmul(V, np.matmul(np.diag(eigs), V.T))
+    return W[0,:]
+    
+def z_from_eig_perturb(eigs, mode, facs):
+    V = 0.5*MODES.T
+    assert(eigs.shape[0] == 4)
+    num_facs = facs.shape[0]
+    zs = []
+    mode_ind = MODE_INDS[mode]
+    for i in range(num_facs):
+        _eigs = eigs.copy()
+        _eigs[mode_ind] = eigs[mode_ind] + facs[i]
+        z = z_from_eigs(_eigs, V)
+        zs.append(z)
+    zs = np.array(zs)
+        
+    return zs.astype(np.float32)
+
+def z_from_eigs_analytic(eigs):
+    return np.matmul(A_EIG, eigs)
+
+def eigs_from_z_analytic(z):
+    return np.matmul(A_EIG_inv, z)
+
+def get_SC_z_mode_path(dist, z_init, ind, vals, lr, num_steps, do_plot=False, labels=None):
+    z0 = None
+    z_stars = []
+    for i in range(vals.shape[0]):
+        val = vals[i]
+        _num_steps = num_steps[i]
+        if z0 is None:
+            z0 = z_init.copy()
+        else:
+            z0 = zs[-1].copy()
+        z0[ind] = val
+        zs, log_q_zs = get_conditional_mode(dist, ind, val, z0, lr=lr, num_steps=_num_steps)
+        z_stars.append(zs[-1])
+        if do_plot:
+            fig, axs = plt.subplots(1,2,figsize=(10,4))
+            axs[0].plot(zs)
+            axs[1].plot(log_q_zs)
+            if labels is not None:
+                axs[0].legend(labels)
+            plt.show()
+    z_stars = np.array(z_stars)
+    return z_stars
+
+def get_SC_sens_vs(zs, dist):
+    num_zs = zs.shape[0]
+    hessians = dist.hessian(zs)
+    vs = []
+    for i in range(num_zs):
+        hess_i = hessians[i]
+        d, v = np.linalg.eig(hess_i)
+        min_ind = np.argmin(d)
+        _v = v[:,min_ind]
+        if (_v[3] > 0.):
+            _v = -_v
+        vs.append(_v)
+    
+    vs = np.array(vs)
+    return vs
+
+def perturbed_acc(z_perturb, sim_func, N_sim):
+    N_fac = z_perturb.shape[0]
+    pPs, pAs = [], []
+    for i in range(N_sim):
+        _, v_t_perturb = sim_func(*unwrap(z_perturb.astype(np.float32)))
+        v_t_perturb = v_t_perturb.numpy()
+        T_x_perturb = np.mean(expit(100.*(v_t_perturb[-1,:,:,0,:] - v_t_perturb[-1,:,:,3,:])), axis=2)
+        pPs.append(100.*T_x_perturb[:,0])
+        pAs.append(100.*(1.-T_x_perturb[:,1]))
+    pPs = np.array(pPs)
+    pAs = np.array(pAs)
+    return pPs, pAs
+
+def perturbed_acc_plots(facs, pPs, pAs, c_stars, fontsize=12, label="", figdir=None):
+    N_sim = pPs[0].shape[0]
+    xticks = [-.25, 0., .25]
+    if label == 'v1_opto':
+        yticks = [0, 25, 50, 75, 100]
+    else:
+        yticks = [50, 75, 100]
+
+    for task, ps in zip(['P', 'A'], [pPs, pAs]):
+        fig, ax = plt.subplots(1,1,figsize = (3., 1.75))
+        for i, _ps in enumerate(ps):
+            plt.errorbar(facs, 
+                         np.mean(_ps, axis=0), 
+                         np.std(_ps, axis=0)/np.sqrt(N_sim), 
+                         c=c_stars[i], 
+                         lw=2)
+        ax.set_yticks(yticks)
+        ax.set_yticklabels(["%d%%" % tick for tick in yticks], fontsize=fontsize)
+        ax.set_xticks(xticks)
+        ax.set_xticklabels(xticks, fontsize=fontsize)
+        plt.tight_layout()
+        if figdir is not None:
+            plt.savefig(os.path.join(figdir, "p%s_%s.png" % (task, label)))
+        plt.show()
+
+    return None
 
 c_LP = '#3B8023'
 c_LA = '#EA8E4C'

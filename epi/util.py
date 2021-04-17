@@ -124,7 +124,7 @@ def np_column_vec(x):
     return x
 
 
-def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1., check_last_k=None):
+def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1., check_last_k=None, by_df=False):
     paths = epi_df['path'].unique()
     best_Hs = []
     best_ks = []
@@ -132,29 +132,42 @@ def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1., check_last_k=None):
     any_converged = False
     for path in paths:
         epi_df2 = epi_df[epi_df['path'] == path]
-        if check_last_k is None:
-            start_k = 0
-        else:
-            start_k = int(epi_df2['k'].max()) - check_last_k + 1
-        df_row = epi_df2.iloc[0]
-        init = df_row['init']
-        init_params = {"mu":init["mu"], "Sigma":init["Sigma"]}
-        nf = model._df_row_to_nf(df_row)
-        aug_lag_hps = model._df_row_to_al_hps(df_row)
-        best_k, converged, best_H = model.get_convergence_epoch(
-            init_params, 
-            nf, 
-            mu, 
-            aug_lag_hps, 
-            alpha=alpha, 
-            nu=nu,
-            start_k=start_k
-        )
+        _D = epi_df2.iloc[0]['arch']['D']
+        _rs = epi_df2.iloc[0]['arch']['random_seed']
+        print("Processing EPI: D=%d, rs=%d.\n" % (_D, _rs), end="")
+        if by_df:
+            df_row = epi_df2.iloc[-1]
+            converged = df_row['converged']
+            if converged:
+                best_H, best_k = df_row['H'], df_row['k']
+            else:
+                best_H, best_k = None, None
+        else:    
+            if check_last_k is None:
+                start_k = 0
+            else:
+                start_k = int(epi_df2['k'].max()) - check_last_k + 1
+            df_row = epi_df2.iloc[0]
+            init = df_row['init']
+            init_params = {"mu":init["mu"], "Sigma":init["Sigma"]}
+            nf = model._df_row_to_nf(df_row)
+            aug_lag_hps = model._df_row_to_al_hps(df_row)
+            best_k, converged, best_H = model.get_convergence_epoch(
+                init_params, 
+                nf, 
+                mu, 
+                aug_lag_hps, 
+                alpha=alpha, 
+                nu=nu,
+                start_k=start_k
+            )
+            tf.keras.backend.clear_session()
         if (not any_converged) and converged:
             any_converged = True
         best_Hs.append(best_H)
         best_ks.append(best_k)
         df_rows.append(df_row)
+    print("\n", end="")
   
     best_ks = np.array(best_ks)
     best_Hs = np.array([x if x is not None else np.nan for x in best_Hs])
@@ -166,6 +179,8 @@ def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1., check_last_k=None):
     best_k = int(best_ks[ind])
     best_H = best_Hs[ind]
     df_row = df_rows[ind]
+    init = df_row['init']
+    init_params = {"mu":init["mu"], "Sigma":init["Sigma"]}
     nf = model._df_row_to_nf(df_row)
     aug_lag_hps = model._df_row_to_al_hps(df_row)
     dist = model._get_epi_dist(best_k, init_params, nf, mu, aug_lag_hps)
@@ -542,7 +557,8 @@ def pairplot(
     c=None,
     c_label=None,
     cmap=None,
-    s=10,
+    s=50,
+    s_star=100,
     starred=None,
     c_starred = None,
     traj = None,
@@ -631,12 +647,12 @@ def pairplot(
                 if starred is not None:
                     if c_starred is None:
                         ax.scatter(
-                            starred[:, dim_j], starred[:, dim_i], s=400, c='k', 
+                            starred[:, dim_j], starred[:, dim_i], s=s_star, c='k', 
                             marker='*', edgecolors="k", linewidths=1.,
                         )
                     else:
                         ax.scatter(
-                            starred[:, dim_j], starred[:, dim_i], s=400, c=c_starred, 
+                            starred[:, dim_j], starred[:, dim_i], s=s_star, c=c_starred, 
                             marker='*', edgecolors="k", linewidths=1.5,
                         )
 

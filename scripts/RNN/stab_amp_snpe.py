@@ -1,43 +1,57 @@
 """SNPE: RNN stable amplification. """
-
+from neural_circuits.LRRNN import get_W_eigs_np
 import numpy as np
 import os
 import pickle
-#import matplotlib.pyplot as plt
 import argparse
+import time
 
-import delfi
-from delfi.simulator.BaseSimulator import BaseSimulator
-import delfi.distribution as dd
-from delfi.summarystats.BaseSummaryStats import BaseSummaryStats
-from scipy import stats as spstats
-import delfi.generator as dg
-import delfi.inference as infer
+import torch
+from sbi import utils as utils
+from sbi import analysis as analysis
+from sbi.inference import SNPE, prepare_for_sbi, simulate_for_sbi
+from sbi.utils.get_nn_models import posterior_nn
 
 DTYPE = np.float32
 
 # Get random seed.
 parser = argparse.ArgumentParser()
 parser.add_argument('--N', type=int)
-parser.add_argument('--n_train', type=int, default=2000)
-parser.add_argument('--n_mades', type=int, default=5)
-parser.add_argument('--n_atoms', type=int, default=100)
+parser.add_argument('--num_sims', type=int, default=1000)
+parser.add_argument('--num_batch', type=int, default=50)
+parser.add_argument('--num_transforms', type=int, default=3)
+parser.add_argument('--num_atoms', type=int, default=10)
+parser.add_argument('--g', type=float, default=0.01)
+parser.add_argument('--K', type=int, default=1)
+parser.add_argument('--max_rounds', type=int, default=50)
+parser.add_argument('--persist_rounds', type=int, default=2)
+parser.add_argument('--min_epochs', type=int, default=10)
+parser.add_argument('--stop_distance', type=float, default=None)
 parser.add_argument('--rs', type=int, default=1)
 args = parser.parse_args()
 
 N = args.N
-n_train = args.n_train
-n_mades = args.n_mades
-n_atoms = args.n_atoms
+num_sims = args.num_sims
+num_batch = args.num_batch
+num_transforms = args.num_transforms
+num_atoms = args.num_atoms
+g = args.g
+K = args.K
+max_rounds = args.max_rounds
+persist_rounds = args.persist_rounds
+min_epochs = args.min_epochs
+stop_distance = args.stop_distance
 rs = args.rs
+np.random.seed(rs)
+torch.manual_seed(rs)
 
-print('Running SNPE on RNN conditioned on stable amplification with:')
-print('N = %d, n_train = %d, n_mades = %d, n_atoms = %d, seed=%d' \
-      % (N, n_train, n_mades, n_atoms, rs))
+print('\n\nRunning SNPE on RNN conditioned on stable amplification with:')
+print("N = %d, \nnum_sims = %d, \nnum_batch = %d, \nnum_transforms = %d, \nnum_atoms = %d, \ng=%.4f, \nK=%d, \nseed=%d\n\n"  \
+      % (N, num_sims, num_batch, num_transforms, num_atoms, g, K, rs), flush=True)
 
 base_path = os.path.join("data", "snpe")
-save_dir = "SNPE_RNN_stab_amp_N=%d_ntrain=%dk_nmades=%d_natoms=%d_rs=%d" \
-        % (N, n_train//1000, n_mades, n_atoms, rs)
+save_dir = "SNPE_RNN_stab_amp_N=%d_sims=%d_batch=%d_transforms=%d_atoms=%d_g=%.4f_K=%d_rs=%d" \
+        % (N, num_sims, num_batch, num_transforms, num_atoms, g, K, rs)
 
 save_path = os.path.join(base_path, save_dir)
 if not os.path.exists(save_path):
@@ -47,201 +61,105 @@ if os.path.exists(os.path.join(base_path, save_dir, "optim.pkl")):
     print("SNPE optimization already run. Exitting.")
     exit()
 
+_W_eigs = get_W_eigs_np(g, K)
 
-def Jeigs(params, seed=None):
-    """Calculates Jeigs.
+M = 1000
+RANK = 2
+num_dim = 2*N*RANK
+prior = utils.BoxUniform(low=-1.*torch.ones(num_dim), high=1.*torch.ones(num_dim))
 
-        Parameters
-        ----------
-        params : np.array, 1d of length dim_param
-            Parameter vector
-        seed : int
-        """
+def simulator(params):
+    params = params.numpy()
+    U = np.reshape(params[:(RANK*N)], (N,RANK))
+    V = np.reshape(params[(RANK*N):], (N,RANK))
+    x = _W_eigs(U, V)
+    return x
 
-    if seed is not None:
-        rng = np.random.RandomState(seed=seed)
+simulator, prior = prepare_for_sbi(simulator, prior)
+density_estimator_build_fun = posterior_nn(model='maf', hidden_features=50, 
+                                           num_transforms=num_transforms,
+                                           z_score_x=False, z_score_theta=False,
+                                           support_map=True)
+x_0 = torch.tensor([0.5, 1.5])
+
+inference = SNPE(prior, density_estimator=density_estimator_build_fun)
+
+best_round_ind = 0
+
+# log initialized state
+_theta, _x = simulate_for_sbi(simulator, proposal=prior, num_simulations=num_sims)
+density_estimator = density_estimator_build_fun(_theta, _x)
+posterior = inference.build_posterior(density_estimator)
+z = posterior.sample((M,), x=x_0)
+x = simulator(z).numpy()
+posteriors, zs, xs = [posterior], [z.numpy()], [x]
+log_probs = [posterior.log_prob(z, x=x_0).numpy()]
+mean_x = np.mean(x, axis=0)
+distances = [np.linalg.norm(mean_x - x_0.numpy())]
+
+proposal = prior
+round_val_log_probs = []
+sample_times = []
+opt_times = []
+for r in range(max_rounds):
+    if r == 0:
+        print('Round %d/%d:' % (r+1, max_rounds), flush=True)
     else:
-        rng = np.random.RandomState()
+        last_epochs = inference.summary['epochs'][-1]
+        print('Round %d/%d, Best (%d), Last (%.2f s/sample, %.2f s/epoch)):' \
+              % (r+1, max_rounds, best_round_ind+1,
+                 sample_times[-1]/last_epochs, opt_times[-1]/last_epochs), 
+               flush=True)
+    _t1 = time.time()
+    theta, x = simulate_for_sbi(simulator, proposal=proposal, num_simulations=num_sims)
+    sample_times.append(time.time()-_t1)
+    inference = inference.append_simulations(theta, x)
+    _t1 = time.time()
+    density_estimator = inference.train(
+        training_batch_size=num_batch, 
+        num_atoms=num_atoms, 
+        stop_after_epochs=min_epochs)
+    opt_times.append(time.time()-_t1)
+    posterior = inference.build_posterior(density_estimator)
+    posteriors.append(posterior)
+    round_val_log_probs.append(inference.summary['validation_log_probs'][-1])
+    proposal = posterior.set_default_x(x_0)
 
-    params = params
+    z = posterior.sample((M,), x=x_0)
+    x = simulator(z).numpy()
+    log_prob = posterior.log_prob(z, x=x_0)
+    mean_x = np.mean(x, axis=0)
+    distance = np.linalg.norm(mean_x - x_0.numpy())
+    
+    zs.append(z.numpy())
+    xs.append(x)
+    log_probs.append(log_prob.numpy())
+    distances.append(distance)
 
-    U = np.reshape(params[0,:(2*N)], (N,2))
-    V = np.reshape(params[0,(2*N):], (N,2))
+    optim = {'summary':inference.summary, 
+             # contains init too
+             'zs':np.array(zs), 
+             'xs':np.array(xs), 
+             'log_probs':np.array(log_probs),
+             'distances':np.array(distances),
+             # one per round
+             'round_val_log_probs':np.array(round_val_log_probs), 
+             'sample_times':sample_times,
+             'opt_times':opt_times,
+             'args':args}
 
-    J = np.matmul(U, np.transpose(V))
-    J = J + rng.normal(0., 0.01, J.shape)
-    Js = (J + np.transpose(J)) / 2.
-    Js_eigs = np.linalg.eigvalsh(Js)
-    Js_eig_max = np.max(Js_eigs, axis=0)
+    print('Saving', save_path, '...', flush=True)
+    with open(os.path.join(save_path, "optim.pkl"), "wb") as f:
+        pickle.dump(optim, f)
 
-    # Take eig of low rank similar mat
-    Jr = np.matmul(np.transpose(V), U) + 0.01*np.eye(2)
-    Jr_tr = np.trace(Jr)
-    sqrt_term = np.square(Jr_tr) + -4.*np.linalg.det(Jr)
-    J_eig_realmax = 0.5 * Jr_tr
-    if (sqrt_term > 0.):
-        J_eig_realmax += 0.5*np.sqrt(sqrt_term)
+    best_round_ind = np.argmax(round_val_log_probs)
+    # Go at least 5 rounds, but quit 2 straight bad rounds
+    if (r >= 4) and (best_round_ind + persist_rounds == r):
+        print("Log prob has converged.", flush=True)
+        break
+    if stop_distance is not None:
+        if distance < stop_distance:
+            print("Distance has converged.", flush=True)
+            break
 
-    return np.array([J_eig_realmax, Js_eig_max])
-
-class RNN(BaseSimulator):
-    def __init__(self, N, seed=None):
-        """Hodgkin-Huxley simulator
-
-        Parameters
-        ----------
-        N : int or None
-            Number of neurons.
-        seed : int or None
-            If set, randomness across runs is disabled
-        """
-        self.N = N
-        self.r = 2
-        dim_param = self.N*self.r*2
-
-        super().__init__(dim_param=dim_param, seed=seed)
-        self.Jeigs = Jeigs
-
-    def gen_single(self, params):
-        """Forward model for simulator for single parameter set
-
-        Parameters
-        ----------
-        params : list or np.array, 1d of length dim_param
-            Parameter vector
-
-        Returns
-        -------
-        dict : dictionary with data
-            The dictionary must contain a key data that contains the results of
-            the forward run. Additional entries can be present.
-        """
-        params = np.asarray(params)
-
-        assert params.ndim == 1, 'params.ndim must be 1'
-
-        Jeig_seed = self.gen_newseed()
-
-        states = self.Jeigs(params.reshape(1, -1), seed=Jeig_seed)
-
-        return {'data': states}
-
-seed_p = 1
-prior_min = -np.ones((4*N,))
-prior_max = np.ones((4*N,))
-prior = dd.Uniform(lower=prior_min, upper=prior_max,seed=seed_p)
-
-class RNNStats(BaseSummaryStats):
-    """Moment based SummaryStats class for the Hodgkin-Huxley model
-
-    Calculates summary statistics
-    """
-    def __init__(self, seed=None):
-        """See SummaryStats.py for docstring"""
-        super(RNNStats, self).__init__(seed=seed)
-
-    def calc(self, repetition_list):
-        """Calculate summary statistics
-
-        Parameters
-        ----------
-        repetition_list : list of dictionaries, one per repetition
-            data list, returned by `gen` method of Simulator instance
-
-        Returns
-        -------
-        np.array, 2d with n_reps x n_summary
-        """
-        stats = []
-        if len(repetition_list) > 1:
-            print(repetition_list)
-            raise NotImplementedError()
-        for r in range(len(repetition_list)):
-            x = repetition_list[r]
-
-            stats.append(x['data'])
-        return np.asarray(stats)
-
-seed = 0
-# define model, prior, summary statistics and generator classes
-m = RNN(N=N)
-s = RNNStats()
-g = dg.Default(model=m, prior=prior, summary=s)
-
-n_processes = 16
-
-seeds_m = np.arange(1,n_processes+1,1)
-m = []
-for i in range(n_processes):
-    m.append(RNN(N=N, seed=seeds_m[i]))
-g = dg.MPGenerator(models=m, prior=prior, summary=s)
-
-# true parameters and respective labels
-true_params = np.random.uniform(-1., 1., (4*N,))
-labels_params = [r'$T_1$', r'$T_2$']
-
-# observed data: simulation given true parameters
-obs = m[0].gen_single(true_params)
-
-obs_stats = np.array([0.5, 1.5])
-
-pilot_samples = n_train
-
-# training schedule
-n_rounds = 100
-
-# fitting setup
-minibatch = 100
-epochs = 100
-val_frac = 0.05
-
-# network setup
-n_hiddens = [50,50]
-
-# convenience
-prior_norm = False
-
-# MAF parameters
-density = 'maf'
-
-# inference object
-res = infer.SNPEC(g,
-                obs=obs_stats,
-                n_hiddens=n_hiddens,
-                pilot_samples=pilot_samples,
-                n_mades=n_mades,
-                prior_norm=prior_norm,
-                density=density,
-                seed=rs)
-
-# train
-logs, trn_datasets, posteriors, times = res.run(
-                    n_train=n_train,
-                    n_rounds=n_rounds,
-                    n_atoms=n_atoms,
-                    minibatch=minibatch,
-                    epochs=epochs,
-                    silent_fail=False,
-                    proposal='prior',
-                    val_frac=val_frac,
-                    verbose=True,)
-
-optim = {'logs':logs,
-         'trn_datasets':trn_datasets,
-         'times':times}
-nets = {'posteriors':posteriors}
-
-base_path = os.path.join("data", "snpe")
-save_dir = "SNPE_RNN_stab_amp_N=%d_ntrain=%dk_nmades=%d_natoms=%d_rs=%d" \
-        % (N, n_train//1000, n_mades, n_atoms, rs)
-
-save_path = os.path.join(base_path, save_dir)
-if not os.path.exists(save_path):
-    os.makedirs(save_path)
-
-print('Saving', save_path, '...')
-with open(os.path.join(base_path, save_dir, "optim.pkl"), "wb") as f:
-    pickle.dump(optim, f)
-with open(os.path.join(base_path, save_dir, "networks.pkl"), "wb") as f:
-    pickle.dump(nets, f)
-print('done.')
+print('done.', flush=True)

@@ -2,18 +2,24 @@
 
 # This shell script does it linearly, but could you run each of these 
 # python scripts independently on different instances?
-for N in 2
+for N in 50 
 do
-  for n_train in 2000
+  for g in 0.1
   do
-    for n_mades in 2
+    for K in 1
     do
-      for n_atoms in 100
+      for num_sims in 25000
       do
-        for rs in {4..10}
+        for num_batch in 200 1000
         do
-          echo "Running N = $N, n_train $n_train, n_mades $n_mades, n_atoms = $n_atoms, rs = $rs"
-          sbatch gpu_stab_amp_snpe.sh $N $n_train $n_mades $n_atoms $rs
+          for num_atoms in 100
+          do
+            for rs in 6
+            do
+              echo "Running N = $N, g = $g, K = $K, sims = $num_sims batch = $num_batch, atoms = $num_atoms, rs = $rs"
+              sbatch gpu_stab_amp_snpe.sh $N $num_sims $num_batch 3 $num_atoms $g $K $rs
+            done
+          done
         done
       done
     done
