@@ -10,11 +10,10 @@
 \citation{kass2001spike,brown1998statistical,paninski2004maximum,truccolo2005point,schneidman2006weak,druckmann2007novel,turner2007maximum,byron2009gaussian,macke2011empirical,park2011bayesian,granot2013stimulus,latimer2015single,lakshminarasimhan2018dynamic,duncker2019learning,ladenbauer2019inferring,gao2016linear,zhao2017recursive,barello2018sparse,pandarinath2018inferring,wiltschko2015mapping,johnson2016composing,batty2019behavenet}
 \citation{paninski2018neural}
 \citation{niell2010modulation,saleem2013integration,musall2019single}
-\citation{hopfield1982neural,sompolinsky1988chaos,tsodyks1997paradoxical,wong2006recurrent}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Introduction}{2}}
+\citation{dayan2003theoretical,izhikevich2007dynamical}
 \citation{sisson2007sequential,liepe2014framework}
 \citation{gonccalves2019training,papamakarios2019sequential,hermans2020likelihood}
-\citation{saul1998mean}
 \citation{loaiza2017maximum}
 \citation{rezende2015variational}
 \citation{goldman2001global,gutierrez2013multiple}
@@ -27,11 +26,10 @@
 \@writefile{toc}{\contentsline {section}{\numberline {3}Results}{4}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Motivating emergent property inference of theoretical models}{4}}
 \newlabel{results_motivating}{{3.1}{4}}
-\citation{liepe2014framework}
-\citation{gutierrez2013multiple}
+\citation{morris1981voltage,gutierrez2013multiple}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}A deep generative modeling approach to emergent property inference}{5}}
 \newlabel{results_dgm}{{3.2}{5}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip Emergent property inference (EPI) in the stomatogastric ganglion. \textbf  {A}. Conductance-based biophysical model of the STG subcircuit. \textbf  {B}. Spiking frequency $\omega (\mathbf  {x}; \mathbf  {z})$ is an emergent property statistic. Simulated at $g_{\text  {el}} = 4.5$nS and $g_{\text  {synA}} = 3$nS. \textbf  {C}. The emergent property of intermediate hub frequency. Simulated activity traces are colored by $\qopname  \relax o{log}q_{\bm  {\theta }}(\mathbf  {z} \mid \mathcal  {X})$ of generating parameters. (Panel E). \textbf  {D}. For a choice of model and emergent property, emergent property inference (EPI) learns a deep probability distribution of parameters $\mathbf  {z}$. \textbf  {E}. The EPI distribution producing intermediate hub frequency. Samples are colored by log probability density. Contours of hub neuron frequency error are shown at levels of $.525$, $.53$, ... $.575$ Hz (dark to light gray away from mean). Dimension of sensitivity $\mathbf  {v}_1$ (solid) and degeneracy $\mathbf  {v}_2$. \textbf  {F} (Top) The predictive distribution of EPI. The black and gray dashed lines show the mean and two standard deviations according the emergent property. (Bottom) Simulations at the starred parameter values. }}{6}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip Emergent property inference (EPI) in the stomatogastric ganglion. \textbf  {A}. Conductance-based biophysical model of the STG subcircuit. \textbf  {B}. Spiking frequency $\omega (\mathbf  {x}; \mathbf  {z})$ is an emergent property statistic. Simulated at $g_{\text  {el}} = 4.5$nS and $g_{\text  {synA}} = 3$nS. \textbf  {C}. The emergent property of intermediate hub frequency. Simulated activity traces are colored by $\qopname  \relax o{log}q_{\bm  {\theta }}(\mathbf  {z} \mid \mathcal  {X})$ of generating parameters. (Panel E). \textbf  {D}. For a choice of model and emergent property, emergent property inference (EPI) learns a deep probability distribution of parameters $\mathbf  {z}$. \textbf  {E}. The EPI distribution producing intermediate hub frequency. Samples are colored by log probability density. Contours of hub neuron frequency error are shown at levels of $.525$, $.53$, ... $.575$ Hz (dark to light gray away from mean). Dimension of sensitivity $\mathbf  {v}_1$ (solid) and degeneracy $\mathbf  {v}_2$ (dashed). \textbf  {F} (Top) The predictive distribution of EPI. The black and gray dashed lines show the mean and two standard deviations according the emergent property. (Bottom) Simulations at the starred parameter values. }}{6}}
 \newlabel{fig:STG}{{1}{6}}
 \citation{rezende2015variational,dinh2017density,papamakarios2017masked}
 \newlabel{eq:EP_STG1}{{2}{7}}
@@ -45,16 +43,19 @@
 \citation{sussillo2014neural,barak2017recurrent}
 \citation{sompolinsky1988chaos}
 \citation{russo2018motor}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Scaling inference of RNN connectivity with EPI}{8}}
+\newlabel{results_LRRNN}{{3.3}{8}}
 \citation{bondanelli2020coding}
 \citation{sisson2007sequential}
 \citation{gonccalves2019training}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Scaling inference of RNN connectivity with EPI}{9}}
-\newlabel{results_LRRNN}{{3.3}{9}}
+\citation{sisson2018handbook}
 \newlabel{eq:EP_LRRNN}{{6}{9}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip \textbf  {A}. Wall time of EPI (blue), SNPE (orange), and SMC-ABC (green) to converge on RNN connectivities producing stable amplification. Each dot shows convergence time for an individual random seed. For reference, the mean wall time for EPI to achieve its full constraint convergence (means and variances) is shown (blue line). \textbf  {B}. Simulation count of each algorithm to achieve convergence. Same conventions as A. \textbf  {C}. The predictive distributions of connectivities inferred by EPI (blue), SNPE (orange), and SMC-ABC (green), with reference to $\mathbf  {x}_0 = \bm  {\mu }$ (gray star). \textbf  {D}. Simulations of networks inferred by each method ($\tau =100ms$). Each trace (15 per algorithm) corresponds to simulation of one $z$. (Below) Ratio of obtained samples producing stable amplification, monotonic decay, and instability. }}{10}}
 \newlabel{fig:LRRNN}{{2}{10}}
-\citation{sisson2018handbook}
 \citation{cranmer2020frontier}
+\citation{marder1992dynamic}
+\citation{prinz2004similar}
+\citation{gonccalves2019training}
 \citation{tsodyks1997paradoxical}
 \citation{goldman2009memory,murphy2009balanced}
 \citation{ozeki2009inhibitory}
@@ -68,26 +69,24 @@
 \citation{palmigiano2020structure}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4}EPI reveals how noisy input across neuron-types governs excitatory variability in a V1 model}{12}}
 \newlabel{results_V1}{{3.4}{12}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip Emergent property inference in the stochastic stabilized supralinear network (SSSN) \textbf  {A}. Four-population model of primary visual cortex with excitatory (black), parvalbumin (blue), somatostatin (red), and VIP (green) neurons (excitatory and inhibitory projections filled and unfilled, respectively). Some neuron-types largely do not form synaptic projections to others ($|W_{\alpha _1, \alpha _2})| < 0.025$). Each neural population receives a baseline input $\mathbf  {h}_b$, and the E- and P-populations also receive a contrast-dependent input $\mathbf  {h}_c$. Additionally, each neural population receives a slow noisy input $\bm  {\epsilon }$. \textbf  {B}. Steady-state responses of the SSN model (deterministic, $\bm  {\sigma }=\bm  {0}$) to varying contrasts. The response at 50\% contrast (dots) is the focus of our analysis. \textbf  {C}. Transient network responses of the SSSN model at 50 \% contrast. (Left) Traces are independent trials with varying initialization $\mathbf  {x}(0)$ and noise realization. (Right) Mean (solid line) and standard deviation (shading) of responses. \textbf  {D}. EPI distribution of noise parameters $\mathbf  {z}$ conditioned on E-population variability. The EPI predictive distribution of $s_E(\mathbf  {x}; \mathbf  {z})$ is show on the bottom-left. \textbf  {E}. (Top) Enlarged visualization of the $\sigma _E$-$\sigma _P$ marginal distribution of EPI $q_{\bm  {\theta }}(\mathbf  {z} \mid \mathcal  {X}(5\text  { Hz})$ and $q_{\bm  {\theta }}(\mathbf  {z} \mid \mathcal  {X}(10\text  { Hz})$. Each black dot shows the mode at each $\sigma _P$. The arrows show the most sensitive dimensions of the Hessian evaluated at these modes. \textbf  {F}. The predictive distributions of $\sigma _E^2 + \sigma _P^2$ of each parameter distribution $q_{\bm  {\theta }}(\mathbf  {z} \mid \mathcal  {X}(5\text  { Hz})$ and $q_{\bm  {\theta }}(\mathbf  {z} \mid \mathcal  {X}(10\text  { Hz})$. }}{13}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip Emergent property inference in the stochastic stabilized supralinear network (SSSN) \textbf  {A}. Four-population model of primary visual cortex with excitatory (black), parvalbumin (blue), somatostatin (red), and VIP (green) neurons (excitatory and inhibitory projections filled and unfilled, respectively). Some neuron-types largely do not form synaptic projections to others ($|W_{\alpha _1, \alpha _2})| < 0.025$). Each neural population receives a baseline input $\mathbf  {h}_b$, and the E- and P-populations also receive a contrast-dependent input $\mathbf  {h}_c$. Additionally, each neural population receives a slow noisy input $\bm  {\epsilon }$. \textbf  {B}. Transient network responses of the SSSN model. Traces are independent trials with varying initialization $\mathbf  {x}(0)$ and noise $\bm  {\epsilon }$. \textbf  {C}. Mean (solid line) and standard deviation $s_E(\mathbf  {x}; \mathbf  {z})$ (shading) across 100 trials. \textbf  {D}. EPI distribution of noise parameters $\mathbf  {z}$ conditioned on E-population variability. The EPI predictive distribution of $s_E(\mathbf  {x}; \mathbf  {z})$ is show on the bottom-left. \textbf  {E}. (Top) Enlarged visualization of the $\sigma _E$-$\sigma _P$ marginal distribution of EPI $q_{\bm  {\theta }}(\mathbf  {z} \mid \mathcal  {X}(5\text  { Hz})$ and $q_{\bm  {\theta }}(\mathbf  {z} \mid \mathcal  {X}(10\text  { Hz})$. Each black dot shows the mode at each $\sigma _P$. The arrows show the most sensitive dimensions of the Hessian evaluated at these modes. \textbf  {F}. The predictive distributions of $\sigma _E^2 + \sigma _P^2$ of each inferred distribution $q_{\bm  {\theta }}(\mathbf  {z} \mid \mathcal  {X}(5\text  { Hz})$ and $q_{\bm  {\theta }}(\mathbf  {z} \mid \mathcal  {X}(10\text  { Hz})$. }}{13}}
 \newlabel{fig:V1}{{3}{13}}
+\newlabel{eq:EP_V1}{{8}{14}}
 \citation{duan2015requirement}
 \citation{duan2018collicular}
-\newlabel{eq:EP_V1}{{8}{14}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.5}EPI identifies two regimes of rapid task switching}{15}}
 \newlabel{results_SC}{{3.5}{15}}
 \newlabel{eq:SC_EP}{{10}{15}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces \relax \fontsize  {9}{11}\selectfont  \abovedisplayskip 8\p@ plus2\p@ minus4\p@ \abovedisplayshortskip \z@ plus\p@ \belowdisplayshortskip 4\p@ plus2\p@ minus2\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 4\p@ plus2\p@ minus2\p@ \parsep 2\p@ plus\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip \textbf  {A}. Rapid task switching behavioral paradigm (see text). \textbf  {B}. Model of superior colliculus (SC). Neurons: LP - left pro, RP - right pro, LA - left anti, RA - right anti. Parameters: $sW$ - self, $hW$ - horizontal, $vW$ -vertical, $dW$ - diagonal weights. \textbf  {C}. The EPI inferred distribution of rapid task switching networks. Red and purple stars indicate modes $\mathbf  {z}^*$ of each connectivity regime. Sensitivity vectors $\mathbf  {v}_1(\mathbf  {z}^*)$ are shown by arrows. (Bottom-left) EPI predictive distribution of task accuracies. \textbf  {D}. The connectivity regimes have different responses to perturbation. (Top) Mean and standard error ($N_{\text  {test}}$ = 25) of accuracy with respect to perturbation along the sensitivity dimension of each mode $\mathbf  {z}^*$. (Middle) Same with perturbation in the dimension of increasing $\lambda _{\text  {task}}$ ($\mathbf  {v}_{\text  {task}}$). (Bottom) Same with perturbation in the dimension of increasing $\lambda _{\text  {diag}}$ ($\mathbf  {v}_{\text  {diag}}$). }}{16}}
 \newlabel{fig:SC}{{4}{16}}
+\citation{paninski2018neural}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.6}EPI inferred SC connectivities reproduce results from optogenetic inactivation experiments}{18}}
 \newlabel{results_SC_opt}{{3.6}{18}}
-\citation{paninski2018neural}
+\citation{beaumont2002approximate,marjoram2003markov,sisson2007sequential}
+\citation{gonccalves2019training}
 \@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \relax \fontsize  {9}{11}\selectfont  \abovedisplayskip 8\p@ plus2\p@ minus4\p@ \abovedisplayshortskip \z@ plus\p@ \belowdisplayshortskip 4\p@ plus2\p@ minus2\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 4\p@ plus2\p@ minus2\p@ \parsep 2\p@ plus\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip \textbf  {A}. The EPI distribution predicts experimental results (left) showing no change in the Pro task, but larger error in the Anti task (right). \textbf  {B}. Accuracy in the Anti task during delay period optogenetic inactivation $p_{A,\text  {opto}}$ is strongly anticorrelated with accuracy in the Pro task. \textbf  {C}. Mean and standard error ($N_{\text  {test}}$ = 25) of accuracy with respect to perturbation along the sensitivity dimension of each mode $\mathbf  {z}^*$. }}{19}}
 \newlabel{fig:SC_opto}{{5}{19}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Discussion}{19}}
-\citation{beaumont2002approximate,marjoram2003markov,sisson2007sequential}
-\citation{gonccalves2019training}
-\citation{litwin2016inhibitory,hennequin2018dynamical}
-\citation{duan2015requirement}
 \bibdata{eLife2020}
 \bibcite{kopell1988coupled}{1}
 \bibcite{marder1998biophysics}{2}
@@ -129,68 +128,72 @@
 \bibcite{niell2010modulation}{38}
 \bibcite{saleem2013integration}{39}
 \bibcite{musall2019single}{40}
-\bibcite{sisson2007sequential}{41}
-\bibcite{liepe2014framework}{42}
-\bibcite{gonccalves2019training}{43}
-\bibcite{papamakarios2019sequential}{44}
-\bibcite{hermans2020likelihood}{45}
-\bibcite{saul1998mean}{46}
-\bibcite{loaiza2017maximum}{47}
-\bibcite{rezende2015variational}{48}
-\bibcite{goldman2001global}{49}
-\bibcite{gutierrez2013multiple}{50}
-\bibcite{murphy2009balanced}{51}
-\bibcite{hennequin2014optimal}{52}
-\bibcite{bondanelli2019population}{53}
-\bibcite{litwin2016inhibitory}{54}
-\bibcite{palmigiano2020structure}{55}
-\bibcite{duan2018collicular}{56}
-\bibcite{marder2002cellular}{57}
-\bibcite{dinh2017density}{58}
-\bibcite{papamakarios2017masked}{59}
-\bibcite{goldman2009memory}{60}
-\bibcite{bondanelli2020coding}{61}
-\bibcite{sussillo2014neural}{62}
-\bibcite{barak2017recurrent}{63}
-\bibcite{russo2018motor}{64}
-\bibcite{sisson2018handbook}{65}
-\bibcite{cranmer2020frontier}{66}
-\bibcite{ozeki2009inhibitory}{67}
-\bibcite{rubin2015stabilized}{68}
-\bibcite{markram2004interneurons}{69}
-\bibcite{rudy2011three}{70}
-\bibcite{tremblay2016}{71}
-\bibcite{pfeffer2013inhibition}{72}
-\bibcite{semedo2019cortical}{73}
-\bibcite{felleman1991distributed}{74}
-\bibcite{hennequin2018dynamical}{75}
-\bibcite{duan2015requirement}{76}
-\bibcite{beaumont2002approximate}{77}
-\bibcite{marjoram2003markov}{78}
-\bibcite{metropolis1953equation}{79}
-\bibcite{hastings1970monte}{80}
-\bibcite{girolami2011riemann}{81}
-\bibcite{golightly2011bayesian}{82}
-\bibcite{tran2017hierarchical}{83}
-\bibcite{bittner2019degenerate}{84}
-\bibcite{bittner2019examining}{85}
-\bibcite{nonnenmacher2018sbi}{86}
-\bibcite{desitler2019statistical}{87}
-\bibcite{LueckmannGoncalves_17}{88}
-\bibcite{wainwright2008graphical}{89}
-\bibcite{bittner2019approximating}{90}
-\bibcite{karlsson2012efficient}{91}
-\bibcite{chen2018neural}{92}
-\bibcite{li2020scalable}{93}
-\bibcite{raue2009structural}{94}
-\bibcite{raman2017delineating}{95}
-\bibcite{saccomani2003parameter}{96}
-\bibcite{papamakarios2019normalizing}{97}
-\bibcite{kingma2018glow}{98}
-\bibcite{kingma2016improved}{99}
-\bibcite{kingma2014adam}{100}
-\bibcite{klinger2018pyabc}{101}
-\bibcite{greenberg2019automatic}{102}
+\bibcite{dayan2003theoretical}{41}
+\bibcite{izhikevich2007dynamical}{42}
+\bibcite{sisson2007sequential}{43}
+\bibcite{liepe2014framework}{44}
+\bibcite{gonccalves2019training}{45}
+\bibcite{papamakarios2019sequential}{46}
+\bibcite{hermans2020likelihood}{47}
+\bibcite{loaiza2017maximum}{48}
+\bibcite{rezende2015variational}{49}
+\bibcite{goldman2001global}{50}
+\bibcite{gutierrez2013multiple}{51}
+\bibcite{murphy2009balanced}{52}
+\bibcite{hennequin2014optimal}{53}
+\bibcite{bondanelli2019population}{54}
+\bibcite{litwin2016inhibitory}{55}
+\bibcite{palmigiano2020structure}{56}
+\bibcite{duan2018collicular}{57}
+\bibcite{marder2002cellular}{58}
+\bibcite{morris1981voltage}{59}
+\bibcite{dinh2017density}{60}
+\bibcite{papamakarios2017masked}{61}
+\bibcite{goldman2009memory}{62}
+\bibcite{bondanelli2020coding}{63}
+\bibcite{sussillo2014neural}{64}
+\bibcite{barak2017recurrent}{65}
+\bibcite{russo2018motor}{66}
+\bibcite{sisson2018handbook}{67}
+\bibcite{cranmer2020frontier}{68}
+\bibcite{marder1992dynamic}{69}
+\bibcite{ozeki2009inhibitory}{70}
+\bibcite{rubin2015stabilized}{71}
+\bibcite{markram2004interneurons}{72}
+\bibcite{rudy2011three}{73}
+\bibcite{tremblay2016}{74}
+\bibcite{pfeffer2013inhibition}{75}
+\bibcite{semedo2019cortical}{76}
+\bibcite{felleman1991distributed}{77}
+\bibcite{hennequin2018dynamical}{78}
+\bibcite{duan2015requirement}{79}
+\bibcite{beaumont2002approximate}{80}
+\bibcite{marjoram2003markov}{81}
+\bibcite{saul1998mean}{82}
+\bibcite{metropolis1953equation}{83}
+\bibcite{hastings1970monte}{84}
+\bibcite{girolami2011riemann}{85}
+\bibcite{golightly2011bayesian}{86}
+\bibcite{tran2017hierarchical}{87}
+\bibcite{bittner2019degenerate}{88}
+\bibcite{bittner2019examining}{89}
+\bibcite{nonnenmacher2018sbi}{90}
+\bibcite{desitler2019statistical}{91}
+\bibcite{LueckmannGoncalves_17}{92}
+\bibcite{wainwright2008graphical}{93}
+\bibcite{bittner2019approximating}{94}
+\bibcite{karlsson2012efficient}{95}
+\bibcite{chen2018neural}{96}
+\bibcite{li2020scalable}{97}
+\bibcite{raue2009structural}{98}
+\bibcite{raman2017delineating}{99}
+\bibcite{saccomani2003parameter}{100}
+\bibcite{papamakarios2019normalizing}{101}
+\bibcite{kingma2018glow}{102}
+\bibcite{kingma2016improved}{103}
+\bibcite{kingma2014adam}{104}
+\bibcite{klinger2018pyabc}{105}
+\bibcite{greenberg2019automatic}{106}
 \bibstyle{unsrt}
 \@writefile{toc}{\contentsline {section}{\numberline {5}Methods}{31}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Emergent property inference (EPI)}{31}}
@@ -239,15 +242,15 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (LDS1): \textbf  {A}. Two-dimensional linear dynamical system model, where real entries of the dynamics matrix $A$ are the parameters. \textbf  {B}. The EPI distribution for a two-dimensional linear dynamical system with $\tau =1$ that produces an average of 1Hz oscillations with some small amount of variance. Dashed lines indicate the parameter axes. \textbf  {C}. Entropy throughout the optimization. At the beginning of each augmented Lagrangian epoch (2,000 iterations), the entropy dipped due to the shifted optimization manifold where emergent property constraint satisfaction is increasingly weighted. \textbf  {D}. Emergent property moments throughout optimization. At the beginning of each augmented Lagrangian epoch, the emergent property moments adjust closer to their constraints.}}{39}}
 \newlabel{fig:LDS1}{{5.1.4}{39}}
 \citation{wainwright2008graphical}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (LDS2): \textbf  {A}. Probability contours in the $a_1$-$a_4$ plane were derived from the relationship to emergent property statistic of growth/decay factor $\text  {real}(\lambda _1)$. \textbf  {B}. Probability contours in the $a_2$-$a_3$ plane were derived from the emergent property statistic of oscillation frequency $2\pi \text  {imag}(\lambda _1)$.}}{40}}
-\newlabel{fig:LDS2}{{5.1.4}{40}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (LDS3): Sampled dynamical systems $\mathbf  {z} \sim q_{\bm  {\theta }}(\mathbf  {z})$ and their simulated activity from $\mathbf  {x}(0) = [\frac  {\sqrt  {2}}{2}, -\frac  {\sqrt  {2}}{2}]$ colored by log probability. \textbf  {A}. Each dimension of the simulated trajectories throughout time. \textbf  {B}. The simulated trajectories in phase space.}}{41}}
-\newlabel{fig:LDS3}{{5.1.4}{41}}
 \citation{wainwright2008graphical}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (LDS2): \textbf  {A}. Probability contours in the $a_1$-$a_4$ plane were derived from the relationship to emergent property statistic of growth/decay factor $\text  {real}(\lambda _1)$. \textbf  {B}. Probability contours in the $a_2$-$a_3$ plane were derived from the emergent property statistic of oscillation frequency $2\pi \text  {imag}(\lambda _1)$.}}{41}}
+\newlabel{fig:LDS2}{{5.1.4}{41}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.1.5}Maximum entropy distributions and exponential families}{41}}
+\newlabel{methods_ME_EF}{{5.1.5}{41}}
+\newlabel{eq:max_ent}{{24}{41}}
 \citation{saul1998mean}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.1.5}Maximum entropy distributions and exponential families}{42}}
-\newlabel{methods_ME_EF}{{5.1.5}{42}}
-\newlabel{eq:max_ent}{{24}{42}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (LDS3): Sampled dynamical systems $\mathbf  {z} \sim q_{\bm  {\theta }}(\mathbf  {z})$ and their simulated activity from $\mathbf  {x}(0) = [\frac  {\sqrt  {2}}{2}, -\frac  {\sqrt  {2}}{2}]$ colored by log probability. \textbf  {A}. Each dimension of the simulated trajectories throughout time. \textbf  {B}. The simulated trajectories in phase space.}}{42}}
+\newlabel{fig:LDS3}{{5.1.4}{42}}
 \newlabel{eq:moments}{{27}{42}}
 \newlabel{eq:mu_opt}{{28}{42}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {5.1.6}EPI as variational inference}{42}}
@@ -268,45 +271,45 @@
 \newlabel{methods_RNN}{{5.2.2}{48}}
 \citation{beaumont2002approximate}
 \citation{klinger2018pyabc}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (RNN1): Number of parameters in deep probability distribution architectures of EPI (blue) and SNPE (orange) by RNN size ($N$). }}{49}}
+\newlabel{fig:RNN1}{{10}{49}}
 \newlabel{eq:stab_amp_x0}{{64}{49}}
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (RNN1): Number of parameters in deep probability distribution architectures of EPI (blue) and SNPE (orange) by RNN size ($N$). }}{50}}
-\newlabel{fig:RNN1}{{10}{50}}
 \@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (RNN2): Model characteristics affect predictions of posteriors inferred by SNPE, while predictions of parameters inferred by EPI remain fixed. \textbf  {A}. Predictive distribution of EPI (blue) and SNPE (orange) inferred connectivity of RNNs exhibiting stable amplification with $N=2$ (top), $N=10$ (bottom), $g=0.01$ (left), and $g=0.1$ (right). \textbf  {B}. Entropy of parameter distribution approximations throughout optimization with $N=2$ (top), $N=10$ (bottom), $g=0.1$ (dark shade), and $g=0.01$ (light shade). \textbf  {C}. Validation log probabilities throughout SNPE optimization. Same conventions as B. \textbf  {D}. Adherence to EPI constraints. Same conventions as B. }}{51}}
 \newlabel{fig:RNN2}{{11}{51}}
 \citation{greenberg2019automatic}
 \citation{greenberg2019automatic}
 \citation{hennequin2018dynamical}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.3}Primary visual cortex}{52}}
+\newlabel{methods_V1}{{5.2.3}{52}}
 \@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (RNN3): SNPE convergence was enabled by increasing $n_{\text  {round}}$, not $n_{\text  {atom}}$. \textbf  {A}. Difference of mean predictions $\mathbf  {x}_0$ throughout optimization at $N=50$ with by simulation count (left) and wall time (right) of SNPE with $n_{\text  {round}} = 5,000$ (light orange), SNPE with $n_{\text  {round}} = 25,000$ (dark orange), and EPI (blue). Each line shows an individual random seed. \textbf  {B}. Same conventions as A at $N=100$ of SNPE with $n_{\text  {atom}} = 100$ (light orange) and $n_{\text  {atom}} = 1,000$ (dark orange). \textbf  {C}. Same conventions as A at $N=100$ of SNPE with $n_{\text  {round}} = 25,000$ (light orange) and $n_{\text  {round}} = 250,000$ (dark orange). }}{53}}
 \newlabel{fig:RNN3}{{12}{53}}
 \citation{palmigiano2020structure}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.3}Primary visual cortex}{54}}
-\newlabel{methods_V1}{{5.2.3}{54}}
 \@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (V1 1) (Left) Simulations for small increases in neuron-type population input. Input magnitudes are chosen so that effect is salient ($0.002$ for E and P, but $0.02$ for S and V). (Right) Average (solid) and standard deviation (shaded) of stochastic fluctuations of responses. }}{55}}
 \newlabel{fig:V1_1}{{13}{55}}
 \@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (V1 2) EPI predictive distributions of the sum of squares of each pair of noise parameters. }}{56}}
 \newlabel{fig:V1_2}{{14}{56}}
+\citation{duan2015requirement}
+\citation{duan2018collicular}
 \@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (V1 3) EPI inferred distribution for $\mathcal  {X}(10\text  { Hz})$. }}{57}}
 \newlabel{fig:V1_3}{{15}{57}}
-\citation{duan2015requirement}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.4}Primary visual cortex: challenges to analysis}{57}}
+\newlabel{methods_V1_complexity}{{5.2.4}{57}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.5}Superior colliculus}{57}}
+\newlabel{methods_SC}{{5.2.5}{57}}
 \citation{duan2018collicular}
 \@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (V1 4) Optimization for V1 }}{58}}
 \newlabel{fig:V1_4}{{16}{58}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.4}Primary visual cortex: challenges to analysis}{58}}
-\newlabel{methods_V1_complexity}{{5.2.4}{58}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.5}Superior colliculus}{58}}
-\newlabel{methods_SC}{{5.2.5}{58}}
-\citation{duan2018collicular}
-\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (SC1): \textbf  {A}. Same pairplot as Fig. 4\hbox {}C colored by Pro task accuracy. \textbf  {B}. Same as A colored by Anti task accuracy. \textbf  {C}. Connectivity parameters of EPI distributions versus task accuracies. $\beta $ is slope coefficient of linear regression, $r$ is correlation, and $p$ is the two-tailed p-value. }}{60}}
-\newlabel{fig:SC1}{{17}{60}}
-\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (SC2): \textbf  {A}. Simulations in network regime 1 ($hW_{\text  {fixed}} = -1.2$) (center) with simulations given connectivity perturbations in the negative direction of the sensitivity vector $\mathbf  {v}_1$ (left) and positive direction (right). \textbf  {B}. Same as A for network regime 2. }}{61}}
-\newlabel{fig:SC2}{{18}{61}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (SC1): \textbf  {A}. Same pairplot as Fig. 4\hbox {}C colored by Pro task accuracy. \textbf  {B}. Same as A colored by Anti task accuracy. \textbf  {C}. Connectivity parameters of EPI distributions versus task accuracies. $\beta $ is slope coefficient of linear regression, $r$ is correlation, and $p$ is the two-tailed p-value. }}{59}}
+\newlabel{fig:SC1}{{17}{59}}
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (SC2): \textbf  {A}. Simulations in network regime 1 ($hW_{\text  {fixed}} = -1.2$) (center) with simulations given connectivity perturbations in the negative direction of the sensitivity vector $\mathbf  {v}_1$ (left) and positive direction (right). \textbf  {B}. Same as A for network regime 2. }}{60}}
+\newlabel{fig:SC2}{{18}{60}}
 \@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (SC3): \textbf  {A}. Invariant eigenvectors of connectivity matrix $W$. \textbf  {B}. Accuracies for connectivity perturbations for increasing $\lambda _{\text  {all}}$ and $\lambda _{\text  {side}}$ (rest shown in Fig. 4\hbox {}D). }}{62}}
 \newlabel{fig:SC3}{{19}{62}}
-\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (SC4): \textbf  {A}. The individual parameters of each mode throughout the two regimes. \textbf  {B}. The individual sensitivities of parameters of each mode throughout the two regimes. }}{63}}
-\newlabel{fig:SC4}{{20}{63}}
+\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (SC4): \textbf  {A}. The individual parameters of each mode throughout the two regimes. \textbf  {B}. The individual sensitivities of parameters of each mode throughout the two regimes. }}{62}}
+\newlabel{fig:SC4}{{20}{62}}
 \@writefile{lof}{\contentsline {figure}{\numberline {21}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (SC5): \textbf  {A}. Response of each parameter regime to optogenetic silencing during the delay period. \textbf  {B}. Error induced by delay period inactivation with increasing optogenetic strength. Means and standard deviations are calculated across the entire EPI distribution. }}{63}}
 \newlabel{fig:SC5}{{21}{63}}
 \@writefile{lof}{\contentsline {figure}{\numberline {22}{\ignorespaces \relax \fontsize  {10}{12}\selectfont  \abovedisplayskip 10\p@ plus2\p@ minus5\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6\p@ plus3\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 4.5\p@ plus2\p@ minus\p@ \topsep 9\p@ plus3\p@ minus5\p@ \itemsep 4.5\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 6\p@ plus2\p@ minus2\p@ \parsep 3\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip (SC6): \textbf  {A}. Entropy throughout optimization. \textbf  {B}. The emergent property statistic means and variances converge to their constraints at 20,000 iterations following the tenth augmented Lagrangian epoch. }}{64}}
 \newlabel{fig:SC6}{{22}{64}}
+\newlabel{eq:dzdlambda}{{96}{65}}
 \citation{duan2015requirement}
-\newlabel{eq:dzdlambda}{{96}{66}}

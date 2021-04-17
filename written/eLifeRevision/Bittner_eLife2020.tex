@@ -1188,8 +1188,8 @@ As a note, we could not simply choose $\bm{\mu}_f$ and $\bm{\sigma}_f$ directly 
 Accordingly, we replace the notation of $p(\mathbf{z} \mid \mathbf{x})$ with $p(\mathbf{z} \mid \mathcal{X})$ conceptualizing an inferred distribution that obeys emergent property $\mathcal{X}$ (see Section \ref{methods_EPI}). 
 
 \subsection{Theoretical models}\label{methods_theoretical_models}
-In this study, we used emergent property inference to examine several models relevant to theoretical neuroscience.  
-Here, we provide the details of each model  and the related analyses.
+In this study, we used emergent property inference to examine several theoretical models of computation.
+Here, we provide the details of each model and the related analyses.
 
 \subsubsection{Stomatogastric ganglion}\label{methods_STG}
 We analyze how the parameters $\mathbf{z} = [ g_{\text{el}}, g_{\text{synA}}]$ govern the emergent phenomena of intermediate hub frequency in a model of the stomatogastric ganglion (STG) \cite{gutierrez2013multiple} shown in Figure \ref{fig:STG}A with activity $\mathbf{x} = \left[ x_{\text{f1}}, x_{\text{f2}}, x_{\text{hub}}, x_{\text{s1}}, x_{\text{s2}} \right]$, using the same hyperparameter choices as Gutierrez et al.
@@ -1256,7 +1256,7 @@ The frequency is then calculated as
 \end{equation}
 
 Intermediate hub frequency, like all other emergent properties in this work, is defined by the mean and variance of the emergent property statistics.
-In this case, we have one statistic, hub neuron frequency, where the mean was chosen to be 0.55Hz, and variance was chosen to be (0.025Hz)$^2$ to capture variation in frequency between 0.5Hz and 0.6Hz (Equation \ref{eq:EP_STG}).
+In this case, we have one statistic, hub neuron frequency, where the mean was chosen to be 0.55Hz, and variance was chosen to be (0.025Hz)$^2$ (Equation \ref{eq:EP_STG}).
 As a maximum entropy distribution, $T(\mathbf{x}, \mathbf{z})$ is comprised of both these first and second moments of the hub neuron frequency (as in Equations \ref{eq:moments} and \ref{eq:mu_opt})
 \begin{equation} 
 T(\mathbf{x}; \mathbf{z}) = \begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) \\ \left( \omega_{\text{hub}}(\mathbf{x}; \mathbf{z}) - 0.55 \right)^2 \end{bmatrix},
@@ -1283,14 +1283,11 @@ For EPI in Fig \ref{fig:STG}E, we used a real NVP architecture with three Real N
 The normalizing flow architecture mapped $z_0 \sim \mathcal{N}(\mathbf{0}, I)$ to a support of $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}] \in [4,8] \times [0.01,4]$, initialized to a gaussian approximation of samples returned by a preliminary ABC search.
 We did not include $g_{\text{synA}} < 0.01$, for numerical stability.
 EPI optimization was run using 5 different random seeds for architecture initialization $\bm{\theta}$ with an augmented Lagrangian coefficient of $c_0 = 10^{5}$, a batch size $n=400$, and $\beta = 2$.
-The distribution shown is that of the architecture converging with criteria $N_{\text{test}} = 100$ at greatest entropy across random seeds.
+The architecture converged with criteria $N_{\text{test}} = 100$.
 
-We calculated the Hessian at the mode of the inferred EPI distribution.  
-The Hessian of a probability model is the second order gradient of the log probability density $\log q_{\bm{\theta}}(\mathbf{z})$ with respect to the parameters $\mathbf{z}$:  $\frac{\partial^2 \log q_{\bm{\theta}}(\mathbf{z})}{\partial \mathbf{z} \partial \mathbf{z}^\top}$.  
-With EPI, we can examine the Hessian, which is analytically available throughout distribution, to indicate the dimensions of parameter space that are sensitive (strongly negative eigenvalue), and which are degenerate (low magnitude eigenvalue) with respect to the emergent property produced. 
-In Figure \ref{fig:STG}D, the eigenvectors of the Hessian $v_1$ (solid) and $v_2$ (dashed) are shown evaluated at the mode of the distribution.  
-The length of the arrows is inversely proportional to the square root of absolute value of their eigenvalues $\lambda_1 = -10.7$ and $\lambda_2 = -3.22$.
-Since the Hessian eigenvectors have sign degeneracy, the visualized directions in 2-D parameter space are chosen arbitrarily.
+In Figure \ref{fig:STG}D, the sensitivity dimension $v_1$ (solid) and the second eigenvector of the Hessian $v_2$ (dashed) are shown evaluated at the mode of the distribution.  
+The length of the arrows is inversely proportional to the square root of the absolute value of their eigenvalues $\lambda_1 = -10.7$ and $\lambda_2 = -3.22$.
+Since the Hessian eigenvectors have sign degeneracy, the visualized directions in 2-D parameter space were chosen to have positive $g_{\text{synA}}$.$  $
 %We quantitatively measured the sensitivity of the model with respect to network syncing along the eigenvectors of the Hessian (Fig. \ref{fig:STG}B, inset).
 %Sensitivity was measured as the slope coefficient of linear regression fit to network syncing error (the sum of squared differences of each neuron's frequency from 0.53Hz) as a function of parametric perturbation magnitude (maximum 0.25) away from the mode along both orientations indicated by the eigenvector with 100 equally spaced samples.
 %The sensitivity slope coefficient of eigenvector $v_1$ with respect to network syncing was significant ($\beta = 4.82 \times 10^{-2}$, $p<10^{-4}$).
