@@ -489,7 +489,7 @@ While research has shown that V1 only shares specific dimensions of neuronal var
 Here, in a model of V1 with biologically realistic connectivity, we use EPI to show how the structure of input across neuron types affects the variability of the excitatory population -- the population largely responsible for projecting to other brain areas \cite{felleman1991distributed}.
 
 We considered response variability of a nonlinear dynamical V1 circuit model (Fig. \ref{fig:V1}A) with a state comprised of each neuron-type population's rate $\mathbf{x} = \left[x_E, x_P , x_S, x_V \right]^\top$.
-Each population receives recurrent input $W \mathbf{x}$, where $W$ is the effective connectivity estimated from post-synaptic potential and connectivity rate measurements (see Section \ref{methods_V1}).
+Each population receives recurrent input $W \mathbf{x}$, where $W$ is the effective connectivity matrix (see Section \ref{methods_V1}).
 Each population also experiences an external input $\mathbf{h}$, which determines population rate via supralinear nonlinearity $\phi(\cdot) = \left[\cdot \right]^2_+$.
 There is also an additive noisy input $\bm{\epsilon}$ parameterized by variances for each neuron type population $\bm{\sigma}^2 = \left[ \sigma_E^2, \sigma_P^2, \sigma_S^2, \sigma_V^2\right]$.
 This noise has a slower dynamical timescale $\tau_{\text{noise}} > \tau$ than the population rate, allowing fluctuations around a stimulus-dependent steady-state (Fig. \ref{fig:V1}B).
@@ -648,7 +648,7 @@ In summary, the connectivity inferred by EPI to perform rapid task switching rep
 We found that at levels of optogenetic strength matching experimental levels of Anti error, only one regime actually exhibited the effect.  
 This suggests that one regime is less resilient to optogenetic perturbation, and perhaps more biologically realistic.
 Finally, we mechanistically characterized the pathology in Anti error that occurs in both regimes when optogenetic strength is increased to high levels.
-This insight was made possible by using the probabilistic tools afforded by EPI: we identified two regimes and the continuum of connectivities between them, and we obtained many parameter samples at each step along the continuum (X times faster than brute force methods, see Section \ref{methods_SC}).
+This insight was made possible by using the probabilistic tools afforded by EPI: we identified two regimes and the continuum of connectivities between them, and we obtained many parameter samples at each step along the continuum (in 7.36 seconds rather than 4.2 days with brute force methods, see Section \ref{methods_SC}).
 
 
 %To establish these two regimes of connectivity, we took gradient steps along $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ to produce modes $\mathbf{z}_1$ and $\mathbf{z}_2$  (Fig. \ref{fig:SC}C red and purple stars, Section \ref{methods_SC}).
@@ -1751,7 +1751,7 @@ Each of these modes is denoted $\mathbf{z}^*(hW_{\text{fixed}}, r)$ for regime $
 For the analyses in Figure \ref{fig:SC_opto}C and Figure \ref{fig:SC5}, we obtained parameters for each step along the continuum between regimes 1 and 2 by sampled from the EPI distribution.
 Each sample was assigned to the closest mode $\mathbf{z}^*(hW_{\text{fixed}}, r)$.
 Sampling continued until 500 samples were assigned to each mode, which took 7.36 seconds.
-To obtain this many samples for each mode with brute force sampling over the chosen prior, this would take 90 days.
+To obtain this many samples for each mode with brute force sampling over the chosen prior, this would take 4.20 days.
 
 At each mode, we measure the sensitivity dimension (that of most negative eigenvalue in the Hessian of the EPI distribution) $\mathbf{v}_1(\mathbf{z}^*)$.
 To resolve sign degeneracy in eigenvectors, we chose $\mathbf{v}_1(\mathbf{z}^*)$ to have negative element in $hW$.
