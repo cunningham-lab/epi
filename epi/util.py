@@ -125,7 +125,7 @@ def np_column_vec(x):
 
 
 def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1., check_last_k=None, by_df=False):
-    paths = epi_df['path'].unique()
+    paths = sorted(epi_df['path'].unique())
     best_Hs = []
     best_ks = []
     df_rows = []
@@ -134,7 +134,7 @@ def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1., check_last_k=None, by_d
         epi_df2 = epi_df[epi_df['path'] == path]
         _D = epi_df2.iloc[0]['arch']['D']
         _rs = epi_df2.iloc[0]['arch']['random_seed']
-        print("Processing EPI: D=%d, rs=%d.\n" % (_D, _rs), end="")
+        print("Processing EPI: D=%d, rs=%d." % (_D, _rs))
         if by_df:
             df_row = epi_df2.iloc[-1]
             converged = df_row['converged']
@@ -161,6 +161,7 @@ def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1., check_last_k=None, by_d
                 nu=nu,
                 start_k=start_k
             )
+            print('k', best_k, 'H', best_H)
             tf.keras.backend.clear_session()
         if (not any_converged) and converged:
             any_converged = True
