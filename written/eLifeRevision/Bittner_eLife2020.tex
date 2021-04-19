@@ -583,6 +583,7 @@ The EPI inferred distribution  (Fig. \ref{fig:SC}C) produces Pro and Anti task a
 This parameter distribution has intricate structure, that is not captured well by simple linear correlations (Fig. \ref{fig:SC1}).
 Specifically, the shape of the EPI distribution changes dramatically on different sides of parameter space.
 This is most saliently pointed out in the marginal distribution of  $sW$-$hW$ (Fig. \ref{fig:SC}C top-right), where anticorrelation between $sW$ and $hW$ switches to correlation with decreasing $sW$.
+The two regimes produce different types of responses in the Pro and Anti tasks (Fig. SC2).
 Not only has EPI captured this complicated distribution of connectivities producing rapid task switching, we can query the EPI distribution $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ to understand these two parametric regimes of SC connectivity.
 
 To distinguish these two regimes, we use the EPI distribution to identify two sets of modes.
@@ -599,42 +600,56 @@ When perturbing connectivity along the sensitivity dimension, Pro accuracy monot
 However, there is a stark difference between regimes in Anti accuracy. 
 Anti accuracy falls in either direction of $\mathbf{v}_1$ in regime 1, yet monotonically increases along with Pro accuracy in regime 2 (Fig. \ref{fig:SC}D, top-right).
 These distinct pathologies of rapid task switching are caused by distinct connectivity changes ($\mathbf{v}_1(\mathbf{z}^*(r=1))$ vs $\mathbf{v}_1(\mathbf{z}^*(r=2))$) and explain the sharp change in local structure of the EPI distribution.
-With further perturbation analyses along dimensions of connectivity having established effects on processing, we are able to distinguish these two regimes with mechanistic insights (Fig. \ref{fig:SC}D, middle, bottom) (Section \ref{methods_SC}).
+
+To further examine the two regimes, we can perturb $\mathbf{z}$ in the same way along dimensions that independently change the eigenvalues of the connectivity matrix (which has constant eigenvectors with respect to $\mathbf{z}$).  These eigenvalues $\lambda_{\text{all}}$, $\lambda_{\text{side}}$, $\lambda_{\text{task}}$, and $\lambda_{\text{diag}}$ correspond to connectivity eigenmodes with intuitive roles in processing in this task (Fig. \ref{fig:SC3}A).
+For example, greater $\lambda_{\text{task}}$ will strengthen internal representations of task, while greater $\lambda_{\text{diag}}$ will amplify dominance of Pro and Anti pairs in opposite hemispheres (Section \ref{methods_SC}).
+Perturbation analyses reveal that decreasing $\lambda_{\text{task}}$ has close to the same effect on Anti accuracy as perturbations along the sensitivtity dimension (Fig. \ref{fig:SC}D, middle).
+This suggests that there is a carefully tuned strength of task representation in regime 1, which if disturbed results in random Anti trial responses.
+Finally, we recognize that increasing $\lambda_{\text{diag}}$ has opposite effects on Anti accuracy in each regime (Fig. \ref{fig:SC}D, bottom).
+In the next section, we build on these mechanistic characterizations of each regime by examining their resilience to optogenetic silencing.
 
 \subsection{EPI inferred SC connectivities reproduce results from optogenetic inactivation experiments} \label{results_SC_opt}
 
 During the delay period of this task, the circuit must prepare to execute the correct task based on the cue input.
 Experimental results from Duan et al. found that optogenetic inactivation of SC during the delay period consistently decreased performance in the Anti task, but had no effect on the Pro task (Fig. \ref{fig:SC_opto}A).
-All network connectivities inferred by EPI exhibited this same effect, when network activities were silenced during the delay period (see Section \ref{methods_SC}).
-Notably, EPI inferred connectivities were only conditioned upon the emergent property of rapid task switching, not on Anti task failure during delay period silencing.
-
-Following delay period inactivation, there are strong similarities in the responses of Pro and Anti trials during the choice period (Fig. \ref{fig:SC5}A).
-We interpreted these similarities to suggest that delay period inactivation flips the internal representation of task in the model.
-Connectivity patterns inducing greater Pro task accuracy would antagonistically reduce accuracy in Anti trials subject to delay period inactivation in which this flip in task representation occurs.
-In fact, across connectivities in the EPI inferred distribution, there was strong anti-correlation between Pro task accuracy $p_P$ and Anti task accuracy during delay period silencing $p_{A, opto}$ (Fig. \ref{fig:SC_opto}B).
-
-We explored whether this antagonism between $p_P$ and $p_{A, opto}$ was present in each connectivity regime.
-As in the previous section, we tested perturbations in the dimension of sensitivity $\mathbf{v}_1(\mathbf{z})$ from regime 1 to regime 2.
-In both regimes, we recall that perturbations along $\mathbf{v}_1(\mathbf{z})$ yield increasing $p_P$.
-We found that only in regime 2, does $p_{A,\text{opto}}$ decrease as $p_P$ increases(Fig. \ref{fig:SC_opto}C).
-This context further distinguishes the two regimes discovered with EPI.
+This suggests that SC maintains a representation of task throughout the delay period, which is important for correct execution of the Anti task.
+Network connectivities inferred by EPI exhibited this same effect in simulation at high  optogenetic strength $\gamma \in [0, 1]$ (Fig. \ref{fig:SC_opto}B) (see Section \ref{methods_SC}).
+To emphasize, EPI inferred connectivities were only conditioned upon the emergent property of rapid task switching, not on Anti task failure during delay period silencing.
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.8]{figures/fig5/fig5.pdf}
+\includegraphics[scale=1.]{figures/fig5/fig5.pdf}
 \end{center}
 \caption{\footnotesize 
-\textbf{A}. The EPI distribution predicts experimental results (left) showing no change in the Pro task, but larger error in the Anti task (right).
-\textbf{B}. Accuracy in the Anti task during delay period optogenetic inactivation $p_{A,\text{opto}}$ is strongly anticorrelated with accuracy in the Pro task.
-\textbf{C}. Mean and standard error ($N_{\text{test}}$ = 25) of accuracy with respect to perturbation along the sensitivity dimension of each mode $\mathbf{z}^*$.
+\textbf{A}. Experimental effect of delay period silencing on Pro and Anti task accuracy in rats.
+\textbf{B}. Mean and standard error (bars) across EPI distribution of Pro and Anti error induced by delay period inactivation of varying optogenetic strength.
+\textbf{C}. (Left) Mean and standard error of Pro and Anti error from regime 1 to regime 2 at $\gamma = 0.675$.
+(Right) Correlations of connectivity eigenvalues with Anti error from regime 1 to regime 2 at $\gamma = 0.675$.
+\textbf{D}. (Left) Responses of the SC model to delay period inactivation at $\gamma = 0.85$.  (Right) Anti accuracy following delay period inactivation at $\gamma = 0.85$ versus accuracy in the Pro task across connectivities in the EPI distribution.
 }
 \label{fig:SC_opto}
 \end{figure}
 
-In summary, we used EPI to obtain the full distribution of connectivities that execute rapid task switching.
-This EPI distribution revealed two regimes of rapid task switching, which we characterized using the probabilistic toolkit afforded by EPI.
-We found that both of these parametric regimes identified by EPI reproduce results from optogenetic inactivation experiments: when activity is silenced during the delay period, only Anti accuracy suffers.
-We then identified connectivity mechanisms governing Anti accuracy during delay period silencing, and showed the parametric regime they describe.
+The mean increase in Anti error is closest to the experimentally measured value of 7\% at $\gamma = 0.675$ (Fig. \ref{fig:SC_opto}B, black dot).  
+At this level of optogenetic strength, only regime 1 exhibits an increase in Anti error with delay period silencing (Fig. \ref{fig:SC_opto}C, left).
+The connectivities in regime 2 are thus more resilient in the Anti task to delay period silencing than regime 1.
+In regime 1, greater $\lambda_{\text{task}}$ and $\lambda_{\text{diag}}$ decrease Anti error (Fig. \ref{fig:SC_opto}C, right).
+In other words, these anticorrelations show that stronger task representations and diagonal amplification make the SC model more resilient to delay period silencing in the Anti task.
+All correlations of connectivity eigenvalue with Anti error degrade in regime 2, where there is no effect of delay period silencing on Anti error (Fig. \ref{fig:SC_opto}C, right).
+
+At about $\gamma = 0.85$ (Fig. \ref{fig:SC_opto}B, gray dot), the Anti error saturates, while Pro error remains at zero
+Following delay period inactivation at this optogenetic strength, there are strong similarities in the responses of Pro and Anti trials during the choice period (Fig. \ref{fig:SC_opto}D, left).
+We interpreted these similarities to suggest that delay period inactivation at this saturated level flips the internal representation of task (from Anti to Pro) in the model.
+This would explain why the Anti error saturates at 50\%: the average Anti accuracy in EPI inferred connectivities is $75\%$, but is 25\% when the internal representation is flipped during delay period silencing.
+This hypothesis prescribes a model of Anti accuracy during delay period silencing of $p_{A,\text{opto}} = 100\% - p_P$, which is fit closely across both regimes of the EPI inferred connectivities (Fig. \ref{fig:SC_opto}D, right).
+Similarities between Pro and Anti trial responses were not present at the experiment-matching level of $\gamma=0.675$ (Fig. \ref{fig:SC6} left) and neither was anti-correlation in $p_P$ and $p_{A,\text{opto}}$ (Fig. \ref{fig:SC6} right).
+
+In summary, the connectivity inferred by EPI to perform rapid task switching replicated  results from optogenetic silencing experiments.
+We found that at levels of optogenetic strength matching experimental levels of Anti error, only one regime actually exhibited the effect.  
+This suggests that one regime is less resilient to optogenetic perturbation, and perhaps more biologically realistic.
+Finally, we mechanistically characterized the pathology in Anti error that occurs in both regimes when optogenetic strength is increased to high levels.
+This insight was made possible by using the probabilistic tools afforded by EPI: we identified two regimes and the continuum of connectivities between them, and we obtained many parameter samples at each step along the continuum (10 times faster than brute force methods, see Section \ref{methods_SC}).
+
 
 %To establish these two regimes of connectivity, we took gradient steps along $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ to produce modes $\mathbf{z}_1$ and $\mathbf{z}_2$  (Fig. \ref{fig:SC}C red and purple stars, Section \ref{methods_SC}).
 %Simulations from these two regimes reveal different responses in each task (Fig. \ref{fig:SC}D).
@@ -1324,7 +1339,7 @@ To differentiate through the $\text{real}(\lambda_1)$, we solved the following e
 \end{equation}
 
 For EPI in Fig. \ref{fig:LRRNN}, we used a real NVP architecture with three coupling layers of affine transformations parameterized by two-layer neural networks of 100 units per layer.
-The initial distribution was a standard isotropic gaussian $z_0 \sim \mathcal{N}(\mathbf{0}, I)$ mapped to the support of $\mathbf{z}_i \in [-1, 1]$. 
+The initial distribution was a standard isotropic gaussian $\mathbf{z}_0 \sim \mathcal{N}(\mathbf{0}, I)$ mapped to the support of $\mathbf{z}_i \in [-1, 1]$. 
 We used an augmented Lagrangian coefficient of $c_0 = 10^{3}$, a batch size $n=200$, $\beta=4$, and chose to use $500$ iterations per augmented Lagrangian epoch and emergent property constraint convergence was evaluated at $N_{\text{test}} = 200$ (Fig. \ref{fig:LRRNN}B blue line, and Fig. \ref{fig:LRRNN}C-D blue).
 
 We compared EPI to two alternative simulation-based inference techniques, since the likelihood of these eigenvalues given $\mathbf{z}$ is not available.
@@ -1523,7 +1538,7 @@ s_E(\mathbf{x}; \mathbf{z}) =\mathbb{E}_{x}\left[\sqrt{\mathbb{E}_{t > t_{ss}}\l
 For EPI in Fig \ref{fig:V1}D-E, we used a real NVP architecture with three Real NVP coupling layers and two-layer neural networks of 50 units per layer.
 The normalizing flow architecture mapped $z_0 \sim \mathcal{N}(\mathbf{0}, I)$ to a support of $\mathbf{z} = [\sigma_E, \sigma_P, \sigma_S, \sigma_V] \in [0.0, 0.5]^4$.
 EPI optimization was run using three different random seeds for architecture initialization $\bm{\theta}$ with an augmented Lagrangian coefficient of $c_0 = 10^{-1}$, a batch size $n=100$, and $\beta = 2$.
-The distributions shown are those of the architectures converging with criteria $N_{\text{test}} = 100$ at greatest entropy across random seeds.
+The distributions shown are those of the architectures converging with criteria $N_{\text{test}} = 100$ at greatest entropy across three random seeds.
 
 In Fig. \ref{fig:V1}E, we visualize the modes of $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ throughout the $\sigma_E$-$\sigma_P$ marginal.
 Specifically, we calculated
@@ -1584,11 +1599,11 @@ These hyperparameter values are motivated by modeling choices and results from \
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.7]{figures/figSC2/figSC2.pdf}
+\includegraphics[scale=1.]{figures/figSC2/figSC2.pdf}
 \end{center}
 \caption{\small (SC2):  
-\textbf{A}. Simulations in network regime 1 ($hW_{\text{fixed}} = -1.2$) (center) with simulations given connectivity perturbations in the negative direction of the sensitivity vector $\mathbf{v}_1$ (left) and positive direction (right).
-\textbf{B}. Same as A for network regime 2.
+\textbf{A}. Simulations in network regime 1 ($hW_{\text{fixed}} = -1.5$).
+\textbf{B}. Simulations in network regime 2 ($hW_{\text{fixed}} = -1.5$) .
 }
 \label{fig:SC2}
 \end{figure}
@@ -1638,7 +1653,7 @@ The input parameterization was fixed to $I_{\text{constant}} = 0.75$, $I_{\text{
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.9]{figures/figSC3/figSC3.pdf}
+\includegraphics[scale=1.1]{figures/figSC3/figSC3.pdf}
 \end{center}
 \caption{\small (SC3):  
 \textbf{A}. Invariant eigenvectors of connectivity matrix $W$.
@@ -1673,13 +1688,23 @@ where $\beta = 100$.
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.8]{figures/figSC5/figSC5.pdf}
+\includegraphics[scale=1.2]{figures/figSC5/figSC5.pdf}
 \end{center}
 \caption{\small (SC5): 
-\textbf{A}. Response of each parameter regime to optogenetic silencing during the delay period.
-\textbf{B}. Error induced by delay period inactivation with increasing optogenetic strength.  Means and standard deviations are calculated across the entire EPI distribution.
+(Left) Mean and standard error of Pro and Anti error from regime 1 to regime 2 at $\gamma = 0.85$.
+(Right) Correlations of connectivity eigenvalues with Anti error from regime 1 to regime 2 at $\gamma = 0.85$.
 }
 \label{fig:SC5}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=1.2]{figures/figSC6/figSC6.pdf}
+\end{center}
+\caption{\small (SC6): 
+(Left) Responses of the SC model to delay period inactivation at $\gamma = 0.675$.  (Right) Anti accuracy following delay period inactivation at $\gamma = 0.675$ versus accuracy in the Pro task across connectivities in the EPI distribution.
+}
+\label{fig:SC6}
 \end{figure}
 
 Writing the EPI distribution as a maximum entropy distribution, $T(\mathbf{x}, \mathbf{z})$ is comprised of both these first and second moments of the accuracy in each task (as in Equations \ref{eq:moments} and \ref{eq:mu_opt})
@@ -1695,22 +1720,22 @@ The optimization converged after ten epochs (Fig. \ref{fig:SC6}).
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.5]{figures/figSC6/figSC6.pdf}
+\includegraphics[scale=0.5]{figures/figSC7/figSC7.pdf}
 \end{center}
-\caption{\small (SC6): 
+\caption{\small (SC7): 
 \textbf{A}. Entropy throughout optimization. 
 \textbf{B}. The emergent property statistic means and variances converge to their constraints at 20,000 iterations following the tenth augmented Lagrangian epoch.
 }
-\label{fig:SC6}
+\label{fig:SC7}
 \end{figure}
 
 For EPI in Fig. \ref{fig:SC}C, we used a real NVP architecture with three coupling layers of affine transformations parameterized by two-layer neural networks of 50 units per layer.
-The initial distribution was a standard isotropic gaussian $z_0 \sim \mathcal{N}(\mathbf{0}, I)$ mapped to a support of $\mathbf{z}_i \in [-5, 5]$. 
+The initial distribution was a standard isotropic gaussian $\mathbf{z}_0 \sim \mathcal{N}(\mathbf{0}, I)$ mapped to a support of $\mathbf{z}_i \in [-5, 5]$. 
 We used an augmented Lagrangian coefficient of $c_0 = 10^{2}$, a batch size $n=100$, and $\beta=2$.
-The distribution converged with criteria $N_{\text{test}} = 25$.
+The distribution was the greatest EPI distribution to converge across 5 random seeds with criteria $N_{\text{test}} = 25$.
 
 The EPI distribution of SC model connectivities producing rapid task switching has interesting structure.
-Throughout $q_{\bm{theta}}(\mathbf{z} \mid \mathcal{X})$, we see that the probability distribution is narrow in $hW$ (Fig. \ref{fig:SC}C).
+Throughout $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$, we see that the probability distribution is narrow in $hW$ (Fig. \ref{fig:SC}C).
 This suggests that rapid task switching is sensitive to changes in $hW$, but this is only a single parameter.
 The local structure of the distribution varies across parameter space, and thus the nature in which parameter combinations affect rapid task switching.
 From visual inspection, we may hypothesize that there are two distinct regimes, most easily visualized in the $sW$-$hW$ marginal distribution: one where $sW$ and $hW$ are correlated for greater $sW$ and one where $sW$ and $hW$ are anticorrelated for lesser $sW$.
@@ -1722,6 +1747,11 @@ In regime 1, the initialization had positive $sW$, and the initialization had ne
 These modes were then used as the initialization to find the next mode at $hW_{\text{fixed}} = -1.4$ and so on.
 200 steps of gradient ascent were always taken, and learning rates of $2.5 \times 10^-4$ and $5 \times 10^-4$ were used for regimes 1 and 2, respectively.
 Each of these modes is denoted $\mathbf{z}^*(hW_{\text{fixed}}, r)$ for regime $r \in \{1, 2\}$.
+
+For the analyses in Figure \ref{fig:SC_opto}C and Figure \ref{fig:SC5}, we obtained parameters for each step along the continuum between regimes 1 and 2 by sampled from the EPI distribution.
+Each sample was assigned to the closest mode $\mathbf{z}^*(hW_{\text{fixed}}, r)$.
+Sampling continued until 500 samples were assigned to each mode, which took 7.36 seconds.
+To obtain this many samples for each mode with brute force sampling over the chosen prior, this would take 90 days.
 
 At each mode, we measure the sensitivity dimension (that of most negative eigenvalue in the Hessian of the EPI distribution) $\mathbf{v}_1(\mathbf{z}^*)$.
 To resolve sign degeneracy in eigenvectors, we chose $\mathbf{v}_1(\mathbf{z}^*)$ to have negative element in $hW$.
@@ -1779,7 +1809,7 @@ During periods of simulated optogenetic inactivation, activity was decreased pro
 \begin{equation}
 x_\alpha = (1-\gamma)\phi(u_\alpha).
 \end{equation}
-Delay period inactivation was from $0.8 < t < 1.2$, choice period inactivation was for $t > 1.2$ and total inactivation was for the entire trial.
+Delay period inactivation was from $0.8 < t < 1.2$.
 
 \end{document}
 
