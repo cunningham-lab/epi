@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  19 APR 2021 14:35
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  20 APR 2021 18:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -49,42 +49,6 @@ Package: fontenc 2005/09/27 v1.99g Standard LaTeX package
 File: t1enc.def 2005/09/27 v1.99g Standard LaTeX file
 LaTeX Font Info:    Redeclaring font encoding T1 on input line 48.
 ))
-(/usr/local/texlive/2016/texmf-dist/tex/latex/psnfss/mathptmx.sty
-Package: mathptmx 2005/04/12 PSNFSS-v9.2a Times w/ Math, improved (SPQR, WaS) 
-LaTeX Font Info:    Redeclaring symbol font `operators' on input line 28.
-LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  OT1/cmr/m/n --> OT1/ztmcm/m/n on input line 28.
-LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  OT1/cmr/bx/n --> OT1/ztmcm/m/n on input line 28.
-LaTeX Font Info:    Redeclaring symbol font `letters' on input line 29.
-LaTeX Font Info:    Overwriting symbol font `letters' in version `normal'
-(Font)                  OML/cmm/m/it --> OML/ztmcm/m/it on input line 29.
-LaTeX Font Info:    Overwriting symbol font `letters' in version `bold'
-(Font)                  OML/cmm/b/it --> OML/ztmcm/m/it on input line 29.
-LaTeX Font Info:    Redeclaring symbol font `symbols' on input line 30.
-LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
-(Font)                  OMS/cmsy/m/n --> OMS/ztmcm/m/n on input line 30.
-LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
-(Font)                  OMS/cmsy/b/n --> OMS/ztmcm/m/n on input line 30.
-LaTeX Font Info:    Redeclaring symbol font `largesymbols' on input line 31.
-LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
-(Font)                  OMX/cmex/m/n --> OMX/ztmcm/m/n on input line 31.
-LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
-(Font)                  OMX/cmex/m/n --> OMX/ztmcm/m/n on input line 31.
-\symbold=\mathgroup4
-\symitalic=\mathgroup5
-LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 34.
-LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
-(Font)                  OT1/cmr/bx/n --> OT1/ptm/bx/n on input line 34.
-LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  OT1/cmr/bx/n --> OT1/ptm/bx/n on input line 34.
-LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 35.
-LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
-(Font)                  OT1/cmr/m/it --> OT1/ptm/m/it on input line 35.
-LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/cmr/bx/it --> OT1/ptm/m/it on input line 35.
-LaTeX Info: Redefining \hbar on input line 50.
-)
 (/usr/local/texlive/2016/texmf-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 2014/10/28 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
 
@@ -309,44 +273,125 @@ File: microtype.cfg 2016/05/14 v2.6a microtype main configuration file (RS)
 Package: lipsum 2014/07/27 v1.3 150 paragraphs of Lorem Ipsum dummy text
 \c@lips@count=\count109
 )
+(/usr/local/texlive/2016/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2016/03/10 v2.15b AMS math features
+\@mathmargin=\skip49
+
+For additional information on amsmath, use the `?' option.
+(/usr/local/texlive/2016/texmf-dist/tex/latex/amsmath/amstext.sty
+Package: amstext 2000/06/29 v2.01 AMS text
+
+(/usr/local/texlive/2016/texmf-dist/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks23
+\ex@=\dimen122
+))
+(/usr/local/texlive/2016/texmf-dist/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen123
+)
+(/usr/local/texlive/2016/texmf-dist/tex/latex/amsmath/amsopn.sty
+Package: amsopn 2016/03/08 v2.02 operator names
+)
+\inf@bad=\count110
+LaTeX Info: Redefining \frac on input line 199.
+\uproot@=\count111
+\leftroot@=\count112
+LaTeX Info: Redefining \overline on input line 297.
+\classnum@=\count113
+\DOTSCASE@=\count114
+LaTeX Info: Redefining \ldots on input line 394.
+LaTeX Info: Redefining \dots on input line 397.
+LaTeX Info: Redefining \cdots on input line 518.
+\Mathstrutbox@=\box27
+\strutbox@=\box28
+\big@size=\dimen124
+LaTeX Font Info:    Redeclaring font encoding OML on input line 634.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 635.
+\macc@depth=\count115
+\c@MaxMatrixCols=\count116
+\dotsspace@=\muskip11
+\c@parentequation=\count117
+\dspbrk@lvl=\count118
+\tag@help=\toks24
+\row@=\count119
+\column@=\count120
+\maxfields@=\count121
+\andhelp@=\toks25
+\eqnshift@=\dimen125
+\alignsep@=\dimen126
+\tagshift@=\dimen127
+\tagwidth@=\dimen128
+\totwidth@=\dimen129
+\lineht@=\dimen130
+\@envbody=\toks26
+\multlinegap=\skip50
+\multlinetaggap=\skip51
+\mathdisplay@stack=\toks27
+LaTeX Info: Redefining \[ on input line 2739.
+LaTeX Info: Redefining \] on input line 2740.
+)
+(/usr/local/texlive/2016/texmf-dist/tex/latex/csquotes/csquotes.sty
+Package: csquotes 2016/01/31 v5.1g context-sensitive quotations (JAW)
+
+(/usr/local/texlive/2016/texmf-dist/tex/latex/etoolbox/etoolbox.sty
+Package: etoolbox 2015/08/02 v2.2a e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count122
+)
+\csq@reset=\count123
+\csq@gtype=\count124
+\csq@glevel=\count125
+\csq@qlevel=\count126
+\csq@maxlvl=\count127
+\csq@tshold=\count128
+\csq@ltx@everypar=\toks28
+
+(/usr/local/texlive/2016/texmf-dist/tex/latex/csquotes/csquotes.def
+File: csquotes.def 2016/01/31 v5.1g csquotes generic definitions (JAW)
+)
+Package csquotes Info: Trying to load configuration file 'csquotes.cfg'...
+Package csquotes Info: ... configuration file loaded successfully.
+
+(/usr/local/texlive/2016/texmf-dist/tex/latex/csquotes/csquotes.cfg
+File: csquotes.cfg 
+))
+Package csquotes Info: Checking for multilingual support...
+Package csquotes Info: ... found 'babel' package.
+Package csquotes Info: Adjusting default style.
+Package csquotes Info: Redefining alias 'default' -> 'swedish'.
+
 (./Response.aux)
 \openout1 = `Response.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 42.
-LaTeX Font Info:    ... okay on input line 42.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 42.
-LaTeX Font Info:    ... okay on input line 42.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 42.
-LaTeX Font Info:    ... okay on input line 42.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 42.
-LaTeX Font Info:    ... okay on input line 42.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 42.
-LaTeX Font Info:    ... okay on input line 42.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 42.
-LaTeX Font Info:    ... okay on input line 42.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 42.
-LaTeX Font Info:    ... okay on input line 42.
-LaTeX Font Info:    Try loading font information for T1+ptm on input line 42.
- (/usr/local/texlive/2016/texmf-dist/tex/latex/psnfss/t1ptm.fd
-File: t1ptm.fd 2001/06/04 font definitions for T1/ptm.
-) (/usr/local/texlive/2016/texmf-dist/tex/latex/ucs/ucsencs.def
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+ (/usr/local/texlive/2016/texmf-dist/tex/latex/ucs/ucsencs.def
 File: ucsencs.def 2011/01/21 Fixes to fontencodings LGR, T3
-)
-\big@size=\dimen122
-
-(/usr/local/texlive/2016/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+) (/usr/local/texlive/2016/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count110
-\scratchdimen=\dimen123
-\scratchbox=\box27
-\nofMPsegments=\count111
-\nofMParguments=\count112
-\everyMPshowfont=\toks23
-\MPscratchCnt=\count113
-\MPscratchDim=\dimen124
-\MPnumerator=\count114
-\makeMPintoPDFobject=\count115
-\everyMPtoPDFconversion=\toks24
+\scratchcounter=\count129
+\scratchdimen=\dimen131
+\scratchbox=\box29
+\nofMPsegments=\count130
+\nofMParguments=\count131
+\everyMPshowfont=\toks29
+\MPscratchCnt=\count132
+\MPscratchDim=\dimen132
+\MPnumerator=\count133
+\makeMPintoPDFobject=\count134
+\everyMPtoPDFconversion=\toks30
 ) (/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
 
@@ -362,8 +407,8 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-\AtBeginShipoutBox=\box28
-Package hyperref Info: Link coloring OFF on input line 42.
+\AtBeginShipoutBox=\box30
+Package hyperref Info: Link coloring OFF on input line 43.
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
@@ -371,11 +416,11 @@ Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
 (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
 Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
-\c@section@level=\count116
+\c@section@level=\count135
 )
-LaTeX Info: Redefining \ref on input line 42.
-LaTeX Info: Redefining \pageref on input line 42.
-LaTeX Info: Redefining \nameref on input line 42.
+LaTeX Info: Redefining \ref on input line 43.
+LaTeX Info: Redefining \pageref on input line 43.
+LaTeX Info: Redefining \nameref on input line 43.
 
 (./Response.out) (./Response.out)
 \@outlinefile=\write3
@@ -390,15 +435,15 @@ LaTeX Info: Redefining \nameref on input line 42.
 * layout: <same size as paper>
 * layoutoffset:(h,v)=(0.0pt,0.0pt)
 * modes: 
-* h-part:(L,W,R)=(99.54208pt, 398.4237pt, 99.54208pt)
-* v-part:(T,H,B)=(93.88406pt, 657.27872pt, 93.88406pt)
+* h-part:(L,W,R)=(72.26999pt, 452.9679pt, 72.26999pt)
+* v-part:(T,H,B)=(72.26999pt, 700.50687pt, 72.26999pt)
 * \paperwidth=597.50787pt
 * \paperheight=845.04684pt
-* \textwidth=398.4237pt
-* \textheight=657.27872pt
-* \oddsidemargin=27.2721pt
-* \evensidemargin=27.2721pt
-* \topmargin=-15.38593pt
+* \textwidth=452.9679pt
+* \textheight=700.50687pt
+* \oddsidemargin=0.0pt
+* \evensidemargin=0.0pt
+* \topmargin=-37.0pt
 * \headheight=12.0pt
 * \headsep=25.0pt
 * \topskip=11.0pt
@@ -416,7 +461,7 @@ LaTeX Info: Redefining \nameref on input line 42.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Info: Redefining \microtypecontext on input line 42.
+LaTeX Info: Redefining \microtypecontext on input line 43.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
@@ -426,195 +471,222 @@ Package microtype Info: Using default expansion set `basictext'.
 Package microtype Info: No adjustment of tracking.
 Package microtype Info: No adjustment of interword spacing.
 Package microtype Info: No adjustment of character kerning.
-(/usr/local/texlive/2016/texmf-dist/tex/latex/microtype/mt-ptm.cfg
-File: mt-ptm.cfg 2006/04/20 v1.7 microtype config. file: Times (RS)
+(/usr/local/texlive/2016/texmf-dist/tex/latex/microtype/mt-cmr.cfg
+File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
+(RS)
 )
-LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <14.4> not available
-(Font)              Font shape `T1/ptm/b/n' tried instead on input line 44.
-LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <10.95> not available
-(Font)              Font shape `T1/ptm/b/n' tried instead on input line 47.
+Overfull \hbox (4.2801pt too wide) in paragraph at lines 48--49
+[]\T1/cmr/bx/n/10.95 Bittner and col-le-a-gues in-tro-du-ce a machi-ne le-ar-ni
+ng fram-ework for max-i-mum entropy
+ []
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/ucs/data/uni-32.def
 File: uni-32.def 2013/05/13 UCS: Unicode data U+2000..U+20FF
 )
-LaTeX Font Info:    Try loading font information for OMS+ptm on input line 55.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 58.
 
-(/usr/local/texlive/2016/texmf-dist/tex/latex/psnfss/omsptm.fd
-File: omsptm.fd 
+(/usr/local/texlive/2016/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 55.
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 58.
 Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 63.
+(babel)             in language  on input line 68.
 Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 63.
+(babel)             in language  on input line 68.
 Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 63.
+(babel)             in language  on input line 68.
 Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 63.
+(babel)             in language  on input line 68.
  [1
 
 {/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 76.
+(babel)             in language  on input line 87.
 Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 76.
+(babel)             in language  on input line 87.
 Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 76.
+(babel)             in language  on input line 87.
 Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 76.
+(babel)             in language  on input line 87.
  [2]
 Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 84.
+(babel)             in language  on input line 105.
 Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 84.
+(babel)             in language  on input line 105.
 Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 84.
+(babel)             in language  on input line 105.
 Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 84.
+(babel)             in language  on input line 105.
  [3]
 Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 94.
+(babel)             in language  on input line 135.
 Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 94.
+(babel)             in language  on input line 135.
 Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 94.
+(babel)             in language  on input line 135.
 Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 94.
+(babel)             in language  on input line 135.
  [4]
-Underfull \hbox (badness 10000) in paragraph at lines 114--115
+Package babel Info: Redefining swedish shorthand "|
+(babel)             in language  on input line 157.
+Package babel Info: Redefining swedish shorthand "~
+(babel)             in language  on input line 157.
+Package babel Info: Redefining swedish shorthand "|
+(babel)             in language  on input line 157.
+Package babel Info: Redefining swedish shorthand "~
+(babel)             in language  on input line 157.
+ [5]
+Package babel Info: Redefining swedish shorthand "|
+(babel)             in language  on input line 181.
+Package babel Info: Redefining swedish shorthand "~
+(babel)             in language  on input line 181.
+Package babel Info: Redefining swedish shorthand "|
+(babel)             in language  on input line 181.
+Package babel Info: Redefining swedish shorthand "~
+(babel)             in language  on input line 181.
+
+[6]
+
+LaTeX Warning: Citation `marder1992dynamic' on page 7 undefined on input line 1
+99.
+
+
+LaTeX Warning: Citation `prinz2004similar' on page 7 undefined on input line 19
+9.
+
+Package babel Info: Redefining swedish shorthand "|
+(babel)             in language  on input line 204.
+Package babel Info: Redefining swedish shorthand "~
+(babel)             in language  on input line 204.
+Package babel Info: Redefining swedish shorthand "|
+(babel)             in language  on input line 204.
+Package babel Info: Redefining swedish shorthand "~
+(babel)             in language  on input line 204.
+[7]
+Underfull \hbox (badness 10000) in paragraph at lines 228--229
 
  []
 
 Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 119.
+(babel)             in language  on input line 233.
 Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 119.
+(babel)             in language  on input line 233.
 Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 119.
+(babel)             in language  on input line 233.
 Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 119.
-[5]
+(babel)             in language  on input line 233.
+[8]
 Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 134.
+(babel)             in language  on input line 253.
 Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 134.
+(babel)             in language  on input line 253.
 Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 134.
+(babel)             in language  on input line 253.
 Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 134.
- [6]
-Underfull \hbox (badness 10000) in paragraph at lines 142--143
-
- []
-
-LaTeX Font Info:    Try loading font information for OT1+ztmcm on input line 15
-6.
-(/usr/local/texlive/2016/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd
-File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
-)
-Package microtype Info: Loading generic settings for font family
-(microtype)             `ztmcm' (encoding: OT1).
-(microtype)             For optimal results, create family-specific settings.
-(microtype)             See the microtype manual for details.
-LaTeX Font Info:    Try loading font information for OML+ztmcm on input line 15
-6.
-
-(/usr/local/texlive/2016/texmf-dist/tex/latex/psnfss/omlztmcm.fd
-File: omlztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ztmcm.
-)
-LaTeX Font Info:    Try loading font information for OMS+ztmcm on input line 15
-6.
-
-(/usr/local/texlive/2016/texmf-dist/tex/latex/psnfss/omsztmcm.fd
-File: omsztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/ztmcm.
-)
-LaTeX Font Info:    Try loading font information for OMX+ztmcm on input line 15
-6.
-
-(/usr/local/texlive/2016/texmf-dist/tex/latex/psnfss/omxztmcm.fd
-File: omxztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/ztmcm.
-)
-LaTeX Font Info:    Try loading font information for OT1+ptm on input line 156.
-
-
-(/usr/local/texlive/2016/texmf-dist/tex/latex/psnfss/ot1ptm.fd
-File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
-)
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10.95> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 156.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <8> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 156.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 156.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 157.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 157.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 157.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 157.
- [7]
-Underfull \hbox (badness 10000) in paragraph at lines 164--165
+(babel)             in language  on input line 253.
+ [9]
+Underfull \hbox (badness 10000) in paragraph at lines 262--263
 
  []
 
 Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 172.
+(babel)             in language  on input line 275.
 Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 172.
+(babel)             in language  on input line 275.
 Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 172.
+(babel)             in language  on input line 275.
 Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 172.
-[8] (/usr/local/texlive/2016/texmf-dist/tex/latex/ucs/data/uni-0.def
+(babel)             in language  on input line 275.
+[10]
+Package babel Info: Redefining swedish shorthand "|
+(babel)             in language  on input line 287.
+Package babel Info: Redefining swedish shorthand "~
+(babel)             in language  on input line 287.
+Package babel Info: Redefining swedish shorthand "|
+(babel)             in language  on input line 287.
+Package babel Info: Redefining swedish shorthand "~
+(babel)             in language  on input line 287.
+ [11]
+Underfull \hbox (badness 10000) in paragraph at lines 298--299
+
+ []
+
+Package babel Info: Redefining swedish shorthand "|
+(babel)             in language  on input line 305.
+Package babel Info: Redefining swedish shorthand "~
+(babel)             in language  on input line 305.
+Package babel Info: Redefining swedish shorthand "|
+(babel)             in language  on input line 305.
+Package babel Info: Redefining swedish shorthand "~
+(babel)             in language  on input line 305.
+[12]
+Package babel Info: Redefining swedish shorthand "|
+(babel)             in language  on input line 316.
+Package babel Info: Redefining swedish shorthand "~
+(babel)             in language  on input line 316.
+Package babel Info: Redefining swedish shorthand "|
+(babel)             in language  on input line 316.
+Package babel Info: Redefining swedish shorthand "~
+(babel)             in language  on input line 316.
+ [13] (/usr/local/texlive/2016/texmf-dist/tex/latex/ucs/data/uni-0.def
 File: uni-0.def 2013/05/13 UCS: Unicode data U+0000..U+00FF
 )
 Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 188.
+(babel)             in language  on input line 339.
 Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 188.
+(babel)             in language  on input line 339.
 Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 188.
+(babel)             in language  on input line 339.
 Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 188.
- [9]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 201.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 201.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 201.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 201.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 201.
+(babel)             in language  on input line 339.
 
-[10]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 201.
+[14]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 351.
+Package babel Info: Redefining swedish shorthand "|
+(babel)             in language  on input line 351.
+Package babel Info: Redefining swedish shorthand "~
+(babel)             in language  on input line 351.
+Package babel Info: Redefining swedish shorthand "|
+(babel)             in language  on input line 351.
+Package babel Info: Redefining swedish shorthand "~
+(babel)             in language  on input line 351.
+ [15]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 351.
  (./Response.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 201.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 201.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 351.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 351.
 Package rerunfilecheck Info: File `Response.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 201.
+
+
+LaTeX Warning: There were undefined references.
+
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 351.
  ) 
 Here is how much of TeX's memory you used:
- 9407 strings out of 493014
- 141604 string characters out of 6133351
- 370481 words of memory out of 5000000
- 12726 multiletter control sequences out of 15000+600000
- 28848 words of font info for 107 fonts, out of 8000000 for 9000
+ 10702 strings out of 493014
+ 158670 string characters out of 6133351
+ 405993 words of memory out of 5000000
+ 14023 multiletter control sequences out of 15000+600000
+ 14977 words of font info for 73 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 31i,5n,38p,1269b,507s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
-exlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/te
-xlive/2016/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2016
-/texmf-dist/fonts/type1/urw/times/utmr8a.pfb>
-Output written on Response.pdf (10 pages, 70049 bytes).
+ 31i,5n,38p,1269b,682s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}
+</usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><
+/usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></
+usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></us
+r/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/
+local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/loc
+al/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/loca
+l/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfbx1095.pfb></usr/local/
+texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/local/te
+xlive/2016/texmf-dist/fonts/type1/public/cm-super/sfrm0800.pfb></usr/local/texl
+ive/2016/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb>
+Output written on Response.pdf (15 pages, 188429 bytes).
 PDF statistics:
- 66 PDF objects out of 1000 (max. 8388607)
- 50 compressed objects within 1 object stream
- 11 named destinations out of 1000 (max. 500000)
- 11777 words of extra memory for PDF output out of 12000 (max. 10000000)
+ 118 PDF objects out of 1000 (max. 8388607)
+ 90 compressed objects within 1 object stream
+ 18 named destinations out of 1000 (max. 500000)
+ 9217 words of extra memory for PDF output out of 10000 (max. 10000000)
 
