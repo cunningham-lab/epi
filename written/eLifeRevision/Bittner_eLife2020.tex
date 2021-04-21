@@ -1729,6 +1729,24 @@ The initial distribution was a standard isotropic gaussian $\mathbf{z}_0 \sim \m
 We used an augmented Lagrangian coefficient of $c_0 = 10^{2}$, a batch size $n=100$, and $\beta=2$.
 The distribution was the greatest EPI distribution to converge across 5 random seeds with criteria $N_{\text{test}} = 25$.
 
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.8]{figures/figSC8/figSC8.pdf}
+\end{center}
+\caption{\small (SC8): 
+\textbf{A}. Entropy throughout optimization. 
+\textbf{B}. The emergent property statistic means and variances converge to their constraints at 20,000 iterations following the tenth augmented Lagrangian epoch.
+}
+\label{fig:SC8}
+\end{figure}
+
+The bend in the EPI distribution is not a spurious result of the EPI optimization.
+The structure discovered by EPI matches the shape of the set of points returned from brute-force random sampling (Fig. \ref{fig:SC8}A) 
+These connectivities were sampled from a uniform distribution over the range of each connectivity parameter, and all parameters producing accuracy in each task within the range of 60\% to 90\% were kept.
+This set of connectivities will not match the distribution of EPI exactly, since it is not conditioned on the emergent property.
+For example the parameter set returned by the brute-force search is biased towards lower accuraciess (Fig. \ref{fig:SC8}B).
+
+
 \subsubsection{Regime identification with EPI} \label{methods_sc_regime}
 We sought two sets of parameters from $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ that were representative of each regime, so that we could assess their implications on computation.
 For fixed values of $hW$, we hypothesized that there are two modes: one in each regime of greater and lesser $sW$.
@@ -1788,7 +1806,7 @@ Thus, by changing the degree of amplification of each processing mode by  pertur
 %As the component of connectivity along $\mathbf{v}_1$ and $\mathbf{v}_2$ becomes stronger (left-to-right), there is less separation between Pro an Anti populations (lower $\lambda_{\text{task}}$) and greater separation between Left and Right populations following stimulus presentation (greater $\lambda_{\text{side}}$).
 %A key differentiating factor is that $\mathbf{v}_1$ substantially increases $\lambda_{\text{diag}}$, while $\mathbf{v}_2$ does not.
 
-\subsubsection{Optogenetic silencing modeling} \label{methods_sc_opto}
+\subsubsection{Modeling optogenetic silencing.} \label{methods_sc_opto}
 We tested whether the inferred SC model connectivities could reproduce experimental effects of optogenetic inactivation in rats \cite{duan2015requirement}.
 During periods of simulated optogenetic inactivation, activity was decreased proportional to the optogenetic strength $\gamma$
 \begin{equation}
