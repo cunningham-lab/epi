@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  20 APR 2021 18:52
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  21 APR 2021 11:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -94,175 +94,90 @@ File: babel.def 2016/04/23 3.9r Babel common definitions
 )
 Package babel Info: Making " an active character on input line 90.
 ))
-(/usr/local/texlive/2016/texmf-dist/tex/latex/hyperref/hyperref.sty
-Package: hyperref 2016/05/05 v6.83n Hypertext links for LaTeX
+(/usr/local/texlive/2016/texmf-dist/tex/latex/tools/calc.sty
+Package: calc 2014/10/28 v4.3 Infix arithmetic (KKT,FJ)
+\calc@Acount=\count90
+\calc@Bcount=\count91
+\calc@Adimen=\dimen106
+\calc@Bdimen=\dimen107
+\calc@Askip=\skip43
+\calc@Bskip=\skip44
+LaTeX Info: Redefining \setlength on input line 80.
+LaTeX Info: Redefining \addtolength on input line 81.
+\calc@Ccount=\count92
+\calc@Cskip=\skip45
+)
+(/usr/local/texlive/2016/texmf-dist/tex/latex/enumitem/enumitem.sty
+Package: enumitem 2011/09/28 v3.5.2 Customized lists
+\labelindent=\skip46
+\enit@outerparindent=\dimen108
+\enit@toks=\toks20
+\enit@inbox=\box26
+\enitdp@description=\count93
+)
+(/usr/local/texlive/2016/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2010/09/12 v5.6 Page Geometry
 
-(/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
-Package: hobsub-hyperref 2016/05/16 v1.14 Bundle oberdiek, subset hyperref (HO)
-
-
-(/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty
-Package: hobsub-generic 2016/05/16 v1.14 Bundle oberdiek, subset generic (HO)
-Package: hobsub 2016/05/16 v1.14 Construct package bundles (HO)
-Package hobsub Info: Skipping package `infwarerr' (already loaded).
-Package hobsub Info: Skipping package `ltxcmds' (already loaded).
-Package: ifluatex 2016/05/16 v1.4 Provides the ifluatex switch (HO)
-Package ifluatex Info: LuaTeX not detected.
+(/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/ifpdf.sty
+Package: ifpdf 2016/05/14 v3.1 Provides the ifpdf switch
+)
+(/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/ifvtex.sty
 Package: ifvtex 2016/05/16 v1.6 Detect VTeX and its facilities (HO)
 Package ifvtex Info: VTeX not detected.
-Package: intcalc 2016/05/16 v1.2 Expandable calculations with integers (HO)
-Package: ifpdf 2016/05/14 v3.1 Provides the ifpdf switch
-Package: etexcmds 2016/05/16 v1.6 Avoid name clashes with e-TeX commands (HO)
-Package etexcmds Info: Could not find \expanded.
-(etexcmds)             That can mean that you are not using pdfTeX 1.50 or
-(etexcmds)             that some package has redefined \expanded.
-(etexcmds)             In the latter case, load this package earlier.
-Package: kvsetkeys 2016/05/16 v1.17 Key value parser (HO)
-Package: kvdefinekeys 2016/05/16 v1.4 Define keys (HO)
-Package: pdftexcmds 2016/05/10 v0.21 Utility functions of pdfTeX for LuaTeX (HO
-)
-Package pdftexcmds Info: LuaTeX not detected.
-Package pdftexcmds Info: \pdf@primitive is available.
-Package pdftexcmds Info: \pdf@ifprimitive is available.
-Package pdftexcmds Info: \pdfdraftmode found.
-Package: pdfescape 2016/05/16 v1.14 Implements pdfTeX's escape features (HO)
-Package: bigintcalc 2016/05/16 v1.4 Expandable calculations on big integers (HO
-)
-Package: bitset 2016/05/16 v1.2 Handle bit-vector datatype (HO)
-Package: uniquecounter 2016/05/16 v1.3 Provide unlimited unique counter (HO)
-)
-Package hobsub Info: Skipping package `hobsub' (already loaded).
-Package: letltxmacro 2016/05/16 v1.5 Let assignment for LaTeX macros (HO)
-Package: hopatch 2016/05/16 v1.3 Wrapper for package hooks (HO)
-Package: xcolor-patch 2016/05/16 xcolor patch
-Package: atveryend 2016/05/16 v1.9 Hooks at the very end of document (HO)
-Package atveryend Info: \enddocument detected (standard20110627).
-Package: atbegshi 2016/05/16 v1.17 At begin shipout hook (HO)
-Package: refcount 2016/05/16 v3.5 Data extraction from label references (HO)
-Package: hycolor 2016/05/16 v1.8 Color options for hyperref/bookmark (HO)
 )
 (/usr/local/texlive/2016/texmf-dist/tex/generic/ifxetex/ifxetex.sty
 Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
 )
-(/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/auxhook.sty
-Package: auxhook 2016/05/16 v1.4 Hooks for auxiliary files (HO)
-)
-(/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/kvoptions.sty
-Package: kvoptions 2016/05/16 v3.12 Key value format for package options (HO)
-)
-\@linkdim=\dimen106
-\Hy@linkcounter=\count90
-\Hy@pagecounter=\count91
-
-(/usr/local/texlive/2016/texmf-dist/tex/latex/hyperref/pd1enc.def
-File: pd1enc.def 2016/05/05 v6.83n Hyperref: PDFDocEncoding definition (HO)
-)
-\Hy@SavedSpaceFactor=\count92
-
-(/usr/local/texlive/2016/texmf-dist/tex/latex/latexconfig/hyperref.cfg
-File: hyperref.cfg 2002/06/06 v1.2 hyperref configuration of TeXLive
-)
-Package hyperref Info: Hyper figures OFF on input line 4446.
-Package hyperref Info: Link nesting OFF on input line 4451.
-Package hyperref Info: Hyper index ON on input line 4454.
-Package hyperref Info: Plain pages OFF on input line 4461.
-Package hyperref Info: Backreferencing OFF on input line 4466.
-Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
-Package hyperref Info: Bookmarks ON on input line 4691.
-\c@Hy@tempcnt=\count93
-
-(/usr/local/texlive/2016/texmf-dist/tex/latex/url/url.sty
-\Urlmuskip=\muskip10
-Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
-)
-LaTeX Info: Redefining \url on input line 5044.
-\XeTeXLinkMargin=\dimen107
-\Fld@menulength=\count94
-\Field@Width=\dimen108
-\Fld@charsize=\dimen109
-Package hyperref Info: Hyper figures OFF on input line 6298.
-Package hyperref Info: Link nesting OFF on input line 6303.
-Package hyperref Info: Hyper index ON on input line 6306.
-Package hyperref Info: backreferencing OFF on input line 6313.
-Package hyperref Info: Link coloring OFF on input line 6318.
-Package hyperref Info: Link coloring with OCG OFF on input line 6323.
-Package hyperref Info: PDF/A mode OFF on input line 6328.
-LaTeX Info: Redefining \ref on input line 6368.
-LaTeX Info: Redefining \pageref on input line 6372.
-\Hy@abspage=\count95
-\c@Item=\count96
-\c@Hfootnote=\count97
-)
-
-Package hyperref Message: Driver: hpdftex.
-
-(/usr/local/texlive/2016/texmf-dist/tex/latex/hyperref/hpdftex.def
-File: hpdftex.def 2016/05/05 v6.83n Hyperref driver for pdfTeX
-\Fld@listcount=\count98
-\c@bookmark@seq@number=\count99
-
-(/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty
-Package: rerunfilecheck 2016/05/16 v1.8 Rerun checks for auxiliary files (HO)
-Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
-82.
-)
-\Hy@SectionHShift=\skip43
-)
-(/usr/local/texlive/2016/texmf-dist/tex/latex/tools/calc.sty
-Package: calc 2014/10/28 v4.3 Infix arithmetic (KKT,FJ)
-\calc@Acount=\count100
-\calc@Bcount=\count101
-\calc@Adimen=\dimen110
-\calc@Bdimen=\dimen111
-\calc@Askip=\skip44
-\calc@Bskip=\skip45
-LaTeX Info: Redefining \setlength on input line 80.
-LaTeX Info: Redefining \addtolength on input line 81.
-\calc@Ccount=\count102
-\calc@Cskip=\skip46
-)
-(/usr/local/texlive/2016/texmf-dist/tex/latex/enumitem/enumitem.sty
-Package: enumitem 2011/09/28 v3.5.2 Customized lists
-\labelindent=\skip47
-\enit@outerparindent=\dimen112
-\enit@toks=\toks20
-\enit@inbox=\box26
-\enitdp@description=\count103
-)
-(/usr/local/texlive/2016/texmf-dist/tex/latex/geometry/geometry.sty
-Package: geometry 2010/09/12 v5.6 Page Geometry
-\Gm@cnth=\count104
-\Gm@cntv=\count105
-\c@Gm@tempcnt=\count106
-\Gm@bindingoffset=\dimen113
-\Gm@wd@mp=\dimen114
-\Gm@odd@mp=\dimen115
-\Gm@even@mp=\dimen116
-\Gm@layoutwidth=\dimen117
-\Gm@layoutheight=\dimen118
-\Gm@layouthoffset=\dimen119
-\Gm@layoutvoffset=\dimen120
+\Gm@cnth=\count94
+\Gm@cntv=\count95
+\c@Gm@tempcnt=\count96
+\Gm@bindingoffset=\dimen109
+\Gm@wd@mp=\dimen110
+\Gm@odd@mp=\dimen111
+\Gm@even@mp=\dimen112
+\Gm@layoutwidth=\dimen113
+\Gm@layoutheight=\dimen114
+\Gm@layouthoffset=\dimen115
+\Gm@layoutvoffset=\dimen116
 \Gm@dimlist=\toks21
 )
 (/usr/local/texlive/2016/texmf-dist/tex/latex/nowidow/nowidow.sty
 Package: nowidow 2011/09/20 1.0 Easily prevent widows and orphans
 Package: nowidow 
+
+(/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/kvoptions.sty
+Package: kvoptions 2016/05/16 v3.12 Key value format for package options (HO)
+
+(/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
+Package: kvsetkeys 2016/05/16 v1.17 Key value parser (HO)
+
+(/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/etexcmds.sty
+Package: etexcmds 2016/05/16 v1.6 Avoid name clashes with e-TeX commands (HO)
+
+(/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/ifluatex.sty
+Package: ifluatex 2016/05/16 v1.4 Provides the ifluatex switch (HO)
+Package ifluatex Info: LuaTeX not detected.
 )
+Package etexcmds Info: Could not find \expanded.
+(etexcmds)             That can mean that you are not using pdfTeX 1.50 or
+(etexcmds)             that some package has redefined \expanded.
+(etexcmds)             In the latter case, load this package earlier.
+))))
 (/usr/local/texlive/2016/texmf-dist/tex/latex/microtype/microtype.sty
 Package: microtype 2016/05/14 v2.6a Micro-typographical refinements (RS)
 \MT@toks=\toks22
-\MT@count=\count107
+\MT@count=\count97
 LaTeX Info: Redefining \textls on input line 774.
-\MT@outer@kern=\dimen121
+\MT@outer@kern=\dimen117
 LaTeX Info: Redefining \textmicrotypecontext on input line 1310.
-\MT@listname@count=\count108
+\MT@listname@count=\count98
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/microtype/microtype-pdftex.def
 File: microtype-pdftex.def 2016/05/14 v2.6a Definitions specific to pdftex (RS)
 
 LaTeX Info: Redefining \lsstyle on input line 916.
 LaTeX Info: Redefining \lslig on input line 916.
-\MT@outer@space=\skip48
+\MT@outer@space=\skip47
 )
 Package microtype Info: Loading configuration file microtype.cfg.
 
@@ -271,11 +186,11 @@ File: microtype.cfg 2016/05/14 v2.6a microtype main configuration file (RS)
 ))
 (/usr/local/texlive/2016/texmf-dist/tex/latex/lipsum/lipsum.sty
 Package: lipsum 2014/07/27 v1.3 150 paragraphs of Lorem Ipsum dummy text
-\c@lips@count=\count109
+\c@lips@count=\count99
 )
 (/usr/local/texlive/2016/texmf-dist/tex/latex/amsmath/amsmath.sty
 Package: amsmath 2016/03/10 v2.15b AMS math features
-\@mathmargin=\skip49
+\@mathmargin=\skip48
 
 For additional information on amsmath, use the `?' option.
 (/usr/local/texlive/2016/texmf-dist/tex/latex/amsmath/amstext.sty
@@ -284,49 +199,49 @@ Package: amstext 2000/06/29 v2.01 AMS text
 (/usr/local/texlive/2016/texmf-dist/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
 \@emptytoks=\toks23
-\ex@=\dimen122
+\ex@=\dimen118
 ))
 (/usr/local/texlive/2016/texmf-dist/tex/latex/amsmath/amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d Bold Symbols
-\pmbraise@=\dimen123
+\pmbraise@=\dimen119
 )
 (/usr/local/texlive/2016/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 2016/03/08 v2.02 operator names
 )
-\inf@bad=\count110
+\inf@bad=\count100
 LaTeX Info: Redefining \frac on input line 199.
-\uproot@=\count111
-\leftroot@=\count112
+\uproot@=\count101
+\leftroot@=\count102
 LaTeX Info: Redefining \overline on input line 297.
-\classnum@=\count113
-\DOTSCASE@=\count114
+\classnum@=\count103
+\DOTSCASE@=\count104
 LaTeX Info: Redefining \ldots on input line 394.
 LaTeX Info: Redefining \dots on input line 397.
 LaTeX Info: Redefining \cdots on input line 518.
 \Mathstrutbox@=\box27
 \strutbox@=\box28
-\big@size=\dimen124
+\big@size=\dimen120
 LaTeX Font Info:    Redeclaring font encoding OML on input line 634.
 LaTeX Font Info:    Redeclaring font encoding OMS on input line 635.
-\macc@depth=\count115
-\c@MaxMatrixCols=\count116
-\dotsspace@=\muskip11
-\c@parentequation=\count117
-\dspbrk@lvl=\count118
+\macc@depth=\count105
+\c@MaxMatrixCols=\count106
+\dotsspace@=\muskip10
+\c@parentequation=\count107
+\dspbrk@lvl=\count108
 \tag@help=\toks24
-\row@=\count119
-\column@=\count120
-\maxfields@=\count121
+\row@=\count109
+\column@=\count110
+\maxfields@=\count111
 \andhelp@=\toks25
-\eqnshift@=\dimen125
-\alignsep@=\dimen126
-\tagshift@=\dimen127
-\tagwidth@=\dimen128
-\totwidth@=\dimen129
-\lineht@=\dimen130
+\eqnshift@=\dimen121
+\alignsep@=\dimen122
+\tagshift@=\dimen123
+\tagwidth@=\dimen124
+\totwidth@=\dimen125
+\lineht@=\dimen126
 \@envbody=\toks26
-\multlinegap=\skip50
-\multlinetaggap=\skip51
+\multlinegap=\skip49
+\multlinetaggap=\skip50
 \mathdisplay@stack=\toks27
 LaTeX Info: Redefining \[ on input line 2739.
 LaTeX Info: Redefining \] on input line 2740.
@@ -336,14 +251,14 @@ Package: csquotes 2016/01/31 v5.1g context-sensitive quotations (JAW)
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/etoolbox/etoolbox.sty
 Package: etoolbox 2015/08/02 v2.2a e-TeX tools for LaTeX (JAW)
-\etb@tempcnta=\count122
+\etb@tempcnta=\count112
 )
-\csq@reset=\count123
-\csq@gtype=\count124
-\csq@glevel=\count125
-\csq@qlevel=\count126
-\csq@maxlvl=\count127
-\csq@tshold=\count128
+\csq@reset=\count113
+\csq@gtype=\count114
+\csq@glevel=\count115
+\csq@qlevel=\count116
+\csq@maxlvl=\count117
+\csq@tshold=\count118
 \csq@ltx@everypar=\toks28
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/csquotes/csquotes.def
@@ -355,6 +270,17 @@ Package csquotes Info: ... configuration file loaded successfully.
 (/usr/local/texlive/2016/texmf-dist/tex/latex/csquotes/csquotes.cfg
 File: csquotes.cfg 
 ))
+(/usr/local/texlive/2016/texmf-dist/tex/latex/tools/xr.sty
+Package: xr 1994/05/28 v5.02 eXternal References (DPC)
+)
+Package xr Info: IMPORTING LABELS FROM Bittner_eLife2020.aux on input line 28.
+
+(/usr/local/texlive/2016/texmf-dist/tex/latex/xcite/xcite.sty
+Package: xcite 2011/09/02 v1.0 eXternal Citations (EG)
+)
+Package xc Info: IMPORTING LABELS FROM Bittner_eLife2020.aux on input line 30.
+ (./qting.sty)
+\q@in=\read1
 Package csquotes Info: Checking for multilingual support...
 Package csquotes Info: ... found 'babel' package.
 Package csquotes Info: Adjusting default style.
@@ -363,41 +289,50 @@ Package csquotes Info: Redefining alias 'default' -> 'swedish'.
 (./Response.aux)
 \openout1 = `Response.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
  (/usr/local/texlive/2016/texmf-dist/tex/latex/ucs/ucsencs.def
 File: ucsencs.def 2011/01/21 Fixes to fontencodings LGR, T3
 ) (/usr/local/texlive/2016/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count129
-\scratchdimen=\dimen131
+\scratchcounter=\count119
+\scratchdimen=\dimen127
 \scratchbox=\box29
-\nofMPsegments=\count130
-\nofMParguments=\count131
+\nofMPsegments=\count120
+\nofMParguments=\count121
 \everyMPshowfont=\toks29
-\MPscratchCnt=\count132
-\MPscratchDim=\dimen132
-\MPnumerator=\count133
-\makeMPintoPDFobject=\count134
+\MPscratchCnt=\count122
+\MPscratchDim=\dimen128
+\MPnumerator=\count123
+\makeMPintoPDFobject=\count124
 \everyMPtoPDFconversion=\toks30
-) (/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+) (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
+Package: pdftexcmds 2016/05/10 v0.21 Utility functions of pdfTeX for LuaTeX (HO
+)
+Package pdftexcmds Info: LuaTeX not detected.
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)
+(/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/grfext.sty
 Package: grfext 2016/05/16 v1.2 Manage graphics extensions (HO)
-)
+
+(/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
+Package: kvdefinekeys 2016/05/16 v1.4 Define keys (HO)
+))
 Package grfext Info: Graphics extension search list:
 (grfext)             [.png,.pdf,.jpg,.mps,.jpeg,.jbig2,.jb2,.PNG,.PDF,.JPG,.JPE
 G,.JBIG2,.JB2,.eps]
@@ -407,26 +342,6 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-\AtBeginShipoutBox=\box30
-Package hyperref Info: Link coloring OFF on input line 43.
-
-(/usr/local/texlive/2016/texmf-dist/tex/latex/hyperref/nameref.sty
-Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
-
-(/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
-Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
-)
-\c@section@level=\count135
-)
-LaTeX Info: Redefining \ref on input line 43.
-LaTeX Info: Redefining \pageref on input line 43.
-LaTeX Info: Redefining \nameref on input line 43.
-
-(./Response.out) (./Response.out)
-\@outlinefile=\write3
-\openout3 = `Response.out'.
-
-
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
@@ -461,7 +376,7 @@ LaTeX Info: Redefining \nameref on input line 43.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Info: Redefining \microtypecontext on input line 43.
+LaTeX Info: Redefining \microtypecontext on input line 40.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
@@ -475,7 +390,7 @@ Package microtype Info: No adjustment of character kerning.
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
 (RS)
 )
-Overfull \hbox (4.2801pt too wide) in paragraph at lines 48--49
+Overfull \hbox (4.2801pt too wide) in paragraph at lines 45--46
 []\T1/cmr/bx/n/10.95 Bittner and col-le-a-gues in-tro-du-ce a machi-ne le-ar-ni
 ng fram-ework for max-i-mum entropy
  []
@@ -483,210 +398,55 @@ ng fram-ework for max-i-mum entropy
 (/usr/local/texlive/2016/texmf-dist/tex/latex/ucs/data/uni-32.def
 File: uni-32.def 2013/05/13 UCS: Unicode data U+2000..U+20FF
 )
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 58.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 55.
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 58.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 68.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 68.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 68.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 68.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 55.
  [1
 
-{/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 87.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 87.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 87.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 87.
- [2]
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 105.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 105.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 105.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 105.
- [3]
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 135.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 135.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 135.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 135.
- [4]
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 157.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 157.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 157.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 157.
- [5]
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 181.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 181.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 181.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 181.
-
-[6]
-
-LaTeX Warning: Citation `marder1992dynamic' on page 7 undefined on input line 1
-99.
-
-
-LaTeX Warning: Citation `prinz2004similar' on page 7 undefined on input line 19
-9.
-
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 204.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 204.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 204.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 204.
-[7]
-Underfull \hbox (badness 10000) in paragraph at lines 228--229
+{/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] [3]
+ [4] [5]
+[6] [7]
+Underfull \hbox (badness 10000) in paragraph at lines 205--206
 
  []
 
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 233.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 233.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 233.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 233.
-[8]
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 253.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 253.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 253.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 253.
- [9]
-Underfull \hbox (badness 10000) in paragraph at lines 262--263
+[8] [9]
+Underfull \hbox (badness 10000) in paragraph at lines 247--248
 
  []
 
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 275.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 275.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 275.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 275.
-[10]
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 287.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 287.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 287.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 287.
- [11]
-Underfull \hbox (badness 10000) in paragraph at lines 298--299
-
- []
-
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 305.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 305.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 305.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 305.
-[12]
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 316.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 316.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 316.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 316.
- [13] (/usr/local/texlive/2016/texmf-dist/tex/latex/ucs/data/uni-0.def
+[10] [11] [12] [13] [14]
+(/usr/local/texlive/2016/texmf-dist/tex/latex/ucs/data/uni-0.def
 File: uni-0.def 2013/05/13 UCS: Unicode data U+0000..U+00FF
-)
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 339.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 339.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 339.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 339.
-
-[14]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 351.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 351.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 351.
-Package babel Info: Redefining swedish shorthand "|
-(babel)             in language  on input line 351.
-Package babel Info: Redefining swedish shorthand "~
-(babel)             in language  on input line 351.
- [15]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 351.
- (./Response.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 351.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 351.
-Package rerunfilecheck Info: File `Response.out' has not changed.
-(rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
-
-
-LaTeX Warning: There were undefined references.
-
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 351.
- ) 
+) [15] [16]
+(./Response.aux) ) 
 Here is how much of TeX's memory you used:
- 10702 strings out of 493014
- 158670 string characters out of 6133351
- 405993 words of memory out of 5000000
- 14023 multiletter control sequences out of 15000+600000
- 14977 words of font info for 73 fonts, out of 8000000 for 9000
+ 7504 strings out of 493014
+ 110132 string characters out of 6133351
+ 338540 words of memory out of 5000000
+ 10843 multiletter control sequences out of 15000+600000
+ 15142 words of font info for 76 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 31i,5n,38p,1269b,682s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}
-</usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><
-/usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></
-usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></us
-r/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/
-local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/loc
-al/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/loca
-l/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfbx1095.pfb></usr/local/
-texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/local/te
-xlive/2016/texmf-dist/fonts/type1/public/cm-super/sfrm0800.pfb></usr/local/texl
-ive/2016/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb>
-Output written on Response.pdf (15 pages, 188429 bytes).
+ 37i,5n,38p,2346b,507s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/cm-super/
+cm-super-t1.enc}</usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmbx10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmmi10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmmi8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmr10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+r8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy1
+0.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfbx1095.
+pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pf
+b></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfrm0800.pfb>
+</usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb>
+Output written on Response.pdf (16 pages, 195562 bytes).
 PDF statistics:
- 118 PDF objects out of 1000 (max. 8388607)
- 90 compressed objects within 1 object stream
- 18 named destinations out of 1000 (max. 500000)
+ 97 PDF objects out of 1000 (max. 8388607)
+ 68 compressed objects within 1 object stream
+ 0 named destinations out of 1000 (max. 500000)
  9217 words of extra memory for PDF output out of 10000 (max. 10000000)
 
