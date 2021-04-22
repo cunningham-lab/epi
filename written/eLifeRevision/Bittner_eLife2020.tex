@@ -60,18 +60,17 @@ $^{7}$Department of Statistics, Columbia University
 %We bring the use of deep generative models for probabilistic inference to bear on this problem, learning complex distributions of parameters that produce the specified properties of computation.
 A cornerstone of theoretical neuroscience is the circuit model: a system of equations that captures a hypothesized neural mechanism.  
 Such models are valuable when they give rise to an experimentally observed phenomenon -- whether behavioral or a pattern of neural activity -- and thus can offer insights into neural computation.
-The operation of these mechanistic circuits, like all models, critically depends on the choices of model parameters.
-A key process in circuit modeling is then to identify the model parameters consistent with observed phenomena: to solve the inverse problem.
+The operation of these circuits, like all models, critically depends on the choices of model parameters.
+A key step is then to identify the model parameters consistent with observed phenomena: to solve the inverse problem.
 To solve challenging inverse problems modeling neural datasets, neuroscientists have used statistical inference techniques to much success. 
-However, most research in theoretical neuroscience focuses on how computation emerges in biologically interpretable circuit models, and how the model parameters govern computation; it is not focused on the latent structure of empirical models of noisy experimental datasets.
-In this work, we present a novel technique that brings the power and versatility of the probabilistic modeling toolkit to theoretical inverse problems.
-Our method uses deep neural networks to learn parameter distributions with rich structure that have specific computational properties in biologically relevant models.
-This methodology is explained through a motivational example inferring conductance parameters in an STG subcircuit model.
-Then, with RNNs of increasing size, we show that only EPI allows precise control over the behavior of inferred parameters, and that EPI scales better in parameter dimension than alternative techniques.
-In the remainder of this work, we explain novel theoretical insights through the examination of intricate parametric structure in complex circuit models.
-In a model of primary visual cortex with multiple neuron-types, where analysis becomes untenable with each additional neuron-type, we discovered how noise distributed across neuron-types governs the excitatory population.
-Finally, in a model of superior colliculus, we identified and characterized two distinct regimes of connectivity that facilitate switching between opposite tasks amidst interleaved trials. 
-We also found that all task-switching connectivities in this model reproduce behaviors from inactivation experiments, further establishing this hypothesized circuit model.
+However, when theorizing circuit models, scientists predominantly focus on reproducing established computational properties rather than explaining a given neural dataset well.
+In this work, we present a novel technique, emergent property inference (EPI), that brings the power and versatility of the modern probabilistic modeling toolkit to theoretical neuroscience.
+Our method uses deep neural networks to learn parameter distributions with complex structure that produce specific computational properties in circuit models.
+This methodology is introduced through a motivational example inferring conductance parameters in a circuit model of the stomatogastric ganglion (STG).
+Then, with recurrent neural networks of increasing size, we show that only EPI allows precise control over the behavior of inferred parameters, and that EPI scales better in parameter dimension than alternative techniques.
+In the remainder of this work, we present novel theoretical findings gained through  the examination of complex parametric structure captured by EPI.
+In a model of primary visual cortex, we discovered how connectivity with multiple inhibitory subtypes shapes variability in the excitatory population.
+Finally, in a model of superior colliculus, we identified and characterized two distinct regimes of connectivity that facilitate switching between opposite tasks amidst interleaved trials, mechanistically characterized each regime using probabilistic tools afforded by EPI, and found conditions where these circuit models reproduce results from optogenetic silencing experiments.
 Beyond its scientific contribution, this work illustrates the variety of analyses possible once deep learning is harnessed towards solving theoretical inverse problems.
 
 
@@ -444,26 +443,24 @@ The arrows show the most sensitive dimensions of the Hessian evaluated at these 
  \label{fig:V1}
 \end{figure}
 
-Dynamical models of excitatory (E) and inhibitory (I) populations with supralinear input-output function have succeeded in explaining a host of experimentally documented phenomena.
+Dynamical models of excitatory (E) and inhibitory (I) populations with supralinear input-output function have succeeded in explaining a host of experimentally documented phenomena in primary visual cortex (V1).
 In a regime characterized by inhibitory stabilization of strong recurrent excitation, these models give rise to paradoxical responses \cite{tsodyks1997paradoxical}, selective amplification  \cite{goldman2009memory, murphy2009balanced}, surround suppression \cite{ozeki2009inhibitory} and normalization \cite{rubin2015stabilized}. 
-Despite their strong predictive power, E-I circuit models rely on the assumption that inhibition can be studied as an indivisible unit. 
-However, experimental evidence shows that inhibition is composed of distinct elements -- parvalbumin (P), somatostatin (S), VIP (V) --
+Recent theoretical work \cite{hennequin2018dynamical} shows that stabilized E-I models reproduce the effect of variability suppression \cite{Churchland2010}. However, the way in which E-I recurrence structures variability into shared and private dimensions \cite{semedo2019cortical} is not understood.
+Furthermore, experimental evidence shows that inhibition is composed of distinct elements -- parvalbumin (P), somatostatin (S), VIP (V) --
 composing 80\% of GABAergic interneurons in V1 \cite{markram2004interneurons, rudy2011three, tremblay2016}, and that these inhibitory cell types follow specific connectivity patterns (Fig. \ref{fig:V1}A) \cite{pfeffer2013inhibition}.
-%Recent theoretical advances \cite{litwin2016inhibitory, GarciaDelMolino2017, Chen2019},  have only started to address the consequences of this multiplicity in the dynamics of V1, strongly relying on linear theoretical tools. 
-While research has shown that V1 only shares specific dimensions of neuronal variability with downstream areas \cite{semedo2019cortical}, the role played by recurrent dynamics and the connectivity across neuron-type populations is not understood.
-Here, in a model of V1 with biologically realistic connectivity, we use EPI to show how the structure of input across neuron types affects the variability of the excitatory population -- the population largely responsible for projecting to other brain areas \cite{felleman1991distributed}.
+Here, we use EPI on a model of V1 with biologically realistic connectivity to show how the structure of input across neuron types affects the variability of the excitatory population -- the population largely responsible for projecting to other brain areas \cite{felleman1991distributed}.
 
 We considered response variability of a nonlinear dynamical V1 circuit model (Fig. \ref{fig:V1}A) with a state comprised of each neuron-type population's rate $\mathbf{x} = \left[x_E, x_P , x_S, x_V \right]^\top$.
-Each population receives recurrent input $W \mathbf{x}$, where $W$ is the effective connectivity matrix (see Section \ref{methods_V1}).
-Each population also experiences an external input $\mathbf{h}$, which determines population rate via supralinear nonlinearity $\phi(\cdot) = \left[\cdot \right]^2_+$.
-There is also an additive noisy input $\bm{\epsilon}$ parameterized by variances for each neuron type population $\bm{\sigma}^2 = \left[ \sigma_E^2, \sigma_P^2, \sigma_S^2, \sigma_V^2\right]$.
+Each population receives recurrent input $W \mathbf{x}$, where $W$ is the effective connectivity matrix (see Section \ref{methods_V1}) and
+an external input with mean $\mathbf{h}$, which determines population rate via supralinear nonlinearity $\phi(\cdot) = \left[\cdot \right]^2_+$.
+The external input has an additive noisy component $\bm{\epsilon}$ with variance $\bm{\sigma}^2 = \left[ \sigma_E^2, \sigma_P^2, \sigma_S^2, \sigma_V^2\right]$.
 This noise has a slower dynamical timescale $\tau_{\text{noise}} > \tau$ than the population rate, allowing fluctuations around a stimulus-dependent steady-state (Fig. \ref{fig:V1}B).
 This model is the stochastic stabilized supralinear network (SSSN) \cite{hennequin2018dynamical} 
 \begin{equation}
     \tau \frac{d\mathbf{x}}{dt} = -\mathbf{x} +\phi(W\mathbf{x} + \mathbf{h} + \bm{\epsilon}).
 \end{equation}
 generalized to have multiple inhibitory neuron types, and introduces stochasticity to previous four neuron-type models of V1 \cite{litwin2016inhibitory}.
-Stochasticity and inhibitory multiplicity introduce substantial complexity to mathematical derivations (see Section \ref{methods_V1_complexity}) motivating the treatment of this model with EPI.
+Stochasticity and inhibitory multiplicity introduce substantial complexity to the mathematical treatment of this problem (see Section \ref{methods_V1_complexity}) motivating the treatment of this model with EPI.
 Here, we consider fixed weights $W$ and input $\mathbf{h}$ \cite{palmigiano2020structure}, and study the effect of input variability $\mathbf{z} = [\sigma_E, \sigma_P, \sigma_S, \sigma_V]^\top$ on excitatory variability.
 
 \q{v1_ep_text1}{We quantify levels $y$ of E-population variability with the emergent property}
@@ -488,7 +485,8 @@ The strong interactive influence of E- and P-population input variability on exc
 Future research may uncover a link between the population of network stabilization and compensatory interactions governing excitatory variability.
 
 \q{v1_summary}{EPI revealed the quadratic dependence of excitatory variability on input variability to the E- and P-populations, as well as its independence to input from the other two inhibitory populations.
-We show that with each neuron-type population added to this E-I model, calculations of excitatory variability with respect to noise parameters become unruly and challenging to work with (see Section \ref{methods_V1_complexity}).
+In a simplified model ($\tau = \tau_{\text{noise}}$), it can be shown that surfaces of equal variance are ellipsoids as a function of $\bm{\sigma}$.
+Nevertheless, the sensitive and degenerate parameters are challenging to predict mathematically, since the covariance matrix depends on the steady-state solution of the network \cite{hennequin2018dynamical,Gardiner2009}, and terms in the covariance expression increase quadratically with each additional neuron-type population (see also Section \ref{methods_V1_complexity}).
 This emphasizes the value of streamlined methods for gaining understanding about theoretical models when mathematical analysis becomes onerous or impractical.}
 While EPI can be used to investigate fundamental aspects of sensory processing, in the next section, we use the probabilistic tools of EPI to identify and characterize two distinct parametric regimes of a neural circuit executing a computation, and then relate these insights to  behavioral experiments.
 
@@ -1424,7 +1422,10 @@ In Figure \ref{fig:RNN}C-D, we show samples form the random seed resulting in em
 
 \subsection{Primary visual cortex}\label{methods_V1}
 \subsubsection{V1 model}
-In the stochastic stabilized supralinear network \cite{hennequin2018dynamical}, population rate responses $\mathbf{x}$ to input $\mathbf{h}$, recurrent input $W\mathbf{x}$ and slow noise $\bm{\epsilon}$ are governed by
+ E-I circuit models, rely on the assumption that inhibition can be studied as an indivisible unit, despite ample experimental evidence showing that inhibition is instead composed of distinct elements \cite{tremblay2016}. In particular three types of genetically identified inhibitory cell-types -- parvalbumin (P), somatostatin (S), VIP (V) --
+compose 80\% of GABAergic interneurons in V1 \cite{markram2004interneurons, rudy2011three, tremblay2016}, and follow specific connectivity patterns (Fig. \ref{fig:V1}A) \cite{pfeffer2013inhibition}, which lead to cell-type specific computations \cite{Mossing2021,palmigiano2020structure}. Currently, how the subdivision of inhibitory cell-types, shapes correlated variability by reconfiguring  recurrent network dynamics is not understood.
+
+In the stochastic stabilized supralinear network \cite{hennequin2018dynamical}, population rate responses $\mathbf{x}$ to mean input $\mathbf{h}$, recurrent input $W\mathbf{x}$ and slow noise $\bm{\epsilon}$ are governed by
 \begin{equation}
     \tau \frac{d\mathbf{x}}{dt} = -\mathbf{x} +\phi(W\mathbf{x} + \mathbf{h} + \bm{\epsilon}),
 \end{equation}
@@ -1434,7 +1435,7 @@ where the noise is an Ornstein-Uhlenbeck process $\bm{\epsilon} \sim OU(\tau_{\t
 \end{equation}
 with $\tau_{\text{noise}} = 5\text{ms} > \tau = 1\text{ms}$.
 The noisy process is parameterized as
-\begin{equation}
+\begin{equation} \label{sigma_reparam}
 \tilde{\sigma}_\alpha = \sigma_\alpha \sqrt{1 + \frac{\tau}{\tau_{\text{noise}}}},
 \end{equation}
 so that $\bm{\sigma}$ parameterizes the variance of the noisy input in the abscence of recurrent connectivity ($W = \bm{0}$).
@@ -1552,8 +1553,99 @@ Optimization for V1
 \end{center}
 \end{figure}
 
-\subsubsection{Primary visual cortex: challenges to analysis}\label{methods_V1_complexity}
-TODO Agostina and I are putting this together now.
+\subsubsection{Primary visual cortex: Mathematical intuition and challenges}\label{methods_V1_complexity}
+
+The dynamical system that we are working with can be written as 
+
+\begin{align}\label{SSSN_agos}
+\begin{split}
+ dx=\frac{1}{\tau}(-x+f(W x +h+\epsilon)) dt\\
+d \epsilon=-\frac{dt}{\tau_{\text{noise}}}\epsilon+\frac{\sqrt{2}}{\sqrt{\tau_{\text{noise}}}}\Sigma_\epsilon dW
+\end{split}
+\end{align}
+
+Where in this paper we chose 
+\begin{equation}
+\Sigma_\epsilon=\tau_{\text{noise}} 
+\begin{bmatrix} 
+\tilde{\sigma}_E & 0 & 0 & 0 \\
+0 & \tilde{\sigma}_P & 0 & 0 \\
+0 & 0 & \tilde{\sigma}_S & 0 \\
+0 & 0 & 0 & \tilde{\sigma}_V \\
+\end{bmatrix}
+\end{equation}
+where $\tilde{\sigma}_\alpha$ is the reparameterized standard deviation of the noise for population $\alpha$ from Equation \ref{sigma_reparam}.
+
+In order to compute this covariance, we define $v=\omega x +h+\epsilon$ and $S=I-\omega f'(v))$, to re-write Eq. \eqref{SSSN_agos} as an 8-dimensional system:
+
+\begin{align}
+\begin{split}
+d\begin{pmatrix}
+\delta v \\
+ \epsilon
+\end{pmatrix}= -
+\begin{pmatrix}
+	S &- \frac{\tau_{\text{noise}}-\tau}{\tau \tau_{\text{noise}}}I\\
+	 0&\frac{1}{\tau_{\text{noise}}}I\\
+\end{pmatrix}
+\begin{pmatrix}
+	\delta v\\
+	\epsilon 
+\end{pmatrix} 
+dt +
+\begin{pmatrix}
+	0&\frac{\sqrt{2}}{\sqrt{\tau_{\text{noise}}}} \Sigma_\epsilon\\
+	0&\frac{\sqrt{2}}{\sqrt{\tau_{\text{noise}}}} \Sigma_\epsilon \\
+\end{pmatrix}    d\mathbf{W} 
+\end{split}
+\end{align}
+
+Where $d\mathbf{W}$ is a vector with the private noise of each variable.  The $d\mathbf{W}$ term is multiplied by a non-diagonal matrix is because the noise that the voltage receives is the exact same than the one that comes from the OU process and not another process. The solution of this problem is given by the Lyapunov Equation \cite{hennequin2018dynamical,Gardiner2009}:
+
+\begin{align}
+\begin{split}
+\begin{pmatrix}
+	S & -\frac{\tau_{\text{noise}}-\tau}{\tau \tau_{\text{noise}}}I\\
+	 0&\frac{1}{\tau_{\text{noise}}}I\\
+\end{pmatrix}
+\begin{pmatrix}
+	\Lambda_v & \Lambda_c\\
+	 \Lambda_c^T&\Lambda_\epsilon\\
+\end{pmatrix}
++
+\begin{pmatrix}
+	\Lambda_v & \Lambda_c\\
+	 \Lambda_c ^T &\Lambda_\epsilon\\
+\end{pmatrix}
+\begin{pmatrix}
+	S^T & 0\\
+	 -\frac{\tau_{\text{noise}}-\tau}{\tau \tau_{\text{noise}}}I&\frac{1}{\tau_{\text{noise}}}I\\
+\end{pmatrix}
+=
+\begin{pmatrix}
+	\frac{2}{\tau_{\text{noise}}} \Lambda_\epsilon&\frac{2}{\tau_{\text{noise}}} \Lambda_\epsilon\\
+	\frac{2}{\tau_{\text{noise}}} \Lambda_\epsilon&\frac{2}{\tau_{\text{noise}}} \Lambda_\epsilon \\
+	\end{pmatrix}
+\end{split}
+\end{align}
+
+To obtain an equation for $\Lambda_v$, we solve this block matrix multiplication:
+
+
+\begin{align}
+\begin{split}
+S\Lambda_v +\Lambda_v S^T =\frac{2 \Lambda_\epsilon }{\tau_{\text{noise}} }+\frac{\tau_{\text{noise}}^2 -\tau^2 }{(\tau  \tau_{\text{noise}} )^2}\left( (\frac{1}{\tau_{\text{noise}}}I + S)^{-1} \Lambda_\epsilon+   \Lambda_\epsilon(\frac{1}{\tau_{\text{noise}}}I + S^T)^{-1}\right)  \\
+\end{split}
+\end{align}
+
+
+Which is another Lyapunov Equation, now in 4 dimensions. In the simplest case in which $\tau_{\text{noise}}=\tau$, the volatge is directly driven by white noise, and $\Lambda_v$ can be expressed in powers of $S$ and $S^T$. Because $S$ satisfies its own polynomial equation (Cayley Hamilton theorem), there will be 4 coefficients for the expansion of $S$ and 4 for $S^T$, resulting in 16 coefficients that define $\Lambda_v$ for a given $S$. 
+Due to symmetry arguments\cite{Gardiner2009}, in this case the diagonal elements of the covariance matrix of the voltage will have the form:
+\begin{flalign} \label{GeneralEllipsoid}
+{\Lambda_{v_{ii}}}=\sum_{i=\{E,P,S,V\}} g_i(S)\sigma^2_{ii}
+\end{flalign}
+These coefficients $g_i(S)$ are complicated functions of the Jacobian of the system. Although expressions for these coefficients can be found explicitly, only numerical evaluation of those expressions determine which components of the  noisy input are going to strongly influence the variability of excitatory population. 
+Showing the generality of this dependence in more complicated noise scenarios (e.g. $\tau_{\text{noise}} > \tau$ as in Section \ref{results_V1}), is the focus of current research. 
 
 \subsection{Superior colliculus}\label{methods_SC}
 \subsubsection{SC model} \label{methods_sc_model}
