@@ -24,6 +24,7 @@
 \usepackage{enumitem}
 \usepackage{amsmath}
 \usepackage{csquotes}
+\usepackage{bm}
 \usepackage{xr}
 \externaldocument{Bittner_eLife2020}
 \usepackage{xcite}
@@ -34,7 +35,7 @@
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{1em}
 
-%-----------------------
+%----------------------- 
 % Begin document
 %-----------------------
 \begin{document} 
@@ -309,12 +310,30 @@ Section \ref{results_SC}, Lines X-Y\\
 
 \textbf{This paper addresses a major issue in fitting neuroscience models: how to identify the often degenerate, or nearly degenerate, set of parameters that can underlie a set of experimental observations. Whereas previous techniques often depended upon brute force explorations or special parametric forms or local linearizations to generate sets of parameters consistent with measured properties, the authors take advantage of deep generative networks to address this problem. Overall, I think this paper and the complementary submission have the potential to be transformative contributions to model fitting efforts in neuroscience. That being said, since the primary contribution is the methodology, I think the paper requires more systematic comparisons to ground truth examples to demonstrate potential strengths and weaknesses, and more focus on methodology rather than applications. }
 
+We thank the reviewer for their positive comments and thoughtful feedback.
+We have made great efforts to provide several clear comparisons to ground truth (see response to concern \#1), and now provide an extensive methodological comparison to SMC-ABC and SNPE (see response to concern \#2).
+
 \textbf{Substantive concerns: \\
 1) The authors only have a single ground-truth example where they compare to a known result (a 2x2 linear dynamical system). It would be good to show how well this method compares to results from, for example, a direct brute force grid search of a system with a strongly non-elliptical (e.g. sharply bent) shaped parameter regime and a reasonably large (e.g. 5?) number of parameters corresponding to a particular property, to see how well the derived probability distribution overlaps the brute force grid search parameters (perhaps shown via several 2-D projections). }
 
-We thank the reviewer for their positive comments.  We have taken this feedback into serious account and its requests are reflected in multiple sections of the paper. In our updated model analyses, our novel scientific findings come precisely from the rich, fine structure (Fig. 3E, 4C) of the inferred parameter distributions captured by EPI.  These are “validated” in the sense that they pass a hypothesis testing criteria for emergent property convergence, and are the greatest entropy distributions across all random seeds for EPI optimization.  See response to R1 point 1 concerning global maximum entropy solutions.
+We thank the reviewer for pointing out the importance of ground truth comparisons in this manuscript.
+In this revision, we make ground truth comparisons via analytic derivations, empirical error contours, and brute-force sampling.
 
-We find the 2x2 linear dynamical system example to be a good ground truth example.  It has a multimodal, intricately structured posterior, with analytically derived contours matching the EPI distribution.  It’s also a digestible example for a broad audience.  Further ground truth of the underlying maximum entropy flow network (MEFN) algorithm can be found for the Dirichlet exponential family distribution in Loaiza Ganem et al. 2017.  Comparisons to random-sampling techniques are made in Section 3.3.
+\textit{Analytic comparisons}:
+The 2x2 linear dynamical system is chosen as a worked example because it has multi-modal non-elliptical structure (Fig. \ref{fig:LDS1}), and its contours can be derived analytically (Fig. \ref{fig:LDS2}).
+Similarly, in Section \ref{methods_V1_complexity}, we derive the quadratic relationship between excitatory variability and input noise variability (in a simplified model) suggesting that the quadratic relationship uncovered by EPI (see Section \ref{results_V1}) is correct.
+
+\textit{Error contours}:
+In the motivation example, we compare the EPI inferred distribution of STG conductances to hub frequency contours (Figure \ref{fig:STG}E), which show that the non-elliptical parametric structure captured by EPI is in agreement with these contours.  
+This general region of parameter space was labeled following grid search analyses in a previous study (Gutierrez et al. 2013, Figure 2, parameter regime G).
+
+\textit{Brute-force}:
+The EPI inferred distribution for rapid task switching in the SC model is sharply bent (Fig. \ref{fig:SC}), and matches the parameter set returned from random sampling (Figure \ref{fig:SC8}A).  
+We note that the brute-force parameter set is actually not the ground-truth solution, because it does not obey the constraints of the emergent property as the EPI dsitribution does (Figure \ref{fig:SC8}B).
+This can explain the spurious samples in the brute-force set that are not in the EPI inferred distribution.
+
+All EPI distributions shown in this manuscript are “validated” in the sense that they pass a hypothesis testing criteria for emergent property convergence; all EPI distributions produce their emergent properties.
+Finally, the underlying maximum entropy flow network (MEFN) algorithm is compared to a ground truth solution (Loaiza Ganem et al. 2017, Figure 2) by deriving ground truth from the duality of maximum entropy distributions and exponential famillies (see Section \ref{methods_ME_EF}).
 
 \textbf{2) It was not obvious whether EPI actually scales well to higher dimensions and how much computation it would take (there is one claim that it 'should scale reasonably'). While I agree that examples with a small number of parameters is nice for illustration, a major issue is how to develop techniques that can handle large numbers of parameters (brute force, while inelegant, inefficient, and not producing an explicit probability distribution can do a reasonable job for small \#'s of parameters). The authors should show some example of extending to larger number of parameters and do some checks to show that it appears to work. As a methodological contribution, the authors should also give some sense of how computationally intensive the method is and some sense of how it scales with size. This seems particularly relevant to, for example, trying to infer uncertainties in a large weight matrix or a non-parametric description of spatial or temporal responses or a sensory neuron (which I'm assuming this technique is not appropriate for? See point\#4 below). }
 
