@@ -3,46 +3,47 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: Bittner_eLife2020.aux
 The style file: unsrt.bst
 Database file #1: eLife2020.bib
+Warning--I didn't find a database entry for ""
 Warning--empty journal in hastings1970monte
-You've used 106 entries,
+You've used 92 entries,
             1791 wiz_defined-function locations,
-            1022 strings with 24089 characters,
-and the built_in function-call counts, 27924 in all, are:
-= -- 2481
-> -- 1399
-< -- 17
-+ -- 505
-- -- 399
-* -- 2089
-:= -- 4385
-add.period$ -- 321
-call.type$ -- 106
-change.case$ -- 103
+            953 strings with 21417 characters,
+and the built_in function-call counts, 23880 in all, are:
+= -- 2131
+> -- 1189
+< -- 13
++ -- 430
+- -- 338
+* -- 1783
+:= -- 3760
+add.period$ -- 279
+call.type$ -- 92
+change.case$ -- 90
 chr.to.int$ -- 0
-cite$ -- 107
-duplicate$ -- 1167
-empty$ -- 2564
-format.name$ -- 399
-if$ -- 6144
+cite$ -- 93
+duplicate$ -- 994
+empty$ -- 2198
+format.name$ -- 338
+if$ -- 5247
 int.to.chr$ -- 0
-int.to.str$ -- 106
-missing$ -- 109
-newline$ -- 533
-num.names$ -- 106
-pop$ -- 243
+int.to.str$ -- 92
+missing$ -- 93
+newline$ -- 462
+num.names$ -- 92
+pop$ -- 209
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 587
+skip$ -- 494
 stack$ -- 0
-substring$ -- 2203
-swap$ -- 301
-text.length$ -- 17
+substring$ -- 1877
+swap$ -- 247
+text.length$ -- 13
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 1
-while$ -- 272
-width$ -- 109
-write$ -- 1150
-(There was 1 warning)
+while$ -- 234
+width$ -- 94
+write$ -- 996
+(There were 2 warnings)

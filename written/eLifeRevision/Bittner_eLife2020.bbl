@@ -1,4 +1,4 @@
-\begin{thebibliography}{100}
+\begin{thebibliography}{10}
 
 \bibitem{kopell1988coupled}
 Nancy Kopell and G~Bard Ermentrout.
@@ -21,17 +21,28 @@ Xiao-Jing Wang.
   in cognition.
 \newblock {\em Physiological reviews}, 90(3):1195--1268, 2010.
 
+\bibitem{o2015computational}
+Timothy O'Leary, Alexander~C Sutton, and Eve Marder.
+\newblock Computational models in the age of large datasets.
+\newblock {\em Current opinion in neurobiology}, 32:87--94, 2015.
+
 \bibitem{gutenkunst2007universally}
 Ryan~N Gutenkunst, Joshua~J Waterfall, Fergal~P Casey, Kevin~S Brown,
   Christopher~R Myers, and James~P Sethna.
 \newblock Universally sloppy parameter sensitivities in systems biology models.
 \newblock {\em PLoS Comput Biol}, 3(10):e189, 2007.
 
-\bibitem{o2014cell}
-Timothy O'Leary, Alex~H Williams, Alessio Franci, and Eve Marder.
-\newblock Cell types, network homeostasis, and pathological compensation from a
-  biologically plausible ion channel expression model.
-\newblock {\em Neuron}, 82(4):809--821, 2014.
+\bibitem{erguler2011practical}
+Kamil Erguler and Michael~PH Stumpf.
+\newblock Practical limits for reverse engineering of dynamical systems: a
+  statistical analysis of sensitivity and parameter inferability in systems
+  biology models.
+\newblock {\em Molecular BioSystems}, 7(5):1593--1602, 2011.
+
+\bibitem{mannakee2016sloppiness}
+Brian~K Mannakee, Aaron~P Ragsdale, Mark~K Transtrum, and Ryan~N Gutenkunst.
+\newblock Sloppiness and the geometry of parameter space.
+\newblock In {\em Uncertainty in Biology}, pages 271--299. Springer, 2016.
 
 \bibitem{hopfield1982neural}
 John~J Hopfield.
@@ -44,6 +55,12 @@ John~J Hopfield.
 Haim Sompolinsky, Andrea Crisanti, and Hans-Jurgen Sommers.
 \newblock Chaos in random neural networks.
 \newblock {\em Physical review letters}, 61(3):259, 1988.
+
+\bibitem{olypher2007using}
+Andrey~V Olypher and Ronald~L Calabrese.
+\newblock Using constraints on neuronal activity to reveal compensatory changes
+  in neuronal parameters.
+\newblock {\em Journal of Neurophysiology}, 98(6):3749--3758, 2007.
 
 \bibitem{tsodyks1997paradoxical}
 Misha~V Tsodyks, William~E Skaggs, Terrence~J Sejnowski, and Bruce~L
@@ -73,159 +90,24 @@ Pablo Achard and Erik De~Schutter.
 \newblock Complex parameter landscape for a complex neuron model.
 \newblock {\em PLoS computational biology}, 2(7):e94, 2006.
 
+\bibitem{fisher2013modeling}
+Dimitry Fisher, Itsaso Olasagasti, David~W Tank, Emre~RF Aksay, and Mark~S
+  Goldman.
+\newblock A modeling framework for deriving the structural and functional
+  architecture of a short-term memory microcircuit.
+\newblock {\em Neuron}, 79(5):987--1000, 2013.
+
+\bibitem{o2014cell}
+Timothy O'Leary, Alex~H Williams, Alessio Franci, and Eve Marder.
+\newblock Cell types, network homeostasis, and pathological compensation from a
+  biologically plausible ion channel expression model.
+\newblock {\em Neuron}, 82(4):809--821, 2014.
+
 \bibitem{alonso2019visualization}
 Leandro~M Alonso and Eve Marder.
 \newblock Visualization of currents in neural models with similar behavior and
   different conductance densities.
 \newblock {\em Elife}, 8:e42722, 2019.
-
-\bibitem{kass2001spike}
-Robert~E Kass and Val{\'e}rie Ventura.
-\newblock A spike-train probability model.
-\newblock {\em Neural computation}, 13(8):1713--1720, 2001.
-
-\bibitem{brown1998statistical}
-Emery~N Brown, Loren~M Frank, Dengda Tang, Michael~C Quirk, and Matthew~A
-  Wilson.
-\newblock A statistical paradigm for neural spike train decoding applied to
-  position prediction from ensemble firing patterns of rat hippocampal place
-  cells.
-\newblock {\em Journal of Neuroscience}, 18(18):7411--7425, 1998.
-
-\bibitem{paninski2004maximum}
-Liam Paninski.
-\newblock Maximum likelihood estimation of cascade point-process neural
-  encoding models.
-\newblock {\em Network: Computation in Neural Systems}, 15(4):243--262, 2004.
-
-\bibitem{truccolo2005point}
-Wilson Truccolo, Uri~T Eden, Matthew~R Fellows, John~P Donoghue, and Emery~N
-  Brown.
-\newblock A point process framework for relating neural spiking activity to
-  spiking history, neural ensemble, and extrinsic covariate effects.
-\newblock {\em Journal of neurophysiology}, 93(2):1074--1089, 2005.
-
-\bibitem{schneidman2006weak}
-Elad Schneidman, Michael~J Berry, Ronen Segev, and William Bialek.
-\newblock Weak pairwise correlations imply strongly correlated network states
-  in a neural population.
-\newblock {\em Nature}, 440(7087):1007--1012, 2006.
-
-\bibitem{druckmann2007novel}
-Shaul Druckmann, Yoav Banitt, Albert~A Gidon, Felix Sch{\"u}rmann, Henry
-  Markram, and Idan Segev.
-\newblock A novel multiple objective optimization framework for constraining
-  conductance-based neuron models by experimental data.
-\newblock {\em Frontiers in neuroscience}, 1:1, 2007.
-
-\bibitem{turner2007maximum}
-Richard Turner and Maneesh Sahani.
-\newblock A maximum-likelihood interpretation for slow feature analysis.
-\newblock {\em Neural computation}, 19(4):1022--1038, 2007.
-
-\bibitem{byron2009gaussian}
-M~Yu Byron, John~P Cunningham, Gopal Santhanam, Stephen~I Ryu, Krishna~V
-  Shenoy, and Maneesh Sahani.
-\newblock Gaussian-process factor analysis for low-dimensional single-trial
-  analysis of neural population activity.
-\newblock In {\em Advances in neural information processing systems}, pages
-  1881--1888, 2009.
-
-\bibitem{macke2011empirical}
-Jakob~H Macke, Lars Buesing, John~P Cunningham, Byron~M Yu, Krishna~V Shenoy,
-  and Maneesh Sahani.
-\newblock Empirical models of spiking in neural populations.
-\newblock {\em Advances in neural information processing systems},
-  24:1350--1358, 2011.
-
-\bibitem{park2011bayesian}
-Il~Memming Park and Jonathan~W Pillow.
-\newblock Bayesian spike-triggered covariance analysis.
-\newblock In {\em Advances in neural information processing systems}, pages
-  1692--1700, 2011.
-
-\bibitem{granot2013stimulus}
-Einat Granot-Atedgi, Ga{\v{s}}per Tka{\v{c}}ik, Ronen Segev, and Elad
-  Schneidman.
-\newblock Stimulus-dependent maximum entropy models of neural population codes.
-\newblock {\em PLoS Comput Biol}, 9(3):e1002922, 2013.
-
-\bibitem{latimer2015single}
-Kenneth~W Latimer, Jacob~L Yates, Miriam~LR Meister, Alexander~C Huk, and
-  Jonathan~W Pillow.
-\newblock Single-trial spike trains in parietal cortex reveal discrete steps
-  during decision-making.
-\newblock {\em Science}, 349(6244):184--187, 2015.
-
-\bibitem{lakshminarasimhan2018dynamic}
-Kaushik~J Lakshminarasimhan, Marina Petsalis, Hyeshin Park, Gregory~C
-  DeAngelis, Xaq Pitkow, and Dora~E Angelaki.
-\newblock A dynamic bayesian observer model reveals origins of bias in visual
-  path integration.
-\newblock {\em Neuron}, 99(1):194--206, 2018.
-
-\bibitem{duncker2019learning}
-Lea Duncker, Gergo Bohner, Julien Boussard, and Maneesh Sahani.
-\newblock Learning interpretable continuous-time models of latent stochastic
-  dynamical systems.
-\newblock {\em Proceedings of the 36th International Conference on Machine
-  Learning}, 2019.
-
-\bibitem{ladenbauer2019inferring}
-Josef Ladenbauer, Sam McKenzie, Daniel~Fine English, Olivier Hagens, and Srdjan
-  Ostojic.
-\newblock Inferring and validating mechanistic models of neural microcircuits
-  based on spike-train data.
-\newblock {\em Nature Communications}, 10(4933), 2019.
-
-\bibitem{gao2016linear}
-Yuanjun Gao, Evan~W Archer, Liam Paninski, and John~P Cunningham.
-\newblock Linear dynamical neural population models through nonlinear
-  embeddings.
-\newblock In {\em Advances in neural information processing systems}, pages
-  163--171, 2016.
-
-\bibitem{zhao2017recursive}
-Yuan Zhao and Il~Memming Park.
-\newblock Recursive variational bayesian dual estimation for nonlinear dynamics
-  and non-gaussian observations.
-\newblock {\em stat}, 1050:27, 2017.
-
-\bibitem{barello2018sparse}
-Gabriel Barello, Adam Charles, and Jonathan Pillow.
-\newblock Sparse-coding variational auto-encoders.
-\newblock {\em bioRxiv}, page 399246, 2018.
-
-\bibitem{pandarinath2018inferring}
-Chethan Pandarinath, Daniel~J O'Shea, Jasmine Collins, Rafal Jozefowicz,
-  Sergey~D Stavisky, Jonathan~C Kao, Eric~M Trautmann, Matthew~T Kaufman,
-  Stephen~I Ryu, Leigh~R Hochberg, et~al.
-\newblock Inferring single-trial neural population dynamics using sequential
-  auto-encoders.
-\newblock {\em Nature methods}, page~1, 2018.
-
-\bibitem{wiltschko2015mapping}
-Alexander~B Wiltschko, Matthew~J Johnson, Giuliano Iurilli, Ralph~E Peterson,
-  Jesse~M Katon, Stan~L Pashkovski, Victoria~E Abraira, Ryan~P Adams, and
-  Sandeep~Robert Datta.
-\newblock Mapping sub-second structure in mouse behavior.
-\newblock {\em Neuron}, 88(6):1121--1135, 2015.
-
-\bibitem{johnson2016composing}
-Matthew~J Johnson, David~K Duvenaud, Alex Wiltschko, Ryan~P Adams, and
-  Sandeep~R Datta.
-\newblock Composing graphical models with neural networks for structured
-  representations and fast inference.
-\newblock In {\em Advances in neural information processing systems}, pages
-  2946--2954, 2016.
-
-\bibitem{batty2019behavenet}
-Eleanor Batty, Matthew Whiteway, Shreya Saxena, Dan Biderman, Taiga Abe, Simon
-  Musall, Winthrop Gillis, Jeffrey Markowitz, Anne Churchland, John Cunningham,
-  et~al.
-\newblock Behavenet: nonlinear embedding and bayesian neural decoding of
-  behavioral videos.
-\newblock {\em Advances in Neural Information Processing Systems}, 2019.
 
 \bibitem{paninski2018neural}
 Liam Paninski and John~P Cunningham.
@@ -252,16 +134,16 @@ Simon Musall, Matthew~T Kaufman, Ashley~L Juavinett, Steven Gluf, and Anne~K
   movements.
 \newblock {\em Nature neuroscience}, 22(10):1677--1686, 2019.
 
-\bibitem{dayan2003theoretical}
-Peter Dayan, Laurence~F Abbott, et~al.
-\newblock Theoretical neuroscience: computational and mathematical modeling of
-  neural systems.
-\newblock {\em Journal of Cognitive Neuroscience}, 15(1):154--155, 2003.
+\bibitem{beaumont2002approximate}
+Mark~A Beaumont, Wenyang Zhang, and David~J Balding.
+\newblock Approximate bayesian computation in population genetics.
+\newblock {\em Genetics}, 162(4):2025--2035, 2002.
 
-\bibitem{izhikevich2007dynamical}
-Eugene~M Izhikevich.
-\newblock {\em Dynamical systems in neuroscience}.
-\newblock MIT press, 2007.
+\bibitem{marjoram2003markov}
+Paul Marjoram, John Molitor, Vincent Plagnol, and Simon Tavar{\'e}.
+\newblock Markov chain monte carlo without likelihoods.
+\newblock {\em Proceedings of the National Academy of Sciences},
+  100(26):15324--15328, 2003.
 
 \bibitem{sisson2007sequential}
 Scott~A Sisson, Yanan Fan, and Mark~M Tanaka.
@@ -269,12 +151,54 @@ Scott~A Sisson, Yanan Fan, and Mark~M Tanaka.
 \newblock {\em Proceedings of the National Academy of Sciences},
   104(6):1760--1765, 2007.
 
-\bibitem{liepe2014framework}
-Juliane Liepe, Paul Kirk, Sarah Filippi, Tina Toni, Chris~P Barnes, and
-  Michael~PH Stumpf.
-\newblock A framework for parameter estimation and model selection from
-  experimental data in systems biology using approximate bayesian computation.
-\newblock {\em Nature protocols}, 9(2):439--456, 2014.
+\bibitem{raue2009structural}
+Andreas Raue, Clemens Kreutz, Thomas Maiwald, Julie Bachmann, Marcel Schilling,
+  Ursula Klingm{\"u}ller, and Jens Timmer.
+\newblock Structural and practical identifiability analysis of partially
+  observed dynamical models by exploiting the profile likelihood.
+\newblock {\em Bioinformatics}, 25(15):1923--1929, 2009.
+
+\bibitem{karlsson2012efficient}
+Johan Karlsson, Milena Anguelova, and Mats Jirstrand.
+\newblock An efficient method for structural identifiability analysis of large
+  dynamic systems.
+\newblock {\em IFAC Proceedings Volumes}, 45(16):941--946, 2012.
+
+\bibitem{hines2014determination}
+Keegan~E Hines, Thomas~R Middendorf, and Richard~W Aldrich.
+\newblock Determination of parameter identifiability in nonlinear biophysical
+  models: A bayesian approach.
+\newblock {\em Journal of General Physiology}, 143(3):401--416, 2014.
+
+\bibitem{raman2017delineating}
+Dhruva~V Raman, James Anderson, and Antonis Papachristodoulou.
+\newblock Delineating parameter unidentifiabilities in complex models.
+\newblock {\em Physical Review E}, 95(3):032314, 2017.
+
+\bibitem{elsayed2017structure}
+Gamaleldin~F Elsayed and John~P Cunningham.
+\newblock Structure in neural population recordings: an expected byproduct of
+  simpler phenomena?
+\newblock {\em Nature neuroscience}, 20(9):1310, 2017.
+
+\bibitem{savin2017maximum}
+Cristina Savin and Ga{\v{s}}per Tka{\v{c}}ik.
+\newblock Maximum entropy models as a tool for building precise neural
+  controls.
+\newblock {\em Current opinion in neurobiology}, 46:120--126, 2017.
+
+\bibitem{mlynarski2020statistical}
+Wiktor M{\l}ynarski, Michal Hled{\'\i}k, Thomas~R Sokolowski, and Ga{\v{s}}per
+  Tka{\v{c}}ik.
+\newblock Statistical analysis and optimality of neural systems.
+\newblock {\em bioRxiv}, page 848374, 2020.
+
+\bibitem{tran2017hierarchical}
+Dustin Tran, Rajesh Ranganath, and David Blei.
+\newblock Hierarchical implicit models and likelihood-free variational
+  inference.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages
+  5523--5533, 2017.
 
 \bibitem{gonccalves2019training}
 Pedro~J Gon{\c{c}}alves, Jan-Matthis Lueckmann, Michael Deistler, Marcel
@@ -284,39 +208,33 @@ Pedro~J Gon{\c{c}}alves, Jan-Matthis Lueckmann, Michael Deistler, Marcel
   models of neural dynamics.
 \newblock {\em bioRxiv}, page 838383, 2019.
 
-\bibitem{papamakarios2019sequential}
-George Papamakarios, David Sterratt, and Iain Murray.
-\newblock Sequential neural likelihood: Fast likelihood-free inference with
-  autoregressive flows.
-\newblock In {\em The 22nd International Conference on Artificial Intelligence
-  and Statistics}, pages 837--848. PMLR, 2019.
-
-\bibitem{hermans2020likelihood}
-Joeri Hermans, Volodimir Begy, and Gilles Louppe.
-\newblock Likelihood-free mcmc with amortized approximate ratio estimators.
-\newblock In {\em International Conference on Machine Learning}, pages
-  4239--4248. PMLR, 2020.
-
 \bibitem{loaiza2017maximum}
 Gabriel Loaiza-Ganem, Yuanjun Gao, and John~P Cunningham.
 \newblock Maximum entropy flow networks.
 \newblock {\em International Conference on Learning Representations}, 2017.
 
-\bibitem{rezende2015variational}
-Danilo~Jimenez Rezende and Shakir Mohamed.
-\newblock Variational inference with normalizing flows.
-\newblock {\em International Conference on Machine Learning}, 2015.
+\bibitem{dinh2017density}
+Laurent Dinh, Jascha Sohl-Dickstein, and Samy Bengio.
+\newblock Density estimation using real nvp.
+\newblock {\em Proceedings of the 5th International Conference on Learning
+  Representations}, 2017.
 
-\bibitem{goldman2001global}
-Mark~S Goldman, Jorge Golowasch, Eve Marder, and LF~Abbott.
-\newblock Global structure, robustness, and modulation of neuronal models.
-\newblock {\em Journal of Neuroscience}, 21(14):5229--5238, 2001.
+\bibitem{kingma2018glow}
+Durk~P Kingma and Prafulla Dhariwal.
+\newblock Glow: Generative flow with invertible 1x1 convolutions.
+\newblock In {\em Advances in neural information processing systems}, pages
+  10215--10224, 2018.
 
 \bibitem{gutierrez2013multiple}
 Gabrielle~J Gutierrez, Timothy O'Leary, and Eve Marder.
 \newblock Multiple mechanisms switch an electrically coupled, synaptically
   inhibited neuron between competing rhythmic oscillators.
 \newblock {\em Neuron}, 77(5):845--858, 2013.
+
+\bibitem{goldman2001global}
+Mark~S Goldman, Jorge Golowasch, Eve Marder, and LF~Abbott.
+\newblock Global structure, robustness, and modulation of neuronal models.
+\newblock {\em Journal of Neuroscience}, 21(14):5229--5238, 2001.
 
 \bibitem{murphy2009balanced}
 Brendan~K Murphy and Kenneth~D Miller.
@@ -360,16 +278,10 @@ Eve Marder and Vatsala Thirumalai.
 \newblock Cellular, synaptic and network effects of neuromodulation.
 \newblock {\em Neural Networks}, 15(4-6):479--493, 2002.
 
-\bibitem{morris1981voltage}
-Catherine Morris and Harold Lecar.
-\newblock Voltage oscillations in the barnacle giant muscle fiber.
-\newblock {\em Biophysical journal}, 35(1):193--213, 1981.
-
-\bibitem{dinh2017density}
-Laurent Dinh, Jascha Sohl-Dickstein, and Samy Bengio.
-\newblock Density estimation using real nvp.
-\newblock {\em Proceedings of the 5th International Conference on Learning
-  Representations}, 2017.
+\bibitem{rezende2015variational}
+Danilo~Jimenez Rezende and Shakir Mohamed.
+\newblock Variational inference with normalizing flows.
+\newblock {\em International Conference on Machine Learning}, 2015.
 
 \bibitem{papamakarios2017masked}
 George Papamakarios, Theo Pavlakou, and Iain Murray.
@@ -434,6 +346,30 @@ Daniel~B Rubin, Stephen~D Van~Hooser, and Kenneth~D Miller.
   underlying multi-input integration in sensory cortex.
 \newblock {\em Neuron}, 85(2):402--417, 2015.
 
+\bibitem{hennequin2018dynamical}
+Guillaume Hennequin, Yashar Ahmadian, Daniel~B Rubin, M{\'a}t{\'e} Lengyel, and
+  Kenneth~D Miller.
+\newblock The dynamical regime of sensory cortex: stable dynamics around a
+  single stimulus-tuned attractor account for patterns of noise variability.
+\newblock {\em Neuron}, 98(4):846--860, 2018.
+
+\bibitem{Churchland2010}
+Mark~M. Churchland, Byron~M. Yu, John~P. Cunningham, Leo~P. Sugrue, Marlene~R.
+  Cohen, Greg~S. Corrado, William~T. Newsome, Andrew~M. Clark, Paymon Hosseini,
+  Benjamin~B. Scott, David~C. Bradley, Matthew~A. Smith, Adam Kohn, J.~Anthony
+  Movshon, Katherine~M. Armstrong, Tirin Moore, Steve~W. Chang, Lawrence~H.
+  Snyder, Stephen~G. Lisberger, Nicholas~J. Priebe, Ian~M. Finn, David Ferster,
+  Stephen~I. Ryu, Gopal Santhanam, Maneesh Sahani, and Krishna~V. Shenoy.
+\newblock {Stimulus onset quenches neural variability: a widespread cortical
+  phenomenon}.
+\newblock {\em Nat. Neurosci.}, 13(3):369--378, 2010.
+
+\bibitem{semedo2019cortical}
+Jo{\~a}o~D Semedo, Amin Zandvakili, Christian~K Machens, M~Yu Byron, and Adam
+  Kohn.
+\newblock Cortical areas interact through a communication subspace.
+\newblock {\em Neuron}, 102(1):249--259, 2019.
+
 \bibitem{markram2004interneurons}
 Henry Markram, Maria Toledo-Rodriguez, Yun Wang, Anirudh Gupta, Gilad
   Silberberg, and Caizhi Wu.
@@ -458,23 +394,15 @@ Carsten~K Pfeffer, Mingshan Xue, Miao He, Z~Josh Huang, and Massimo Scanziani.
   between molecularly distinct interneurons.
 \newblock {\em Nature Neuroscience}, 16(8):1068, 2013.
 
-\bibitem{semedo2019cortical}
-Jo{\~a}o~D Semedo, Amin Zandvakili, Christian~K Machens, M~Yu Byron, and Adam
-  Kohn.
-\newblock Cortical areas interact through a communication subspace.
-\newblock {\em Neuron}, 102(1):249--259, 2019.
-
 \bibitem{felleman1991distributed}
 Daniel~J Felleman and David~C Van~Essen.
 \newblock Distributed hierarchical processing in the primate cerebral cortex.
 \newblock {\em Cerebral cortex (New York, NY: 1991)}, 1(1):1--47, 1991.
 
-\bibitem{hennequin2018dynamical}
-Guillaume Hennequin, Yashar Ahmadian, Daniel~B Rubin, M{\'a}t{\'e} Lengyel, and
-  Kenneth~D Miller.
-\newblock The dynamical regime of sensory cortex: stable dynamics around a
-  single stimulus-tuned attractor account for patterns of noise variability.
-\newblock {\em Neuron}, 98(4):846--860, 2018.
+\bibitem{Gardiner2009}
+C~Gardiner.
+\newblock {Stochastic methods: A Handbook for the Natural and Social Sciences},
+  2009.
 
 \bibitem{duan2015requirement}
 Chunyu~A Duan, Jeffrey~C Erlich, and Carlos~D Brody.
@@ -482,16 +410,11 @@ Chunyu~A Duan, Jeffrey~C Erlich, and Carlos~D Brody.
   control of behavior in the rat.
 \newblock {\em Neuron}, 86(6):1491--1503, 2015.
 
-\bibitem{beaumont2002approximate}
-Mark~A Beaumont, Wenyang Zhang, and David~J Balding.
-\newblock Approximate bayesian computation in population genetics.
-\newblock {\em Genetics}, 162(4):2025--2035, 2002.
-
-\bibitem{marjoram2003markov}
-Paul Marjoram, John Molitor, Vincent Plagnol, and Simon Tavar{\'e}.
-\newblock Markov chain monte carlo without likelihoods.
-\newblock {\em Proceedings of the National Academy of Sciences},
-  100(26):15324--15328, 2003.
+\bibitem{saccomani2003parameter}
+Maria~Pia Saccomani, Stefania Audoly, and Leontina D'Angi{\`o}.
+\newblock Parameter identifiability of nonlinear systems: the role of initial
+  conditions.
+\newblock {\em Automatica}, 39(4):619--632, 2003.
 
 \bibitem{saul1998mean}
 Lawrence Saul and Michael Jordan.
@@ -522,13 +445,6 @@ Andrew Golightly and Darren~J Wilkinson.
 \newblock Bayesian parameter inference for stochastic biochemical network
   models using particle markov chain monte carlo.
 \newblock {\em Interface focus}, 1(6):807--820, 2011.
-
-\bibitem{tran2017hierarchical}
-Dustin Tran, Rajesh Ranganath, and David Blei.
-\newblock Hierarchical implicit models and likelihood-free variational
-  inference.
-\newblock In {\em Advances in Neural Information Processing Systems}, pages
-  5523--5533, 2017.
 
 \bibitem{bittner2019degenerate}
 Sean~R Bittner, Agostina Palmigiano, Kenneth~D Miller, and John~P Cunningham.
@@ -564,6 +480,19 @@ Jan-Matthis Lueckmann, Pedro~J Goncalves, Giacomo Bassetto, Kaan {\"O}cal,
 \newblock In {\em Advances in Neural Information Processing Systems}, pages
   1289--1299, 2017.
 
+\bibitem{papamakarios2019sequential}
+George Papamakarios, David Sterratt, and Iain Murray.
+\newblock Sequential neural likelihood: Fast likelihood-free inference with
+  autoregressive flows.
+\newblock In {\em The 22nd International Conference on Artificial Intelligence
+  and Statistics}, pages 837--848. PMLR, 2019.
+
+\bibitem{hermans2020likelihood}
+Joeri Hermans, Volodimir Begy, and Gilles Louppe.
+\newblock Likelihood-free mcmc with amortized approximate ratio estimators.
+\newblock In {\em International Conference on Machine Learning}, pages
+  4239--4248. PMLR, 2020.
+
 \bibitem{wainwright2008graphical}
 Martin~J Wainwright, Michael~I Jordan, et~al.
 \newblock Graphical models, exponential families, and variational inference.
@@ -576,12 +505,6 @@ Sean~R Bittner and John~P Cunningham.
   with a two-network architecture.
 \newblock {\em arXiv preprint arXiv:1903.07515}, 2019.
 
-\bibitem{karlsson2012efficient}
-Johan Karlsson, Milena Anguelova, and Mats Jirstrand.
-\newblock An efficient method for structural identifiability analysis of large
-  dynamic systems.
-\newblock {\em IFAC Proceedings Volumes}, 45(16):941--946, 2012.
-
 \bibitem{chen2018neural}
 Ricky~TQ Chen, Yulia Rubanova, Jesse Bettencourt, and David~K Duvenaud.
 \newblock Neural ordinary differential equations.
@@ -593,35 +516,11 @@ Xuechen Li, Ting-Kam~Leonard Wong, Ricky~TQ Chen, and David Duvenaud.
 \newblock Scalable gradients for stochastic differential equations.
 \newblock {\em arXiv preprint arXiv:2001.01328}, 2020.
 
-\bibitem{raue2009structural}
-Andreas Raue, Clemens Kreutz, Thomas Maiwald, Julie Bachmann, Marcel Schilling,
-  Ursula Klingm{\"u}ller, and Jens Timmer.
-\newblock Structural and practical identifiability analysis of partially
-  observed dynamical models by exploiting the profile likelihood.
-\newblock {\em Bioinformatics}, 25(15):1923--1929, 2009.
-
-\bibitem{raman2017delineating}
-Dhruva~V Raman, James Anderson, and Antonis Papachristodoulou.
-\newblock Delineating parameter unidentifiabilities in complex models.
-\newblock {\em Physical Review E}, 95(3):032314, 2017.
-
-\bibitem{saccomani2003parameter}
-Maria~Pia Saccomani, Stefania Audoly, and Leontina D'Angi{\`o}.
-\newblock Parameter identifiability of nonlinear systems: the role of initial
-  conditions.
-\newblock {\em Automatica}, 39(4):619--632, 2003.
-
 \bibitem{papamakarios2019normalizing}
 George Papamakarios, Eric Nalisnick, Danilo~Jimenez Rezende, Shakir Mohamed,
   and Balaji Lakshminarayanan.
 \newblock Normalizing flows for probabilistic modeling and inference.
 \newblock {\em arXiv preprint arXiv:1912.02762}, 2019.
-
-\bibitem{kingma2018glow}
-Durk~P Kingma and Prafulla Dhariwal.
-\newblock Glow: Generative flow with invertible 1x1 convolutions.
-\newblock In {\em Advances in neural information processing systems}, pages
-  10215--10224, 2018.
 
 \bibitem{kingma2016improved}
 Durk~P Kingma, Tim Salimans, Rafal Jozefowicz, Xi~Chen, Ilya Sutskever, and Max
@@ -644,5 +543,12 @@ Emmanuel Klinger, Dennis Rickert, and Jan Hasenauer.
 David~S Greenberg, Marcel Nonnenmacher, and Jakob~H Macke.
 \newblock Automatic posterior transformation for likelihood-free inference.
 \newblock {\em International Conference on Machine Learning}, 2019.
+
+\bibitem{Mossing2021}
+Daniel~P Mossing, Julia Veit, Agostina Palmigiano, Kenneth~D. Miller, and
+  Hillel Adesnik.
+\newblock {Antagonistic inhibitory subnetworks control cooperation and
+  competition across cortical space}.
+\newblock {\em bioRxiv}, 2021.
 
 \end{thebibliography}
