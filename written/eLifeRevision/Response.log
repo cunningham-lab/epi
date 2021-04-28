@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  24 APR 2021 14:03
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  27 APR 2021 20:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -455,11 +455,11 @@ File: uni-0.def 2013/05/13 UCS: Unicode data U+0000..U+00FF
 ) [19] [20]
 (./Response.aux) ) 
 Here is how much of TeX's memory you used:
- 7701 strings out of 493014
- 112834 string characters out of 6133351
- 350989 words of memory out of 5000000
- 10982 multiletter control sequences out of 15000+600000
- 20217 words of font info for 103 fonts, out of 8000000 for 9000
+ 7709 strings out of 493014
+ 113025 string characters out of 6133351
+ 353760 words of memory out of 5000000
+ 10992 multiletter control sequences out of 15000+600000
+ 20154 words of font info for 102 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  37i,5n,38p,1909b,507s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/cm-super/
@@ -479,7 +479,7 @@ x1095.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfbx1
 0.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfrm1095.
 pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfti1095.pf
 b>
-Output written on Response.pdf (20 pages, 257536 bytes).
+Output written on Response.pdf (20 pages, 258122 bytes).
 PDF statistics:
  130 PDF objects out of 1000 (max. 8388607)
  92 compressed objects within 1 object stream

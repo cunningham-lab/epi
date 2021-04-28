@@ -410,12 +410,6 @@ Chunyu~A Duan, Jeffrey~C Erlich, and Carlos~D Brody.
   control of behavior in the rat.
 \newblock {\em Neuron}, 86(6):1491--1503, 2015.
 
-\bibitem{saccomani2003parameter}
-Maria~Pia Saccomani, Stefania Audoly, and Leontina D'Angi{\`o}.
-\newblock Parameter identifiability of nonlinear systems: the role of initial
-  conditions.
-\newblock {\em Automatica}, 39(4):619--632, 2003.
-
 \bibitem{saul1998mean}
 Lawrence Saul and Michael Jordan.
 \newblock A mean field learning algorithm for unsupervised neural networks.
@@ -440,11 +434,30 @@ Mark Girolami and Ben Calderhead.
 \newblock {\em Journal of the Royal Statistical Society: Series B (Statistical
   Methodology)}, 73(2):123--214, 2011.
 
+\bibitem{calderhead2011statistical}
+Ben Calderhead and Mark Girolami.
+\newblock Statistical analysis of nonlinear dynamical systems using
+  differential geometric sampling methods.
+\newblock {\em Interface focus}, 1(6):821--835, 2011.
+
 \bibitem{golightly2011bayesian}
 Andrew Golightly and Darren~J Wilkinson.
 \newblock Bayesian parameter inference for stochastic biochemical network
   models using particle markov chain monte carlo.
 \newblock {\em Interface focus}, 1(6):807--820, 2011.
+
+\bibitem{chkrebtii2016bayesian}
+Oksana~A Chkrebtii, David~A Campbell, Ben Calderhead, Mark~A Girolami, et~al.
+\newblock Bayesian solution uncertainty quantification for differential
+  equations.
+\newblock {\em Bayesian Analysis}, 11(4):1239--1267, 2016.
+
+\bibitem{liepe2014framework}
+Juliane Liepe, Paul Kirk, Sarah Filippi, Tina Toni, Chris~P Barnes, and
+  Michael~PH Stumpf.
+\newblock A framework for parameter estimation and model selection from
+  experimental data in systems biology using approximate bayesian computation.
+\newblock {\em Nature protocols}, 9(2):439--456, 2014.
 
 \bibitem{bittner2019degenerate}
 Sean~R Bittner, Agostina Palmigiano, Kenneth~D Miller, and John~P Cunningham.
@@ -515,6 +528,17 @@ Ricky~TQ Chen, Yulia Rubanova, Jesse Bettencourt, and David~K Duvenaud.
 Xuechen Li, Ting-Kam~Leonard Wong, Ricky~TQ Chen, and David Duvenaud.
 \newblock Scalable gradients for stochastic differential equations.
 \newblock {\em arXiv preprint arXiv:2001.01328}, 2020.
+
+\bibitem{saccomani2003parameter}
+Maria~Pia Saccomani, Stefania Audoly, and Leontina D'Angi{\`o}.
+\newblock Parameter identifiability of nonlinear systems: the role of initial
+  conditions.
+\newblock {\em Automatica}, 39(4):619--632, 2003.
+
+\bibitem{hengl2007data}
+Stefan Hengl, Clemens Kreutz, Jens Timmer, and Thomas Maiwald.
+\newblock Data-based identifiability analysis of non-linear dynamical models.
+\newblock {\em Bioinformatics}, 23(19):2612--2618, 2007.
 
 \bibitem{papamakarios2019normalizing}
 George Papamakarios, Eric Nalisnick, Danilo~Jimenez Rezende, Shakir Mohamed,

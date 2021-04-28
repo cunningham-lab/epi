@@ -537,21 +537,22 @@ In contrast, theoretical neuroscience has primarily focused on careful models of
 In this work, we improve upon parameter inference techniques in theoretical neuroscience with emergent property inference, harnessing deep learning towards parameter inference with respect to computation in neural circuit models (see Section \ref{methods_related}).
 
 \q{discussion}{Methodology for statistical inference in circuit models has evolved considerably in recent years.
-Early work used rejection sampling techniques \cite{beaumont2002approximate, marjoram2003markov,sisson2007sequential}, but more recently developed methodology employs deep learning to improve efficiency or provide deep, flexible distribution approximations.
-SNPE \cite{gonccalves2019training}, developed along with EPI (see Section \ref{methods_related}), has been used for posterior inference of parameters in circuit models conditioned upon exemplar data used to represent computation.
-Like SNPE, EPI is a deep inference technique, but it infers parameter distributions that only produce the computation of interest  (see Section \ref{results_RNN}).
-
-Exemplary data versus emergent properties aside, EPI has better scaling properties than SNPE when emergent property gradients are tractable (Section \ref{results_RNN}).  
-However, SNPE has its own relative advantages.
-SNPE is effective when circuit model simulations are lengthy or nondifferentiable.
+Early work used rejection sampling techniques \cite{beaumont2002approximate, marjoram2003markov,sisson2007sequential}, but EPI and other recently developed methodology (SNPE \cite{gonccalves2019training}) employ deep learning to improve efficiency and provide deep, flexible distribution approximations.
+SNPE has been used for posterior inference of parameters in circuit models conditioned upon exemplar data used to represent computation, but it does not infer parameter distributions that only produce the computation of interest like EPI  (see Section \ref{results_RNN}).
+However, SNPE is more effective when circuit model simulations are lengthy or nondifferentiable.
 For example, SNPE can infer the STG parameters that produce the pyloric rhythm \cite{gonccalves2019training}, while EPI cannot.
-Thus, while it is nice to infer parameter distributions with constrained emergent properties with EPI,  SNPE is most appropriate when emergent property gradients are intractable.
+Finally, we show that EPI has better scaling properties than SNPE when emergent property gradients are tractable (Section \ref{results_RNN}).
+In summary, choice of deep inference technique should consider emergent property complexity and differentiability, dimensionality of parameter space, and the importance of constraining the model behavior predicted by the inferred parameter distribution.
 
-The scientific analyses of Sections \ref{results_V1} and \ref{results_SC} derived theoretical findings by querying the structure of the inferred distribution of EPI.
-By measuring the dimensions in which probability decreases fastest, the dimensions of \emph{sensitivity}, we gain valuable understanding of how model parameters govern the emergent property.
-A rich literature on parameter sensitivity analyses in biological models presents several methods towards this scientific approach \cite{saccomani2003parameter, raue2009structural, karlsson2012efficient, raman2017delineating}.
-The value offered by EPI (and other deep inference methods like SNPE), is that the once the flexible deep probability distributions are fit to the parameter distribution, this distribution's structure can be quantified at any parameter choice, offering instantly available sensitivity measurements.
-Together, the ability to condition upon emergent properties, the efficient inference algorithm, and the capacity for parameter sensitivity analyses make EPI a powerful new method for addressing inverse problems in theoretical neuroscience.}
+
+In this paper, we prove out the value of deep inference for parameter sensitivity analyses at both the local and global level.
+With these techniques, flexible deep probability distributions are optimized to capture global structure by approximating the full distribution of suitable parameters.
+Importantly, the local structure of this deep probability distribution can be quantified at any parameter choice, offering instant sensitivity measurements after fitting.
+For example, the global structure captured by EPI revealed two distinct parameter regimes, which had different local structure quantified by the deep probability distribution (see Section \ref{methods_SC}).
+In comparison, Bayesian MCMC is considered a popular approach for capturing global parameter structure \cite{girolami2011riemann}, but there is no variational approximation (the deep probability distribution in EPI), so sensitivity information is not queryable and sampling remains slow after convergence.
+Local sensitivity analyses (e.g. \cite{raue2009structural}) may be performed independently at individual parameter samples, but these methods alone do not capture the full picture in nonlinear, complex distributions.
+Therefore, deep inference is the only approach yielding an object -- the deep probability distribution -- which produces a wholistic assessment of parameter sensitivity at the local and global level, which were used in this study to make novel insights into theoretical models of neural computation.
+Together, the abilities to condition upon emergent properties, the efficient inference algorithm, and the capacity for parameter sensitivity analyses make EPI a powerful new method for addressing inverse problems in theoretical neuroscience.}
 
 %In neuroscience, machine learning has primarily been used to reveal structure in neural datasets \cite{paninski2018neural}.
 %Careful inference procedures are developed for these statistical models allowing precise, quantitative reasoning, which clarifies the way data informs beliefs about the model parameters.  
@@ -655,22 +656,23 @@ Then, we demonstrate the details of this optimization in a toy example (Section 
 Finally, we establish the known relationship between maximum entropy distributions and exponential families (Section \ref{methods_ME_EF}), which is used to explain how EPI is a form of variational inference (Section \ref{methods_VI}).
 
  \subsubsection{Related approaches}\label{methods_related}
- When bayesian inference problems lack conjugacy, scientists use approximate inference methods like variational inference (VI) \cite{saul1998mean} and Markov chain Monte Carlo (MCMC) \cite{metropolis1953equation, hastings1970monte}. 
+When bayesian inference problems lack conjugacy, scientists use approximate inference methods like variational inference (VI) \cite{saul1998mean} and Markov chain Monte Carlo (MCMC) \cite{metropolis1953equation, hastings1970monte}. 
 After optimization, variational methods return a parameterized posterior distribution, which we can analyze.
 Also, the variational approximating distribution class is often chosen such that it permits fast sampling.
 In contrast MCMC methods only produce samples from the approximated posterior distribution.
 No parameterized distribution is estimated, and additional samples are always generated with the same sampling complexity.
 Inference in models defined by systems of differential has been demonstrated with MCMC \cite{girolami2011riemann}, although this approach requires tractable likelihoods.
-Advancements have leveraged structure in stochastic differential equation models to improve likelihood approximations, thus expanding the domain of applicable models \cite{golightly2011bayesian}.
+Advancements have introduced sampling \cite{calderhead2011statistical}, likelihood approximation \cite{golightly2011bayesian}, and uncertainty quantification techniques \cite{chkrebtii2016bayesian} to make MCMC approaches more efficient and expand the class of applicable models.
  
 Simulation-based inference \cite{cranmer2020frontier} is model parameter inference in the absence of a tractable likelihood function.
 The most prevalent approach to simulation-based inference is approximate Bayesian computation (ABC) \cite{beaumont2002approximate}, in which satisfactory parameter samples are kept from random prior sampling according to a rejection heuristic.
 The obtained set of parameters do not have a probabilities, and further insight about the model must be gained from examination of the parameter set and their generated activity.
 Methodological advances to ABC methods have come through the use of Markov chain Monte Carlo (MCMC-ABC) \cite{marjoram2003markov} and sequential Monte Carlo (SMC-ABC) \cite{sisson2007sequential} sampling techniques.
-SMC-ABC is considered state-of-the-art ABC, yet this approach still struggles to scale in dimensionality (cf. Fig. \ref{fig:RNN}).
+SMC-ABC is considered state-of-the-art ABC, yet this approach still struggles to scale in dimensionality \cite{sisson2018handbook} (cf. Fig. \ref{fig:RNN}).
+Still, this method has enjoyed much success in systems biology \cite{liepe2014framework}.
 Furthermore, once a parameter set has been obtained by SMC-ABC from a finite set of particles, the SMC-ABC algorithm must be run again from scratch with a new population of initialized particles to obtain additional samples.
 
-For scientific model analysis, we seek a parameter distribution represented by an approximating distribution as in variational inference \cite{saul1998mean} : a variational approximation that once optimized yields fast analytic calculations and samples.
+For scientific model analysis, we seek a parameter distribution represented by an approximating distribution as in variational inference \cite{saul1998mean}: a variational approximation that once optimized yields fast analytic calculations and samples.
 For the reasons described above, ABC and MCMC techniques are unattractive, since they only produce a set of parameter samples lacking probabilities and have unchanging sampling rate.
 EPI infers parameters in circuit models using the MEFN \cite{loaiza2017maximum} algorithm with a deep variational approximation.
 The deep neural network of EPI (Fig. \ref{fig:STG}E) defines the parametric form (with variational parameters $\bm{\theta}$) of the deep variational approximation of circuit parameters $\mathbf{z}$.
@@ -712,7 +714,7 @@ One approach for this calculation that scales well is EAR \cite{karlsson2012effi
 A popular efficient approach for systems of ODEs has been neural ODE adjoint \cite{chen2018neural} and its stochastic adaptation \cite{li2020scalable}.
 Casting identifiability as a statistical estimation problem, the profile likelihood works via iterated optimization while holding parameters fixed \cite{raue2009structural}.
 An exciting recent method is capable of recovering the functional form of such unidentifiabilities away from a point by following degenerate dimensions of the fisher information matrix \cite{raman2017delineating}.
-Global structural non-identifiabilities can be found for models with polynomial or rational dynamics equations using DAISY \cite{saccomani2003parameter}.
+Global structural non-identifiabilities can be found for models with polynomial or rational dynamics equations using DAISY \cite{saccomani2003parameter}, or through mean optimal transformations \cite{hengl2007data}.
 With EPI, we have all the benefits given by a statistical inference method plus the ability to query the first- or second-order gradient of the probability of the inferred distribution at any chosen parameter value.
 The second-order gradient of the log probability (the Hessian), which is directly afforded by EPI distributions, produces quantified information about parametric sensitivity of the emergent property in parameter space (see Section \ref{results_dgm}).}
 
