@@ -3,7 +3,6 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: Bittner_eLife2020.aux
 The style file: unsrt.bst
 Database file #1: eLife2020.bib
-Warning--I didn't find a database entry for ""
 Warning--empty journal in hastings1970monte
 You've used 96 entries,
             1791 wiz_defined-function locations,
@@ -46,4 +45,4 @@ warning$ -- 1
 while$ -- 246
 width$ -- 98
 write$ -- 1040
-(There were 2 warnings)
+(There was 1 warning)

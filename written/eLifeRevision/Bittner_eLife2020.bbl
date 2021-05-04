@@ -208,6 +208,17 @@ Pedro~J Gon{\c{c}}alves, Jan-Matthis Lueckmann, Michael Deistler, Marcel
   models of neural dynamics.
 \newblock {\em bioRxiv}, page 838383, 2019.
 
+\bibitem{rezende2015variational}
+Danilo~Jimenez Rezende and Shakir Mohamed.
+\newblock Variational inference with normalizing flows.
+\newblock {\em International Conference on Machine Learning}, 2015.
+
+\bibitem{papamakarios2019normalizing}
+George Papamakarios, Eric Nalisnick, Danilo~Jimenez Rezende, Shakir Mohamed,
+  and Balaji Lakshminarayanan.
+\newblock Normalizing flows for probabilistic modeling and inference.
+\newblock {\em arXiv preprint arXiv:1912.02762}, 2019.
+
 \bibitem{loaiza2017maximum}
 Gabriel Loaiza-Ganem, Yuanjun Gao, and John~P Cunningham.
 \newblock Maximum entropy flow networks.
@@ -277,17 +288,6 @@ Chunyu~A Duan, Marino Pagan, Alex~T Piet, Charles~D Kopec, Athena Akrami,
 Eve Marder and Vatsala Thirumalai.
 \newblock Cellular, synaptic and network effects of neuromodulation.
 \newblock {\em Neural Networks}, 15(4-6):479--493, 2002.
-
-\bibitem{rezende2015variational}
-Danilo~Jimenez Rezende and Shakir Mohamed.
-\newblock Variational inference with normalizing flows.
-\newblock {\em International Conference on Machine Learning}, 2015.
-
-\bibitem{papamakarios2017masked}
-George Papamakarios, Theo Pavlakou, and Iain Murray.
-\newblock Masked autoregressive flow for density estimation.
-\newblock In {\em Advances in Neural Information Processing Systems}, pages
-  2338--2347, 2017.
 
 \bibitem{goldman2009memory}
 Mark~S Goldman.
@@ -410,6 +410,12 @@ Chunyu~A Duan, Jeffrey~C Erlich, and Carlos~D Brody.
   control of behavior in the rat.
 \newblock {\em Neuron}, 86(6):1491--1503, 2015.
 
+\bibitem{girolami2011riemann}
+Mark Girolami and Ben Calderhead.
+\newblock Riemann manifold langevin and hamiltonian monte carlo methods.
+\newblock {\em Journal of the Royal Statistical Society: Series B (Statistical
+  Methodology)}, 73(2):123--214, 2011.
+
 \bibitem{saul1998mean}
 Lawrence Saul and Michael Jordan.
 \newblock A mean field learning algorithm for unsupervised neural networks.
@@ -427,12 +433,6 @@ W~Keith Hastings.
 \newblock Monte carlo sampling methods using markov chains and their
   applications.
 \newblock 1970.
-
-\bibitem{girolami2011riemann}
-Mark Girolami and Ben Calderhead.
-\newblock Riemann manifold langevin and hamiltonian monte carlo methods.
-\newblock {\em Journal of the Royal Statistical Society: Series B (Statistical
-  Methodology)}, 73(2):123--214, 2011.
 
 \bibitem{calderhead2011statistical}
 Ben Calderhead and Mark Girolami.
@@ -540,11 +540,11 @@ Stefan Hengl, Clemens Kreutz, Jens Timmer, and Thomas Maiwald.
 \newblock Data-based identifiability analysis of non-linear dynamical models.
 \newblock {\em Bioinformatics}, 23(19):2612--2618, 2007.
 
-\bibitem{papamakarios2019normalizing}
-George Papamakarios, Eric Nalisnick, Danilo~Jimenez Rezende, Shakir Mohamed,
-  and Balaji Lakshminarayanan.
-\newblock Normalizing flows for probabilistic modeling and inference.
-\newblock {\em arXiv preprint arXiv:1912.02762}, 2019.
+\bibitem{papamakarios2017masked}
+George Papamakarios, Theo Pavlakou, and Iain Murray.
+\newblock Masked autoregressive flow for density estimation.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages
+  2338--2347, 2017.
 
 \bibitem{kingma2016improved}
 Durk~P Kingma, Tim Salimans, Rafal Jozefowicz, Xi~Chen, Ilya Sutskever, and Max

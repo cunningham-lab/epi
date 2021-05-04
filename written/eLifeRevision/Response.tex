@@ -260,14 +260,16 @@ Lines 28-36 \\
 
 \textbf{(1) Maximizing the entropy of the distribution is not a reparameterization invariant exercise. That is, results depend on whether the model parameters contains rates or time constants, for example. I wonder if this approach is attempting to use a 'flat prior' in some sense which has the same reparameterization issue? Can the authors comment? }
 
-The reviewer is correct to point out that maximum entropy solutions are not reparameterization invariant, and indeed the units matter.  The reviewer’s suggestion that the method is in some sense using a flat prior is also correct.  To clarify, EPI does not execute posterior inference, because there is no empirical dataset or specified prior belief in EPI framework.  However, we derive the relation of EPI to bayesian inference in Section 5.1.6, which shows EPI uses a uniform prior when framed as variational inference.
+The reviewer is correct to point out that maximum entropy solutions are not reparameterization invariant, and indeed the units matter.  The reviewer’s suggestion that the method is in some sense using a flat prior is also correct.  To clarify, EPI does not execute posterior inference, because there is no explicit dataset or specified prior belief in the EPI framework.  However, we derive the relation of EPI to bayesian inference in Section 5.1.6, which shows EPI uses a uniform prior when framed as variational inference.
 
 \begin{displayquote}
 Lines 986-989 \\
 ``\quoting{ME_prior}"
 \end{displayquote}
  
-In our examples, we only infer distributions of parameters with the same units, so issue should not draw concern over the validity of our model analyses.  As suggested, the EPI solution will differ according to relative scaling of parameter values under the maximum entropy selection principle. Thus, an important clarification is that sensitivity quantifications are made in the context of the chosen parameter scalings. A final concern here is numerical: if the inferred distribution is in a thin region of parameter space, that is not well represented by the precision of the numerical format, there can be issues in optimization.  It makes most sense to make sure EPI is exploring through parameter space through an industry-recommended range of values, and that sensitivity measurements are interpretable.
+In our examples, we only infer distributions of parameters with the same units, so this issue should not draw concern over the validity of our model analyses.  As suggested, the EPI solution will differ according to relative scaling of parameter values under the maximum entropy selection principle. Thus, an important clarification is that sensitivity quantifications are made in the context of the chosen parameter scalings. 
+%A final concern here is numerical: if the inferred distribution is in a thin region of parameter space, that is not well represented by the precision of the numerical format, there can be issues in optimization.  
+%It makes most sense to make sure EPI is exploring through parameter space through an industry-recommended range of values, and that sensitivity measurements are interpretable.
 
 \textbf{SB: Should we add text about this in the paper?}
 
@@ -305,15 +307,15 @@ In the current manuscript, we do not examine the difference between linear and n
 We thank the reviewer for their positive comments.  
 To draw a parallel, training deep networks for visual processing used to be considered infeasible, but became easier through iterative improvements in architectural and hyperparameter choices that spread across the field.  
 Similarly, training deep networks via EPI to learn parameter distributions became easier throughout this research project as we learned through trial and error what works well.  
-In fact, there has been extraordinary progress in the field of deep probability distributions (specifically normalizing flows), that have allowed EPI to converge while capturing complex structure much more regularly (e.g. Dinh et al. 2017 and Kingma et al. 2018).  
-This manuscript has much value in its explanation of hyperparameter choices, and the extensive set of examples in the online code github. 
-Every figure of this paper is reproducible with the jupyter notebooks, and there are several tutorials for understanding the most consequential hyperparameters: augmented Lagrangian constant, normalizing flow architecture.  
+In fact, there has been extraordinary progress in the field of deep probability distributions (specifically normalizing flows), that have allowed EPI to converge regularly while capturing complex structure (e.g. Dinh et al. 2017 and Kingma et al. 2018).  
+This manuscript's explanation of hyperparameter choices and the extensive set of examples in the online code will serve as valuable guidelines for future research using this method.
+Every figure of this paper is reproducible with the jupyter notebooks, and there are several tutorials for understanding the most consequential hyperparameters: the augmented Lagrangian constant and deep probability distribution architecture.  
 
-In general, we cannot know if we have arrived at the global maximum entropy distribution for a given emergent property.  
+In general, we cannot know if we have obtained the global maximum entropy distribution for a given emergent property.  
 The reviewer is correct to point out that multiple distributions may satisfy the emergent property and have different levels of entropy.  
 In the new manuscript, we present the method as an inference technique without focusing very greatly on maximum entropy, since it tends to distract and confuse the reader.  
 We derive an analytic equivalence to variational inference (Section 5.1.6) showing that a.) EPI is a valid inference method, and b.) to emphasize that maximum entropy is the normative selection principle of bayesian inference methods in general. 
-Thus, the concern of not having the globally optimal inferred distribution is the same that applies to all other inference techniques.
+Thus, the concern of not having the globally optimal inferred distribution is the same that applies to all other statistical inference techniques.
 
 Practically, this has scientific implications.  
 It means that we may be missing important structure in the inferred distribution, or we may be missing additional modes in parameter space.  
