@@ -4,45 +4,45 @@ The top-level auxiliary file: Bittner_eLife2020.aux
 The style file: unsrt.bst
 Database file #1: eLife2020.bib
 Warning--empty journal in hastings1970monte
-You've used 96 entries,
+You've used 95 entries,
             1791 wiz_defined-function locations,
-            974 strings with 22284 characters,
-and the built_in function-call counts, 24992 in all, are:
-= -- 2231
-> -- 1248
+            969 strings with 22104 characters,
+and the built_in function-call counts, 24713 in all, are:
+= -- 2207
+> -- 1231
 < -- 13
-+ -- 451
-- -- 355
-* -- 1883
-:= -- 3939
-add.period$ -- 291
-call.type$ -- 96
-change.case$ -- 94
++ -- 445
+- -- 350
+* -- 1857
+:= -- 3893
+add.period$ -- 288
+call.type$ -- 95
+change.case$ -- 93
 chr.to.int$ -- 0
-cite$ -- 97
-duplicate$ -- 1030
-empty$ -- 2298
-format.name$ -- 355
-if$ -- 5481
+cite$ -- 96
+duplicate$ -- 1021
+empty$ -- 2274
+format.name$ -- 350
+if$ -- 5423
 int.to.chr$ -- 0
-int.to.str$ -- 96
-missing$ -- 97
-newline$ -- 482
-num.names$ -- 96
-pop$ -- 213
+int.to.str$ -- 95
+missing$ -- 96
+newline$ -- 477
+num.names$ -- 95
+pop$ -- 212
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 507
+skip$ -- 504
 stack$ -- 0
-substring$ -- 1989
-swap$ -- 251
+substring$ -- 1964
+swap$ -- 250
 text.length$ -- 13
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 1
-while$ -- 246
-width$ -- 98
-write$ -- 1040
+while$ -- 243
+width$ -- 97
+write$ -- 1029
 (There was 1 warning)

@@ -278,11 +278,11 @@ Agostina Palmigiano, Francesco Fumarola, Daniel~P Mossing, Nataliya
   operating regime of cortex.
 \newblock {\em bioRxiv}, 2020.
 
-\bibitem{duan2018collicular}
+\bibitem{duan2019collicular}
 Chunyu~A Duan, Marino Pagan, Alex~T Piet, Charles~D Kopec, Athena Akrami,
   Alexander~J Riordan, Jeffrey~C Erlich, and Carlos~D Brody.
 \newblock Collicular circuits for flexible sensorimotor routing.
-\newblock {\em bioRxiv}, page 245613, 2018.
+\newblock {\em bioRxiv}, page 245613, 2019.
 
 \bibitem{marder2002cellular}
 Eve Marder and Vatsala Thirumalai.
@@ -328,11 +328,6 @@ Kyle Cranmer, Johann Brehmer, and Gilles Louppe.
 \newblock The frontier of simulation-based inference.
 \newblock {\em Proceedings of the National Academy of Sciences}, 2020.
 
-\bibitem{marder1992dynamic}
-Eve Marder and Allen~I Selverston.
-\newblock {\em Dynamic biological networks: the stomatogastric nervous system}.
-\newblock MIT press, 1992.
-
 \bibitem{ozeki2009inhibitory}
 Hirofumi Ozeki, Ian~M Finn, Evan~S Schaffer, Kenneth~D Miller, and David
   Ferster.
@@ -363,12 +358,6 @@ Mark~M. Churchland, Byron~M. Yu, John~P. Cunningham, Leo~P. Sugrue, Marlene~R.
 \newblock {Stimulus onset quenches neural variability: a widespread cortical
   phenomenon}.
 \newblock {\em Nat. Neurosci.}, 13(3):369--378, 2010.
-
-\bibitem{semedo2019cortical}
-Jo{\~a}o~D Semedo, Amin Zandvakili, Christian~K Machens, M~Yu Byron, and Adam
-  Kohn.
-\newblock Cortical areas interact through a communication subspace.
-\newblock {\em Neuron}, 102(1):249--259, 2019.
 
 \bibitem{markram2004interneurons}
 Henry Markram, Maria Toledo-Rodriguez, Yun Wang, Anirudh Gupta, Gilad
@@ -415,6 +404,11 @@ Mark Girolami and Ben Calderhead.
 \newblock Riemann manifold langevin and hamiltonian monte carlo methods.
 \newblock {\em Journal of the Royal Statistical Society: Series B (Statistical
   Methodology)}, 73(2):123--214, 2011.
+
+\bibitem{marder1992dynamic}
+Eve Marder and Allen~I Selverston.
+\newblock {\em Dynamic biological networks: the stomatogastric nervous system}.
+\newblock MIT press, 1992.
 
 \bibitem{saul1998mean}
 Lawrence Saul and Michael Jordan.

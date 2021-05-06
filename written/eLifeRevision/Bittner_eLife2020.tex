@@ -16,6 +16,14 @@
 \usepackage{cite}
 \usepackage{qting}
 
+\newcommand\startsupplement{%
+    \makeatletter 
+       \setcounter{table}{0}
+       \renewcommand{\thetable}{S\arabic\c@table}
+       \setcounter{figure}{0}
+       \renewcommand{\thefigure}{S\arabic{figure}}
+    \makeatother}
+
 \DeclareMathOperator*{\argmin}{argmin}
 \DeclareMathOperator*{\argmax}{argmax}
 
@@ -107,7 +115,7 @@ Equipped with this method, we demonstrate the capabilities of EPI and present no
 \q{intro_results1}{First, we show EPI's ability to handle biologically realistic circuit models using a five-neuron model of the stomatogastric ganglion \cite{gutierrez2013multiple}: a neural circuit whose parametric degeneracy is closely studied \cite{goldman2001global}.
 Then, we show EPI's scalability to high dimensional parameter distributions by inferring connectivities of recurrent neural networks (RNNs) that exhibit stable, yet amplified responses -- a hallmark of neural responses throughout the brain \cite{murphy2009balanced, hennequin2014optimal, bondanelli2019population}.}
 \q{intro_results2}{In a model of primary visual cortex \cite{litwin2016inhibitory, palmigiano2020structure}, EPI reveals how the recurrent processing across different neuron-type populations shapes excitatory variability: a finding that we show is analytically intractable.
-Finally, we investigated the possible connectivities of superior colliculus that allow execution of different tasks on interleaved trials \cite{duan2018collicular}.
+Finally, we investigated the possible connectivities of superior colliculus that allow execution of different tasks on interleaved trials \cite{duan2019collicular}.
 EPI discovered a rich distribution containing two connectivity regimes with different solution classes.
 We queried the deep probability distribution learned by EPI to produce a mechanistic understanding of neural responses in each regime. 
 Intriguingly, the inferred connectivities of each regime reproduced results from optogenetic inactivation experiments in markedly different ways.}
@@ -132,6 +140,28 @@ The two fast neurons mutually inhibit one another, and spike at a greater freque
 The hub neuron couples with either the fast or slow population, or both depending on modulatory conditions.}
 The jagged connections indicate electrical coupling having electrical conductance $g_{\text{el}}$, smooth connections in the diagram are inhibitory synaptic projections having strength $g_{\text{synA}}$ onto the hub neuron, and $g_{\text{synB}}=5$nS for mutual inhibitory connections.
 Note that the behavior of this model will be critically dependent on its parameterization -- the choices of conductance parameters $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}]$.
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.8]{figures/fig1/fig1.pdf}
+\end{center}
+\caption{Emergent property inference (EPI) in the stomatogastric ganglion.  
+\textbf{A}. Conductance-based subcircuit model of the STG.
+\textbf{B}. Spiking frequency $\omega(\mathbf{x}; \mathbf{z})$ is an emergent property statistic. 
+Simulated at $g_{\text{el}} = 4.5$nS and $g_{\text{synA}} = 3$nS.
+\textbf{C}. The emergent property of intermediate hub frequency.
+Simulated activity traces are colored by log probability of generating parameters in the EPI distribution (Panel E).
+\textbf{D}. For a choice of circuit model and emergent property, emergent property inference (EPI) learns a deep probability distribution of parameters $\mathbf{z}$.
+\textbf{E}. The EPI distribution producing intermediate hub frequency.
+Samples are colored by log probability density.  
+Contours of hub neuron frequency error are shown at levels of $.525$, $.53$, ... $.575$ Hz (dark to light gray away from mean).
+Dimension of sensitivity $\mathbf{v}_1$ (solid arrow) and robustness $\mathbf{v}_2$ (dashed arrow).
+\textbf{F} (Top) The predictions of the EPI distribution.
+The black and gray dashed lines show the mean and two standard deviations according the emergent property.
+(Bottom) Simulations at the starred parameter values.
+ }
+ \label{fig:STG}
+\end{figure}
 
 Second, once the model is selected, one must specify what the model should produce.
 In this STG model, we are concerned with neural spiking frequency, which emerges from the dynamics of the circuit model (Fig. \ref{fig:STG}B).
@@ -159,28 +189,6 @@ This distribution -- represented for clarity as samples from the distribution --
 Once EPI is run, the returned distribution can be used to efficiently generate additional parameter samples.
 Most importantly, the inferred distribution can be efficiently queried to quantify the parametric structure that it captures.
 By quantifying the parametric structure governing the emergent property, EPI  informs the central question of this inverse problem: what aspects or combinations of model parameters have the desired emergent property?
-
-\begin{figure}
-\begin{center}
-\includegraphics[scale=0.8]{figures/fig1/fig1.pdf}
-\end{center}
-\caption{Emergent property inference (EPI) in the stomatogastric ganglion.  
-\textbf{A}. Conductance-based subcircuit model of the STG.
-\textbf{B}. Spiking frequency $\omega(\mathbf{x}; \mathbf{z})$ is an emergent property statistic. 
-Simulated at $g_{\text{el}} = 4.5$nS and $g_{\text{synA}} = 3$nS.
-\textbf{C}. The emergent property of intermediate hub frequency.
-Simulated activity traces are colored by log probability of generating parameters in the EPI distribution (Panel E).
-\textbf{D}. For a choice of circuit model and emergent property, emergent property inference (EPI) learns a deep probability distribution of parameters $\mathbf{z}$.
-\textbf{E}. The EPI distribution producing intermediate hub frequency.
-Samples are colored by log probability density.  
-Contours of hub neuron frequency error are shown at levels of $.525$, $.53$, ... $.575$ Hz (dark to light gray away from mean).
-Dimension of sensitivity $\mathbf{v}_1$ (solid arrow) and robustness $\mathbf{v}_2$ (dashed arrow).
-\textbf{F} (Top) The predictions of the EPI distribution.
-The black and gray dashed lines show the mean and two standard deviations according the emergent property.
-(Bottom) Simulations at the starred parameter values.
- }
- \label{fig:STG}
-\end{figure}
 
 \subsection{A deep generative modeling approach to emergent property inference} \label{results_dgm}
 Emergent property inference (EPI) formalizes the three-step procedure of the previous section with deep probability distributions \cite{rezende2015variational, papamakarios2019normalizing}.
@@ -217,8 +225,7 @@ In EPI optimization, stochastic gradient steps in $\bm{\theta}$ are taken such t
 We then denote the inferred EPI distribution as $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$, since the structure of the learned parameter distribution is determined by weights and biases $\bm{\theta}$, and this distribution is conditioned upon emergent property $\mathcal{X}$.
 
 \q{results_hess}{The structure of the inferred parameter distributions of EPI can be analyzed to reveal key information about how the circuit model produces the emergent property.
-The modes of $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ indicate parameter choices emblematic of the emergent property (Fig. \ref{fig:STG}E yellow star).
-As probability in the EPI distribution decreases, the emergent property deteriorates.
+As probability in the EPI distribution decreases away from the mode of $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ (Fig. \ref{fig:STG}E yellow star), the emergent property deteriorates.
 Perturbing $\mathbf{z}$ along a dimension in which $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ change little will not disturb the emergent property, making this parameter combination \emph{robust} with respect to the emergent property.
 In contrast, if $\mathbf{z}$ is perturbed along a dimension with strongly decreasing $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$, that parameter combination is deemed \emph{sensitive} \cite{raue2009structural, raman2017delineating}.
 By querying the second order derivative (Hessian) of $\log q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ at a mode, we can quantitatively identify how sensitive (or robust) each eigenvector is by its eigenvalue; the more negative, the more sensitive and the closer to zero, the more robust (see Section \ref{methods_stg_hessian}).
@@ -229,7 +236,7 @@ Importantly, once an EPI distribution has been learned, the modes and Hessians o
 In the following sections, we demonstrate EPI on three neural circuit models across ranges of biological realism, neural system function, and network scale.
 First, we demonstrate the superior scalability of EPI compared to alternative techniques by inferring high-dimensional distributions of recurrent neural network connectivities that exhibit amplified, yet stable responses.
 Next, in a model of primary visual cortex \cite{litwin2016inhibitory, palmigiano2020structure}, we show how EPI discovers parametric degeneracy, revealing how input variability across neuron types affects the excitatory population.
-Finally, in a model of superior colliculus \cite{duan2018collicular}, we used EPI to capture multiple parametric regimes of task switching, and queried the dimensions of parameter sensitivity to characterize each regime.
+Finally, in a model of superior colliculus \cite{duan2019collicular}, we used EPI to capture multiple parametric regimes of task switching, and queried the dimensions of parameter sensitivity to characterize each regime.
 
 %Third, we perform emergent property inference: we find a distribution over parameter configurations $\mathbf{z}$, and insist that samples from this distribution produce the emergent property; in other words, they obey the constraints introduced in Equation \ref{eq:EP_STG}.  
 %This distribution will be chosen from a family of probability distributions $\mathcal{Q} = \left\{ q_{\bm{\theta}}(\mathbf{z}) : \bm{\theta} \in \Theta \right\}$, defined by a deep generative distribution of the normalizing flow class \cite{rezende2015variational, dinh2017density, papamakarios2017masked} -- neural networks which transform a simple distribution into a suitably complicated distribution (as is needed here).  
@@ -295,7 +302,7 @@ RNNs  with $\text{real}(\lambda_1) = 0.5 \pm 0.5$ and $\lambda_1^s = 1.5 \pm 0.5
 \q{rnn_ep_text3}{Variance constraints predicate that the majority of the distribution (within two standard deviations) are within the specified ranges.}
 
 For comparison, we infer the parameters $\mathbf{z}$ likely to produce stable amplification using two alternative simulation-based inference approaches.
-Sequential Monte Carlo approximate Bayesian computation (SMC-ABC) \cite{sisson2007sequential} is a rejection sampling approach that uses SMC techniques to improve efficiency, and sequential neural posterior estimation (SNPE) \cite{gonccalves2019training} approximates posteriors with deep probability distributions using a two-network architecture (see Section \ref{methods_related}).
+Sequential Monte Carlo approximate bayesian computation (SMC-ABC) \cite{sisson2007sequential} is a rejection sampling approach that uses SMC techniques to improve efficiency, and sequential neural posterior estimation (SNPE) \cite{gonccalves2019training} approximates posteriors with deep probability distributions using a two-network architecture (see Section \ref{methods_related}).
 Unlike EPI, these statistical inference techniques do not constrain the statistics of the predictive distribution, so they were run by conditioning on an exemplary dataset  $\mathbf{x}_0 = \bm{\mu}$, following standard practice with these methods \cite{sisson2007sequential, gonccalves2019training}.
 To compare the efficiency of these different techniques, we measured the time and number of simulations necessary for the distance of the predictive mean to be less than 0.5 from $\bm{\mu} = \mathbf{x}_0$ (see Section \ref{methods_RNN}).
 
@@ -317,7 +324,7 @@ For reference, the mean wall time for EPI to achieve its full constraint converg
 As the number of neurons $N$ in the RNN, and thus the dimension of the parameter space $\mathbf{z} \in [-1, 1]^{4N}$, is scaled, we see that EPI converges at greater speed and at greater dimension than SMC-ABC and SNPE (Fig. \ref{fig:RNN}A).
 It also becomes most efficient to use EPI in terms of simulation count at $N=50$ (Fig. \ref{fig:RNN}B).
 It is well known that ABC techniques struggle in parameter spaces of modest dimension \cite{sisson2018handbook}, yet we were careful to assess the scalability of SNPE, which is a more closely related methodology to EPI.
-Between EPI and SNPE, we closely controlled the number of parameters in deep probability distributions by dimensionality (Fig. \ref{fig:RNN1}), and tested more aggressive SNPE hyperparameterizations when SNPE failed to converge (Fig. \ref{fig:RNN3}).
+Between EPI and SNPE, we closely controlled the number of parameters in deep probability distributions by dimensionality (Fig. \ref{fig:RNN1}), and tested more aggressive SNPE hyperparameter choices when SNPE failed to converge (Fig. \ref{fig:RNN3}).
 In this analysis, we see that deep inference techniques EPI and SNPE are far more amenable to inference of high dimensional RNN connectivities than rejection sampling techniques like SMC-ABC, and that EPI outperforms SNPE in both wall time (elapsed real time) and simulation count.
 
 \q{rnn_constrained}{No matter the number of neurons, EPI always produces connectivity distributions with mean and variance of $\text{real}(\lambda_1)$ and $\lambda_1^s$ according to $\mathcal{X}$ (Fig. \ref{fig:RNN}C, blue).
@@ -328,7 +335,7 @@ Even for moderate neuron counts, the predictions of the inferred distribution of
 
 
 To understand these differences, note that EPI outperforms SNPE in high dimensions by using gradient information (from $\nabla_\mathbf{z} f(\mathbf{x}; \mathbf{z}) = \nabla_\mathbf{z} [\text{real}(\lambda_1), \lambda_1^s]^\top$).
-This choice agrees with recent speculation that such gradient information could improve the efficiency of simulation-based inference techniques \cite{cranmer2020frontier}, as well as reflecting the classic tradeoff between gradient and sampling efficiency (scaling and speed versus generality).
+This choice agrees with recent speculation that such gradient information could improve the efficiency of simulation-based inference techniques \cite{cranmer2020frontier}, as well as reflecting the classic tradeoff between gradient-based and sampling-based estimators (scaling and speed versus generality).
 Since gradients of the emergent property statistics are necessary in EPI optimization, gradient tractability is a key criteria when determining the suitability of a simulation-based inference technique.
 If the emergent property gradient is efficiently calculated, EPI is a clear choice for inferring high dimensional parameter distributions. 
 In the next two sections, we use EPI for novel scientific insight by examining the structure of inferred distributions.
@@ -361,7 +368,6 @@ Here, we consider fixed weights $W$ and input $\mathbf{h}$ \cite{palmigiano2020s
 \begin{center}
 \includegraphics[scale=0.8]{figures/fig3/fig3.pdf}
 \end{center}
-\vspace{-1cm}
 \caption{Emergent property inference in the stochastic stabilized supralinear network (SSSN)
 \textbf{A}.  Four-population model of primary visual cortex with excitatory (black), parvalbumin (blue), somatostatin (red), and VIP (green) neurons (excitatory and inhibitory projections filled and unfilled, respectively).   
 Some neuron-types largely do not form synaptic projections to others ($|W_{\alpha_1, \alpha_2})| < 0.025$).
@@ -395,9 +401,9 @@ Alternatively, both $\sigma_S$ and $\sigma_V$ are degenerate with respect to $s_
 Together, these observations imply a curved path with respect to $s_E(\mathbf{x}; \mathbf{z})$ of 5 Hz, which is indicated by the modes along $\sigma_P$ (Fig. \ref{fig:V1}E).
 
 Figure \ref{fig:V1}E suggests a quadratic relationship in E-population fluctuations and the standard deviation of E- and P-population input; as the square of either $\sigma_E$ or $\sigma_P$ increases, the other compensates by decreasing to preserve the level of $s_E(\mathbf{x}; \mathbf{z})$.
-This quadratic relationship is preserved at greater level of E-population variability $\mathcal{X}(10\text{ Hz})$ (Fig. \ref{fig:V1}E).
+This quadratic relationship is preserved at greater level of E-population variability $\mathcal{X}(10\text{ Hz})$ (Fig. \ref{fig:V1}E and \ref{fig:V1_1}).
 Indeed, the sum of squares of $\sigma_E$ and $\sigma_P$ is larger in $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(10\text{ Hz}))$ than $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{ Hz}))$ (Fig \ref{fig:V1}F, $p < 1 \times 10^{-10}$), while the sum of squares of $\sigma_S$ and $\sigma_V$ are not significantly different in the two EPI distributions (Fig. \ref{fig:V1_3}, $p=.40$), in which parameters were bounded from 0 to 0.5.
-The strong interaction between E- and P-population input variability on excitatory variability is intriguing, since this circuit exhibits a paradoxical effect in the P-population (and no other inhibitory types) (Fig. \ref{fig:V1_3}), meaning that the E-population is P-stabilized.
+The strong interaction between E- and P-population input variability on excitatory variability is intriguing, since this circuit exhibits a paradoxical effect in the P-population (and no other inhibitory types) (Fig. \ref{fig:V1_4}), meaning that the E-population is P-stabilized.
 Future research may uncover a link between the population of network stabilization and compensatory interactions governing excitatory variability.
 
 \q{v1_summary}{EPI revealed the quadratic dependence of excitatory variability on input variability to the E- and P-populations, as well as its independence to input from the other two inhibitory populations.
@@ -408,14 +414,16 @@ While we have just shown that EPI can be used to investigate fundamental aspects
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{EPI identifies two regimes of rapid task switching} \label{results_SC}
-It has been shown that rats can learn to switch from one behavioral task to the next on randomly interleaved trials \cite{duan2015requirement}, and an important question is what types of neural connectivity produce this computation.
-In this experimental setup, rats were explicitly cued on each trial to either orient towards a visual stimulus in the Pro (P) task or orient away from the stimulus in the Anti (A) task (Fig. \ref{fig:SC}A). 
-Neural recordings in superior colliculus (SC) exhibited two populations of neurons that represented task context (Pro or Anti).
-Furthermore, Pro/Anti neurons in each hemisphere were strongly correlated with the animal's decision \cite{duan2018collicular}.
-These results motivated a model of SC that is a four-population dynamical system with functionally-defined neuron-types.
-Here, our goal is to understand how connectivity in this circuit model governs the ability to perform rapid task switching: to respond with satisfactory accuracy in both tasks on randomly interleaved trials.
+It has been shown that rats can learn to switch from one behavioral task to the next on randomly interleaved trials \cite{duan2015requirement}, and an important question is what neural mechanisms produce this computation.
+In this experimental setup, rats were given an explicit task cue on each trial, either Pro or Anti. 
+After a delay period, rats were shown a stimulus, and made a context  (task) dependent response (Fig. \ref{fig:SC}A). 
+In the Pro task, rats were required to orient towards the stimulus, while in the Anti task, rats were required to orient away from the stimulus.
+Pharmacological inactivation of the SC impaired rat performance, and time-specific optogenetic inactivation revealed a crucial role for the SC on the cognitively demanding Anti trials \cite{duan2019collicular}.
+These results motivated a nonlinear dynamical model of the SC containing four functionally-defined neuron-type populations.
+In Duan et al. 2019, a computationally intensive procedure was used to obtain a set of 373 connectivity parameters that qualitatively reproduced these optogenetic inactivation results.
+To build upon the insights of this previous work, we use the probabilistic tools afforded by EPI to identify and mechanistically characterize two linked, yet distinct regimes of rapid task switching connectivity.
 
-In this SC model, there are Pro- and Anti-populations in each hemisphere (left (L) and right (R)) with activity variables $\mathbf{x} = [x_{LP}, x_{LA}, x_{RP}, x_{RA}]^\top$.
+In this SC model, there are Pro- and Anti-populations in each hemisphere (left (L) and right (R)) with activity variables $\mathbf{x} = [x_{LP}, x_{LA}, x_{RP}, x_{RA}]^\top$ \cite{duan2019collicular}.
 The connectivity of these populations is parameterized by self $sW$, vertical $vW$, diagonal $dW$ and horizontal $hW$ connections (Fig. \ref{fig:SC}B).
 The input $\mathbf{h}$ is comprised of a positive cue-dependent signal to the Pro or Anti populations, a positive stimulus-dependent input to either the Left or Right populations, and a choice-period input to the entire network (see Section \ref{methods_sc_model}).
 Model responses are bounded from 0 to 1 as a function $\phi$ of an internal variable $\mathbf{u}$
@@ -430,23 +438,37 @@ Here, we use EPI to determine the network connectivity $\mathbf{z} = [sW, vW, dW
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.8]{figures/fig4/fig4.pdf}
+\includegraphics[scale=0.75]{figures/fig4/fig4.pdf}
 \end{center}
-\caption{ 
+\vspace{-.25cm}
+\caption{\small
 \textbf{A}. Rapid task switching behavioral paradigm (see text). 
 \textbf{B}. Model of superior colliculus (SC). Neurons: LP - Left Pro, RP - Right Pro, LA - Left Anti, RA - Right Anti. 
 Parameters: $sW$ - self, $hW$ - horizontal, $vW$ -vertical, $dW$ - diagonal weights.  
 \textbf{C}. The EPI inferred distribution of rapid task switching networks.  
-Stars indicate modes $\mathbf{z}^*$ whose color indicates connectivity regime (see legend Fig \ref{fig:SC}D).
+Red/purple parameters indicate modes $\mathbf{z}^*(sW)$ colored by $sW$.
 Sensitivity vectors $\mathbf{v}_1(\mathbf{z}^*)$ are shown by arrows.
 (Bottom-left) EPI predictive distribution of task accuracies.
-\textbf{D}. The connectivity regimes have different responses to perturbation.
-(Top) Mean and standard error ($N_{\text{test}}$ = 25) of accuracy with respect to perturbation along the sensitivity dimension of each mode $\mathbf{z}^*$.
-(Middle) Same with perturbation in the dimension of increasing $\lambda_{\text{task}}$ ($\mathbf{v}_{\text{task}}$).
-(Bottom) Same with perturbation in the dimension of increasing $\lambda_{\text{diag}}$ ($\mathbf{v}_{\text{diag}}$).
+\textbf{D}. Mean and standard error ($N_{\text{test}}$ = 25) of accuracy in Pro (top) and Anti (bottom) tasks after perturbing connectivity away from mode along $\mathbf{v}_1(\mathbf{z}^*)$ (left), $\mathbf{v}_{\text{task}}$ (middle), and $\mathbf{v}_{\text{diag}}$ (right).
 }
 \label{fig:SC}
 \end{figure}
+
+%\begin{figure}
+%\floatbox[{\capbeside\thisfloatsetup{capbesideposition={right,top},capbesidewidth=5cm}}]{figure}[\FBwidth]
+%{\caption{\small
+%\textbf{A}. Rapid task switching behavioral paradigm (see text). 
+%\textbf{B}. Model of superior colliculus (SC). Neurons: LP - Left Pro, RP - Right Pro, LA - Left Anti, RA - Right Anti. 
+%Parameters: $sW$ - self, $hW$ - horizontal, $vW$ -vertical, $dW$ - diagonal weights.  
+%\textbf{C}. The EPI inferred distribution of rapid task switching networks.  
+%Red/purple parameters indicate modes $\mathbf{z}^*(sW)$ colored by $sW$.
+%Sensitivity vectors $\mathbf{v}_1(\mathbf{z}^*)$ are shown by arrows.
+%(Bottom-left) EPI predictive distribution of task accuracies.
+%\textbf{D}. Mean and standard error ($N_{\text{test}}$ = 25) of accuracy in Pro (top) and Anti (bottom) tasks after perturbing connectivity away from mode $\mathbf{z}^*(sW)$ by distance $\delta$ along $\mathbf{v}_1(\mathbf{z}^*)$ (left), $\mathbf{v}_{\text{task}}$ (middle), and $\mathbf{v}_{\text{diag}}$ (right).
+%}
+%\label{fig:test}}
+%{\hspace{-.5in}\includegraphics[scale=.73]{figures/fig4/fig4.pdf}}
+%\end{figure}
 
 Rapid task switching is formalized mathematically as an emergent property with two statistics: accuracy in the Pro task $p_P(\mathbf{x}; \mathbf{z})$ and Anti task $p_A(\mathbf{x}; \mathbf{z})$.
 \q{sc_ep_text1}{We stipulate that accuracy be on average $.75$ in each task with variance $.075^2$}
@@ -458,106 +480,113 @@ Rapid task switching is formalized mathematically as an emergent property with t
 \end{equation}
 \q{sc_ep_text2}{75\% accuracy is a realistic level of performance in each task, and with the chosen variance, inferred models will not exhibit fully random responses (50\%), nor perfect performance (100\%).}
 
-The EPI inferred distribution  (Fig. \ref{fig:SC}C) produces Pro and Anti task accuracies (Fig. \ref{fig:SC}C, middle-left) consistent with rapid task switching (Equation \ref{eq:SC_EP}).
+The EPI inferred distribution  (Fig. \ref{fig:SC}C) produces Pro and Anti task accuracies (Fig. \ref{fig:SC}C, bottom-left) consistent with rapid task switching (Equation \ref{eq:SC_EP}).
 This parameter distribution has rich structure, that is not captured well by simple linear correlations (Fig. \ref{fig:SC1}).
-Specifically, the shape of the EPI distribution is sharply bent, matching ground truth structure indicated by brute-force sampling (Fig. \ref{fig:SC8})
-This is most saliently pointed out in the marginal distribution of  $sW$-$hW$ (Fig. \ref{fig:SC}C top-right), where anticorrelation between $sW$ and $hW$ switches to correlation with decreasing $sW$.
-The two regimes produce different types of responses in the Pro and Anti tasks (Fig. SC2).
-Not only has EPI captured this complicated distribution of connectivities producing rapid task switching, we can query the EPI distribution $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ to understand these two parametric regimes of SC connectivity.
+Specifically, the shape of the EPI distribution is sharply bent, matching ground truth structure indicated by brute-force sampling (Fig. \ref{fig:SC8}).
+This is most saliently observed in the marginal distribution of  $sW$-$hW$ (Fig. \ref{fig:SC}C top-right), where anticorrelation between $sW$ and $hW$ switches to correlation with decreasing $sW$.
+By identifying the modes of the EPI distribution $\mathbf{z}^*(sW)$ at different values of $sW$ (Fig. \ref{fig:SC}C red/purple dots), we can quantify this change in distributional structure with the sensitivity dimension $\mathbf{v}_1(\mathbf{z})$ (Fig. \ref{fig:SC}C red/purple arrows).
+Note that the directionality of these sensitivity dimensions at $\mathbf{z}^*(sW)$ changes distinctly with $sW$, and are perpendicular to the flat dimensions of the EPI distribution that preserve rapid task switching.
+These two directionalities of sensitivity motivate the distinction of connectivity into two regimes, which produce different types of responses in the Pro and Anti tasks (Fig. \ref{fig:SC2}).
 
-To distinguish these two regimes, we use the EPI distribution to identify two sets of modes.
-By fixing $hW$ to different values and doing gradient ascent on $\log q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$, we arrive at two solutions $\mathbf{z}^*(hW_{\text{fixed}}, r)$ where regime $r \in [1,2]$, and regime 1 is that of greater $sW$ (see Section \ref{methods_sc_regime}).
-As $hW_{\text{fixed}}$ increases, the modes coalesce to intermediate parameters reflecting a transition between the two sets of modes (Fig. \ref{fig:SC4} top).
-By using EPI to connect these two regimes through this transitionary region of parameter space, we can explore what distinguishes the two regimes by stepping from the prototypical connectivity of regime 1 to that of regime 2.
 
-Although the connectivities gradually coalesce to the transitionary part of parameter space, the sensitivity dimensions $\mathbf{v}_1(\mathbf{z})$ are categorically different across regimes (Fig. \ref{fig:SC4} bottom).
-The sensitivity dimension identifies the parameter combination which causes the emergent property to diminish with the shortest perturbation.
-Since the two regimes have different $\mathbf{v}_1(\mathbf{z})$, this suggests they have different pathologies in their connectivity.
-By perturbing connectivity in each regime along the sensitivity dimension, we can get a sense of the differing nature of these pathologies.
-
-When perturbing connectivity along the sensitivity dimension, Pro accuracy monotonically increases in both regimes (Fig. \ref{fig:SC}D, top-left).
+When perturbing connectivity along the sensitivity dimension away from the modes
+\begin{equation}
+\mathbf{z} = \mathbf{z}^*(sW) + \delta \mathbf{v}_1(\mathbf{z}^*(sW)),
+\end{equation}
+Pro accuracy monotonically increases in both regimes (Fig. \ref{fig:SC}D, top-left).
 However, there is a stark difference between regimes in Anti accuracy. 
-Anti accuracy falls in either direction of $\mathbf{v}_1$ in regime 1, yet monotonically increases along with Pro accuracy in regime 2 (Fig. \ref{fig:SC}D, top-right).
-These distinct pathologies of rapid task switching are caused by distinct connectivity changes ($\mathbf{v}_1(\mathbf{z}^*(r=1))$ vs $\mathbf{v}_1(\mathbf{z}^*(r=2))$) and explain the sharp change in local structure of the EPI distribution.
+Anti accuracy falls in either direction of $\mathbf{v}_1$ in regime 1, yet monotonically increases along with Pro accuracy in regime 2 (Fig. \ref{fig:SC}D, bottom-left).
+The sharp change in local structure of the EPI distribution is therefore explained by distinct sensitivities: Anti accuracy diminishes in only one or both directions of the sensitivity perturbation.
 
-To further examine the two regimes, we can perturb $\mathbf{z}$ in the same way along dimensions that independently change the eigenvalues of the connectivity matrix (which has constant eigenvectors with respect to $\mathbf{z}$).  These eigenvalues $\lambda_{\text{all}}$, $\lambda_{\text{side}}$, $\lambda_{\text{task}}$, and $\lambda_{\text{diag}}$ correspond to connectivity eigenmodes with intuitive roles in processing in this task (Fig. \ref{fig:SC3}A).
+To understand the mechanisms differentiating the two regimes, we can make connectivity perturbations along dimensions that only modify a single eigenvalue of the connectivity matrix.
+These eigenvalues $\lambda_{\text{all}}$, $\lambda_{\text{side}}$, $\lambda_{\text{task}}$, and $\lambda_{\text{diag}}$ correspond to connectivity eigenmodes with intuitive roles in processing in this task (Fig. \ref{fig:SC3}A).
 For example, greater $\lambda_{\text{task}}$ will strengthen internal representations of task, while greater $\lambda_{\text{diag}}$ will amplify dominance of Pro and Anti pairs in opposite hemispheres (Section \ref{methods_sc_eig}).
-Perturbation analyses reveal that decreasing $\lambda_{\text{task}}$ has a very similar effect on Anti accuracy as perturbations along the sensitivity dimension (Fig. \ref{fig:SC}D, middle).
-This suggests that there is a carefully tuned strength of task representation in connectivity regime 1, which if disturbed results in random Anti trial responses.
-Finally, we recognize that increasing $\lambda_{\text{diag}}$ has opposite effects on Anti accuracy in each regime (Fig. \ref{fig:SC}D, bottom).
-In the next section, we build on these mechanistic characterizations of each regime by examining their resilience to optogenetic silencing.
+Unlike the sensitivity dimension, these perturbations of connectivity eigenvalue are independent of $\mathbf{z}^*(sW)$ (see Section \ref{methods_sc_eig}), e.g.
+\begin{equation}
+\mathbf{z} = \mathbf{z}^*(sW) + \delta \mathbf{v}_{\text{task}}.
+\end{equation}
+Connectivity perturbation analyses reveal that decreasing $\lambda_{\text{task}}$ has a very similar effect on Anti accuracy as perturbations along the sensitivity dimension (Fig. \ref{fig:SC}D, middle).
+The similar effects of $\mathbf{v}_1(\mathbf{z}^*)$ and $-\mathbf{v}_{\text{task}}$ suggest that there is a carefully tuned strength of task representation in connectivity regime 1, which if disturbed results in random Anti trial responses.
+Finally, we recognize that increasing $\lambda_{\text{diag}}$ has opposite effects on Anti accuracy in each regime (Fig. \ref{fig:SC}D, right).
+In the next section, we build on these mechanistic characterizations of each regime by examining their resilience to optogenetic inactivation.
 
 \subsection{EPI inferred SC connectivities reproduce results from optogenetic inactivation experiments} \label{results_SC_opt}
-
 During the delay period of this task, the circuit must prepare to execute the correct task according to the presented cue.
-Experimental results from Duan et al. found that bilateral optogenetic inactivation of SC during the delay period consistently decreased performance in the Anti task, but had no effect on the Pro task (Fig. \ref{fig:SC_opto}A).
-This suggests that SC maintains a representation of task throughout the delay period, which is important for correct execution of the Anti task.
-Network connectivities inferred by EPI exhibited this same effect in simulation at high optogenetic strengths $\gamma$ (Fig. \ref{fig:SC_opto}B) (see Section \ref{methods_sc_opto}).
+The circuit must then maintain a representation of task throughout the delay period, which is important for correct execution of the Anti task.
+Duan et al. found that bilateral optogenetic inactivation of SC during the delay period consistently decreased performance in the Anti task, but had no effect on the Pro task (Fig. \ref{fig:SC_opto}A) \cite{duan2019collicular}.
+The distribution of connectivities inferred by EPI exhibited this same effect in simulation at high optogenetic strengths $\gamma$, which reduce the network activities $\mathbf{x}(t)$ by a factor $1 - \gamma$ (Fig. \ref{fig:SC_opto}B) (see Section \ref{methods_sc_opto}).
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=1.]{figures/fig5/fig5.pdf}
+\includegraphics[scale=1.1]{figures/fig5/fig5.pdf}
 \end{center}
 \caption{ 
-\textbf{A}. Experimental effect of delay period silencing on Pro and Anti task accuracy in rats.
-\textbf{B}. Mean and standard error (bars) of task error induced by delay period inactivation of varying optogenetic strength across the EPI distribution.
+\textbf{A}. Mean and standard error (bars) across recording sessions of task error following delay period optogenetic inactivation in rats.
+\textbf{B}. Mean and standard deviation (bars) of task error induced by delay period inactivation of varying optogenetic strength $\gamma$ across the EPI distribution.
 \textbf{C}. (Left) Mean and standard error of Pro and Anti error from regime 1 to regime 2 at $\gamma = 0.675$.
 (Right) Correlations of connectivity eigenvalues with Anti error from regime 1 to regime 2 at $\gamma = 0.675$.
-\textbf{D}. (Left) Mean and standard deviation (shading) of responses of the SC model at the mode of the EPI distribution to delay period inactivation at $\gamma = 0.85$.  (Right) Anti accuracy following delay period inactivation at $\gamma = 0.85$ versus accuracy in the Pro task across connectivities in the EPI distribution.
+\textbf{D}. (Left) Mean and standard deviation (shading) of responses of the SC model at the mode of the EPI distribution to delay period inactivation at $\gamma = 0.85$.  Accuracy in Pro (top) and Anti (bottom) task is shown as a percentage. (Right) Anti accuracy following delay period inactivation at $\gamma = 0.85$ versus accuracy in the Pro task across connectivities in the EPI distribution.
 }
 \label{fig:SC_opto}
 \end{figure}
 
-The mean increase in Anti error is closest to the experimentally measured value of 7\% at $\gamma = 0.675$ (Fig. \ref{fig:SC_opto}B, black dot).  
-At this level of optogenetic strength, only regime 1 exhibits an increase in Anti error with delay period silencing (Fig. \ref{fig:SC_opto}C, left).
-The connectivities in regime 2 are thus more resilient to delay period silencing during Anti trials than regime 1.
-In regime 1, greater $\lambda_{\text{task}}$ and $\lambda_{\text{diag}}$ decrease Anti error (Fig. \ref{fig:SC_opto}C, right).
-In other words, these anticorrelations show that stronger task representations and diagonal amplification make the SC model more resilient to delay period silencing in the Anti task.
-All correlations of connectivity eigenvalue with Anti error degrade in regime 2, where there is no effect of delay period silencing on Anti error (Fig. \ref{fig:SC_opto}C, right).
+To examine how connectivity affects response to delay period inactivation, we grouped connectivities of the EPI distribution along the continuum linking regimes 1 and 2 of Section \ref{results_SC}:
+\begin{equation}\label{eq:mode_group}
+Z(sW)  = \{\mathbf{z} ~~\text{if}~\argmin_{y \in Y} |\mathbf{z} - \mathbf{z}^*(y)|_2 = sW, ~~\text{for}~z \sim q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})\},
+\end{equation}
+where $Y = \{-1., -0.75, ..., 1.\}$ are the values of $sW$ for which we calculated the mode.
+$Z(sW)$ is then the set of EPI samples for which the closest mode was $\mathbf{z}^*(sW)$ (see Section \ref{methods_sc_regime}).
+In the following analyses, we examine how error, and the influence of connectivity eigenvalue on Anti error change along this continuum of connectivities.
+Obtaining the parameter samples for these analysis with the learned EPI distribution was more than 20,000 times faster than a brute force approach (see Section \ref{methods_sc_group}).
 
-At about $\gamma = 0.85$ (Fig. \ref{fig:SC_opto}B, gray dot), the Anti error saturates, while Pro error remains at zero
+The mean increase in Anti error of the EPI distribution is closest to the experimentally measured value of 7\% at $\gamma = 0.675$ (Fig. \ref{fig:SC_opto}B, black dot).
+At this level of optogenetic strength, regime 1 exhibits an increase in Anti error with delay period silencing (Fig. \ref{fig:SC_opto}C, left), while regime 2 does not.
+In regime 1, greater $\lambda_{\text{task}}$ and $\lambda_{\text{diag}}$ decrease Anti error (Fig. \ref{fig:SC_opto}C, right).
+In other words, stronger task representations and diagonal amplification make the SC model more resilient to delay period silencing in the Anti task.
+This complements the finding from Duan et al. 2019 \cite{duan2019collicular} that $\lambda_{\text{task}}$ and $\lambda_{\text{diag}}$ improve Anti accuracy.
+
+At about $\gamma = 0.85$ (Fig. \ref{fig:SC_opto}B, gray dot), the Anti error saturates, while Pro error remains at zero.
 Following delay period inactivation at this optogenetic strength, there are strong similarities in the responses of Pro and Anti trials during the choice period (Fig. \ref{fig:SC_opto}D, left).
 We interpreted these similarities to suggest that delay period inactivation at this saturated level flips the internal representation of task (from Anti to Pro) in the circuit model.
 This would explain why the Anti error saturates at 50\%: the average Anti accuracy in EPI inferred connectivities is $75\%$, but is 25\% when the internal representation is flipped during delay period silencing.
 This hypothesis prescribes a model of Anti accuracy during delay period silencing of $p_{A,\text{opto}} = 100\% - p_P$, which is fit closely across both regimes of the EPI inferred connectivities (Fig. \ref{fig:SC_opto}D, right).
-Similarities between Pro and Anti trial responses were not present at the experiment-matching level of $\gamma=0.675$ (Fig. \ref{fig:SC6} left) and neither was anti-correlation in $p_P$ and $p_{A,\text{opto}}$ (Fig. \ref{fig:SC6} right).
+Similarities between Pro and Anti trial responses were not present at the experiment-matching level of $\gamma=0.675$ (Fig. \ref{fig:SC6} left) and neither was anticorrelation in $p_P$ and $p_{A,\text{opto}}$ (Fig. \ref{fig:SC6} right).
 
 In summary, the connectivity inferred by EPI to perform rapid task switching replicated results from optogenetic silencing experiments.
 We found that at levels of optogenetic strength matching experimental levels of Anti error, only one regime actually exhibited the effect.  
-This suggests that one regime is less resilient to optogenetic perturbation, and perhaps more biologically realistic.
-Finally, we mechanistically characterized the pathology in Anti error that occurs in both regimes when optogenetic strength is increased to high levels.
-\q{sc_summary}{The probabilistic tools afforded by EPI yielded this insight: we identified two regimes and the continuum of connectivities between them by taking gradients of parameter probabilities in the EPI distribution, we identified sensitivity dimensions by measuring the Hessian of the EPI distribution, and we obtained many parameter samples at each step along the continuum (in 7.36 seconds with the EPI distribution rather than 4.2 days with brute force methods, see Section \ref{methods_SC}).}
+This connectivity regime is less resilient to optogenetic perturbation, and perhaps more biologically realistic.
+Finally, we characterized the pathology in Anti error that occurs in both regimes when optogenetic strength is increased to high levels, leading to a mechanistic hypothesis that is experimentally testable.
+\q{sc_summary}{The probabilistic tools afforded by EPI yielded this insight: we identified two regimes and the continuum of connectivities between them by taking gradients of parameter probabilities in the EPI distribution, we identified sensitivity dimensions by measuring the Hessian of the EPI distribution, and we obtained many parameter samples at each step along the continuum at an efficient rate.}
 
-
-%\subsection{Novel hypotheses from EPI} 
-\section{Discussion} 
+\section{Discussion} \label{discussion}
 In neuroscience, machine learning has primarily been used to reveal structure in neural datasets \cite{paninski2018neural}.
 Careful inference procedures are developed for these statistical models allowing precise, quantitative reasoning, which clarifies the way data informs beliefs about the model parameters.  
 However, these statistical models often lack resemblance to the underlying biology, making it unclear how to go from the structure revealed by these methods, to the neural mechanisms giving rise to it. 
 In contrast, theoretical neuroscience has primarily focused on careful models of neural circuits and the production of emergent properties of computation, rather than measuring structure in neural datasets.
 %The careful steps of \emph{i}.) model design and \emph{ii}.) emergent property definition, are followed by \emph{iii}.) practical inference methods resulting in an opaque characterization of the way model parameters govern computation.  
-In this work, we improve upon parameter inference techniques in theoretical neuroscience with emergent property inference, harnessing deep learning towards parameter inference with respect to computation in neural circuit models (see Section \ref{methods_related}).
+In this work, we improve upon parameter inference techniques in theoretical neuroscience with emergent property inference, harnessing deep learning towards parameter inference in neural circuit models (see Section \ref{methods_related}).
 
-\q{discussion}{Methodology for statistical inference in circuit models has evolved considerably in recent years.
-Early work used rejection sampling techniques \cite{beaumont2002approximate, marjoram2003markov,sisson2007sequential}, but EPI and other recently developed methodology (SNPE \cite{gonccalves2019training}) employ deep learning to improve efficiency and provide deep, flexible distribution approximations.
+\q{discussion_methods}{Methodology for statistical inference in circuit models has evolved considerably in recent years.
+Early work used rejection sampling techniques \cite{beaumont2002approximate, marjoram2003markov,sisson2007sequential}, but EPI and another recently developed methodology \cite{gonccalves2019training} employ deep learning to improve efficiency and provide flexible approximations.
 SNPE has been used for posterior inference of parameters in circuit models conditioned upon exemplar data used to represent computation, but it does not infer parameter distributions that only produce the computation of interest like EPI  (see Section \ref{results_RNN}).
-Finally, we show that EPI has better scaling properties than SNPE when emergent property gradients are tractable (Section \ref{results_RNN}).
-In summary, choice of deep inference technique should consider emergent property complexity and differentiability, dimensionality of parameter space, and the importance of constraining the model behavior predicted by the inferred parameter distribution.
+When strict control over the predictions of the inferred parameters is necessary, EPI uses a constrained optimization technique \cite{loaiza2017maximum} (see Section \ref{methods_AL_opt}) to make inference conditioned on the emergent property possible.}
 
+\q{discussion_gradients}{A key difference between EPI and SNPE, is that EPI uses gradients of the emergent property throughout optimization.
+In Section \ref{results_RNN}, we showed that such gradients confer beneficial scaling properties, but a concern remains that emergent property gradients may be too computationally intensive.
+Even in a case of close biophysical realism with an expensive emergent property gradient, EPI was run successfully on intermediate hub frequency in a 5-neuron subcircuit model of the STG (Section \ref{results_motivating}).
+However, conditioning on the pyloric rhythm \cite{marder1992dynamic} in a model of the pyloric subnetwork model \cite{prinz2004similar} proved to be prohibitive with EPI.
+The pyloric subnetwork requires many time steps for simulation and many key emergent property statistics (e.g. burst duration and phase gap) are not calculable or easily approximated with differentiable functions.
+In such cases, SNPE, which does not require differentiability of the emergent property, has proved to be a powerful approach \cite{gonccalves2019training}.
+In summary, choice of deep inference technique should consider emergent property complexity and differentiability, dimensionality of parameter space, and the importance of constraining the model behavior predicted by the inferred parameter distribution.}
 
 In this paper, we prove out the value of deep inference for parameter sensitivity analyses at both the local and global level.
 With these techniques, flexible deep probability distributions are optimized to capture global structure by approximating the full distribution of suitable parameters.
 Importantly, the local structure of this deep probability distribution can be quantified at any parameter choice, offering instant sensitivity measurements after fitting.
 For example, the global structure captured by EPI revealed two distinct parameter regimes, which had different local structure quantified by the deep probability distribution (see Section \ref{methods_SC}).
-In comparison, Bayesian MCMC is considered a popular approach for capturing global parameter structure \cite{girolami2011riemann}, but there is no variational approximation (the deep probability distribution in EPI), so sensitivity information is not queryable and sampling remains slow after convergence.
+In comparison, bayesian MCMC is considered a popular approach for capturing global parameter structure \cite{girolami2011riemann}, but there is no variational approximation (the deep probability distribution in EPI), so sensitivity information is not queryable and sampling remains slow after convergence.
 Local sensitivity analyses (e.g. \cite{raue2009structural}) may be performed independently at individual parameter samples, but these methods alone do not capture the full picture in nonlinear, complex distributions.
-Therefore, deep inference is the only approach yielding an object -- the deep probability distribution -- which produces a wholistic assessment of parameter sensitivity at the local and global level, which were used in this study to make novel insights into theoretical models of neural computation.
-Together, the abilities to condition upon emergent properties, the efficient inference algorithm, and the capacity for parameter sensitivity analyses make EPI a powerful new method for addressing inverse problems in theoretical neuroscience.}
-
-Even with a high degree of biophysical realism and expensive emergent property gradients, EPI was run successfully on intermediate hub frequency in a 5-neuron subcircuit model of the STG (Section \ref{results_motivating}).
-However, conditioning on the pyloric rhythm \cite{marder1992dynamic} in a model of the pyloric subnetwork model \cite{prinz2004similar} proved to be prohibitive with EPI.
-The pyloric subnetwork requires many time steps for simulation and many key emergent property statistics (e.g. burst duration and phase gap) are not calculable or easily approximated with differentiable functions.
-In such cases, SNPE, which does not require differentiability of the emergent property has proved to be a powerful approach \cite{gonccalves2019training}.
+In contrast, deep inference yields a probability distribution that produces a wholistic assessment of parameter sensitivity at the local and global level, which we used in this study to make novel insights into a range of theoretical models.
+Together, the abilities to condition upon emergent properties, the efficient inference algorithm, and the capacity for parameter sensitivity analyses make EPI a useful method for addressing inverse problems in theoretical neuroscience.
 
 %In neuroscience, machine learning has primarily been used to reveal structure in neural datasets \cite{paninski2018neural}.
 %Careful inference procedures are developed for these statistical models allowing precise, quantitative reasoning, which clarifies the way data informs beliefs about the model parameters.  
@@ -607,7 +636,7 @@ All software written for the current study is available at https://github.com/cu
 \bibliographystyle{unsrt}
 
 \newpage 
-
+\startsupplement
 \section{Methods}
 
 \subsection{Emergent property inference (EPI)}\label{methods_EPI}
@@ -648,17 +677,18 @@ q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}) = q_{\bm{\theta}}^*(\mathbf{z}) &= 
  &  \text{s.t.  } \mathcal{X} ~~:~~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\mu}, \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2. \\
  \end{split}
 \end{equation} 
-Entropy is chosen as the normative selection principle to match that of variational Bayesian methods (see Section \ref{methods_ME_EF}).
-However, a key difference is that variational Bayesian methods do not constrain the predictions of their inferred parameter distribution.
+Entropy is chosen as the normative selection principle to match that of variational bayesian methods (see Section \ref{methods_ME_EF}).
+However, a key difference is that variational bayesian methods do not constrain the predictions of their inferred parameter distribution.
 This optimization is executed using the algorithm of Maximum Entropy Flow Networks (MEFNs) \cite{loaiza2017maximum}.
 
 
 In the remainder of Section \ref{methods_EPI}, we will explain the finer details and motivation of the EPI method. 
 First, we explain related approaches and what EPI introduces to this domain (Section \ref{methods_related}).
-Second, we describe the special class of deep probability distributions used in EPI called normalizing flows (Section \ref{methods_NF}).  
+Second, we describe the special class of deep probability distributions used in EPI called normalizing flows (Section \ref{methods_NF}).
+Then, we establish the known relationship between maximum entropy distributions and exponential families (Section \ref{methods_ME_EF}).
 Next, we explain the constrained optimization technique used to solve Equation \ref{eq:opt} (Section \ref{methods_AL_opt}).
 Then, we demonstrate the details of this optimization in a toy example (Section \ref{methods_2DLDS}).
-Finally, we establish the known relationship between maximum entropy distributions and exponential families (Section \ref{methods_ME_EF}), which is used to explain how EPI is a form of variational inference (Section \ref{methods_VI}).
+Finally, we explain how EPI is a form of variational inference (Section \ref{methods_VI}).
 
  \subsubsection{Related approaches}\label{methods_related}
 When bayesian inference problems lack conjugacy, scientists use approximate inference methods like variational inference (VI) \cite{saul1998mean} and Markov chain Monte Carlo (MCMC) \cite{metropolis1953equation, hastings1970monte}. 
@@ -670,7 +700,7 @@ Inference in models defined by systems of differential has been demonstrated wit
 Advancements have introduced sampling \cite{calderhead2011statistical}, likelihood approximation \cite{golightly2011bayesian}, and uncertainty quantification techniques \cite{chkrebtii2016bayesian} to make MCMC approaches more efficient and expand the class of applicable models.
  
 Simulation-based inference \cite{cranmer2020frontier} is model parameter inference in the absence of a tractable likelihood function.
-The most prevalent approach to simulation-based inference is approximate Bayesian computation (ABC) \cite{beaumont2002approximate}, in which satisfactory parameter samples are kept from random prior sampling according to a rejection heuristic.
+The most prevalent approach to simulation-based inference is approximate bayesian computation (ABC) \cite{beaumont2002approximate}, in which satisfactory parameter samples are kept from random prior sampling according to a rejection heuristic.
 The obtained set of parameters do not have a probabilities, and further insight about the model must be gained from examination of the parameter set and their generated activity.
 Methodological advances to ABC methods have come through the use of Markov chain Monte Carlo (MCMC-ABC) \cite{marjoram2003markov} and sequential Monte Carlo (SMC-ABC) \cite{sisson2007sequential} sampling techniques.
 SMC-ABC is considered state-of-the-art ABC, yet this approach still struggles to scale in dimensionality \cite{sisson2018handbook} (cf. Fig. \ref{fig:RNN}).
@@ -793,8 +823,8 @@ which are constrained to the chosen means and variances
 \bm{\mu}_{\text{opt}} = \begin{bmatrix} \bm{\mu} \\ \bm{\sigma}^2 \end{bmatrix}.
 \end{equation}
 
-\subsubsection{Augmented Lagrangian optimization}\label{methods_AL_opt}
-To optimize $q_{\bm{\theta}}(\mathbf{z})$ in Equation \ref{eq:opt}, the constrained maximum entropy optimization is executed using the augmented Lagrangian method.  
+\subsubsection{Augmented lagrangian optimization}\label{methods_AL_opt}
+To optimize $q_{\bm{\theta}}(\mathbf{z})$ in Equation \ref{eq:opt}, the constrained maximum entropy optimization is executed using the augmented lagrangian method.  
 The following objective is minimized:
 \begin{equation} \label{eq:AL}
 L(\bm{\theta}; \bm{\eta}_{\text{opt}}, c) = -H(q_{\bm{\theta}}) + \bm{\eta}_{\text{opt}}^\top R(\bm{\theta}) + \frac{c}{2}||R(\bm{\theta})||^2
@@ -813,7 +843,7 @@ Thus, the gradient of the entropy of the deep probability distribution can be es
 \nabla_{\bm{\theta}} H(q_{\bm{\theta}}(\mathbf{z})) = \mathbb{E}_{\mathbf{z}_0 \sim q_0}\left[- \nabla_{\bm{\theta}} \log(q_{\bm{\theta}}(g_{\bm{\theta}}(\mathbf{z}_0))) \right].
 \end{equation}
 
-The lagrangian parameters $\bm{\eta}_{\text{opt}}$ are initialized to zero and adapted following each augmented Lagrangian epoch, which is a period of optimization with fixed ($\bm{\eta}_{\text{opt}}$, $c$) for a given number of stochastic optimization iterations. 
+The lagrangian parameters $\bm{\eta}_{\text{opt}}$ are initialized to zero and adapted following each augmented lagrangian epoch, which is a period of optimization with fixed ($\bm{\eta}_{\text{opt}}$, $c$) for a given number of stochastic optimization iterations. 
 A low value of $c$ is used initially, and conditionally increased after each epoch based on constraint error reduction.
 The penalty coefficient is updated based on the result of a hypothesis test regarding the reduction in constraint violation.  
 The p-value of $\mathbb{E}[||R(\bm{\theta}_{k+1})||] > \gamma \mathbb{E} \left[||R(\bm{\theta}_{k})|| \right]$ is computed, and $c_{k+1}$ is updated  to $\beta c_k$ with probability $1-p$.  
@@ -823,7 +853,7 @@ Throughout the study, $\gamma = 0.25$, while $\beta$ was chosen to be either 2 o
 The intention is that $c$ and $\bm{\eta}_{\text{opt}}$ start at values encouraging entropic growth early in optimization.  
 With each training epoch in which the update rule for $c$ is invoked by unsatisfactory constraint error reduction, the constraint satisfaction terms are increasingly weighted, resulting in a decreased entropy.
 This encourages the discovery of suitable regions of parameter space, and the subsequent refinement of the distribution to produce the emergent property (see example in Section \ref{methods_2DLDS}).
-The momentum parameters of the Adam optimizer are reset at the end of each augmented Lagrangian epoch.
+The momentum parameters of the Adam optimizer are reset at the end of each augmented lagrangian epoch.
 
 Rather than starting optimization from some $\bm{\theta}$ drawn from a randomized distribution, we found that initializing $q_{\bm{\theta}}(\mathbf{z})$ to approximate an isotropic Gaussian distribution conferred more stable, consistent optimization.  
 The parameters of the Gaussian initialization were chosen on an application-specific basis.  
@@ -832,7 +862,7 @@ Throughout the study, we chose isotropic Gaussian initializations with mean $\bm
 To assess whether the EPI distribution $q_{\bm{\theta}}(\mathbf{z})$ produces the emergent property, we assess whether each individual constraint on the means and variances of $f(\mathbf{x}; \mathbf{z})$ is satisfied.
 We consider the EPI to have converged when a null hypothesis test of constraint violations $R(\bm{\theta})_i$ being zero is accepted for all constraints $i \in \{1, ..., m\}$ at a significance threshold $\alpha=0.05$. 
 This significance threshold is adjusted through Bonferroni correction according to the number of constraints $m$.  
-The p-values for each constraint are calculated according to a two-tailed nonparametric test, where 200 estimations of the sample mean $R(\bm{\theta})^i$ are made using $N_{\text{test}}$ samples of $\mathbf{z} \sim q_{\bm{\theta}}(\mathbf{z})$ at the end of the augmented Lagrangian epoch.
+The p-values for each constraint are calculated according to a two-tailed nonparametric test, where 200 estimations of the sample mean $R(\bm{\theta})^i$ are made using $N_{\text{test}}$ samples of $\mathbf{z} \sim q_{\bm{\theta}}(\mathbf{z})$ at the end of the augmented lagrangian epoch.
 
 When assessing the suitability of EPI for a particular modeling question, there are some important technical considerations. 
 First and foremost, as in any optimization problem, the defined emergent property should always be appropriately conditioned (constraints should not have wildly different units).  
@@ -844,7 +874,7 @@ On the other end of the spectrum, many forward simulation iterations may be requ
 In such cases, backpropagating gradients through the SDE evolution will be expensive.
 
 \subsubsection{Example: 2D LDS}\label{methods_2DLDS}
-To gain intuition for EPI, consider a two-dimensional linear dynamical system (2D LDS) model (Fig. S1A):
+To gain intuition for EPI, consider a two-dimensional linear dynamical system (2D LDS) model (Fig. \ref{fig:LDS1}A):
 \begin{equation} 
 \tau \frac{d\mathbf{x}}{dt} = A\mathbf{x}
 \end{equation}
@@ -862,12 +892,12 @@ To learn the distribution of real entries of $A$ that produce a band of oscillat
 \begin{center}
 \includegraphics[scale=0.8]{figures/figLDS1/figLDS1.pdf}
 \end{center}
-\caption{\small (LDS1): \textbf{A}. Two-dimensional linear dynamical system model, where real entries of the dynamics matrix $A$ are the parameters.  
+\caption{\textbf{A}. Two-dimensional linear dynamical system model, where real entries of the dynamics matrix $A$ are the parameters.  
 \textbf{B}. The EPI distribution for a two-dimensional linear dynamical system with $\tau=1$ that produces an average of 1Hz oscillations with some small amount of variance.  Dashed lines indicate the parameter axes. 
 \textbf{C}. Entropy throughout the optimization.  
-At the beginning of each augmented Lagrangian epoch (2,000 iterations), the entropy dipped due to the shifted optimization manifold where emergent property constraint satisfaction is increasingly weighted.  
+At the beginning of each augmented lagrangian epoch (2,000 iterations), the entropy dipped due to the shifted optimization manifold where emergent property constraint satisfaction is increasingly weighted.  
 \textbf{D}. Emergent property moments throughout optimization.  
-At the beginning of each augmented Lagrangian epoch, the emergent property moments adjust closer to their constraints.}
+At the beginning of each augmented lagrangian epoch, the emergent property moments adjust closer to their constraints.}
 \label{fig:LDS1}
 \end{figure}
 
@@ -878,24 +908,15 @@ Unlike the models we presented in the main text, this model admits an analytical
 
 Importantly, even though $\mathbb{E}_{\mathbf{x}\sim p(\mathbf{x} \mid \mathbf{z})}\left[T(\mathbf{x})\right]$ is calculable directly via a closed form function and does not require simulation, we cannot derive the distribution $q^*_{\bm{\theta}}$ directly.  
 This fact is due to the formally hard problem of the backward mapping: finding the natural parameters $\eta$ from the mean parameters $\bm{\mu}$ of an exponential family distribution \cite{wainwright2008graphical}.  
-Instead, we used EPI to approximate this distribution (Fig. S1B). We used a real-NVP normalizing flow architecture with four masks, two neural network layers of 15 units per mask, with batch normalization momentum 0.99, mapped onto a support of $z_i \in \left[-10, 10 \right]$. (see Section \ref{methods_NF}).
+Instead, we used EPI to approximate this distribution (Fig. \ref{fig:LDS1}B). We used a real-NVP normalizing flow architecture with four masks, two neural network layers of 15 units per mask, with batch normalization momentum 0.99, mapped onto a support of $z_i \in \left[-10, 10 \right]$. (see Section \ref{methods_NF}).
 
 Even this relatively simple system has nontrivial (though intuitively sensible) structure in the parameter distribution.  
 To validate our method, we analytically derived the contours of the probability density from the emergent property statistics and values.
 In the $a_1$-$a_4$ plane, the black line at $\text{real}(\lambda_1) = \frac{a_1 + a_4}{2} = 0$, dotted black line at
 the standard deviation $\text{real}(\lambda_1) = \frac{a_1 + a_4}{2} \pm 0.25$, and the dotted gray line at twice the standard deviation
-$\text{real}(\lambda_1) = \frac{a_1 + a_4}{2} \pm 0.5$ follow the contour of probability density of the samples (Fig. S2A). 
+$\text{real}(\lambda_1) = \frac{a_1 + a_4}{2} \pm 0.5$ follow the contour of probability density of the samples (Fig. \ref{fig:LDS2}A). 
 The distribution precisely reflects the desired statistical constraints and model degeneracy in the sum of $a_1$ and $a_4$.
 Intuitively, the parameters equivalent with respect to emergent property statistic $\text{real}(\lambda_1)$ have similar log densities.
-
-\begin{figure}
-\begin{center}
-\includegraphics[scale=0.8]{figures/figLDS2/figLDS2.pdf}
-\end{center}
-\caption{\small (LDS2): \textbf{A}. Probability contours in the $a_1$-$a_4$ plane were derived from the relationship to emergent property statistic of growth/decay factor $\text{real}(\lambda_1)$. 
-\textbf{B}. Probability contours in the $a_2$-$a_3$ plane were derived from the emergent property statistic of oscillation frequency $2\pi \text{imag}(\lambda_1)$.}
-\label{fig:LDS2}
-\end{figure}
 
 To explain the bimodality of the EPI distribution, we examined the imaginary component of $\lambda_1$.  When $\text{real}(\lambda_1) = \frac{a_1 + a_4}{2} = 0$, we have
 \begin{equation}
@@ -909,29 +930,36 @@ When $\tau=1$ and $a_1 a_4 > a_2 a_3$ (center of distribution above), we have th
 \begin{equation}
 \text{imag}(\lambda_1)^2 = a_1 a_4 - a_2 a_3
 \end{equation}
-Since we constrained $\mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}\left[\text{imag}(\lambda)\right] = 2 \pi$, we can plot contours of the equation $\text{imag}(\lambda_1)^2 = a_1 a_4 - a_2 a_3 = (2 \pi)^2$ for various $a_1 a_4$ (Fig. S2B). 
+Since we constrained $\mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}\left[\text{imag}(\lambda)\right] = 2 \pi$, we can plot contours of the equation $\text{imag}(\lambda_1)^2 = a_1 a_4 - a_2 a_3 = (2 \pi)^2$ for various $a_1 a_4$ (Fig. \ref{fig:LDS2}B). 
 With $\sigma_{1,4} = \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}(|a_1 a_4 - E_{q_{\bm{\theta}}}[a_1 a_4]|)$, we show the contours as $a_1 a_4 = 0$ (black), $a_1 a_4 = -\sigma_{1,4}$ (black dotted), and $a_1 a_4 = -2\sigma_{1,4}$ (grey dotted). 
 This validates the curved structure of the inferred distribution learned through EPI.  
 We took steps in negative standard deviation of $a_1 a_4$ (dotted and gray lines), since there are few positive values $a_1 a_4$ in the learned distribution.  
 Subtler combinations of model and emergent property will have more complexity, further motivating the use of EPI for understanding these systems.  
-As we expect, the distribution results in samples of two-dimensional linear systems oscillating near 1Hz (Fig. S3).
+As we expect, the distribution results in samples of two-dimensional linear systems oscillating near 1Hz (Fig. \ref{fig:LDS3}).
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.8]{figures/figLDS2/figLDS2.pdf}
+\end{center}
+\caption{\textbf{A}. Probability contours in the $a_1$-$a_4$ plane were derived from the relationship to emergent property statistic of growth/decay factor $\text{real}(\lambda_1)$. 
+\textbf{B}. Probability contours in the $a_2$-$a_3$ plane were derived from the emergent property statistic of oscillation frequency $2\pi \text{imag}(\lambda_1)$.}
+\label{fig:LDS2}
+\end{figure}
 
 \begin{figure}
 \begin{center}
 \includegraphics[scale=0.8]{figures/figLDS3/figLDS3.pdf}
 \end{center}
-\begin{flushleft}
-\caption{\small (LDS3): Sampled dynamical systems $\mathbf{z} \sim q_{\bm{\theta}}(\mathbf{z})$ and their simulated activity from $\mathbf{x}(0) = [\frac{\sqrt{2}}{2}, -\frac{\sqrt{2}}{2}]$ colored by log probability. 
+\caption{Sampled dynamical systems $\mathbf{z} \sim q_{\bm{\theta}}(\mathbf{z})$ and their simulated activity from $\mathbf{x}(t=0) = [\frac{\sqrt{2}}{2}, -\frac{\sqrt{2}}{2}]$ colored by log probability. 
 \textbf{A}. Each dimension of the simulated trajectories throughout time.  
 \textbf{B}.  The simulated trajectories in phase space.}
-\end{flushleft}
 \label{fig:LDS3}
 \end{figure}
 
 \subsubsection{EPI as variational inference}\label{methods_VI}
 %Now that we have fully described the EPI method, we  consider its broader contextualization as a statistical method and its relation to Bayesian inference. 
-In Bayesian inference a prior belief about model parameters $\mathbf{z}$ is stated in a prior distribution $p(\mathbf{z})$, and the statistical model capturing the effect of $\mathbf{z}$ on observed data points $\mathbf{x}$ is formalized in the likelihood distribution $p(\mathbf{x} \mid \mathbf{z})$.
-In Bayesian inference, we obtain a posterior distribution $p(\mathbf{z} \mid \mathbf{x})$, which captures how the data inform our knowledge of model parameters using Bayes' rule:
+In bayesian inference a prior belief about model parameters $\mathbf{z}$ is stated in a prior distribution $p(\mathbf{z})$, and the statistical model capturing the effect of $\mathbf{z}$ on observed data points $\mathbf{x}$ is formalized in the likelihood distribution $p(\mathbf{x} \mid \mathbf{z})$.
+In bayesian inference, we obtain a posterior distribution $p(\mathbf{z} \mid \mathbf{x})$, which captures how the data inform our knowledge of model parameters using Bayes' rule:
 \begin{equation}
 p(\mathbf{z} \mid \mathbf{x}) = \frac{p(\mathbf{x} \mid \mathbf{z}) p(\mathbf{z})}{p(\mathbf{x})}.
 \end{equation}
@@ -1024,10 +1052,10 @@ T(\mathbf{x}; \mathbf{z}) = \begin{bmatrix} f(\mathbf{x}; \mathbf{z}) \\ \left( 
 The variational objective is then
 \begin{equation}
 \label{eq:VI_obj}
-\argmax_{q_{\bm{\theta}} \in Q} H(q_{\bm{\theta}}) + \bm{\eta}_f^\top \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}\left[ T(\mathbf{x}; \mathbf{z}) \right]
+\argmax_{q_{\bm{\theta}} \in Q} H(q_{\bm{\theta}}) + \bm{\eta}_f^\top \mathbb{E}_{\mathbf{z} \sim q_{\bm{\theta}}}\left[ T(\mathbf{x}; \mathbf{z}) \right].
 \end{equation}
 
-Comparing this to the Lagrangian objective (without augmentation) of EPI, we see they are the same
+Comparing this to the lagrangian objective (without augmentation) of EPI, we see they are the same
 \begin{equation}
 \begin{split}
 q_{\bm{\theta}}^*(\mathbf{z}) &= \argmin_{q_{\bm{\theta}} \in Q} - H(q_{\bm{\theta}}) + \bm{\eta}_{\text{opt}}^\top \left(\mathbb{E}_{\mathbf{z}, \mathbf{x}} \left[T(\mathbf{x}; \mathbf{z}) \right] - \bm{\mu}_{\text{opt}} \right) \\
@@ -1105,9 +1133,9 @@ To measure spiking frequency, we processed simulated membrane potentials with a 
 
 To differentiate through the maximum frequency identification, we used a soft-argmax
 Let $X_\alpha \in \mathcal{C}^{|\Phi|}$ be the complex exponential filter bank dot products with the signal $x_\alpha \in \mathbb{R}^{N}$, where $\alpha \in \{ \text{f1}, \text{f2}, \text{hub}, \text{s1}, \text{s2} \}$.  
-The soft-argmax is then calculated using temperature parameter $\beta=100$
+The soft-argmax is then calculated using temperature parameter $\beta_{\psi}=100$
 \begin{equation}
-\psi_\alpha = \text{softmax}(\beta|X_\alpha|\odot i),
+\psi_\alpha = \text{softmax}(\beta_{\psi}|X_\alpha|\odot i),
 \end{equation}
 where $i = [0, 1, ..., 100]$.
 The frequency is then calculated as 
@@ -1116,7 +1144,7 @@ The frequency is then calculated as
 \end{equation}
 
 Intermediate hub frequency, like all other emergent properties in this work, is defined by the mean and variance of the emergent property statistics.
-In this case, we have one statistic, hub neuron frequency, where the mean was chosen to be 0.55Hz,(Equation \ref{eq:EP_STG1}) and variance was chosen to be (0.025Hz)$^2$ (Equation \ref{eq:EP_STG2}).
+In this case, we have one statistic, hub neuron frequency, where the mean was chosen to be 0.55Hz,(Equation \ref{eq:EP_STG1}) and variance was chosen to be 0.025$^2$ Hz$^2$ (Equation \ref{eq:EP_STG2}).
 
 \subsubsection{EPI details for the STG model} \label{methods_stg_epi}
 As a maximum entropy distribution, $T(\mathbf{x}, \mathbf{z})$ is comprised of both these first and second moments of the hub neuron frequency (as in Equations \ref{eq:moments} and \ref{eq:mu_opt})
@@ -1126,25 +1154,23 @@ T(\mathbf{x}; \mathbf{z}) = \begin{bmatrix} \omega_{\text{hub}}(\mathbf{x}; \mat
 \begin{equation} 
 \bm{\mu}_{\text{opt}} = \begin{bmatrix} 0.55 \\ 0.025^2 \end{bmatrix}.
 \end{equation}
-Throughout optimization, the augmented Lagrangian parameters $\eta$ and $c$, were updated after each epoch of 5,000 iterations(see Section \ref{methods_AL_opt}).  
-The optimization converged after five epochs (Fig. S4).
+Throughout optimization, the augmented lagrangian parameters $\eta$ and $c$, were updated after each epoch of 5,000 iterations(see Section \ref{methods_AL_opt}).  
+The optimization converged after five epochs (Fig. \ref{fig:STG1}).
 
 \begin{figure}
 \begin{center}
 \includegraphics[scale=0.8]{figures/figSTG1/figSTG1.pdf}
 \end{center}
-\begin{flushleft}
-\caption{\small (STG1): EPI optimization of the STG model producing network syncing. 
+\caption{EPI optimization of the STG model producing network syncing. 
 \textbf{A}. Entropy throughout optimization. 
-\textbf{B}. The emergent property statistic means and variances converge to their constraints at 25,000 iterations following the fifth augmented Lagrangian epoch.}
-\end{flushleft}
+\textbf{B}. The emergent property statistic means and variances converge to their constraints at 25,000 iterations following the fifth augmented lagrangian epoch.}
 \label{fig:STG1}
 \end{figure}
 
 For EPI in Fig \ref{fig:STG}E, we used a real NVP architecture with three Real NVP coupling layers and two-layer neural networks of 25 units per layer.
 The normalizing flow architecture mapped $\mathbf{z}_0 \sim \mathcal{N}(\mathbf{0}, I)$ to a support of $\mathbf{z} = [g_{\text{el}}, g_{\text{synA}}] \in [4,8] \times [0.01,4]$, initialized to a gaussian approximation of samples returned by a preliminary ABC search.
 We did not include $g_{\text{synA}} < 0.01$, for numerical stability.
-EPI optimization was run using 5 different random seeds for architecture initialization $\bm{\theta}$ with an augmented Lagrangian coefficient of $c_0 = 10^{5}$, a batch size $n=400$, and $\beta = 2$.
+EPI optimization was run using 5 different random seeds for architecture initialization $\bm{\theta}$ with an augmented lagrangian coefficient of $c_0 = 10^{5}$, a batch size $n=400$, and $\beta = 2$.
 The architecture converged with criteria $N_{\text{test}} = 100$.
 
 \subsubsection{Hessian sensitivity vectors} \label{methods_stg_hessian}
@@ -1196,27 +1222,17 @@ To differentiate through the $\text{real}(\lambda_1)$, we solved the following e
 
 For EPI in Fig. \ref{fig:RNN}, we used a real NVP architecture with three coupling layers of affine transformations parameterized by two-layer neural networks of 100 units per layer.
 The initial distribution was a standard isotropic gaussian $\mathbf{z}_0 \sim \mathcal{N}(\mathbf{0}, I)$ mapped to the support of $\mathbf{z}_i \in [-1, 1]$. 
-We used an augmented Lagrangian coefficient of $c_0 = 10^{3}$, a batch size $n=200$, $\beta=4$, and chose to use $500$ iterations per augmented Lagrangian epoch and emergent property constraint convergence was evaluated at $N_{\text{test}} = 200$ (Fig. \ref{fig:RNN}B blue line, and Fig. \ref{fig:RNN}C-D blue).
+We used an augmented lagrangian coefficient of $c_0 = 10^{3}$, a batch size $n=200$, $\beta=4$, and chose to use $500$ iterations per augmented lagrangian epoch and emergent property constraint convergence was evaluated at $N_{\text{test}} = 200$ (Fig. \ref{fig:RNN}B blue line, and Fig. \ref{fig:RNN}C-D blue).
 
 \subsubsection{Methodological comparison}
 We compared EPI to two alternative simulation-based inference techniques, since the likelihood of these eigenvalues given $\mathbf{z}$ is not available.
-Approximate Bayesian computation (ABC) \cite{beaumont2002approximate} is a rejection sampling technique for obtaining sets of parameters $\mathbf{z}$ that produce activity $\mathbf{x}$ close to some observed data $\mathbf{x}_0$.
-Sequential Monte Carlo approximate Bayesian computation (SMC-ABC) is the state-of-the-art ABC method, which leverages SMC techniques to improve sampling speed.
+Approximate bayesian computation (ABC) \cite{beaumont2002approximate} is a rejection sampling technique for obtaining sets of parameters $\mathbf{z}$ that produce activity $\mathbf{x}$ close to some observed data $\mathbf{x}_0$.
+Sequential Monte Carlo approximate bayesian computation (SMC-ABC) is the state-of-the-art ABC method, which leverages SMC techniques to improve sampling speed.
 We ran SMC-ABC with the pyABC package \cite{klinger2018pyabc} to infer RNNs with stable amplification: connectivities having eigenvalues within an $\epsilon$-defined $l$-$2$ distance of
 \begin{equation}\label{eq:stab_amp_x0}
-x_0 = \begin{bmatrix} \text{real}(\lambda_1) \\ \lambda^s_1 \end{bmatrix} = \begin{bmatrix} 0.5 \\ 1.5 \end{bmatrix}.
+\mathbf{x}_0 = \begin{bmatrix} \text{real}(\lambda_1) \\ \lambda^s_1 \end{bmatrix} = \begin{bmatrix} 0.5 \\ 1.5 \end{bmatrix}.
 \end{equation}
 SMC-ABC was run with a uniform prior over $\mathbf{z} \in \left[-1, 1 \right]^{(4N)}$, a population size of 1,000 particles with simulations parallelized over 32 cores, and a multivariate normal transition model.
-
-\begin{figure}
-\begin{center}
-\includegraphics[scale=0.7]{figures/figRNN1/figRNN1.pdf}
-\end{center}
-\caption{\small (RNN1): 
-Number of parameters in deep probability distribution architectures of EPI (blue) and SNPE (orange) by RNN size ($N$).
-}
-\label{fig:RNN1}
-\end{figure}
 
 SNPE, the next approach in our comparison, is far more similar to EPI.
 Like EPI, SNPE treats parameters in mechanistic models with deep probability distributions, yet the two learning algorithms are categorically different.
@@ -1229,11 +1245,20 @@ This architectural choice closely tracked the size of the architecture used by E
 As in SMC-ABC, we ran SNPE with $\mathbf{x}_0 = \mu$.
 All SNPE optimizations were run for a limit of 1.5 days on a Tesla V100 GPU, or until two consecutive rounds resulted in a validation log probability lower than the maximum observed for that random seed.
 
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.7]{figures/figRNN1/figRNN1.pdf}
+\end{center}
+\caption{Number of parameters in deep probability distribution architectures of EPI (blue) and SNPE (orange) by RNN size ($N$).
+}
+\label{fig:RNN1}
+\end{figure}
+
 To compare the efficiency of these algorithms for inferring RNN connectivity distributions producing stable amplification, we develop a convergence criteria that can be used across methods.
 While EPI has its own hypothesis testing convergence criteria for the emergent property, it would not make sense to use this criteria on SNPE and SMC-ABC which do not constrain the means and variances of their predictions.
 Instead, we consider EPI and SNPE to have converged after completing its most recent optimization epoch (EPI) or round (SNPE) in which the distance
 \begin{equation}
-d(q_\theta(z)) = |\mathbb{E}_{\mathbf{z}, \mathbf{x}} \left[f(\mathbf{x}; \mathbf{z}) \right] - \bm{\mu}|_2
+d(q_{\bm{\theta}}(\mathbf{z})) = |\mathbb{E}_{\mathbf{z}, \mathbf{x}} \left[f(\mathbf{x}; \mathbf{z}) \right] - \bm{\mu}|_2
 \end{equation}
 is less than 0.5.
 We consider SMC-ABC to have converged once the population produces samples within the $\epsilon = 0.5$ ball ensuring stable amplification.
@@ -1242,8 +1267,7 @@ We consider SMC-ABC to have converged once the population produces samples withi
 \begin{center}
 \includegraphics[scale=1.]{figures/figRNN3/figRNN3.pdf}
 \end{center}
-\caption{\small (RNN3): 
-SNPE convergence was enabled by increasing $n_{\text{round}}$, not $n_{\text{atom}}$.
+\caption{SNPE convergence was enabled by increasing $n_{\text{round}}$, not $n_{\text{atom}}$.
 \textbf{A}. Difference of mean predictions $\mathbf{x}_0$ throughout optimization at $N=50$ with by simulation count (left) and wall time (right) of SNPE with $n_{\text{round}} = 5,000$ (light orange), SNPE with $n_{\text{round}} = 25,000$ (dark orange), and EPI (blue).
 Each line shows an individual random seed.
 \textbf{B}. Same conventions as A at $N=100$ of SNPE with $n_{\text{atom}} = 100$ (light orange) and $n_{\text{atom}} = 1,000$ (dark orange).
@@ -1280,7 +1304,7 @@ Furthermore, no aspect of the SNPE optimization controls the variance of the pre
 \begin{center}
 \includegraphics[scale=0.8]{figures/figRNN2/figRNN2.pdf}
 \end{center}
-\caption{\small (RNN2): Model characteristics affect predictions of posteriors inferred by SNPE, while predictions of parameters inferred by EPI remain fixed.
+\caption{Model characteristics affect predictions of posteriors inferred by SNPE, while predictions of parameters inferred by EPI remain fixed.
 \textbf{A}. Predictive distribution of EPI (blue) and SNPE (orange) inferred connectivity of RNNs exhibiting stable amplification with $N=2$ (top), $N=10$ (bottom), $g=0.01$ (left), and $g=0.1$ (right).
 \textbf{B}. Entropy of parameter distribution approximations throughout optimization with $N=2$ (top), $N=10$ (bottom), $g=0.1$ (dark shade), and $g=0.01$ (light shade).
 \textbf{C}. Validation log probabilities throughout SNPE optimization. Same conventions as B.
@@ -1311,28 +1335,6 @@ so that $\bm{\sigma}$ parameterizes the variance of the noisy input in the absen
 As contrast $c \in [0, 1]$ increases, input to the E- and P-populations increases  relative to a baseline input $\mathbf{h} = \mathbf{h}_b + c\mathbf{h}_c$.
 Connectivity ($W_{\text{fit}}$) and input ($\mathbf{h}_{b,\text{fit}}$ and $\mathbf{h}_{c,\text{fit}}$) parameters were fit using the deterministic V1 circuit model \cite{palmigiano2020structure} 
 
-\begin{figure}
-\begin{center}
-\includegraphics[scale=.8]{figures/figV1_1/figV1_1.pdf}
-\end{center}
-\caption{\small (V1 1)
-(Left) Simulations for small increases in neuron-type population input.
-Input magnitudes are chosen so that effect is salient ($0.002$ for E and P, but $0.02$ for S and V).
-(Right) Average (solid) and standard deviation (shaded) of stochastic fluctuations of responses.
- }
- \label{fig:V1_1}
-\end{figure}
-
-\begin{figure}
-\caption{\small (V1 2)
-EPI predictive distributions of the sum of squares of each pair of noise parameters.
- }
- \label{fig:V1_2}
-\begin{center}
-\includegraphics[scale=.8]{figures/figV1_2/figV1_2.pdf}
-\end{center}
-\end{figure}
-
 \begin{equation}
 W_{\text{fit}} =  \begin{bmatrix} W_{EE} & W_{EP} & W_{ES} & W_{EV} \\
 W_{PE} & W_{PP} & W_{PS} & W_{PV} \\
@@ -1356,16 +1358,6 @@ and
 \end{equation} 
 
 To obtain rates on a realistic scale (100-fold greater), we map these fitted parameters to an equivalence class
-
-\begin{figure}[h]
-\caption{\small (V1 3)
-EPI inferred distribution for $\mathcal{X}(10\text{ Hz})$.
- }
- \label{fig:V1_3}
-\begin{center}
-\includegraphics[scale=.8]{figures/figV1_3/figV1_3.pdf}
-\end{center}
-\end{figure}
 
 \begin{equation}
 W =  \begin{bmatrix} W_{EE} & W_{EP} & W_{ES} & W_{EV} \\
@@ -1396,10 +1388,42 @@ s_E(\mathbf{x}; \mathbf{z}) =\mathbb{E}_{x}\left[\sqrt{\mathbb{E}_{t > t_{ss}}\l
 \end{equation}
 
 \subsubsection{EPI details for the V1 model}
-For EPI in Fig \ref{fig:V1}D-E, we used a real NVP architecture with three Real NVP coupling layers and two-layer neural networks of 50 units per layer.
+For EPI in Figures \ref{fig:V1}D-E and \ref{fig:V1_1}, we used a real NVP architecture with three Real NVP coupling layers and two-layer neural networks of 50 units per layer.
 The normalizing flow architecture mapped $z_0 \sim \mathcal{N}(\mathbf{0}, I)$ to a support of $\mathbf{z} = [\sigma_E, \sigma_P, \sigma_S, \sigma_V] \in [0.0, 0.5]^4$.
-EPI optimization was run using three different random seeds for architecture initialization $\bm{\theta}$ with an augmented Lagrangian coefficient of $c_0 = 10^{-1}$, a batch size $n=100$, and $\beta = 2$.
+EPI optimization was run using three different random seeds for architecture initialization $\bm{\theta}$ with an augmented lagrangian coefficient of $c_0 = 10^{-1}$, a batch size $n=100$, and $\beta = 2$.
 The distributions shown are those of the architectures converging with criteria $N_{\text{test}} = 100$ at greatest entropy across three random seeds.
+Optimization details are shown in Figure \ref{fig:V1_2}.
+The sums of squares of each pair of parameters are shown for each EPI distribution in Figure \ref{fig:V1_3}.
+
+\begin{figure}[h]
+\caption{EPI inferred distribution for $\mathcal{X}(10\text{ Hz})$.
+ }
+ \label{fig:V1_1}
+\begin{center}
+\includegraphics[scale=.8]{figures/figV1_3/figV1_3.pdf}
+\end{center}
+\end{figure}
+
+\begin{figure}[h]
+\caption{EPI optimization $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{ Hz}))$
+\textbf{A}. Entropy throughout optimization. 
+\textbf{B}. The emergent property statistic means and variances converge to their constraints at 8,000 iterations following the fourth augmented lagrangian epoch.
+ }
+ \label{fig:V1_2}
+\begin{center}
+\includegraphics[scale=.8]{figures/figV1_4/figV1_4.pdf}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{EPI predictive distributions of the sum of squares of each pair of noise parameters.
+ }
+ \label{fig:V1_3}
+\begin{center}
+\includegraphics[scale=.8]{figures/figV1_2/figV1_2.pdf}
+\end{center}
+\end{figure}
+
 
 \subsubsection{Sensitivity analyses}
 In Fig. \ref{fig:V1}E, we visualize the modes of $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ throughout the $\sigma_E$-$\sigma_P$ marginal.
@@ -1412,14 +1436,20 @@ Specifically, we calculated
 \end{equation}
 At each mode $\mathbf{z}^*$, we calculated the Hessian and visualized the sensitivity dimension in the direction of positive $\sigma_E$.
 
-\begin{figure}[h]
-\caption{\small (V1 4)
-Optimization for V1
+\subsubsection{Testing for the paradoxical effect}
+The paradoxical effect occurs when a populations steady state rate is decreased (or increased) when an increase (decrease) in current is applied to that population \cite{tsodyks1997paradoxical}.
+To see which, if any, populations exhibited a paradoxical effect, we examined responses to changes in input (Fig. \ref{fig:V1_4}).
+Input magnitudes were chosen so that the effect is salient ($0.002$ for E and P, but $0.02$ for S and V).
+Only the P-population exhibited the paradoxical effect at this connectivity $W$ and input $\mathbf{h}$.
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=.8]{figures/figV1_1/figV1_1.pdf}
+\end{center}
+\caption{(Left) SSSN simulations for small increases in neuron-type population input.
+(Right) Average (solid) and standard deviation (shaded) of stochastic fluctuations of responses.
  }
  \label{fig:V1_4}
-\begin{center}
-\includegraphics[scale=.8]{figures/figV1_4/figV1_4.pdf}
-\end{center}
 \end{figure}
 
 \subsubsection{Primary visual cortex: Mathematical intuition and challenges}\label{methods_V1_complexity}
@@ -1519,7 +1549,7 @@ Showing the generality of this dependence in more complicated noise scenarios (e
 \subsection{Superior colliculus}\label{methods_SC}
 \subsubsection{SC model} \label{methods_sc_model}
 The ability to switch between two separate tasks throughout randomly interleaved trials, or ``rapid task switching," has been studied in rats, and midbrain superior colliculus (SC) has been show to play an important in this computation \cite{duan2015requirement}.
-Neural recordings in SC exhibited two populations of neurons that simultaneously represented both task context (Pro or Anti) and motor response (contralateral or ipsilateral to the recorded side), which led to the distinction of two functional classes: the Pro/Contra and Anti/Ipsi neurons \cite{duan2018collicular}.
+Neural recordings in SC exhibited two populations of neurons that simultaneously represented both task context (Pro or Anti) and motor response (contralateral or ipsilateral to the recorded side), which led to the distinction of two functional classes: the Pro/Contra and Anti/Ipsi neurons \cite{duan2019collicular}.
 Given this evidence, Duan et al. proposed a model with four functionally-defined neuron-type populations: two in each hemisphere corresponding to the Pro/Contra and Anti/Ipsi populations.  
 We study how the connectivity of this neural circuit governs rapid task switching ability.
 
@@ -1538,13 +1568,13 @@ which evolve according to
 \tau \frac{d\mathbf{u}}{dt} = -\mathbf{u} + W\mathbf{x} + \mathbf{h} + d\mathbf{B}.
 \end{equation}
 with time constant $\tau = 0.09s$, step size 24ms and Gaussian noise $d\mathbf{B}$ of variance $0.2^2$.
-These hyperparameter values are motivated by modeling choices and results from \cite{duan2018collicular}.
+These hyperparameter values are motivated by modeling choices and results from \cite{duan2019collicular}.
 
 \begin{figure}
 \begin{center}
 \includegraphics[scale=0.9]{figures/figSC1/figSC1.pdf}
 \end{center}
-\caption{\small (SC1): \textbf{A}. Same pairplot as Fig. \ref{fig:SC}C colored by Pro task accuracy.  
+\caption{\textbf{A}. Same pairplot as Fig. \ref{fig:SC}C colored by Pro task accuracy.  
 \textbf{B}. Same as A colored by Anti task accuracy.  
 \textbf{C}. Connectivity parameters of EPI distributions versus task accuracies.  $\beta$ is slope coefficient of linear regression, $r$ is correlation, and $p$ is the two-tailed p-value.
 }
@@ -1555,7 +1585,7 @@ These hyperparameter values are motivated by modeling choices and results from \
 \begin{center}
 \includegraphics[scale=1.]{figures/figSC2/figSC2.pdf}
 \end{center}
-\caption{\small (SC2):  
+\caption{
 \textbf{A}. Simulations in network regime 1 ($hW_{\text{fixed}} = -1.5$).
 \textbf{B}. Simulations in network regime 2 ($hW_{\text{fixed}} = -1.5$) .
 }
@@ -1607,17 +1637,17 @@ The input parameterization was fixed to $I_{\text{constant}} = 0.75$, $I_{\text{
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=1.1]{figures/figSC3/figSC3.pdf}
+\includegraphics[scale=.9]{figures/figSC3/figSC3.pdf}
 \end{center}
-\caption{\small (SC3):  
+\caption{
 \textbf{A}. Invariant eigenvectors of connectivity matrix $W$.
-\textbf{B}. Accuracies for connectivity perturbations for increasing $\lambda_{\text{all}}$ and $\lambda_{\text{side}}$ (rest shown in Fig. \ref{fig:SC}D).
+\textbf{B}. Accuracies for connectivity perturbations when changing $\lambda_{\text{all}}$ and $\lambda_{\text{side}}$ ($\lambda_{\text{task}}$ and $\lambda_{\text{diag}}$ shown in Fig. \ref{fig:SC}D).
 }
 \label{fig:SC3}
 \end{figure}
 
 \subsubsection{Task accuracy calculation} \label{methods_sc_acc}
-The accuracies of each task $p_P$ and $p_A$ are calculated as
+The accuracies of each Pro and Anti tasks are calculated as
 \begin{equation}
 p_P(\mathbf{x}; \mathbf{z}) = \mathbb{E}_{\mathbf{x}}\left[\Theta[x_{LP}(t=1.8s) - x_{RP}(t=1.8s)]\right]
 \end{equation}
@@ -1625,27 +1655,29 @@ and
 \begin{equation}
 p_A(\mathbf{x}; \mathbf{z}) = \mathbb{E}_{\mathbf{x}}\left[\Theta[x_{RP}(t=1.8s) - x_{LP}(t=1.8s)]\right]
 \end{equation}
-given that the stimulus is on the left side, where $\Theta$ is the Heaviside step function, and the accuracy is averaged over 200 independent trials.  The Heaviside step function is approximated as
+given that the stimulus is on the left side and $\Theta$ approximates the Heaviside step function.
+Our accuracy calculation only considers one stimulus presentation (Left), since the model is left-right symmetric.
+The accuracy is averaged over 200 independent trials, and the Heaviside step function is approximated as
 \begin{equation}
-\Theta(\mathbf{x}) = \text{sigmoid}(\beta \mathbf{x}),
+\Theta(\mathbf{x}) = \text{sigmoid}(\beta_{\Theta} \mathbf{x}),
 \end{equation}
-where $\beta = 100$.
+where $\beta_{\Theta} = 100$.
 
-\begin{figure}
-\begin{center}
-\includegraphics[scale=0.8]{figures/figSC4/figSC4.pdf}
-\end{center}
-\caption{\small (SC4):  \textbf{A}. The individual parameters of each mode throughout the two regimes.
-\textbf{B}. The individual sensitivities of parameters of each mode throughout the two regimes.
-}
-\label{fig:SC4}
-\end{figure}
+%\begin{figure}
+%\begin{center}
+%\includegraphics[scale=0.8]{figures/figSC4/figSC4.pdf}
+%\end{center}
+%\caption{\small (SC4):  \textbf{A}. The individual parameters of each mode throughout the two regimes.
+%\textbf{B}. The individual sensitivities of parameters of each mode throughout the two regimes.
+%}
+%\label{fig:SC4}
+%\end{figure}
 
 \begin{figure}
 \begin{center}
 \includegraphics[scale=1.2]{figures/figSC5/figSC5.pdf}
 \end{center}
-\caption{\small (SC5): 
+\caption{
 (Left) Mean and standard error of Pro and Anti error from regime 1 to regime 2 at $\gamma = 0.85$.
 (Right) Correlations of connectivity eigenvalues with Anti error from regime 1 to regime 2 at $\gamma = 0.85$.
 }
@@ -1656,8 +1688,8 @@ where $\beta = 100$.
 \begin{center}
 \includegraphics[scale=1.2]{figures/figSC6/figSC6.pdf}
 \end{center}
-\caption{\small (SC6): 
-(Left) Mean and standard deviation (shading) of responses of the SC model at the mode of the EPI distribution to delay period inactivation at $\gamma = 0.675$.  (Right) Anti accuracy following delay period inactivation at $\gamma = 0.675$ versus accuracy in the Pro task across connectivities in the EPI distribution.
+\caption{
+(Left) Mean and standard deviation (shading) of responses of the SC model at the mode of the EPI distribution to delay period inactivation at $\gamma = 0.675$. Accuracy in Pro (top) and Anti (bottom) task is shown as a percentage. (Right) Anti accuracy following delay period inactivation at $\gamma = 0.675$ versus accuracy in the Pro task across connectivities in the EPI distribution.
 }
 \label{fig:SC6}
 \end{figure}
@@ -1670,7 +1702,7 @@ T(\mathbf{x}; \mathbf{z}) = \begin{bmatrix} p_P(\mathbf{x}; \mathbf{z}) \\ p_A(\
 \begin{equation} 
 \bm{\mu}_{\text{opt}} = \begin{bmatrix} .75 \\ .75 \\ .075^2 \\ .075^2 \end{bmatrix}.
 \end{equation}
-Throughout optimization, the augmented Lagrangian parameters $\eta$ and $c$, were updated after each epoch of 2,000 iterations (see Section \ref{methods_AL_opt}).  
+Throughout optimization, the augmented lagrangian parameters $\eta$ and $c$, were updated after each epoch of 2,000 iterations (see Section \ref{methods_AL_opt}).  
 The optimization converged after ten epochs (Fig. \ref{fig:SC6}).
 
 
@@ -1678,25 +1710,25 @@ The optimization converged after ten epochs (Fig. \ref{fig:SC6}).
 \begin{center}
 \includegraphics[scale=0.5]{figures/figSC7/figSC7.pdf}
 \end{center}
-\caption{\small (SC7): 
+\caption{
 \textbf{A}. Entropy throughout optimization. 
-\textbf{B}. The emergent property statistic means and variances converge to their constraints at 20,000 iterations following the tenth augmented Lagrangian epoch.
+\textbf{B}. The emergent property statistic means and variances converge to their constraints at 20,000 iterations following the tenth augmented lagrangian epoch.
 }
 \label{fig:SC7}
 \end{figure}
 
 For EPI in Fig. \ref{fig:SC}C, we used a real NVP architecture with three coupling layers of affine transformations parameterized by two-layer neural networks of 50 units per layer.
 The initial distribution was a standard isotropic gaussian $\mathbf{z}_0 \sim \mathcal{N}(\mathbf{0}, I)$ mapped to a support of $\mathbf{z}_i \in [-5, 5]$. 
-We used an augmented Lagrangian coefficient of $c_0 = 10^{2}$, a batch size $n=100$, and $\beta=2$.
+We used an augmented lagrangian coefficient of $c_0 = 10^{2}$, a batch size $n=100$, and $\beta=2$.
 The distribution was the greatest EPI distribution to converge across 5 random seeds with criteria $N_{\text{test}} = 25$.
 
 \begin{figure}
 \begin{center}
 \includegraphics[scale=0.8]{figures/figSC8/figSC8.pdf}
 \end{center}
-\caption{\small (SC8): 
+\caption{
 \textbf{A}. Entropy throughout optimization. 
-\textbf{B}. The emergent property statistic means and variances converge to their constraints at 20,000 iterations following the tenth augmented Lagrangian epoch.
+\textbf{B}. The emergent property statistic means and variances converge to their constraints at 20,000 iterations following the tenth augmented lagrangian epoch.
 }
 \label{fig:SC8}
 \end{figure}
@@ -1708,32 +1740,30 @@ This set of connectivities will not match the distribution of EPI exactly, since
 For example the parameter set returned by the brute-force search is biased towards lower accuracies (Fig. \ref{fig:SC8}B).
 
 
-\subsubsection{Regime identification with EPI} \label{methods_sc_regime}
-We sought two sets of parameters from $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ that were representative of each regime, so that we could assess their implications on computation.
-For fixed values of $hW$, we hypothesized that there are two modes: one in each regime of greater and lesser $sW$.
-To begin, we found one mode for each regime at $hW_{\text{fixed}} = -1.5$ using 200 steps of gradient ascent of the deep probability distribution $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$.
-In regime 1, the initialization had positive $sW$, and the initialization had negative $sW$ in regime 2, which led to disparate modes (Fig. \ref{fig:SC4} top).
-These modes were then used as the initialization to find the next mode at $hW_{\text{fixed}} = -1.4$ and so on.
-200 steps of gradient ascent were always taken, and learning rates of $2.5 \times 10^-4$ and $5 \times 10^-4$ were used for regimes 1 and 2, respectively.
-Each of these modes is denoted $\mathbf{z}^*(hW_{\text{fixed}}, r)$ for regime $r \in \{1, 2\}$.
+\subsubsection{Mode identification with EPI} \label{methods_sc_regime}
+We found one mode of the EPI distribution for fixed values of $sW$ from 1 to -1 in steps of 0.25.
+To begin, we chose an initial parameter value from 500 parameter samples $\mathbf{z} \sim q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X})$ that had closest $sW$ value to 1.
+We then optimized this estimate of the mode (for fixed $sW$) using probability gradients of the deep probability distribution for 500 steps of gradient ascent with a learning rate of $5 \times 10^{-3}$.
+The next mode (at $sW = 0.75$) was found using the previous mode as the initialization.
+This and all subsequent optimizations used 200 steps of gradient ascent with a learning rate of $1 \times 10^{-3}$, except at $sW = -1$ where a learning rate of $5 \times 10^{-4}$ was used.
+During all mode identification optimizations, the learning rate was reduced by half (decay = 0.5) after every 100 iterations.
 
+\subsubsection{Sample grouping by mode} \label{methods_sc_group}
 For the analyses in Figure \ref{fig:SC_opto}C and Figure \ref{fig:SC5}, we obtained parameters for each step along the continuum between regimes 1 and 2 by sampling from the EPI distribution.
-Each sample was assigned to the closest mode $\mathbf{z}^*(hW_{\text{fixed}}, r)$.
-Sampling continued until 500 samples were assigned to each mode, which took 7.36 seconds.
-To obtain this many samples for each mode with brute force sampling over the chosen prior, this would take 4.20 days.
+Each sample was assigned to the closest mode $\mathbf{z}^*(sW)$ (Equation \ref{eq:mode_group}).
+Sampling continued until 500 samples were assigned to each mode, which took 2.67 seconds (5.34ms/sample-per-mode).
+It took 9.59 minutes to obtain just 5 samples for each mode with brute force sampling requiring accuracies between 60\% and 90\% in each task (115s/sample-per-mode).
+This corresponds to a sampling speed increase of roughly 21,500 once the EPI distribution has been learned.
 
 \subsubsection{Sensitivity analysis} \label{methods_sc_hessian}
 At each mode, we measure the sensitivity dimension (that of most negative eigenvalue in the Hessian of the EPI distribution) $\mathbf{v}_1(\mathbf{z}^*)$.
 To resolve sign degeneracy in eigenvectors, we chose $\mathbf{v}_1(\mathbf{z}^*)$ to have negative element in $hW$.
 This tells us what parameter combination rapid task switching is most sensitive to at this parameter choice in the regime.
-We see that while the modes of each regime gradually converge to similar connectivities at $hW_{\text{fixed}} = -1.05$ (Fig. \ref{fig:SC4} top), the sensitivity dimensions remain categorically different throughout the two regimes (Fig. \ref{fig:SC4} bottom)
-Only at $hW_{\text{fixed}} = -1.05$ is there a flip in sensitivity from regime 2 to regime 1 (in $\mathbf{v}_1(\mathbf{z}^*)_{sW}$ and $\mathbf{v}_1(\mathbf{z}^*)_{hW}$).
-There is thus some ambiguity regarding the ``regime" of $\mathbf{z}^*(-1.05, 2)$, since the mode is derived from an initialization in regime 2, but has sensitivity like regime 1.
-We can consider this as an intermediate transitionary region of parameter space between the two regimes.
-To emphasize this, $\mathbf{z}^*(-1.05, 1)$ and $\mathbf{z}^*(-1.05, 2)$ have the same color.
+
 
 \subsubsection{Connectivity eigendecomposition and processing modes} \label{methods_sc_eig}
-To understand the connectivity mechanisms governing task accuracy, we took the eigendecomposition of the symmetric connectivity matrices $W = Q\Lambda Q^{-1}$, which results in the same basis vectors $\mathbf{q}_i$ for all $W$ parameterized by $\mathbf{z}$ (Fig. \ref{fig:SC3}A). 
+To understand the connectivity mechanisms governing task accuracy, we took the eigendecomposition of the connectivity matrices $W = Q\Lambda Q^{-1}$, which results in the same eigenmodes $\mathbf{q}_i$ for all $W$ parameterized by $\mathbf{z}$ (Fig. \ref{fig:SC3}A). 
+These eigenvectors are always the same, because the connectivity matrix is symmetric and the model also assumes symmetry across hemispheres, but the eigenvalues of connectivity (or degree of eigenmode amplification) change with $\mathbf{z}$.
 These basis vectors have intuitive roles in processing for this task, and are accordingly named the \textit{all} eigenmode - all neurons co-fluctuate, \textit{side} eigenmode - one side dominates the other, \textit{task} eigenmode - the Pro or Anti populations dominate the other, and \textit{diag} mode - Pro- and Anti-populations of opposite hemispheres dominate the opposite pair. 
 Due to the parametric structure of the connectivity matrix, the parameters $\mathbf{z}$ are a linear function of the eigenvalues $\bm{\lambda} = [\lambda_{\text{all}}, \lambda_{\text{side}}, \lambda_{\text{task}}\lambda_{\text{diag}}]^\top$ associated with these eigenmodes.
 \begin{equation}
@@ -1743,7 +1773,7 @@ Due to the parametric structure of the connectivity matrix, the parameters $\mat
 A = \frac{1}{4} \begin{bmatrix} 1 & 1 & 1 & 1 \\ 1 & -1 & -1 & 1 \\ 1 & 1 & -1 & -1 \\ 1 & -1 & 1 & -1 \end{bmatrix}.
 \end{equation}
 
-We are interested in the effect of raising or lowering the amplification of each eigenmode in the connectivity matrix.
+We are interested in the effect of raising or lowering the amplification of each eigenmode in the connectivity matrix by perturbing individual eigenvalues $\lambda$.
 To test this, we calculate the unit vector of changes in the connectivity $\mathbf{z}$ that result from a change in the associated eigenvalues
 \begin{equation}
 \mathbf{v}_{\text{a}} = \frac{\frac{\partial \mathbf{z}}{\partial \lambda_{\text{a}}}}{|\frac{\partial \mathbf{z}}{\partial \lambda_{\text{a}}}|_2},
@@ -1754,13 +1784,8 @@ where
 \end{equation}
 and e.g. $\mathbf{e}_{\text{all}} = [1, 0, 0, 0]^\top$.
 So $\mathbf{v}_{\text{a}}$ is the normalized column of A corresponding to eigenmode $a$.
-While perturbations in the sensitivity dimension $\mathbf{v}_1(\mathbf{z}^*)$ adapt with the mode $\mathbf{z}^*$ chosen, perturbations in $\mathbf{v}_a$ for $a \in \{\text{all}, \text{side}, \text{text}, \text{diag}\}$ are invariant to $\mathbf{z}$ (Equation \ref{eq:dzdlambda}).
-
-To understand the connectivity mechanisms that distinguish these two regimes, we perturb connectivity at each mode in dimensions that have well defined roles in processing for the Pro and Anti tasks.
-A convenient property of this connectivity parameterization is that there are $\mathbf{z}$-invariant eigenmodes of connectivity, whose eigenvalues (or degree of amplification) change with $\mathbf{z}$.
-These eigenmodes have intuitive roles in processing in each task, and are accordingly named the \textit{all}, \textit{side}, \textit{task}, and \textit{diag} eigenmodes (see Section \ref{methods_SC}).
-Furthermore, the parameter dimension $\mathbf{v}_a$ ($a \in \{\text{all}, \text{side}, \text{task}, \text{ and diag}\}$) that increases the eigenvalue of connectivity $\lambda_a$ is $\mathbf{z}$-invariant (unlike the sensitivity dimension $\mathbf{v}_1(\mathbf{z})$) and $\mathbf{v}_a \perp \mathbf{v}_{b \neq a}$.
-Thus, by changing the degree of amplification of each processing mode by  perturbing $\mathbf{z}$ along $\mathbf{v}_a$, we can elicit the differentiating properties of the two regimes.
+The parameter dimension $\mathbf{v}_a$ ($a \in \{\text{all}, \text{side}, \text{task}, \text{ and diag}\}$) that increases the eigenvalue of connectivity $\lambda_a$ is $\mathbf{z}$-invariant (Equation \ref{eq:dzdlambda}) and $\mathbf{v}_a \perp \mathbf{v}_{b \neq a}$.
+By perturbing $\mathbf{z}$ along $\mathbf{v}_a$, we can examine how model function changes by directly modulating the connectivity amplification of specific eigenmodes, which having interpretable roles in processing in each task.
 
 %
 %These eigenvalue changes are evident in the simulations of connectivity perturbations away from the modes (Fig. \ref{fig:SC2}).
@@ -1768,7 +1793,7 @@ Thus, by changing the degree of amplification of each processing mode by  pertur
 %A key differentiating factor is that $\mathbf{v}_1$ substantially increases $\lambda_{\text{diag}}$, while $\mathbf{v}_2$ does not.
 
 \subsubsection{Modeling optogenetic silencing.} \label{methods_sc_opto}
-We tested whether the inferred SC model connectivities could reproduce experimental effects of optogenetic inactivation in rats \cite{duan2015requirement}.
+We tested whether the inferred SC model connectivities could reproduce experimental effects of optogenetic inactivation in rats \cite{duan2019collicular}.
 During periods of simulated optogenetic inactivation, activity was decreased proportional to the optogenetic strength $\gamma \in [0, 1]$
 \begin{equation}
 x_\alpha = (1-\gamma)\phi(u_\alpha).
