@@ -188,7 +188,7 @@ def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1., check_last_k=None, by_d
     
     return dist, path, best_k
 
-def get_conditional_mode(dist, ind, val, z0=None, lr=1e-6, num_steps=100):
+def get_conditional_mode(dist, ind, val, z0=None, lr=1e-6, num_steps=100, decay=1., decay_steps=100):
     if z0 is None:
         z0 = (dist.nf.lb + dist.nf.ub) / 2.
         z0[ind] = val
@@ -200,6 +200,8 @@ def get_conditional_mode(dist, ind, val, z0=None, lr=1e-6, num_steps=100):
     log_q_zs = [log_q_z]
     
     for k in range(num_steps):
+        if (k!=0 and (np.mod(k, decay_steps)==0)):
+            lr = lr*decay
         print('Finding mode %d/%d.\r' %(k+1, num_steps), end="")
         grad_z = dist._gradient(z).numpy()
         z_np = z.numpy()
@@ -562,6 +564,7 @@ def pairplot(
     s_star=100,
     starred=None,
     c_starred = None,
+    star_marker = '*',
     traj = None,
     fontsize=12,
     figsize=(12, 12),
@@ -649,12 +652,12 @@ def pairplot(
                     if c_starred is None:
                         ax.scatter(
                             starred[:, dim_j], starred[:, dim_i], s=s_star, c='k', 
-                            marker='*', edgecolors="k", linewidths=1.,
+                            marker=star_marker, edgecolors="k", linewidths=1.,
                         )
                     else:
                         ax.scatter(
                             starred[:, dim_j], starred[:, dim_i], s=s_star, c=c_starred, 
-                            marker='*', edgecolors="k", linewidths=1.5,
+                            marker=star_marker, edgecolors="k", linewidths=1.5,
                         )
 
                 if traj is not None:
