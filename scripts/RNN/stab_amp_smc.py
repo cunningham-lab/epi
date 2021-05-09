@@ -20,10 +20,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--N', type=int)
 parser.add_argument('--g', type=float, default=0.01)
 parser.add_argument('--K', type=int, default=1)
+parser.add_argument('--eps', type=float, default=0.5)
 parser.add_argument('--rs', type=int, default=1)
 args = parser.parse_args()
 
 N = args.N
+g = args.g
+K = args.K
+eps = args.eps
 rs = args.rs
 
 sleep_time = N*0.5 + rs*0.05
@@ -33,7 +37,7 @@ print('Running SNPE on RNN conditioned on stable amplification with:')
 print('N = %d, seed=%d' % (N, rs))
 
 base_path = os.path.join("data", "smc")
-save_dir = "SMC_RNN_stab_amp_N=%d_rs=%d" % (N, rs)
+save_dir = "SMC_RNN_stab_amp_N=%d_eps=%.2f_rs=%d" % (N, eps, rs)
 
 save_path = os.path.join(base_path, save_dir)
 if not os.path.exists(save_path):
@@ -68,7 +72,7 @@ prior = pyabc.Distribution(parameters)
 def distance(x, y):
     return np.linalg.norm(x["data"] - y["data"])
 
-abc = pyabc.ABCSMC(model, prior, distance)
+abc = pyabc.ABCSMC(model, prior, distance, population_size=1000)
 
 db_path = ("sqlite:///" +
            os.path.join(tempfile.gettempdir(), "test.db"))
@@ -76,9 +80,8 @@ observation = np.array([0.5, 1.5])
 abc.new(db_path, {"data": observation})
 
 np.random.seed(rs)
-eps = 0.5
 max_t = 200
-min_acc = 1./(1e7)
+min_acc = 1./(1e6)
 time1 = time.time()
 history = abc.run(
     minimum_epsilon=eps, 
