@@ -539,8 +539,10 @@ class NormalizingFlow(tf.keras.Model):
         init_time = time.time() - t1
         opt_df = pd.concat(opt_it_dfs, ignore_index=True)
         opt_df.to_csv(init_path + "opt_data.csv")
+        print("Saving timing...")
         np.savez(os.path.join(init_path, "timing.npz"),
                  init_time=init_time)
+        print("saved!")
         checkpoint.save(file_prefix=init_file)
         return opt_df
 
