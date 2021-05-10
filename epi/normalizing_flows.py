@@ -534,7 +534,7 @@ class NormalizingFlow(tf.keras.Model):
                             "%.2E s" % ts_time,
                             flush=True,
                         )
-                        else:
+                    else:
                         print(i, "H", H, "loss", loss, "%.2E s" % ts_time, flush=True)
         init_time = time.time() - t1
         opt_df = pd.concat(opt_it_dfs, ignore_index=True)
