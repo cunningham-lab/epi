@@ -117,8 +117,10 @@ class NormalizingFlow(tf.keras.Model):
         self._set_num_layers(num_layers)
         self._set_num_units(num_units)
         self._set_elemwise_fn(elemwise_fn)
-        if (self.arch_type == "autoregressive" and self.elemwise_fn == "spline"):
-            raise NotImplementedError("Error: MAF flows with splines are not implemented yet.")
+        if self.arch_type == "autoregressive" and self.elemwise_fn == "spline":
+            raise NotImplementedError(
+                "Error: MAF flows with splines are not implemented yet."
+            )
         self._set_num_bins(num_bins)
         self._set_batch_norm(batch_norm)
         if not self.batch_norm:
@@ -150,8 +152,9 @@ class NormalizingFlow(tf.keras.Model):
                     )
                     self.bijector_fns.append(bijector_fn)
                 elif elemwise_fn == "spline":
-                    bijector_fn = SplineParams(D - num_masked, num_layers, num_units,
-                                               self.num_bins, B=4.)
+                    bijector_fn = SplineParams(
+                        D - num_masked, num_layers, num_units, self.num_bins, B=4.0
+                    )
                     stage = tfb.RealNVP(num_masked=num_masked, bijector_fn=bijector_fn)
                     # make parameters visible to autograd
                     self.bijector_fns.append(bijector_fn._bin_widths)
@@ -163,14 +166,12 @@ class NormalizingFlow(tf.keras.Model):
                 bijector_fn = tfb.AutoregressiveNetwork(
                     params=2, hidden_units=num_layers * [num_units]
                 )
-                stage = tfb.MaskedAutoregressiveFlow(
-                    shift_and_log_scale_fn=bijector_fn
-                )
+                stage = tfb.MaskedAutoregressiveFlow(shift_and_log_scale_fn=bijector_fn)
                 self.bijector_fns.append(bijector_fn)
 
             self.stages.append(stage)
             bijectors.append(stage)
-            #self.shift_and_log_scale_fns.append(shift_and_log_scale_fn)
+            # self.shift_and_log_scale_fns.append(shift_and_log_scale_fn)
             self.bijector_fns.append(bijector_fn)
 
             if i < self.num_stages - 1:
@@ -540,8 +541,7 @@ class NormalizingFlow(tf.keras.Model):
         opt_df = pd.concat(opt_it_dfs, ignore_index=True)
         opt_df.to_csv(init_path + "opt_data.csv")
         print("Saving timing...")
-        np.savez(os.path.join(init_path, "timing.npz"),
-                 init_time=init_time)
+        np.savez(os.path.join(init_path, "timing.npz"), init_time=init_time)
         print("saved!")
         checkpoint.save(file_prefix=init_file)
         return opt_df
@@ -817,26 +817,44 @@ class SplineParams(tf.Module):
         self._bin_heights = tf.keras.Sequential()
         self._knot_slopes = tf.keras.Sequential()
 
-        for i in range(num_layers-1):
-            self._bin_widths.add(tf.keras.layers.Dense(
-                num_units, activation='tanh', name="w%d" % (i+1)
-            ))
-            self._bin_heights.add(tf.keras.layers.Dense(
-                num_units, activation='tanh', name="h%d" % (i+1)
-            ))
-            self._knot_slopes.add(tf.keras.layers.Dense(
-                num_units, activation='tanh', name="s%d" % (i+1)
-            ))
+        for i in range(num_layers - 1):
+            self._bin_widths.add(
+                tf.keras.layers.Dense(
+                    num_units, activation="tanh", name="w%d" % (i + 1)
+                )
+            )
+            self._bin_heights.add(
+                tf.keras.layers.Dense(
+                    num_units, activation="tanh", name="h%d" % (i + 1)
+                )
+            )
+            self._knot_slopes.add(
+                tf.keras.layers.Dense(
+                    num_units, activation="tanh", name="s%d" % (i + 1)
+                )
+            )
 
-        self._bin_widths.add(tf.keras.layers.Dense(
-            D * self._nbins, activation=self._bin_positions, name="w%d" % (num_layers)
-        ))
-        self._bin_heights.add(tf.keras.layers.Dense(
-            D * self._nbins, activation=self._bin_positions, name="h%d" % (num_layers)
-        ))
-        self._knot_slopes.add(tf.keras.layers.Dense(
-            D * (self._nbins - 1), activation=self._slopes, name="s%d" % (num_layers)
-        ))
+        self._bin_widths.add(
+            tf.keras.layers.Dense(
+                D * self._nbins,
+                activation=self._bin_positions,
+                name="w%d" % (num_layers),
+            )
+        )
+        self._bin_heights.add(
+            tf.keras.layers.Dense(
+                D * self._nbins,
+                activation=self._bin_positions,
+                name="h%d" % (num_layers),
+            )
+        )
+        self._knot_slopes.add(
+            tf.keras.layers.Dense(
+                D * (self._nbins - 1),
+                activation=self._slopes,
+                name="s%d" % (num_layers),
+            )
+        )
         self._built = True
 
     def _bin_positions(self, x):

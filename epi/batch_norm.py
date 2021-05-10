@@ -27,18 +27,14 @@ from tensorflow_probability.python.bijectors import bijector
 
 
 __all__ = [
-    'BatchNormalization',
+    "BatchNormalization",
 ]
 
 
-def _undo_batch_normalization(x,
-                              mean,
-                              variance,
-                              offset,
-                              scale,
-                              variance_epsilon,
-                              name=None):
-  r"""Inverse of tf.nn.batch_normalization.
+def _undo_batch_normalization(
+    x, mean, variance, offset, scale, variance_epsilon, name=None
+):
+    r"""Inverse of tf.nn.batch_normalization.
 
   Args:
     x: Input `Tensor` of arbitrary dimensionality.
@@ -55,22 +51,23 @@ def _undo_batch_normalization(x,
   Returns:
     batch_unnormalized: The de-normalized, de-scaled, de-offset `Tensor`.
   """
-  with tf.name_scope(name or 'undo_batch_normalization'):
-    # inv = tf.rsqrt(variance + variance_epsilon)
-    # if scale is not None:
-    #   inv *= scale
-    # return x * inv + (
-    #     offset - mean * inv if offset is not None else -mean * inv)
-    rescale = tf.sqrt(variance + variance_epsilon)
-    if scale is not None:
-      rescale = rescale / scale
-    batch_unnormalized = x * rescale + (
-        mean - offset * rescale if offset is not None else mean)
-    return batch_unnormalized
+    with tf.name_scope(name or "undo_batch_normalization"):
+        # inv = tf.rsqrt(variance + variance_epsilon)
+        # if scale is not None:
+        #   inv *= scale
+        # return x * inv + (
+        #     offset - mean * inv if offset is not None else -mean * inv)
+        rescale = tf.sqrt(variance + variance_epsilon)
+        if scale is not None:
+            rescale = rescale / scale
+        batch_unnormalized = x * rescale + (
+            mean - offset * rescale if offset is not None else mean
+        )
+        return batch_unnormalized
 
 
 class BatchNormalization(bijector.Bijector):
-  """Compute `Y = g(X) s.t. X = g^-1(Y) = (Y - mean(Y)) / std(Y)`.
+    """Compute `Y = g(X) s.t. X = g^-1(Y) = (Y - mean(Y)) / std(Y)`.
 
   Applies Batch Normalization [(Ioffe and Szegedy, 2015)][1] to samples from a
   data distribution. This can be used to stabilize training of normalizing
@@ -124,12 +121,14 @@ class BatchNormalization(bijector.Bijector):
        Processing Systems_, 2017. https://arxiv.org/abs/1705.07057
   """
 
-  def __init__(self,
-               batchnorm_layer=None,
-               training=True,
-               validate_args=False,
-               name='batch_normalization'):
-    """Instantiates the `BatchNormalization` bijector.
+    def __init__(
+        self,
+        batchnorm_layer=None,
+        training=True,
+        validate_args=False,
+        name="batch_normalization",
+    ):
+        """Instantiates the `BatchNormalization` bijector.
 
     Args:
       batchnorm_layer: `tf.layers.BatchNormalization` layer object. If `None`,
@@ -147,24 +146,25 @@ class BatchNormalization(bijector.Bijector):
         `tf.layers.BatchNormalization`, or if it is specified with `renorm=True`
         or a virtual batch size.
     """
-    # Scale must be positive.
-    g_constraint = lambda x: tf.nn.relu(x) + 1e-6
-    self.batchnorm = batchnorm_layer or tf.keras.layers.BatchNormalization(
-        momentum=0.,
-        gamma_constraint=g_constraint)
-    self._validate_bn_layer(self.batchnorm)
-    self._training = training
-    if isinstance(self.batchnorm.axis, int):
-      forward_min_event_ndims = 1
-    else:
-      forward_min_event_ndims = len(self.batchnorm.axis)
-    super(BatchNormalization, self).__init__(
-        forward_min_event_ndims=forward_min_event_ndims,
-        validate_args=validate_args,
-        name=name)
+        # Scale must be positive.
+        g_constraint = lambda x: tf.nn.relu(x) + 1e-6
+        self.batchnorm = batchnorm_layer or tf.keras.layers.BatchNormalization(
+            momentum=0.0, gamma_constraint=g_constraint
+        )
+        self._validate_bn_layer(self.batchnorm)
+        self._training = training
+        if isinstance(self.batchnorm.axis, int):
+            forward_min_event_ndims = 1
+        else:
+            forward_min_event_ndims = len(self.batchnorm.axis)
+        super(BatchNormalization, self).__init__(
+            forward_min_event_ndims=forward_min_event_ndims,
+            validate_args=validate_args,
+            name=name,
+        )
 
-  def _validate_bn_layer(self, layer):
-    """Check for valid BatchNormalization layer.
+    def _validate_bn_layer(self, layer):
+        """Check for valid BatchNormalization layer.
 
     Args:
       layer: Instance of `tf.layers.BatchNormalization`.
@@ -173,91 +173,100 @@ class BatchNormalization(bijector.Bijector):
       `tf.layers.BatchNormalization`, or if `batchnorm_layer.renorm=True` or
       if `batchnorm_layer.virtual_batch_size` is specified.
     """
-    if (not isinstance(layer, tf.keras.layers.BatchNormalization) and
-        not isinstance(layer, tf1.layers.BatchNormalization)):
-      raise ValueError(
-          'batchnorm_layer must be an instance of '
-          '`tf.keras.layers.BatchNormalization` or '
-          '`tf.compat.v1.layers.BatchNormalization`. Got {}'.format(
-              type(layer)))
-    if layer.renorm:
-      raise ValueError(
-          '`BatchNormalization` Bijector does not support renormalization, '
-          'but `batchnorm_layer.renorm` is `True`.')
-    if layer.virtual_batch_size:
-      raise ValueError(
-          '`BatchNormlization` Bijector does not support virtual batch sizes, '
-          'but `batchnorm_layer.virtual_batch_size` is `True`.')
+        if not isinstance(layer, tf.keras.layers.BatchNormalization) and not isinstance(
+            layer, tf1.layers.BatchNormalization
+        ):
+            raise ValueError(
+                "batchnorm_layer must be an instance of "
+                "`tf.keras.layers.BatchNormalization` or "
+                "`tf.compat.v1.layers.BatchNormalization`. Got {}".format(type(layer))
+            )
+        if layer.renorm:
+            raise ValueError(
+                "`BatchNormalization` Bijector does not support renormalization, "
+                "but `batchnorm_layer.renorm` is `True`."
+            )
+        if layer.virtual_batch_size:
+            raise ValueError(
+                "`BatchNormlization` Bijector does not support virtual batch sizes, "
+                "but `batchnorm_layer.virtual_batch_size` is `True`."
+            )
 
-  def _get_broadcast_fn(self, x):
-    ndims = len(x.shape)
-    reduction_axes = [i for i in range(ndims) if i not in self.batchnorm.axis]
-    # Broadcasting only necessary for single-axis batch norm where the axis is
-    # not the last dimension
-    broadcast_shape = [1] * ndims
-    broadcast_shape[self.batchnorm.axis[0]] = x.shape[self.batchnorm.axis[0]]
-    def _broadcast(v):
-      if (v is not None and
-          len(v.shape) != ndims and
-          reduction_axes != list(range(ndims - 1))):
-        return tf.reshape(v, broadcast_shape)
-      return v
-    return _broadcast
+    def _get_broadcast_fn(self, x):
+        ndims = len(x.shape)
+        reduction_axes = [i for i in range(ndims) if i not in self.batchnorm.axis]
+        # Broadcasting only necessary for single-axis batch norm where the axis is
+        # not the last dimension
+        broadcast_shape = [1] * ndims
+        broadcast_shape[self.batchnorm.axis[0]] = x.shape[self.batchnorm.axis[0]]
 
-  def _normalize(self, y):
-    out = self.batchnorm.apply(y, training=self._training)
-    return out
+        def _broadcast(v):
+            if (
+                v is not None
+                and len(v.shape) != ndims
+                and reduction_axes != list(range(ndims - 1))
+            ):
+                return tf.reshape(v, broadcast_shape)
+            return v
 
-  def _de_normalize(self, x):
-    # Uses the saved statistics.
-    if not self.batchnorm.built:
-      self.batchnorm.build(x.shape)
-    broadcast_fn = self._get_broadcast_fn(x)
-    mean = broadcast_fn(self.batchnorm.moving_mean)
-    variance = broadcast_fn(self.batchnorm.moving_variance)
-    beta = broadcast_fn(self.batchnorm.beta) if self.batchnorm.center else None
-    gamma = broadcast_fn(self.batchnorm.gamma) if self.batchnorm.scale else None
-    return _undo_batch_normalization(
-        x, mean, variance, beta, gamma, self.batchnorm.epsilon)
+        return _broadcast
 
-  def _forward(self, x):
-    x = self._normalize(x)
-    return x
+    def _normalize(self, y):
+        out = self.batchnorm.apply(y, training=self._training)
+        return out
 
-  def _inverse(self, y):
-    return self._de_normalize(y)
+    def _de_normalize(self, x):
+        # Uses the saved statistics.
+        if not self.batchnorm.built:
+            self.batchnorm.build(x.shape)
+        broadcast_fn = self._get_broadcast_fn(x)
+        mean = broadcast_fn(self.batchnorm.moving_mean)
+        variance = broadcast_fn(self.batchnorm.moving_variance)
+        beta = broadcast_fn(self.batchnorm.beta) if self.batchnorm.center else None
+        gamma = broadcast_fn(self.batchnorm.gamma) if self.batchnorm.scale else None
+        return _undo_batch_normalization(
+            x, mean, variance, beta, gamma, self.batchnorm.epsilon
+        )
 
-  def _forward_log_det_jacobian(self, x):
-    # Uses saved statistics to compute volume distortion.
-    return -self._inverse_log_det_jacobian(x, use_saved_statistics=False)
+    def _forward(self, x):
+        x = self._normalize(x)
+        return x
 
-  def _inverse_log_det_jacobian(self, y, use_saved_statistics=True):
-    if not self.batchnorm.built:
-      # Create variables.
-      self.batchnorm.build(y.shape)
+    def _inverse(self, y):
+        return self._de_normalize(y)
 
-    event_dims = self.batchnorm.axis
-    reduction_axes = [i for i in range(len(y.shape)) if i not in event_dims]
+    def _forward_log_det_jacobian(self, x):
+        # Uses saved statistics to compute volume distortion.
+        return -self._inverse_log_det_jacobian(x, use_saved_statistics=False)
 
-    # At training-time, ildj is computed from the mean and log-variance across
-    # the current minibatch.
-    # We use multiplication instead of tf.where() to get easier broadcasting.
-    log_variance = tf.math.log(
-        tf.where(
-            tf.logical_or(use_saved_statistics, tf.logical_not(self._training)),
-            self.batchnorm.moving_variance,
-            tf.nn.moments(x=y, axes=reduction_axes, keepdims=True)[1]) +
-        self.batchnorm.epsilon)
+    def _inverse_log_det_jacobian(self, y, use_saved_statistics=True):
+        if not self.batchnorm.built:
+            # Create variables.
+            self.batchnorm.build(y.shape)
 
-    # TODO(b/137216713): determine whether it's unsafe for the reduce_sums below
-    # to happen across all axes.
-    # `gamma` and `log Var(y)` reductions over event_dims.
-    # Log(total change in area from gamma term).
-    log_total_gamma = tf.reduce_sum(tf.math.log(self.batchnorm.gamma))
+        event_dims = self.batchnorm.axis
+        reduction_axes = [i for i in range(len(y.shape)) if i not in event_dims]
 
-    # Log(total change in area from log-variance term).
-    log_total_variance = tf.reduce_sum(log_variance)
-    # The ildj is scalar, as it does not depend on the values of x and are
-    # constant across minibatch elements.
-    return - log_total_gamma + 0.5 * log_total_variance
+        # At training-time, ildj is computed from the mean and log-variance across
+        # the current minibatch.
+        # We use multiplication instead of tf.where() to get easier broadcasting.
+        log_variance = tf.math.log(
+            tf.where(
+                tf.logical_or(use_saved_statistics, tf.logical_not(self._training)),
+                self.batchnorm.moving_variance,
+                tf.nn.moments(x=y, axes=reduction_axes, keepdims=True)[1],
+            )
+            + self.batchnorm.epsilon
+        )
 
+        # TODO(b/137216713): determine whether it's unsafe for the reduce_sums below
+        # to happen across all axes.
+        # `gamma` and `log Var(y)` reductions over event_dims.
+        # Log(total change in area from gamma term).
+        log_total_gamma = tf.reduce_sum(tf.math.log(self.batchnorm.gamma))
+
+        # Log(total change in area from log-variance term).
+        log_total_variance = tf.reduce_sum(log_variance)
+        # The ildj is scalar, as it does not depend on the values of x and are
+        # constant across minibatch elements.
+        return -log_total_gamma + 0.5 * log_total_variance

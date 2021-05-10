@@ -98,4 +98,3 @@ def linear2D_freq_np(a11, a12, a21, a22):
         imag_lambda = eig1_i
 
     return real_lambda, imag_lambda
-
