@@ -329,18 +329,20 @@ def z_from_eigs_analytic(eigs):
 def eigs_from_z_analytic(z):
     return np.matmul(A_EIG_inv, z)
 
-def get_SC_z_mode_path(dist, z_init, ind, vals, lr, num_steps, do_plot=False, labels=None):
+def get_SC_z_mode_path(dist, z_init, ind, vals, lrs, num_steps, decay = 0.5, decay_steps=100, do_plot=False, labels=None):
     z0 = None
     z_stars = []
     for i in range(vals.shape[0]):
         val = vals[i]
+        _lr = lrs[i]
         _num_steps = num_steps[i]
         if z0 is None:
             z0 = z_init.copy()
         else:
             z0 = zs[-1].copy()
         z0[ind] = val
-        zs, log_q_zs = get_conditional_mode(dist, ind, val, z0, lr=lr, num_steps=_num_steps)
+        zs, log_q_zs = get_conditional_mode(dist, ind, val, z0, lr=_lr, num_steps=_num_steps,
+                                            decay=decay, decay_steps=decay_steps)
         z_stars.append(zs[-1])
         if do_plot:
             fig, axs = plt.subplots(1,2,figsize=(10,4))
@@ -390,7 +392,7 @@ def perturbed_acc_plots(facs, pPs, pAs, c_stars, fontsize=12, label="", figdir=N
         yticks = [50, 75, 100]
 
     for task, ps in zip(['P', 'A'], [pPs, pAs]):
-        fig, ax = plt.subplots(1,1,figsize = (3., 1.75))
+        fig, ax = plt.subplots(1,1,figsize = (3., 1.5))
         for i, _ps in enumerate(ps):
             plt.errorbar(facs, 
                          np.mean(_ps, axis=0), 
@@ -398,7 +400,7 @@ def perturbed_acc_plots(facs, pPs, pAs, c_stars, fontsize=12, label="", figdir=N
                          c=c_stars[i], 
                          lw=2)
         ax.set_yticks(yticks)
-        ax.set_yticklabels(["%d%%" % tick for tick in yticks], fontsize=fontsize)
+        ax.set_yticklabels(["%d" % tick for tick in yticks], fontsize=fontsize)
         ax.set_xticks(xticks)
         ax.set_xticklabels(xticks, fontsize=fontsize)
         plt.tight_layout()

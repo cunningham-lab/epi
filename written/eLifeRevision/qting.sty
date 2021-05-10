@@ -1,0 +1,49 @@
+% \q is just a marker to place in the original file, it just discards the label
+\def\q#1{}
+
+
+% \quotefrom goes in the new file and specifies which file to read.
+% The file is read line by line using `\read` and plain TeX's \loop
+% reading each line until end of file (\ifeof).
+%
+% Crucially, \read reads _at least_ a line, but always reads entire brace groups
+% So the second argument of \q with the quotation will always be read in one "go".
+\def\quotefrom#1{%
+\newread\q@in
+\openin\q@in#1\relax
+\loop
+% This puts the next line/brace group of old.tex into \temp
+\read\q@in to \temp
+% This puts tests if \temp includes \q, if not it does nothing.
+% And we loop to the next line, if it does save the second argument of \q in a macro.
+% with name based on the first argument.
+\expandafter\testq\temp\testq\q\@nil\relax\testq\quotefrom
+% keep going till the end of the file
+\ifeof\q@in
+\else
+\repeat
+}
+
+
+
+% use a delimited argument to find the next two things after \q.
+% If they are \@nil and {}, then this is the "fake" instance inserted in
+% the call. In that case do nothing. Otherwise this is a \q in the document, so
+% save the second argument of \q (#3) in a macro with name \q-firstArgOfq.
+\long\def\testq#1\q#2#3#4\testq#5\quotefrom{%
+\def\@tempa{#2}%
+\ifx\@tempa\@nnil
+\else
+\@namedef{q-#2}{#3}%
+\fi}
+
+
+% if the macro for the referenced quotation is defined, use it, otherwise
+% warn on the log and in the document.
+\def\quoting#1{%
+\expandafter\ifx\csname q-#1\endcsname\relax
+[Missing quote \texttt{#1}]%
+\typeout{what quote [#1] ?}%
+\else
+\csname q-#1\expandafter\endcsname
+\fi}
