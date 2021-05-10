@@ -10,18 +10,18 @@ DTYPE = tf.float32
 
 # Parse script command-line parameters.
 parser = argparse.ArgumentParser()
-parser.add_argument('--p', type=float, default=0.5) # neuron type
-parser.add_argument('--beta', type=float, default=4.) # aug lag hp
-parser.add_argument('--elemwise_fn', type=str, default="affine") # aug lag hp
-parser.add_argument('--logc0', type=float, default=0.) # log10 of c_0
-parser.add_argument('--mu_std', type=float, default=0.1) 
-parser.add_argument('--random_seed', type=int, default=1)
+parser.add_argument("--p", type=float, default=0.5)  # neuron type
+parser.add_argument("--beta", type=float, default=4.0)  # aug lag hp
+parser.add_argument("--elemwise_fn", type=str, default="affine")  # aug lag hp
+parser.add_argument("--logc0", type=float, default=0.0)  # log10 of c_0
+parser.add_argument("--mu_std", type=float, default=0.1)
+parser.add_argument("--random_seed", type=int, default=1)
 args = parser.parse_args()
 
 p = args.p
 AL_beta = args.beta
 elemwise_fn = args.elemwise_fn
-c0 = 10.**args.logc0
+c0 = 10.0 ** args.logc0
 mu_std = args.mu_std
 random_seed = args.random_seed
 
@@ -29,8 +29,8 @@ M = 100
 N = 200
 
 # 1. Specify the V1 model for EPI.
-lb = -5.
-ub = 5.
+lb = -5.0
+ub = 5.0
 
 sW = Parameter("sW", 1, lb=lb, ub=ub)
 vW = Parameter("vW", 1, lb=lb, ub=ub)
@@ -42,14 +42,14 @@ parameters = [sW, vW, dW, hW]
 model = Model("SC_Circuit_var", parameters)
 
 # EP values
-mu = np.array([p, 1.-p, mu_std**2, mu_std**2])
+mu = np.array([p, 1.0 - p, mu_std ** 2, mu_std ** 2])
 
 model.set_eps(SC_acc_var(p))
 
 # 3. Run EPI.
 q_theta, opt_data, epi_path, failed = model.epi(
     mu,
-    arch_type='coupling',
+    arch_type="coupling",
     num_stages=3,
     num_layers=2,
     num_units=50,

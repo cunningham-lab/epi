@@ -10,8 +10,8 @@ from neural_circuits.STG_Circuit import Simulate, Simulate_all, NetworkFreq
 
 # 1. Specify the V1 model for EPI.
 D = 2
-g_el = Parameter("g_el", 1, lb=4., ub=8.)
-g_synA = Parameter("g_synA", 1, lb=0.01, ub=4.)
+g_el = Parameter("g_el", 1, lb=4.0, ub=8.0)
+g_synA = Parameter("g_synA", 1, lb=0.01, ub=4.0)
 
 # Define model
 name = "STG"
@@ -21,6 +21,7 @@ model = Model(name, parameters)
 freq = 0.55
 
 mu = np.array([freq])
+
 
 def hessian(z, f):
     """Calculates the Hessian.
@@ -38,16 +39,18 @@ def hessian(z, f):
     del z  # Get rid of dummy variable.
     return hess_z.numpy()
 
+
 def _hessian(z, f):
     with tf.GradientTape(persistent=True) as tape:
         f_z = f(z)
         st = time.time()
-        print('calculating the gradient')
+        print("calculating the gradient")
         dfdz = tape.gradient(f_z, z)
-        print('calculating the gradient done')
+        print("calculating the gradient done")
         print(time.time() - st)
         print(dfdz)
     return tape.batch_jacobian(dfdz, z)
+
 
 def _set_z_type(z):
     if type(z) is list:
@@ -55,12 +58,15 @@ def _set_z_type(z):
     z = z.astype(np.float32)
     return z
 
+
 dt = 0.025
 T = 300
-sigma_I = 0.
+sigma_I = 0.0
 
 network_freq = NetworkFreq(dt, T, sigma_I, mu)
 Ds = [param.D for param in model.parameters]
+
+
 def f(z):
     ind = 0
     zs = []
@@ -69,17 +75,20 @@ def f(z):
         ind += D
     return network_freq(*zs)
 
+
 @tf.function
 def temp(z):
     T_x = f(z)
-    return T_x[:,0]
+    return T_x[:, 0]
+
+
 z_star = np.array([[6.1071167, 1.3093035]], dtype=np.float32)
 
 start_time = time.time()
-print('Calculating hessian')
+print("Calculating hessian")
 df2dz2 = hessian(z_star, temp)
 end_time = time.time()
 
 print(df2dz2)
-total_time = end_time-start_time
-print('took', total_time, 'seconds')
+total_time = end_time - start_time
+print("took", total_time, "seconds")

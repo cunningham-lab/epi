@@ -13,6 +13,7 @@ import pandas as pd
 from sklearn.neighbors import KernelDensity
 from epi.error_formatters import format_type_err_msg
 
+
 def dbg_check(tensor, name):
     num_elems = 1
     for dim in tensor.shape:
@@ -20,8 +21,11 @@ def dbg_check(tensor, name):
     num_infs = tf.reduce_sum(tf.cast(tf.math.is_inf(tensor), tf.float32))
     num_nans = tf.reduce_sum(tf.cast(tf.math.is_nan(tensor), tf.float32))
 
-    print(name, "infs %d/%d" % (num_infs, num_elems), "nans %d/%d" % (num_nans, num_elems))
+    print(
+        name, "infs %d/%d" % (num_infs, num_elems), "nans %d/%d" % (num_nans, num_elems)
+    )
     return num_nans or num_infs
+
 
 def get_hash(hash_vars):
     m = hashlib.md5()
@@ -29,9 +33,10 @@ def get_hash(hash_vars):
         if hash_var is None:
             continue
         elif type(hash_var) is str:
-            hash_var = hash_var.encode('utf-8')
+            hash_var = hash_var.encode("utf-8")
         m.update(hash_var)
     return m.hexdigest()
+
 
 def set_dir_index(index, index_file):
     exists = os.path.exists(index_file)
@@ -40,13 +45,14 @@ def set_dir_index(index, index_file):
             cur_index = pickle.load(f)
         for key, value in cur_index.items():
             if type(value) is np.ndarray:
-                assert(np.isclose(index[key], value).all())
+                assert np.isclose(index[key], value).all()
             else:
-                assert(index[key] == value)
+                assert index[key] == value
     else:
         with open(index_file, "wb") as f:
             pickle.dump(index, f)
     return exists
+
 
 def get_dir_index(path):
     try:
@@ -55,6 +61,7 @@ def get_dir_index(path):
     except FileNotFoundError:
         return None
     return index
+
 
 def gaussian_backward_mapping(mu, Sigma):
     """Calculates natural parameter of multivaraite gaussian from mean and cov.
@@ -124,44 +131,40 @@ def np_column_vec(x):
     return x
 
 
-def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1., check_last_k=None, by_df=False):
-    paths = sorted(epi_df['path'].unique())
+def get_max_H_dist(
+    model, epi_df, mu, alpha=0.05, nu=1.0, check_last_k=None, by_df=False
+):
+    paths = sorted(epi_df["path"].unique())
     best_Hs = []
     best_ks = []
     df_rows = []
     any_converged = False
     for path in paths:
-        epi_df2 = epi_df[epi_df['path'] == path]
-        _D = epi_df2.iloc[0]['arch']['D']
-        _rs = epi_df2.iloc[0]['arch']['random_seed']
+        epi_df2 = epi_df[epi_df["path"] == path]
+        _D = epi_df2.iloc[0]["arch"]["D"]
+        _rs = epi_df2.iloc[0]["arch"]["random_seed"]
         print("Processing EPI: D=%d, rs=%d." % (_D, _rs))
         if by_df:
             df_row = epi_df2.iloc[-1]
-            converged = df_row['converged']
+            converged = df_row["converged"]
             if converged:
-                best_H, best_k = df_row['H'], df_row['k']
+                best_H, best_k = df_row["H"], df_row["k"]
             else:
                 best_H, best_k = None, None
-        else:    
+        else:
             if check_last_k is None:
                 start_k = 0
             else:
-                start_k = int(epi_df2['k'].max()) - check_last_k + 1
+                start_k = int(epi_df2["k"].max()) - check_last_k + 1
             df_row = epi_df2.iloc[0]
-            init = df_row['init']
-            init_params = {"mu":init["mu"], "Sigma":init["Sigma"]}
+            init = df_row["init"]
+            init_params = {"mu": init["mu"], "Sigma": init["Sigma"]}
             nf = model._df_row_to_nf(df_row)
             aug_lag_hps = model._df_row_to_al_hps(df_row)
             best_k, converged, best_H = model.get_convergence_epoch(
-                init_params, 
-                nf, 
-                mu, 
-                aug_lag_hps, 
-                alpha=alpha, 
-                nu=nu,
-                start_k=start_k
+                init_params, nf, mu, aug_lag_hps, alpha=alpha, nu=nu, start_k=start_k
             )
-            print('k', best_k, 'H', best_H)
+            print("k", best_k, "H", best_H)
             tf.keras.backend.clear_session()
         if (not any_converged) and converged:
             any_converged = True
@@ -169,7 +172,7 @@ def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1., check_last_k=None, by_d
         best_ks.append(best_k)
         df_rows.append(df_row)
     print("\n", end="")
-  
+
     best_ks = np.array(best_ks)
     best_Hs = np.array([x if x is not None else np.nan for x in best_Hs])
     if not any_converged:
@@ -180,46 +183,47 @@ def get_max_H_dist(model, epi_df, mu, alpha=0.05, nu=1., check_last_k=None, by_d
     best_k = int(best_ks[ind])
     best_H = best_Hs[ind]
     df_row = df_rows[ind]
-    init = df_row['init']
-    init_params = {"mu":init["mu"], "Sigma":init["Sigma"]}
+    init = df_row["init"]
+    init_params = {"mu": init["mu"], "Sigma": init["Sigma"]}
     nf = model._df_row_to_nf(df_row)
     aug_lag_hps = model._df_row_to_al_hps(df_row)
     dist = model._get_epi_dist(best_k, init_params, nf, mu, aug_lag_hps)
-    
+
     return dist, path, best_k
 
-def get_conditional_mode(dist, ind, val, z0=None, lr=1e-6, num_steps=100, decay=1., decay_steps=100):
+
+def get_conditional_mode(
+    dist, ind, val, z0=None, lr=1e-6, num_steps=100, decay=1.0, decay_steps=100
+):
     if z0 is None:
-        z0 = (dist.nf.lb + dist.nf.ub) / 2.
+        z0 = (dist.nf.lb + dist.nf.ub) / 2.0
         z0[ind] = val
-    z = tf.Variable(initial_value=z0[None,:], dtype=tf.float32, trainable=True)
-    
+    z = tf.Variable(initial_value=z0[None, :], dtype=tf.float32, trainable=True)
+
     log_q_z = dist.log_prob(z.numpy())
-    
+
     zs = [z[0].numpy()]
     log_q_zs = [log_q_z]
-    
+
     for k in range(num_steps):
-        if (k!=0 and (np.mod(k, decay_steps)==0)):
-            lr = lr*decay
-        print('Finding mode %d/%d.\r' %(k+1, num_steps), end="")
+        if k != 0 and (np.mod(k, decay_steps) == 0):
+            lr = lr * decay
+        print("Finding mode %d/%d.\r" % (k + 1, num_steps), end="")
         grad_z = dist._gradient(z).numpy()
         z_np = z.numpy()
         z_next = z_np + lr * grad_z
-        z_next[0,ind] = val
+        z_next[0, ind] = val
         for j in range(4):
-            if z_next[0,j] < dist.nf.lb[j]:
-                z_next[0,j] = dist.nf.lb[j]
-            if z_next[0,j] > dist.nf.ub[j]:
-                z_next[0,j] = dist.nf.ub[j]
-        z = tf.Variable(initial_value=z_next, 
-                        dtype=tf.float32, trainable=True)
-        
+            if z_next[0, j] < dist.nf.lb[j]:
+                z_next[0, j] = dist.nf.lb[j]
+            if z_next[0, j] > dist.nf.ub[j]:
+                z_next[0, j] = dist.nf.ub[j]
+        z = tf.Variable(initial_value=z_next, dtype=tf.float32, trainable=True)
+
         log_q_z = dist.log_prob(z_next)
         zs.append(z_next[0])
         log_q_zs.append(log_q_z)
 
-        
     return zs, log_q_zs
 
 
@@ -270,6 +274,7 @@ def array_str(a):
         array_str += "_" + repeats_str(nums[i], mults[i])
 
     return array_str
+
 
 def aug_lag_vars(z, log_q_z, eps, mu, N):
     """Calculate augmented lagrangian variables requiring gradient tape.
@@ -549,12 +554,13 @@ def plot_square_mat(
     ax.axis("off")
     return texts
 
+
 def pairplot(
     Z,
     dims,
     labels,
-    lb = None,
-    ub = None,
+    lb=None,
+    ub=None,
     clims=None,
     ticks=None,
     c=None,
@@ -563,17 +569,17 @@ def pairplot(
     s=50,
     s_star=100,
     starred=None,
-    c_starred = None,
-    star_marker = '*',
-    traj = None,
+    c_starred=None,
+    star_marker="*",
+    traj=None,
     fontsize=12,
     figsize=(12, 12),
     outlier_stds=10,
     ticksize=None,
     labelpads=None,
     unity_line=False,
-    subplots = None,
-    skip_cbar = False,
+    subplots=None,
+    skip_cbar=False,
     pfname="images/temp.png",
 ):
     M = Z.shape[0]
@@ -586,14 +592,12 @@ def pairplot(
             all_inds = np.arange(c.shape[0])
             below_inds = all_inds[c < clims[0]]
             over_inds = all_inds[c > clims[1]]
-            plot_inds = all_inds[
-                np.logical_and(clims[0] <= c, c <= clims[1])
-            ]
+            plot_inds = all_inds[np.logical_and(clims[0] <= c, c <= clims[1])]
         else:
             plot_inds, below_inds, over_inds = filter_outliers(c, outlier_stds)
             clims = [None, None]
     if ticksize is None:
-        ticksize = fontsize-4
+        ticksize = fontsize - 4
     xlabelpad = None
     ylabelpad = None
     if labelpads is not None:
@@ -601,7 +605,6 @@ def pairplot(
             xlabelpad = labelpads[0]
         if labelpads[1] is not None:
             ylabelpad = labelpads[1]
-
 
     if subplots is not None:
         fig, axs = subplots
@@ -611,7 +614,7 @@ def pairplot(
         dim_i = dims[i]
         for j in range(1, num_dims):
             if num_dims == 2:
-                ax = axs#plt.gca()
+                ax = axs  # plt.gca()
             else:
                 ax = axs[i, j - 1]
             if j > i:
@@ -646,23 +649,37 @@ def pairplot(
                     )
                 else:
                     h = ax.scatter(
-                        Z[:, dim_j], Z[:, dim_i], c='k', s=s, edgecolors="k", linewidths=0.25,
+                        Z[:, dim_j],
+                        Z[:, dim_i],
+                        c="k",
+                        s=s,
+                        edgecolors="k",
+                        linewidths=0.25,
                     )
                 if starred is not None:
                     if c_starred is None:
                         ax.scatter(
-                            starred[:, dim_j], starred[:, dim_i], s=s_star, c='k', 
-                            marker=star_marker, edgecolors="k", linewidths=1.,
+                            starred[:, dim_j],
+                            starred[:, dim_i],
+                            s=s_star,
+                            c="k",
+                            marker=star_marker,
+                            edgecolors="k",
+                            linewidths=1.0,
                         )
                     else:
                         ax.scatter(
-                            starred[:, dim_j], starred[:, dim_i], s=s_star, c=c_starred, 
-                            marker=star_marker, edgecolors="k", linewidths=1.5,
+                            starred[:, dim_j],
+                            starred[:, dim_i],
+                            s=s_star,
+                            c=c_starred,
+                            marker=star_marker,
+                            edgecolors="k",
+                            linewidths=1.5,
                         )
 
                 if traj is not None:
-                    ax.plot(traj[:,dim_j], traj[:,dim_i], 'k', lw=3)
-
+                    ax.plot(traj[:, dim_j], traj[:, dim_i], "k", lw=3)
 
                 if unity_line:
                     buf_frac = 0.1
@@ -670,11 +687,11 @@ def pairplot(
                     ax_ylim = ax.get_ylim()
                     min_val = min(ax_xlim[0], ax_ylim[0])
                     max_val = max(ax_xlim[1], ax_ylim[1])
-                    diff = max_val-min_val
-                    buf = buf_frac*diff
+                    diff = max_val - min_val
+                    buf = buf_frac * diff
                     min_val = min_val - buf
                     max_val = max_val + buf
-                    ax.plot([min_val, max_val], [min_val, max_val], 'k--')
+                    ax.plot([min_val, max_val], [min_val, max_val], "k--")
                     ax.set_xlim([min_val, max_val])
                     ax.set_ylim([min_val, max_val])
 
@@ -690,7 +707,7 @@ def pairplot(
                 if ticks is not None:
                     ax.set_xticks(ticks, fontsize=fontsize)
                     ax.set_yticks(ticks, fontsize=fontsize)
-                    
+
                 if not unity_line:
                     if lb is not None and ub is not None:
                         ax.set_xlim(lb[dim_j], ub[dim_j])
@@ -709,6 +726,7 @@ def pairplot(
         clb.ax.tick_params(labelsize=ticksize)
     return fig, axs
 
+
 def filter_outliers(c, num_stds=4):
     max_stat = 10e5
     _c = c[np.logical_and(c < max_stat, c > -max_stat)]
@@ -722,80 +740,109 @@ def filter_outliers(c, num_stds=4):
     ]
     return plot_inds, below_inds, over_inds
 
-purple = '#4C0099'
-def plot_T_x(T_x, T_x_sim, bins=30, xmin=None, xmax=None, 
-             x_mean=None, x_std=None, figsize=None,
-             xlabel=None, ylim=None, fontsize=14):
+
+purple = "#4C0099"
+
+
+def plot_T_x(
+    T_x,
+    T_x_sim,
+    bins=30,
+    xmin=None,
+    xmax=None,
+    x_mean=None,
+    x_std=None,
+    figsize=None,
+    xlabel=None,
+    ylim=None,
+    fontsize=14,
+):
     if xmin is not None and xmax is not None:
         _range = (xmin, xmax)
     else:
-        _range = (x_mean - 4*x_std, x_mean + 4*x_std)
-    fig, ax = plt.subplots(1,1, figsize=figsize)
-    ['ABC simulations', 'ABC posterior predictive']
+        _range = (x_mean - 4 * x_std, x_mean + 4 * x_std)
+    fig, ax = plt.subplots(1, 1, figsize=figsize)
+    ["ABC simulations", "ABC posterior predictive"]
     if T_x is None:
-        ax.hist(T_x_sim, bins=bins, range=_range, color=purple, 
-                alpha=0.5, label='ABC posterior predictive')
+        ax.hist(
+            T_x_sim,
+            bins=bins,
+            range=_range,
+            color=purple,
+            alpha=0.5,
+            label="ABC posterior predictive",
+        )
     else:
-        n, bins, patches = ax.hist(T_x, bins=bins, color='k', range=_range, 
-                alpha=0.5, label='ABC simulations')
-        ax.hist(T_x_sim, bins=bins, color=purple, alpha=0.5, label='ABC posterior predictive')
+        n, bins, patches = ax.hist(
+            T_x, bins=bins, color="k", range=_range, alpha=0.5, label="ABC simulations"
+        )
+        ax.hist(
+            T_x_sim,
+            bins=bins,
+            color=purple,
+            alpha=0.5,
+            label="ABC posterior predictive",
+        )
     if ylim is not None:
         ax.set_ylim(ylim)
     ylim = ax.get_ylim()
-    ax.plot([x_mean, x_mean], ylim, 'k--')
-    ax.plot([x_mean+2*x_std, x_mean+2*x_std], ylim, '--', c=[0.5, 0.5, 0.5])
-    ax.plot([x_mean-2*x_std, x_mean-2*x_std], ylim, '--', c=[0.5, 0.5, 0.5])
+    ax.plot([x_mean, x_mean], ylim, "k--")
+    ax.plot([x_mean + 2 * x_std, x_mean + 2 * x_std], ylim, "--", c=[0.5, 0.5, 0.5])
+    ax.plot([x_mean - 2 * x_std, x_mean - 2 * x_std], ylim, "--", c=[0.5, 0.5, 0.5])
 
     if xlabel is not None:
         ax.set_xlabel(xlabel, fontsize=fontsize)
-    xticks = [x_mean-2*x_std, x_mean, x_mean+2*x_std]
+    xticks = [x_mean - 2 * x_std, x_mean, x_mean + 2 * x_std]
     xticks = np.around(xticks, 2)
     ax.set_xticks(xticks)
-    ax.set_xticklabels(xticks, fontsize=(fontsize-4))
-    plt.setp(ax.get_yticklabels(), fontsize=(fontsize-4))
-    ax.set_ylabel('count', fontsize=fontsize)
+    ax.set_xticklabels(xticks, fontsize=(fontsize - 4))
+    plt.setp(ax.get_yticklabels(), fontsize=(fontsize - 4))
+    ax.set_ylabel("count", fontsize=fontsize)
 
     ax.set_yticks([])
     ax.set_yticklabels([])
 
     return ax
 
-def plot_opt(epi_df, max_k=None, cs=None, fontsize=12, H_ylim=None, figdir='./', save=False):
-    ticksize = fontsize-6
+
+def plot_opt(
+    epi_df, max_k=None, cs=None, fontsize=12, H_ylim=None, figdir="./", save=False
+):
+    ticksize = fontsize - 6
     if max_k is None:
-        max_k = epi_df['k'].max()
-    keep = epi_df['k'] <= max_k
-    iters = epi_df['iteration'][keep].to_numpy()
-    H = epi_df['H'][keep].to_numpy()
-    m = epi_df.columns.str.contains('R').sum()
-    Rs = [epi_df['R%d' % r][keep].to_numpy() for r in range(1, m+1)]
-    
-    fig, ax = plt.subplots(1,1,figsize=(5,4))
-    ax.plot(iters, H, 'k')
+        max_k = epi_df["k"].max()
+    keep = epi_df["k"] <= max_k
+    iters = epi_df["iteration"][keep].to_numpy()
+    H = epi_df["H"][keep].to_numpy()
+    m = epi_df.columns.str.contains("R").sum()
+    Rs = [epi_df["R%d" % r][keep].to_numpy() for r in range(1, m + 1)]
+
+    fig, ax = plt.subplots(1, 1, figsize=(5, 4))
+    ax.plot(iters, H, "k")
     plt.setp(ax.get_xticklabels(), fontsize=ticksize)
     plt.setp(ax.get_yticklabels(), fontsize=ticksize)
-    plt.xlabel('iterations', fontsize=fontsize)
+    plt.xlabel("iterations", fontsize=fontsize)
     if H_ylim is not None:
         ax.set_ylim(H_ylim)
     if save:
         plt.tight_layout()
-        plt.savefig(os.path.join(figdir, 'opt_H.png'))
+        plt.savefig(os.path.join(figdir, "opt_H.png"))
     plt.show()
- 
-    mu_c = .5*np.ones(3,)
+
+    mu_c = 0.5 * np.ones(3,)
     if cs is None:
-        cs = ['k']
-    fig, ax = plt.subplots(1,1,figsize=(5,4))
+        cs = ["k"]
+    fig, ax = plt.subplots(1, 1, figsize=(5, 4))
     for i in range(m):
-        line = '--' if (i >= m//2) else '-'
+        line = "--" if (i >= m // 2) else "-"
         print(i, line)
-        ax.plot(iters, Rs[i], line, c=cs[i%(m//2)])
+        ax.plot(iters, Rs[i], line, c=cs[i % (m // 2)])
     plt.plot([0, iters[-1]], [0, 0], c=mu_c)
-    plt.xlabel('iterations', fontsize=fontsize)
+    plt.xlabel("iterations", fontsize=fontsize)
     plt.setp(ax.get_xticklabels(), fontsize=ticksize)
     plt.setp(ax.get_yticklabels(), fontsize=ticksize)
     if save:
         plt.tight_layout()
-        plt.savefig(os.path.join(figdir, 'opt_R.png'))
+        plt.savefig(os.path.join(figdir, "opt_R.png"))
     plt.show()
     return None

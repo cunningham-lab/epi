@@ -6,7 +6,7 @@ from epi.models import Parameter, Model
 import time
 
 DTYPE = tf.float32
-BETA = 500.
+BETA = 500.0
 
 # Set constant parameters.
 # conductances
@@ -61,8 +61,8 @@ w = 20
 min_freq = 0.0
 max_freq = 1.0
 num_freqs = 101
-freqs = np.linspace(min_freq, max_freq, num_freqs, dtype=np.float32)[:,None]
-dFreq = freqs[1,0] - freqs[0,0]
+freqs = np.linspace(min_freq, max_freq, num_freqs, dtype=np.float32)[:, None]
+dFreq = freqs[1, 0] - freqs[0, 0]
 
 
 def get_Phi(dt, T):
@@ -77,21 +77,23 @@ def get_Phi(dt, T):
     Phi = tf.constant(np.array(phis).T, dtype=tf.complex64)
     return Phi
 
+
 # [T, K]
 avg_filter = (1.0 / w) * tf.ones((w, 1, 1), dtype=DTYPE)
-#freqs = np.linspace(min_freq, max_freq, num_freqs, dtype=np.float32)[None,:]
-_x_range = np.arange(num_freqs)[None,:]
+# freqs = np.linspace(min_freq, max_freq, num_freqs, dtype=np.float32)[None,:]
+_x_range = np.arange(num_freqs)[None, :]
+
 
 def Simulate(dt, T, sigma_I):
     Phi = get_Phi(dt, T)
+
     def simulate(g_el, g_synA):
-        g_el = 1e-9*g_el[:,0]
-        g_synA = 1e-9*g_synA[:,0]
+        g_el = 1e-9 * g_el[:, 0]
+        g_synA = 1e-9 * g_synA[:, 0]
 
         # get number of batch samples
         M = g_el.shape[0]
         _zeros = tf.zeros((M,), dtype=DTYPE)
-
 
         def f(x):
             # x contains
@@ -120,7 +122,7 @@ def Simulate(dt, T, sigma_I):
                 ],
                 axis=1,
             )
-            
+
             I_syn = tf.stack(
                 [
                     g_synB * S_inf[:, 1] * (V_m[:, 0] - V_syn),
@@ -138,7 +140,9 @@ def Simulate(dt, T, sigma_I):
             lambda_N = (phi_N) * tf.math.cosh((V_m - v_3) / (2 * v_4))
             tau_h = (272.0 - (-1499.0 / (1.0 + tf.exp((-V_m + v_7) / v_8)))) / 1000.0
 
-            dVmdt = (1.0 / C_m) * (-I_total + sigma_I*tf.random.normal(I_total.shape, 0., 1.))
+            dVmdt = (1.0 / C_m) * (
+                -I_total + sigma_I * tf.random.normal(I_total.shape, 0.0, 1.0)
+            )
             dNdt = lambda_N * (N_inf - N)
             dHdt = (H_inf - H) / tau_h
 
@@ -146,28 +150,27 @@ def Simulate(dt, T, sigma_I):
             return dxdt
 
         x0 = tf.constant(
-                [
-                    -0.04169771,
-                    -0.04319491,
-                    0.00883992,
-                    -0.06879824,
-                    0.03048103,
-                    0.00151316,
-                    0.19784773,
-                    0.56514935,
-                    0.12214069,
-                    0.35290397,
-                    0.08614699,
-                    0.04938177,
-                    0.05568701,
-                    0.07007949,
-                    0.05790969,
-                ],
-                dtype=DTYPE
-            )
+            [
+                -0.04169771,
+                -0.04319491,
+                0.00883992,
+                -0.06879824,
+                0.03048103,
+                0.00151316,
+                0.19784773,
+                0.56514935,
+                0.12214069,
+                0.35290397,
+                0.08614699,
+                0.04938177,
+                0.05568701,
+                0.07007949,
+                0.05790969,
+            ],
+            dtype=DTYPE,
+        )
 
-
-        x0 = tf.tile(x0[None,:], [M, 1])
+        x0 = tf.tile(x0[None, :], [M, 1])
 
         x = x0
         vs = [x[:, 2]]
@@ -175,15 +178,17 @@ def Simulate(dt, T, sigma_I):
             dxdt = f(x)
             x = x + dxdt * dt
             vs.append(x[:, 2])
-            
+
         x_t = tf.stack(vs, axis=0)
         return x_t
 
     return simulate
 
+
 def NetworkFreq(dt, T, sigma_I, mu):
     simulate = Simulate(dt, T, sigma_I)
     Phi = get_Phi(dt, T)
+
     def network_freq(g_el, g_synA):
         """Simulate the STG circuit given parameters z.
 
@@ -197,7 +202,7 @@ def NetworkFreq(dt, T, sigma_I, mu):
 
         x_t = simulate(g_el, g_synA)
 
-        v = tf.transpose(x_t[:,:,None], [1,0,2])[:,fft_start:, :]
+        v = tf.transpose(x_t[:, :, None], [1, 0, 2])[:, fft_start:, :]
         v_rect = tf.nn.relu(v)  # [M5,T-fft,1]
         v_rect_LPF = tf.nn.conv1d(v_rect, avg_filter, stride=1, padding="VALID")[
             :, :, 0
@@ -206,23 +211,26 @@ def NetworkFreq(dt, T, sigma_I, mu):
 
         V = tf.matmul(tf.cast(v_rect_LPF, tf.complex64), Phi)
 
-        soft_argmax = tf.reduce_sum(tf.nn.softmax(BETA*tf.abs(V), axis=1)*_x_range, axis=1, keepdims=True)
-        f_h = soft_argmax*dFreq + min_freq
+        soft_argmax = tf.reduce_sum(
+            tf.nn.softmax(BETA * tf.abs(V), axis=1) * _x_range, axis=1, keepdims=True
+        )
+        f_h = soft_argmax * dFreq + min_freq
         T_x = tf.concat((f_h, tf.square(f_h - mu[0])), 1)
         return T_x
 
     return network_freq
 
+
 def Simulate_all(dt, T, sigma_I):
     Phi = get_Phi(dt, T)
+
     def simulate(g_el, g_synA):
-        g_el = 1e-9*g_el[:,0]
-        g_synA = 1e-9*g_synA[:,0]
+        g_el = 1e-9 * g_el[:, 0]
+        g_synA = 1e-9 * g_synA[:, 0]
 
         # get number of batch samples
         M = g_el.shape[0]
         _zeros = tf.zeros((M,), dtype=DTYPE)
-
 
         def f(x):
             # x contains
@@ -251,7 +259,7 @@ def Simulate_all(dt, T, sigma_I):
                 ],
                 axis=1,
             )
-            
+
             I_syn = tf.stack(
                 [
                     g_synB * S_inf[:, 1] * (V_m[:, 0] - V_syn),
@@ -269,7 +277,9 @@ def Simulate_all(dt, T, sigma_I):
             lambda_N = (phi_N) * tf.math.cosh((V_m - v_3) / (2 * v_4))
             tau_h = (272.0 - (-1499.0 / (1.0 + tf.exp((-V_m + v_7) / v_8)))) / 1000.0
 
-            dVmdt = (1.0 / C_m) * (-I_total + sigma_I*tf.random.normal(I_total.shape, 0., 1.))
+            dVmdt = (1.0 / C_m) * (
+                -I_total + sigma_I * tf.random.normal(I_total.shape, 0.0, 1.0)
+            )
             dNdt = lambda_N * (N_inf - N)
             dHdt = (H_inf - H) / tau_h
 
@@ -277,28 +287,27 @@ def Simulate_all(dt, T, sigma_I):
             return dxdt
 
         x0 = tf.constant(
-                [
-                    -0.04169771,
-                    -0.04319491,
-                    0.00883992,
-                    -0.06879824,
-                    0.03048103,
-                    0.00151316,
-                    0.19784773,
-                    0.56514935,
-                    0.12214069,
-                    0.35290397,
-                    0.08614699,
-                    0.04938177,
-                    0.05568701,
-                    0.07007949,
-                    0.05790969,
-                ],
-                dtype=DTYPE
-            )
+            [
+                -0.04169771,
+                -0.04319491,
+                0.00883992,
+                -0.06879824,
+                0.03048103,
+                0.00151316,
+                0.19784773,
+                0.56514935,
+                0.12214069,
+                0.35290397,
+                0.08614699,
+                0.04938177,
+                0.05568701,
+                0.07007949,
+                0.05790969,
+            ],
+            dtype=DTYPE,
+        )
 
-
-        x0 = tf.tile(x0[None,:], [M, 1])
+        x0 = tf.tile(x0[None, :], [M, 1])
 
         x = x0
         vs = [x]
@@ -306,7 +315,7 @@ def Simulate_all(dt, T, sigma_I):
             dxdt = f(x)
             x = x + dxdt * dt
             vs.append(x)
-            
+
         x_t = tf.concat(vs, axis=0)
         return x_t
 
@@ -316,6 +325,7 @@ def Simulate_all(dt, T, sigma_I):
 def NetworkFreq_all(dt, T, sigma_I, mu):
     simulate = Simulate_all(dt, T, sigma_I)
     Phi = get_Phi(dt, T)
+
     def network_freq(g_el, g_synA):
         """Simulate the STG circuit given parameters z.
 
@@ -329,7 +339,7 @@ def NetworkFreq_all(dt, T, sigma_I, mu):
 
         x_t = simulate(g_el, g_synA)
 
-        v = tf.transpose(x_t[:,:,None], [1,0,2])[:,fft_start:, :]
+        v = tf.transpose(x_t[:, :, None], [1, 0, 2])[:, fft_start:, :]
         v_rect = tf.nn.relu(v)  # [M5,T-fft,1]
         v_rect_LPF = tf.nn.conv1d(v_rect, avg_filter, stride=1, padding="VALID")[
             :, :, 0
@@ -339,8 +349,10 @@ def NetworkFreq_all(dt, T, sigma_I, mu):
 
         V = tf.matmul(tf.cast(v_rect_LPF, tf.complex64), Phi)
 
-        soft_argmax = tf.reduce_sum(tf.nn.softmax(BETA*tf.abs(V), axis=1)*_x_range, axis=1, keepdims=True)
-        f_h = soft_argmax*dFreq + min_freq
+        soft_argmax = tf.reduce_sum(
+            tf.nn.softmax(BETA * tf.abs(V), axis=1) * _x_range, axis=1, keepdims=True
+        )
+        f_h = soft_argmax * dFreq + min_freq
         T_x = tf.concat((f_h, tf.square(f_h - mu[0])), 1)
         return x_t, T_x
 

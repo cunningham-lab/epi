@@ -29,48 +29,51 @@ import os
 
 DTYPE = np.float32
 
+
 def test_pairplot():
     M = 200
-    D = 4 
-    z = np.random.normal(0., 1., (M,D))
+    D = 4
+    z = np.random.normal(0.0, 1.0, (M, D))
     dims = range(D)
-    labels = ["z%d" % d for d in range(1,D+1)]
-    c = np.random.normal(0., 1., (M,))
+    labels = ["z%d" % d for d in range(1, D + 1)]
+    c = np.random.normal(0.0, 1.0, (M,))
 
     pairplot(z, dims, labels)
     pairplot(z, dims, labels, c=c)
     return None
 
+
 def test_get_hash():
-    x = np.random.normal(0., 1., (10,))
-    y = np.random.normal(0., 1., (10,))
-    z = 'foo'
+    x = np.random.normal(0.0, 1.0, (10,))
+    y = np.random.normal(0.0, 1.0, (10,))
+    z = "foo"
 
     h1 = get_hash([x])
     h2 = get_hash([y])
-    h3 = get_hash([x+(1e-16)])
+    h3 = get_hash([x + (1e-16)])
     h4 = get_hash([x, y])
     h5 = get_hash([x, y])
     h6 = get_hash([x, y, z])
     h7 = get_hash([x, y, z, None])
     h8 = get_hash([None, x, y, z])
 
-    assert(h1 != h2)
-    assert(h1 != h3)
-    assert(h1 != h4)
-    assert(h4 == h5)
-    assert(h4 != h6)
-    assert(h6 == h7)
-    assert(h6 == h8)
+    assert h1 != h2
+    assert h1 != h3
+    assert h1 != h4
+    assert h4 == h5
+    assert h4 != h6
+    assert h6 == h7
+    assert h6 == h8
     return None
+
 
 def test_dir_indexes():
     np.random.seed(0)
     index = {
         "w": None,
-        "x": np.random.normal(0., 1., (10,)),
-        "y": np.random.normal(0., 1., (10,)),
-        "z": 'foo',
+        "x": np.random.normal(0.0, 1.0, (10,)),
+        "y": np.random.normal(0.0, 1.0, (10,)),
+        "z": "foo",
     }
     index_file = os.path.join("foo.pkl")
     set_dir_index(index, index_file)
@@ -78,14 +81,14 @@ def test_dir_indexes():
     _index = get_dir_index(index_file)
     for key, value in index.items():
         if type(value) is np.ndarray:
-            assert(np.isclose(_index[key], value).all())
+            assert np.isclose(_index[key], value).all()
         else:
-            assert(_index[key] == value)
+            assert _index[key] == value
 
     index_file = "temp1.foo.pkl"
-    assert(get_dir_index(index_file) is None)
+    assert get_dir_index(index_file) is None
     return None
-    
+
 
 def test_gaussian_backward_mapping():
     """ Test gaussian_backward_mapping. """
@@ -179,6 +182,7 @@ def test_array_str():
         array_str(np.random.normal(0.0, 1.0, (3, 3)))
 
     return None
+
 
 def test_aug_lag_vars():
     # Test using linear 2D system eps
@@ -376,18 +380,20 @@ def test_sample_aug_lag_hps():
 
     return None
 
+
 def test_dbg_check():
-    x = tf.random.normal((100, 8), 0., 1.)
-    assert(not dbg_check(x, 'x'))
-    y = np.nan*x
-    assert(dbg_check(y, 'y'))
-    z = -np.inf*x
-    assert(dbg_check(z, 'z'))
+    x = tf.random.normal((100, 8), 0.0, 1.0)
+    assert not dbg_check(x, "x")
+    y = np.nan * x
+    assert dbg_check(y, "y")
+    z = -np.inf * x
+    assert dbg_check(z, "z")
     return None
+
 
 def lds_2D_model_fixture():
     # 1. Define the model.
-    lb, ub = -10., 10.
+    lb, ub = -10.0, 10.0
     a11 = Parameter("a11", 1, lb=lb, ub=ub)
     a12 = Parameter("a12", 1, lb=lb, ub=ub)
     a21 = Parameter("a21", 1, lb=lb, ub=ub)
@@ -404,7 +410,6 @@ def lds_2D_model_fixture():
         c21 = a21 / tau
         c22 = a22 / tau
 
-
         # Quadratic formula.
         real_term = 0.5 * (c11 + c22)
         complex_term = 0.5 * tf.sqrt(
@@ -417,56 +422,65 @@ def lds_2D_model_fixture():
             (
                 real_lambda,
                 imag_lambda,
-                tf.square(real_lambda - 0.),
-                tf.square(imag_lambda - (2. * np.pi)),
+                tf.square(real_lambda - 0.0),
+                tf.square(imag_lambda - (2.0 * np.pi)),
             ),
             axis=1,
         )
         return T_x
+
     M.set_eps(linear2D_eig)
     return M
 
-LDS_2D_PATH = "data/epi/lds_2D/48988ad4eb43922fde8a7438dc0c7e5f/D4_C3_affine_L2_U50_PA_rs1/bad59598253d74d26098ac5705f713e1/N500_lr1.00E-03_c0=1.00E-02_gamma2.50E-01_beta4.00E+00" 
+
+LDS_2D_PATH = "data/epi/lds_2D/48988ad4eb43922fde8a7438dc0c7e5f/D4_C3_affine_L2_U50_PA_rs1/bad59598253d74d26098ac5705f713e1/N500_lr1.00E-03_c0=1.00E-02_gamma2.50E-01_beta4.00E+00"
+
+
 def test_get_max_H_dist():
     M = lds_2D_model_fixture()
-    mu = np.array([0.0, 2 * np.pi, 0.5**2, (0.2 * np.pi)**2])
+    mu = np.array([0.0, 2 * np.pi, 0.5 ** 2, (0.2 * np.pi) ** 2])
     os.chdir("notebooks")
     epi_df = M.get_epi_df()
-    dist, path, best_k = get_max_H_dist(M, epi_df, mu, alpha=0.05, nu=1.)
-    assert(dist is not None)
-    assert(path == LDS_2D_PATH)
-    assert(best_k == 9)
-    dist, path, best_k = get_max_H_dist(M, epi_df, mu, alpha=0.5, nu=1., check_last_k=1)
-    assert(dist is None and path is None and best_k is None)
+    dist, path, best_k = get_max_H_dist(M, epi_df, mu, alpha=0.05, nu=1.0)
+    assert dist is not None
+    assert path == LDS_2D_PATH
+    assert best_k == 9
+    dist, path, best_k = get_max_H_dist(
+        M, epi_df, mu, alpha=0.5, nu=1.0, check_last_k=1
+    )
+    assert dist is None and path is None and best_k is None
     os.chdir("..")
     return None
+
 
 def test_get_conditional_mode():
     M = lds_2D_model_fixture()
-    mu = np.array([0.0, 2 * np.pi, 0.5**2, (0.2 * np.pi)**2])
+    mu = np.array([0.0, 2 * np.pi, 0.5 ** 2, (0.2 * np.pi) ** 2])
     os.chdir("notebooks")
     epi_df = M.get_epi_df()
-    epi_df = epi_df[epi_df['path']==LDS_2D_PATH]
-    dist, _, _ = get_max_H_dist(M, epi_df, mu, alpha=0.05, nu=1., check_last_k=1)
-    zs, log_q_zs = get_conditional_mode(dist, 0, 0., num_steps=5)
+    epi_df = epi_df[epi_df["path"] == LDS_2D_PATH]
+    dist, _, _ = get_max_H_dist(M, epi_df, mu, alpha=0.05, nu=1.0, check_last_k=1)
+    zs, log_q_zs = get_conditional_mode(dist, 0, 0.0, num_steps=5)
     os.chdir("..")
     return None
+
 
 def test_plots():
     M = lds_2D_model_fixture()
-    mu = np.array([0.0, 2 * np.pi, 0.5**2, (0.2 * np.pi)**2])
+    mu = np.array([0.0, 2 * np.pi, 0.5 ** 2, (0.2 * np.pi) ** 2])
     os.chdir("notebooks")
     epi_df = M.get_epi_df()
-    epi_df = epi_df[epi_df['path']==LDS_2D_PATH]
-    plot_opt(epi_df, cs=['r', 'b'])
-    dist, _, _ = get_max_H_dist(M, epi_df, mu, alpha=0.05, nu=1., check_last_k=1)
+    epi_df = epi_df[epi_df["path"] == LDS_2D_PATH]
+    plot_opt(epi_df, cs=["r", "b"])
+    dist, _, _ = get_max_H_dist(M, epi_df, mu, alpha=0.05, nu=1.0, check_last_k=1)
     z = dist(100)
     T_x = M.eps(z).numpy()
-    plot_T_x(None, T_x[:,0], x_mean=0., x_std=0.5)
+    plot_T_x(None, T_x[:, 0], x_mean=0.0, x_std=0.5)
     os.chdir("..")
     return None
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     test_get_max_H_dist()
     test_get_conditional_mode()
     test_plots()

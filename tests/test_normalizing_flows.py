@@ -42,7 +42,18 @@ def test_NormalizingFlow_init():
     ub = 2.0 * np.ones((D,))
     bounds = (lb, ub)
     nf = NormalizingFlow(
-        arch_type, D, num_stages, num_layers, num_units, "affine", 32, False, None, False, bounds, 5
+        arch_type,
+        D,
+        num_stages,
+        num_layers,
+        num_units,
+        "affine",
+        32,
+        False,
+        None,
+        False,
+        bounds,
+        5,
     )
     assert not nf.batch_norm
     assert not nf.post_affine
@@ -51,7 +62,18 @@ def test_NormalizingFlow_init():
     assert nf.random_seed == 5
 
     nf = NormalizingFlow(
-        arch_type, D, num_stages, num_layers, num_units, "affine", 32, False, None, False, [lb, ub], 5
+        arch_type,
+        D,
+        num_stages,
+        num_layers,
+        num_units,
+        "affine",
+        32,
+        False,
+        None,
+        False,
+        [lb, ub],
+        5,
     )
     assert np.equal(nf.lb, lb).all()
     assert np.equal(nf.ub, ub).all()
@@ -142,9 +164,9 @@ def test_NormalizingFlow_call():
     num_units = 15
     N = 100
     # Check that
-    #arch_types = ["autoregressive", "coupling"]
+    # arch_types = ["autoregressive", "coupling"]
     arch_types = ["coupling"]
-    #stage_bijectors = [tfp.bijectors.MaskedAutoregressiveFlow, tfp.bijectors.RealNVP]
+    # stage_bijectors = [tfp.bijectors.MaskedAutoregressiveFlow, tfp.bijectors.RealNVP]
     stage_bijectors = [tfp.bijectors.RealNVP]
     for arch_type, stage_bijector in zip(arch_types, stage_bijectors):
         nf = NormalizingFlow(arch_type, D, num_stages, num_layers, num_units)
@@ -185,7 +207,16 @@ def test_to_string():
     nf = NormalizingFlow("coupling", 4, 1, 2, 15)
     assert nf.to_string() == "D4_C1_affine_L2_U15_bnmom=0.00E+00_PA_rs1"
 
-    nf = NormalizingFlow("coupling", 100, 2, 4, 200, elemwise_fn="spline", batch_norm=False, random_seed=20)
+    nf = NormalizingFlow(
+        "coupling",
+        100,
+        2,
+        4,
+        200,
+        elemwise_fn="spline",
+        batch_norm=False,
+        random_seed=20,
+    )
     assert nf.to_string() == "D100_C2_spline_L4_U200_bins=32_PA_rs20"
 
     nf = NormalizingFlow("coupling", 4, 1, 2, 15, bn_momentum=0.999, post_affine=False)
@@ -201,7 +232,9 @@ def test_to_string():
     )
     assert nf.to_string() == "D4_AR4_affine_L2_U15_rs1"
 
+
 from scipy.special import expit
+
 
 def interval_flow_np(x, lb, ub):
     def softplus(x):
@@ -217,10 +250,10 @@ def interval_flow_np(x, lb, ub):
         has_lb = not np.isneginf(lb_i)
         has_ub = not np.isposinf(ub_i)
         if has_lb and has_ub:
-            m = (ub_i - lb_i)
+            m = ub_i - lb_i
             c = lb_i
             y[i] = m * expit(x_i) + c
-            ldj += np.log(m) + np.log(expit(x_i)+EPS) + np.log(expit(-x_i))
+            ldj += np.log(m) + np.log(expit(x_i) + EPS) + np.log(expit(-x_i))
         elif has_lb:
             y[i] = softplus(x_i) + lb_i
             ldj += np.log(1.0 / (1.0 + np.exp(-x_i)) + EPS)
@@ -347,11 +380,9 @@ def test_interval_flow():
 
 def test_initialization():
     D = 4
-    nf = NormalizingFlow(
-        "coupling", D, 2, 2, 15, batch_norm=False, post_affine=True
-    )
-    mu = -0.5*np.ones((D,))
-    Sigma = 2.0*np.eye(D)
+    nf = NormalizingFlow("coupling", D, 2, 2, 15, batch_norm=False, post_affine=True)
+    mu = -0.5 * np.ones((D,))
+    Sigma = 2.0 * np.eye(D)
     nf.initialize(mu, Sigma, num_iters=int(5e3), verbose=True)
 
     z = nf.sample(int(1e4))
@@ -365,8 +396,8 @@ def test_initialization():
     nf.initialize(mu, Sigma, verbose=True)
 
     # Bounds
-    lb = -0*np.ones((D,))
-    ub = 2*np.ones((D,))
+    lb = -0 * np.ones((D,))
+    ub = 2 * np.ones((D,))
     nf = NormalizingFlow(
         "autoregressive", D, 2, 2, 15, batch_norm=True, bounds=(lb, ub),
     )
@@ -374,5 +405,6 @@ def test_initialization():
 
     return None
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     test_initialization()
