@@ -172,33 +172,6 @@ def LRRNN_setup(N, g, K):
     return model
 
 
-def get_epi_optim(model, dist, epi_df, path):
-    epi_df = epi_df[epi_df["path"] == path]
-    if os.path.isdir(path):
-        file = os.path.join(path, "timing.npz")
-        try:
-            time_file = np.load(file)
-            time_per_it = time_file["time_per_it"]
-        except:
-            print("Error: no timing file %s." % file)
-            time_per_it = np.nan
-    else:
-        print("Error: path not found.")
-        return None
-
-    epi_optim = {
-        "model": model,
-        "dist": dist,
-        "iteration": epi_df["iteration"].to_numpy(),
-        "H": epi_df["H"].to_numpy(),
-        "R1": epi_df["R1"].to_numpy(),
-        "R2": epi_df["R2"].to_numpy(),
-        "R3": epi_df["R3"].to_numpy(),
-        "R4": epi_df["R4"].to_numpy(),
-        "time_per_it": time_per_it,
-    }
-    return epi_optim
-
 
 def load_ME_EPI_LRRNN(
     N, g, K, mu, random_seeds=None, return_df=False, by_df=False, nu=1.0
@@ -285,14 +258,6 @@ def get_simulator(N, g, K):
     return simulator, prior
 
 
-def get_epi_times(init, optim):
-    init_time = init['init_time']
-    iteration = optim["iteration"]
-    iteration = optim["iteration"]
-    times = iteration * optim["time_per_it"]
-    return init_time + times
-
-
 def get_snpe_times(optim, num_sims=None):
     epochs_per_round = np.array(optim["summary"]["epochs"])
     num_rounds = len(epochs_per_round)
@@ -366,17 +331,16 @@ def get_SNPE_conv(N, g, K, x0, eps,
         distances, args = optim['distances'], optim['args']
         num_rounds = len(distances) - 1
         round_val_log_probs = optim['round_val_log_probs']
-        if ((num_rounds > 5) and \
-               (round_val_log_probs[-3] > round_val_log_probs[-2]) and \
-               (round_val_log_probs[-3] > round_val_log_probs[-1])):
-            pass
-        else:
-            print(num_rounds, round_val_log_probs[-4:])
-            print('bad')
+        #if ((num_rounds > 5) and \
+        #       (round_val_log_probs[-3] > round_val_log_probs[-2]) and \
+        #       (round_val_log_probs[-3] > round_val_log_probs[-1])):
+        #    pass
+        #else:
+            #print(num_rounds, round_val_log_probs[-4:])
+            #print('bad')
         
         assert(num_rounds < args.max_rounds)
         conv_inds = np.nonzero(distances[1:]<eps)[0]
-        print(conv_inds[0])
         conv_time = np.nan if len(conv_inds) == 0 else round_times[conv_inds[0]+1]
         _conv_sims = np.nan if len(conv_inds) == 0 else round_sims[conv_inds[0]+1]
         conv_times.append(conv_time)
@@ -385,47 +349,87 @@ def get_SNPE_conv(N, g, K, x0, eps,
     return conv_times, conv_sims
 
 
-def get_EPI_conv(N, g, K, random_seeds, eps=None):
-    D = int(N * RANK)
+def get_epi_times(init, optim):
+    time_per_it = optim["time_per_it"]
+    init_time = init['init_time']
+    epoch_times = optim["epoch_times"]
+    return init_time, time_per_it, epoch_times 
+
+def get_epi_optim(model, dist, epi_df, path):
+    epi_df = epi_df[epi_df["path"] == path]
+    if os.path.isdir(path):
+        file = os.path.join(path, "timing.npz")
+        try:
+            time_file = np.load(file)
+            time_per_it = time_file["time_per_it"]
+            epoch_times = time_file["epoch_times"]
+        except:
+            print("Error: no timing file %s." % file)
+            time_per_it = np.nan
+            epoch_times = np.array([np.nan])
+    else:
+        print("Error: path not found.")
+        return None
+
+    epi_optim = {
+        "model": model,
+        "dist": dist,
+        "iteration": epi_df["iteration"].to_numpy(),
+        "H": epi_df["H"].to_numpy(),
+        "R1": epi_df["R1"].to_numpy(),
+        "R2": epi_df["R2"].to_numpy(),
+        "R3": epi_df["R3"].to_numpy(),
+        "R4": epi_df["R4"].to_numpy(),
+        "time_per_it": time_per_it,
+        "epoch_times": epoch_times,
+    }
+    return epi_optim
+
+def get_EPI_conv(N, g, K, eps=None):
+    D = int(2 * N * RANK)
     model = LRRNN_setup(N, g, K)
     # Choose max entropy
     epi_df = model.get_epi_df()
-    print(epi_df['path'].unique())
     epi_df["arch_D"] = [row["arch"]["D"] for i, row in epi_df.iterrows()]
     epi_df["c0"] = [row["AL_hps"]["c0"] for i, row in epi_df.iterrows()]
     epi_df["rs"] = [row["arch"]["random_seed"] for i, row in epi_df.iterrows()]
-    epi_df = epi_df[(epi_df["arch_D"] == 2 * D) & (epi_df["c0"] == 1000.0)]
-    if random_seeds is not None:
-        epi_df = epi_df[epi_df["rs"].isin(random_seeds)]
+    epi_df = epi_df[(epi_df["arch_D"] == D) & (epi_df["c0"] == 1000.0)]
     paths = sorted(epi_df['path'].unique())
     
     conv_times = []
     conv_sims = []
     for path in paths:
-        print(path)
         _epi_df = epi_df[epi_df['path']==path]
+        iters_per_epoch = int(_epi_df['iteration'][_epi_df['k']==1].max())
         _row = _epi_df.iloc[0]
         nf = model._df_row_to_nf(_row)
         init_path = nf.get_init_path(_row['init']['mu'], _row['init']['Sigma'])
         epi_init = np.load(os.path.join(init_path, "timing.npz"))
         epi_optim = get_epi_optim(model, None, _epi_df, path)
-        epi_times = get_epi_times(epi_init, epi_optim)
+        init_time, time_per_iter, epoch_times = get_epi_times(epi_init, epi_optim) # by epoch
+
         if eps is not None:
             R = np.stack((_epi_df['R1'].to_numpy(), _epi_df['R2'].to_numpy()), axis=1)
             distances = np.linalg.norm(R, axis=1)
-            conv_inds = np.nonzero(np.logical_and(distances<eps, _epi_df['iteration'].to_numpy()>0))[0]
+            conv_iter_ind = np.nonzero(np.logical_and(distances<eps, epi_optim['iteration'] > 0))[0]
         else:
             converged = _epi_df['converged'].to_numpy()==1.
-            conv_inds = np.nonzero(converged)[0]
+            conv_iter_ind = np.nonzero(converged)[0]
 
-        epi_batch = _epi_df.iloc[0]['AL_hps']['N']
-        iterations = epi_optim['iteration']
-        
-        conv_time = np.nan if len(conv_inds) == 0 else epi_times[conv_inds[0]]
-        _conv_sims = np.nan if len(conv_inds) == 0 else epi_batch*iterations[conv_inds[0]]
+        if len(conv_iter_ind) == 0:
+            conv_time = np.nan
+            _conv_sims = np.nan
+        else:
+            epi_batch = _epi_df.iloc[0]['AL_hps']['N']
+            total_iterations = _epi_df['iteration'].to_numpy()[conv_iter_ind[0]]
+            _conv_sims = epi_batch*total_iterations
+
+            epoch_ind = total_iterations // iters_per_epoch
+            extra_iters = total_iterations - (epoch_ind*iters_per_epoch)
+            conv_time = init_time + sum(epoch_times[:epoch_ind]) + extra_iters*time_per_iter
+
         conv_times.append(conv_time)
         conv_sims.append(_conv_sims)
-        print(conv_times)
    
     return conv_times, conv_sims
 
