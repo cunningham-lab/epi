@@ -16,18 +16,18 @@ DTYPE = np.float32
 
 # Get random seed.
 parser = argparse.ArgumentParser()
-parser.add_argument('--N', type=int)
-parser.add_argument('--num_sims', type=int, default=1000)
-parser.add_argument('--num_batch', type=int, default=50)
-parser.add_argument('--num_transforms', type=int, default=3)
-parser.add_argument('--num_atoms', type=int, default=10)
-parser.add_argument('--g', type=float, default=0.01)
-parser.add_argument('--K', type=int, default=1)
-parser.add_argument('--max_rounds', type=int, default=50)
-parser.add_argument('--persist_rounds', type=int, default=2)
-parser.add_argument('--min_epochs', type=int, default=10)
-parser.add_argument('--stop_distance', type=float, default=None)
-parser.add_argument('--rs', type=int, default=1)
+parser.add_argument("--N", type=int)
+parser.add_argument("--num_sims", type=int, default=1000)
+parser.add_argument("--num_batch", type=int, default=50)
+parser.add_argument("--num_transforms", type=int, default=3)
+parser.add_argument("--num_atoms", type=int, default=10)
+parser.add_argument("--g", type=float, default=0.01)
+parser.add_argument("--K", type=int, default=1)
+parser.add_argument("--max_rounds", type=int, default=50)
+parser.add_argument("--persist_rounds", type=int, default=2)
+parser.add_argument("--min_epochs", type=int, default=10)
+parser.add_argument("--stop_distance", type=float, default=None)
+parser.add_argument("--rs", type=int, default=1)
 args = parser.parse_args()
 
 N = args.N
@@ -45,13 +45,18 @@ rs = args.rs
 np.random.seed(rs)
 torch.manual_seed(rs)
 
-print('\n\nRunning SNPE on RNN conditioned on stable amplification with:')
-print("N = %d, \nnum_sims = %d, \nnum_batch = %d, \nnum_transforms = %d, \nnum_atoms = %d, \ng=%.4f, \nK=%d, \nseed=%d\n\n"  \
-      % (N, num_sims, num_batch, num_transforms, num_atoms, g, K, rs), flush=True)
+print("\n\nRunning SNPE on RNN conditioned on stable amplification with:")
+print(
+    "N = %d, \nnum_sims = %d, \nnum_batch = %d, \nnum_transforms = %d, \nnum_atoms = %d, \ng=%.4f, \nK=%d, \nseed=%d\n\n"
+    % (N, num_sims, num_batch, num_transforms, num_atoms, g, K, rs),
+    flush=True,
+)
 
 base_path = os.path.join("data", "snpe")
-save_dir = "SNPE_RNN_stab_amp_N=%d_sims=%d_batch=%d_transforms=%d_atoms=%d_g=%.4f_K=%d_rs=%d" \
-        % (N, num_sims, num_batch, num_transforms, num_atoms, g, K, rs)
+save_dir = (
+    "SNPE_RNN_stab_amp_N=%d_sims=%d_batch=%d_transforms=%d_atoms=%d_g=%.4f_K=%d_rs=%d"
+    % (N, num_sims, num_batch, num_transforms, num_atoms, g, K, rs)
+)
 
 save_path = os.path.join(base_path, save_dir)
 if not os.path.exists(save_path):
@@ -65,21 +70,27 @@ _W_eigs = get_W_eigs_np(g, K)
 
 M = 1000
 RANK = 2
-num_dim = 2*N*RANK
-prior = utils.BoxUniform(low=-1.*torch.ones(num_dim), high=1.*torch.ones(num_dim))
+num_dim = 2 * N * RANK
+prior = utils.BoxUniform(low=-1.0 * torch.ones(num_dim), high=1.0 * torch.ones(num_dim))
+
 
 def simulator(params):
     params = params.numpy()
-    U = np.reshape(params[:(RANK*N)], (N,RANK))
-    V = np.reshape(params[(RANK*N):], (N,RANK))
+    U = np.reshape(params[: (RANK * N)], (N, RANK))
+    V = np.reshape(params[(RANK * N) :], (N, RANK))
     x = _W_eigs(U, V)
     return x
 
+
 simulator, prior = prepare_for_sbi(simulator, prior)
-density_estimator_build_fun = posterior_nn(model='maf', hidden_features=50, 
-                                           num_transforms=num_transforms,
-                                           z_score_x=False, z_score_theta=False,
-                                           support_map=True)
+density_estimator_build_fun = posterior_nn(
+    model="maf",
+    hidden_features=50,
+    num_transforms=num_transforms,
+    z_score_x=False,
+    z_score_theta=False,
+    support_map=True,
+)
 x_0 = torch.tensor([0.5, 1.5])
 
 inference = SNPE(prior, density_estimator=density_estimator_build_fun)
@@ -103,26 +114,32 @@ sample_times = []
 opt_times = []
 for r in range(max_rounds):
     if r == 0:
-        print('Round %d/%d:' % (r+1, max_rounds), flush=True)
+        print("Round %d/%d:" % (r + 1, max_rounds), flush=True)
     else:
-        last_epochs = inference.summary['epochs'][-1]
-        print('Round %d/%d, Best (%d), Last (%.2f s/sample, %.2f s/epoch)):' \
-              % (r+1, max_rounds, best_round_ind+1,
-                 sample_times[-1]/last_epochs, opt_times[-1]/last_epochs), 
-               flush=True)
+        last_epochs = inference.summary["epochs"][-1]
+        print(
+            "Round %d/%d, Best (%d), Last (%.2f s/sample, %.2f s/epoch)):"
+            % (
+                r + 1,
+                max_rounds,
+                best_round_ind + 1,
+                sample_times[-1] / last_epochs,
+                opt_times[-1] / last_epochs,
+            ),
+            flush=True,
+        )
     _t1 = time.time()
     theta, x = simulate_for_sbi(simulator, proposal=proposal, num_simulations=num_sims)
-    sample_times.append(time.time()-_t1)
+    sample_times.append(time.time() - _t1)
     inference = inference.append_simulations(theta, x)
     _t1 = time.time()
     density_estimator = inference.train(
-        training_batch_size=num_batch, 
-        num_atoms=num_atoms, 
-        stop_after_epochs=min_epochs)
-    opt_times.append(time.time()-_t1)
+        training_batch_size=num_batch, num_atoms=num_atoms, stop_after_epochs=min_epochs
+    )
+    opt_times.append(time.time() - _t1)
     posterior = inference.build_posterior(density_estimator)
     posteriors.append(posterior)
-    round_val_log_probs.append(inference.summary['validation_log_probs'][-1])
+    round_val_log_probs.append(inference.summary["validation_log_probs"][-1])
     proposal = posterior.set_default_x(x_0)
 
     z = posterior.sample((M,), x=x_0)
@@ -130,25 +147,27 @@ for r in range(max_rounds):
     log_prob = posterior.log_prob(z, x=x_0)
     mean_x = np.mean(x, axis=0)
     distance = np.linalg.norm(mean_x - x_0.numpy())
-    
+
     zs.append(z.numpy())
     xs.append(x)
     log_probs.append(log_prob.numpy())
     distances.append(distance)
 
-    optim = {'summary':inference.summary, 
-             # contains init too
-             'zs':np.array(zs), 
-             'xs':np.array(xs), 
-             'log_probs':np.array(log_probs),
-             'distances':np.array(distances),
-             # one per round
-             'round_val_log_probs':np.array(round_val_log_probs), 
-             'sample_times':sample_times,
-             'opt_times':opt_times,
-             'args':args}
+    optim = {
+        "summary": inference.summary,
+        # contains init too
+        "zs": np.array(zs),
+        "xs": np.array(xs),
+        "log_probs": np.array(log_probs),
+        "distances": np.array(distances),
+        # one per round
+        "round_val_log_probs": np.array(round_val_log_probs),
+        "sample_times": sample_times,
+        "opt_times": opt_times,
+        "args": args,
+    }
 
-    print('Saving', save_path, '...', flush=True)
+    print("Saving", save_path, "...", flush=True)
     with open(os.path.join(save_path, "optim.pkl"), "wb") as f:
         pickle.dump(optim, f)
 
@@ -162,4 +181,4 @@ for r in range(max_rounds):
             print("Distance has converged.", flush=True)
             break
 
-print('done.', flush=True)
+print("done.", flush=True)

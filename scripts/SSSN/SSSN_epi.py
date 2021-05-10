@@ -3,18 +3,23 @@ import argparse
 import numpy as np
 import tensorflow as tf
 from epi.models import Parameter, Model
-from neural_circuits.SSSN import SSSN_sim, SSSN_sim, load_SSSN_variable, get_stddev_sigma
+from neural_circuits.SSSN import (
+    SSSN_sim,
+    SSSN_sim,
+    load_SSSN_variable,
+    get_stddev_sigma,
+)
 
 # Parse script command-line parameters.
 parser = argparse.ArgumentParser()
-parser.add_argument('--alpha', type=str, default='E') # neuron type
-parser.add_argument('--ind', type=int, default=62) # neuron type
-parser.add_argument('--lim', type=float, default=0.005) # neuron type
-parser.add_argument('--sE_mean', type=float, default=5.) # neuron type
-parser.add_argument('--sE_std', type=float, default=0.25) # neuron type
-parser.add_argument('--beta', type=float, default=4.) # aug lag hp
-parser.add_argument('--logc0', type=float, default=0.) # log10 of c_0
-parser.add_argument('--random_seed', type=int, default=1)
+parser.add_argument("--alpha", type=str, default="E")  # neuron type
+parser.add_argument("--ind", type=int, default=62)  # neuron type
+parser.add_argument("--lim", type=float, default=0.005)  # neuron type
+parser.add_argument("--sE_mean", type=float, default=5.0)  # neuron type
+parser.add_argument("--sE_std", type=float, default=0.25)  # neuron type
+parser.add_argument("--beta", type=float, default=4.0)  # aug lag hp
+parser.add_argument("--logc0", type=float, default=0.0)  # log10 of c_0
+parser.add_argument("--random_seed", type=int, default=1)
 args = parser.parse_args()
 
 alpha = args.alpha
@@ -23,7 +28,7 @@ lim = args.lim
 sE_mean = args.sE_mean
 sE_std = args.sE_std
 beta = args.beta
-c0 = 10.**args.logc0
+c0 = 10.0 ** args.logc0
 random_seed = args.random_seed
 
 if lim is not None:
@@ -35,19 +40,19 @@ if lim is not None:
         raise NotImplementedError()
 
 contrast = 0.5
-W_mat = load_SSSN_variable('W', ind=ind)
-hb = load_SSSN_variable('hb', ind=ind).numpy()
-hc = load_SSSN_variable('hc', ind=ind).numpy()
-h = (hb[None,:] + contrast*hc[None,:])
+W_mat = load_SSSN_variable("W", ind=ind)
+hb = load_SSSN_variable("hb", ind=ind).numpy()
+hc = load_SSSN_variable("hc", ind=ind).numpy()
+h = hb[None, :] + contrast * hc[None, :]
 
-neuron_inds = {'E':0, 'P':1, 'S':2, 'V':3}
+neuron_inds = {"E": 0, "P": 1, "S": 2, "V": 3}
 neuron_ind = neuron_inds[alpha]
 
 M = 100
 # 1. Specify the V1 model for EPI.
 D = 4
 lb = np.zeros((D,))
-ub = lim*np.ones((D,))
+ub = lim * np.ones((D,))
 sigma_eps = Parameter("sigma_eps", D, lb=lb, ub=ub)
 
 # Define model
@@ -59,16 +64,16 @@ dt = 0.0005
 T = 150
 N = 100
 
-stddev = get_stddev_sigma(alpha, W_mat, h, N=N, dt=dt, T=T, T_ss=T-50, mu=sE_mean)
+stddev = get_stddev_sigma(alpha, W_mat, h, N=N, dt=dt, T=T, T_ss=T - 50, mu=sE_mean)
 model.set_eps(stddev)
 
 # Emergent property values.
-mu = np.array([sE_mean, sE_std**2])
+mu = np.array([sE_mean, sE_std ** 2])
 
 # 3. Run EPI.
 q_theta, opt_data, epi_path, failed = model.epi(
     mu,
-    arch_type='coupling',
+    arch_type="coupling",
     num_stages=3,
     num_layers=2,
     num_units=25,
