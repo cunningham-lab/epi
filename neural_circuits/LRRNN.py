@@ -172,7 +172,6 @@ def LRRNN_setup(N, g, K):
     return model
 
 
-
 def load_ME_EPI_LRRNN(
     N, g, K, mu, random_seeds=None, return_df=False, by_df=False, nu=1.0
 ):
@@ -203,7 +202,15 @@ def load_ME_EPI_LRRNN(
 
 
 def load_best_SNPE_LRRNN(
-    N, g, K, x0, num_sims=1000, num_batch=200, num_atoms=100, random_seeds=[1, 2, 3], gpu=False,
+    N,
+    g,
+    K,
+    x0,
+    num_sims=1000,
+    num_batch=200,
+    num_atoms=100,
+    random_seeds=[1, 2, 3],
+    gpu=False,
 ):
     if gpu:
         snpe_base_path = os.path.join("data", "snpe_gpu")
@@ -281,7 +288,8 @@ def get_snpe_times(optim, num_sims=None):
     round_times = np.concatenate((np.array([0.0]), round_times))
     if num_sims is not None:
         epoch_sims = [[0]] + [
-            num_epochs * [(i + 1) * num_sims] for i, num_epochs in enumerate(epochs_per_round)
+            num_epochs * [(i + 1) * num_sims]
+            for i, num_epochs in enumerate(epochs_per_round)
         ]
         epoch_sims = list(itertools.chain.from_iterable(epoch_sims))
         round_sims = np.concatenate(
@@ -293,13 +301,20 @@ def get_snpe_times(optim, num_sims=None):
     else:
         return epoch_times, round_times
 
-def get_SNPE_conv(N, g, K, x0, eps, 
-                        num_sims=1000, 
-                        num_batch=200, 
-                        num_atoms=100,
-                        random_seeds=None,
-                        gpu=False):
-   
+
+def get_SNPE_conv(
+    N,
+    g,
+    K,
+    x0,
+    eps,
+    num_sims=1000,
+    num_batch=200,
+    num_atoms=100,
+    random_seeds=None,
+    gpu=False,
+):
+
     conv_times = []
     conv_sims = []
     if gpu:
@@ -326,34 +341,37 @@ def get_SNPE_conv(N, g, K, x0, eps,
         else:
             print("Error: no save path %s." % save_path)
             continue
-        
-        epoch_times, round_times, epoch_sims, round_sims = get_snpe_times(optim, num_sims)
-        distances, args = optim['distances'], optim['args']
+
+        epoch_times, round_times, epoch_sims, round_sims = get_snpe_times(
+            optim, num_sims
+        )
+        distances, args = optim["distances"], optim["args"]
         num_rounds = len(distances) - 1
-        round_val_log_probs = optim['round_val_log_probs']
-        #if ((num_rounds > 5) and \
+        round_val_log_probs = optim["round_val_log_probs"]
+        # if ((num_rounds > 5) and \
         #       (round_val_log_probs[-3] > round_val_log_probs[-2]) and \
         #       (round_val_log_probs[-3] > round_val_log_probs[-1])):
         #    pass
-        #else:
-            #print(num_rounds, round_val_log_probs[-4:])
-            #print('bad')
-        
-        assert(num_rounds < args.max_rounds)
-        conv_inds = np.nonzero(distances[1:]<eps)[0]
-        conv_time = np.nan if len(conv_inds) == 0 else round_times[conv_inds[0]+1]
-        _conv_sims = np.nan if len(conv_inds) == 0 else round_sims[conv_inds[0]+1]
+        # else:
+        # print(num_rounds, round_val_log_probs[-4:])
+        # print('bad')
+
+        assert num_rounds < args.max_rounds
+        conv_inds = np.nonzero(distances[1:] < eps)[0]
+        conv_time = np.nan if len(conv_inds) == 0 else round_times[conv_inds[0] + 1]
+        _conv_sims = np.nan if len(conv_inds) == 0 else round_sims[conv_inds[0] + 1]
         conv_times.append(conv_time)
         conv_sims.append(_conv_sims)
-    
+
     return conv_times, conv_sims
 
 
 def get_epi_times(init, optim):
     time_per_it = optim["time_per_it"]
-    init_time = init['init_time']
+    init_time = init["init_time"]
     epoch_times = optim["epoch_times"]
-    return init_time, time_per_it, epoch_times 
+    return init_time, time_per_it, epoch_times
+
 
 def get_epi_optim(model, dist, epi_df, path):
     epi_df = epi_df[epi_df["path"] == path]
@@ -385,6 +403,7 @@ def get_epi_optim(model, dist, epi_df, path):
     }
     return epi_optim
 
+
 def get_EPI_conv(N, g, K, eps=None):
     D = int(2 * N * RANK)
     model = LRRNN_setup(N, g, K)
@@ -394,72 +413,78 @@ def get_EPI_conv(N, g, K, eps=None):
     epi_df["c0"] = [row["AL_hps"]["c0"] for i, row in epi_df.iterrows()]
     epi_df["rs"] = [row["arch"]["random_seed"] for i, row in epi_df.iterrows()]
     epi_df = epi_df[(epi_df["arch_D"] == D) & (epi_df["c0"] == 1000.0)]
-    paths = sorted(epi_df['path'].unique())
-    
+    paths = sorted(epi_df["path"].unique())
+
     conv_times = []
     conv_sims = []
     for path in paths:
-        _epi_df = epi_df[epi_df['path']==path]
-        iters_per_epoch = int(_epi_df['iteration'][_epi_df['k']==1].max())
+        _epi_df = epi_df[epi_df["path"] == path]
+        iters_per_epoch = int(_epi_df["iteration"][_epi_df["k"] == 1].max())
         _row = _epi_df.iloc[0]
         nf = model._df_row_to_nf(_row)
-        init_path = nf.get_init_path(_row['init']['mu'], _row['init']['Sigma'])
+        init_path = nf.get_init_path(_row["init"]["mu"], _row["init"]["Sigma"])
         epi_init = np.load(os.path.join(init_path, "timing.npz"))
         epi_optim = get_epi_optim(model, None, _epi_df, path)
-        init_time, time_per_iter, epoch_times = get_epi_times(epi_init, epi_optim) # by epoch
+        init_time, time_per_iter, epoch_times = get_epi_times(
+            epi_init, epi_optim
+        )  # by epoch
 
         if eps is not None:
-            R = np.stack((_epi_df['R1'].to_numpy(), _epi_df['R2'].to_numpy()), axis=1)
+            R = np.stack((_epi_df["R1"].to_numpy(), _epi_df["R2"].to_numpy()), axis=1)
             distances = np.linalg.norm(R, axis=1)
-            conv_iter_ind = np.nonzero(np.logical_and(distances<eps, epi_optim['iteration'] > 0))[0]
+            conv_iter_ind = np.nonzero(
+                np.logical_and(distances < eps, epi_optim["iteration"] > 0)
+            )[0]
         else:
-            converged = _epi_df['converged'].to_numpy()==1.
+            converged = _epi_df["converged"].to_numpy() == 1.0
             conv_iter_ind = np.nonzero(converged)[0]
 
         if len(conv_iter_ind) == 0:
             conv_time = np.nan
             _conv_sims = np.nan
         else:
-            epi_batch = _epi_df.iloc[0]['AL_hps']['N']
-            total_iterations = _epi_df['iteration'].to_numpy()[conv_iter_ind[0]]
-            _conv_sims = epi_batch*total_iterations
+            epi_batch = _epi_df.iloc[0]["AL_hps"]["N"]
+            total_iterations = _epi_df["iteration"].to_numpy()[conv_iter_ind[0]]
+            _conv_sims = epi_batch * total_iterations
 
             epoch_ind = total_iterations // iters_per_epoch
-            extra_iters = total_iterations - (epoch_ind*iters_per_epoch)
-            conv_time = init_time + sum(epoch_times[:epoch_ind]) + extra_iters*time_per_iter
+            extra_iters = total_iterations - (epoch_ind * iters_per_epoch)
+            conv_time = (
+                init_time + sum(epoch_times[:epoch_ind]) + extra_iters * time_per_iter
+            )
 
         conv_times.append(conv_time)
         conv_sims.append(_conv_sims)
-   
+
     return conv_times, conv_sims
+
 
 def get_SMC_conv(N, random_seeds):
     smc_times = []
     smc_sims = []
     for _rs in random_seeds:
         base_path = os.path.join("data", "smc")
-        save_dir = "SMC_RNN_stab_amp_N=%d_eps=%.2f_rs=%d" % (N,0.5, _rs)
+        save_dir = "SMC_RNN_stab_amp_N=%d_eps=%.2f_rs=%d" % (N, 0.5, _rs)
         save_path = os.path.join(base_path, save_dir)
-    
+
         try:
             with open(os.path.join(save_path, "optim.pkl"), "rb") as f:
                 optim = pickle.load(f)
         except:
-            #smc_times.append(np.nan)
-            #smc_sims.append(np.nan)
+            # smc_times.append(np.nan)
+            # smc_sims.append(np.nan)
             continue
-            
+
         history = optim["history"]
         converged = optim["converged"]
 
         if converged:
-            smc_times.append(optim['time'])
-            smc_sims.append(optim['total_sims'])
+            smc_times.append(optim["time"])
+            smc_sims.append(optim["total_sims"])
         else:
             smc_times.append(np.nan)
             smc_sims.append(np.nan)
     return smc_times, smc_sims
-
 
 
 def tf_num_params(N):
@@ -561,14 +586,19 @@ def eig_scatter(T_xs, colors, ax=None, perm=True):
     ax.set_ylim([0, 4])
     return None
 
-def snpe_simplot(snpes, label, axs, color=None, max_sims=None, max_time=None, max_dist=None):
+
+def snpe_simplot(
+    snpes, label, axs, color=None, max_sims=None, max_time=None, max_dist=None
+):
     for i, snpe_optim in enumerate(snpes):
-        num_sims = snpe_optim['args'].num_sims
-        epoch_times, round_times, epoch_sims, round_sims = get_snpe_times(snpe_optim, num_sims)
-        snpe_distance = snpe_optim['distances']
-        _label = label if i==0 else None
+        num_sims = snpe_optim["args"].num_sims
+        epoch_times, round_times, epoch_sims, round_sims = get_snpe_times(
+            snpe_optim, num_sims
+        )
+        snpe_distance = snpe_optim["distances"]
+        _label = label if i == 0 else None
         axs[0].plot(round_sims, snpe_distance, color=color, label=_label)
-        axs[1].plot(round_times/60., snpe_distance, color=color)
+        axs[1].plot(round_times / 60.0, snpe_distance, color=color)
         _max_dist = np.max(snpe_distance)
         if max_dist is None or max_dist < _max_dist:
             max_dist = _max_dist
@@ -578,72 +608,82 @@ def snpe_simplot(snpes, label, axs, color=None, max_sims=None, max_time=None, ma
         _max_sims = round_sims[-1]
         if max_sims is None or max_sims < _max_sims:
             max_sims = _max_sims
-            
+
     return max_sims, max_time, max_dist
-   
+
+
 def count_str(n):
     if n >= 1e7:
-        return "%dm" %  np.round(n/1e6)
+        return "%dm" % np.round(n / 1e6)
     if n >= 1e6:
-        return "%.1fm" %  (n/1e6)
+        return "%.1fm" % (n / 1e6)
     if n >= 1e4:
-        return "%dk" %  np.round(n/1e3)
+        return "%dk" % np.round(n / 1e3)
     elif n >= 1e3:
-        return "%.1fk" %  (n/1e3)
+        return "%.1fk" % (n / 1e3)
     else:
         return "%d" % n
 
-def plot_compare_hp(epis, snpes1, snpes2, c_epi, pal, 
-               epi_label=None, snpe1_label=None, snpe2_label=None,
-               xlims=None, fontsize=12
-               ):
-    fig, axs = plt.subplots(1,2,figsize=(10,3))
-    
+
+def plot_compare_hp(
+    epis,
+    snpes1,
+    snpes2,
+    c_epi,
+    pal,
+    epi_label=None,
+    snpe1_label=None,
+    snpe2_label=None,
+    xlims=None,
+    fontsize=12,
+):
+    fig, axs = plt.subplots(1, 2, figsize=(10, 3))
+
     max_sims, max_time, max_dist = snpe_simplot(snpes1, snpe1_label, axs, pal[0])
-    max_sims, max_time, max_dist = snpe_simplot(snpes2, snpe2_label, axs, pal[1], \
-                                                max_sims, max_time, max_dist)
-           
+    max_sims, max_time, max_dist = snpe_simplot(
+        snpes2, snpe2_label, axs, pal[1], max_sims, max_time, max_dist
+    )
+
     labeled = False
     for i, epi_dict in enumerate(epis):
-        epi_optim = epi_dict['optim']
-        epi_df = epi_dict['df']
-        if (epi_optim is None):
+        epi_optim = epi_dict["optim"]
+        epi_df = epi_dict["df"]
+        if epi_optim is None:
             continue
-        epi_batch = epi_df.iloc[0]['AL_hps']['N']
-        iterations = epi_optim['iteration']
-        epi_sims = iterations*epi_batch
-        epi_R = np.stack((epi_optim['R1'], epi_optim['R2']), axis=1)
+        epi_batch = epi_df.iloc[0]["AL_hps"]["N"]
+        iterations = epi_optim["iteration"]
+        epi_sims = iterations * epi_batch
+        epi_R = np.stack((epi_optim["R1"], epi_optim["R2"]), axis=1)
         epi_distance = np.linalg.norm(epi_R, axis=1)
-        epi_times = iterations*epi_optim['time_per_it']                    
+        epi_times = iterations * epi_optim["time_per_it"]
         label = epi_label if not labeled else None
         axs[0].plot(epi_sims, epi_distance, color=c_epi, label=label)
-        axs[1].plot(epi_times/60., epi_distance, color=c_epi)
-        labeled=True
-        
+        axs[1].plot(epi_times / 60.0, epi_distance, color=c_epi)
+        labeled = True
+
     if xlims is not None:
         _xlim = min(max_sims, xlims[0])
         axs[0].set_xlim([0, _xlim])
     xticks = axs[0].get_xticks()
     xticklabels = [count_str(count) for count in xticks]
     axs[0].set_xticklabels(xticklabels, fontsize=fontsize)
-    axs[0].set_ylim([0, 1.1*max_dist])
+    axs[0].set_ylim([0, 1.1 * max_dist])
     axs[0].legend(fontsize=12, loc="upper right")
 
-    _xlim = min(max_time/60., xlims[1]) if xlims is not None else max_time/60.
-    if _xlim > 24*60:
-        hr_ticks = 12*np.arange(4)
+    _xlim = min(max_time / 60.0, xlims[1]) if xlims is not None else max_time / 60.0
+    if _xlim > 24 * 60:
+        hr_ticks = 12 * np.arange(4)
     else:
-        hr_ticks = 4*np.arange(9)
-    xticks = hr_ticks*60
+        hr_ticks = 4 * np.arange(9)
+    xticks = hr_ticks * 60
     print(xticks)
     xticklabels = ["0"] + ["%dhr" % hr for hr in hr_ticks[1:]]
     axs[1].set_xticks(xticks)
     axs[1].set_xticklabels(xticklabels, fontsize=fontsize)
     axs[1].set_xlim([0, _xlim])
-    axs[1].set_ylim([0, 1.1*max_dist])
+    axs[1].set_ylim([0, 1.1 * max_dist])
 
     for i in range(2):
         axs[i].set_yticks(axs[i].get_yticks())
 
     return fig, axs
-
