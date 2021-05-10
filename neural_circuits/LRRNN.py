@@ -16,8 +16,6 @@ from sbi.inference import SNPE, prepare_for_sbi, simulate_for_sbi
 from sbi.utils.get_nn_models import posterior_nn
 
 # EPS = 1e-6
-
-
 def get_W_eigs_np(g, K, feed_noise=False):
     def W_eigs(U, V, noise=None):
         U, V = U[None, :, :], V[None, :, :]
@@ -392,6 +390,7 @@ def get_EPI_conv(N, g, K, random_seeds, eps=None):
     model = LRRNN_setup(N, g, K)
     # Choose max entropy
     epi_df = model.get_epi_df()
+    print(epi_df['path'].unique())
     epi_df["arch_D"] = [row["arch"]["D"] for i, row in epi_df.iterrows()]
     epi_df["c0"] = [row["AL_hps"]["c0"] for i, row in epi_df.iterrows()]
     epi_df["rs"] = [row["arch"]["random_seed"] for i, row in epi_df.iterrows()]
@@ -403,11 +402,11 @@ def get_EPI_conv(N, g, K, random_seeds, eps=None):
     conv_times = []
     conv_sims = []
     for path in paths:
+        print(path)
         _epi_df = epi_df[epi_df['path']==path]
         _row = _epi_df.iloc[0]
         nf = model._df_row_to_nf(_row)
         init_path = nf.get_init_path(_row['init']['mu'], _row['init']['Sigma'])
-        print('init', init_path)
         epi_init = np.load(os.path.join(init_path, "timing.npz"))
         epi_optim = get_epi_optim(model, None, _epi_df, path)
         epi_times = get_epi_times(epi_init, epi_optim)
@@ -426,6 +425,7 @@ def get_EPI_conv(N, g, K, random_seeds, eps=None):
         _conv_sims = np.nan if len(conv_inds) == 0 else epi_batch*iterations[conv_inds[0]]
         conv_times.append(conv_time)
         conv_sims.append(_conv_sims)
+        print(conv_times)
    
     return conv_times, conv_sims
 
