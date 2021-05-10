@@ -467,6 +467,8 @@ class NormalizingFlow(tf.keras.Model):
             if os.path.exists(opt_data_file):
                 return pd.read_csv(opt_data_file)
 
+        t1 = time.time()
+
         eta = gaussian_backward_mapping(mu, Sigma)
 
         def gauss_init_loss(z, log_q_z, eta):
@@ -532,10 +534,13 @@ class NormalizingFlow(tf.keras.Model):
                             "%.2E s" % ts_time,
                             flush=True,
                         )
-                    else:
+                        else:
                         print(i, "H", H, "loss", loss, "%.2E s" % ts_time, flush=True)
+        init_time = time.time() - t1
         opt_df = pd.concat(opt_it_dfs, ignore_index=True)
         opt_df.to_csv(init_path + "opt_data.csv")
+        np.savez(os.path.join(init_path, "timing.npz"),
+                 init_time=init_time)
         checkpoint.save(file_prefix=init_file)
         return opt_df
 

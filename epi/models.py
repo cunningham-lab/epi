@@ -458,7 +458,9 @@ class Model(object):
         print(format_opt_msg(0, 0, cost_0, H_0, R_0, 0.), flush=True)
         failed = False
         time_per_it = np.nan
+        epoch_times = []
         for k in range(1, K + 1):
+            epoch_start = time.time()
             etas[k - 1], cs[k - 1], eta, c
             for i in range(1, num_iters + 1):
                 time1 = time.time()
@@ -517,36 +519,45 @@ class Model(object):
             self._save_epi_opt(ckpt_dir, opt_it_df, cs, etas)
             opt_it_dfs = [opt_it_df]
 
+            end_opt = False
             if k < K:
                 if np.isnan(cost):
-                    break
+                    end_opt = True
                 # Check for convergence if early stopping.
-                if stop_early and converged:
+                elif stop_early and converged:
                     print('Stopping early because converged!', flush=True)
-                    break
-
-                # Update eta and c
-                eta = eta + c * R
-                norms_k = get_R_norm_dist(nf, self.eps, mu_colvec, self.M_norm, N)
-                t, p = ttest_ind(
-                    norms_k.numpy(), gamma * norms.numpy(), equal_var=False
-                )
-                u = np.random.rand(1)
-                if u < 1 - p / 2.0 and t > 0.0:
-                    c = beta * c
-                norms = norms_k
+                    end_opt = True
+                else:
+                    # Update eta and c
+                    eta = eta + c * R
+                    norms_k = get_R_norm_dist(nf, self.eps, mu_colvec, self.M_norm, N)
+                    t, p = ttest_ind(
+                        norms_k.numpy(), gamma * norms.numpy(), equal_var=False
+                    )
+                    u = np.random.rand(1)
+                    if u < 1 - p / 2.0 and t > 0.0:
+                        c = beta * c
+                    norms = norms_k
 
             time_per_it = time2 - time1
+            epoch_end = time.time()
+            epoch_times.append(epoch_end-epoch_start)
             if save_movie_data:
                 np.savez(
                     os.path.join(ckpt_dir,"movie_data.npz"),
                     zs=np.array(zs),
                     log_q_zs=np.array(log_q_zs),
                     time_per_it=time_per_it,
+                    epoch_times=np.array(epoch_times),
                     iterations=np.arange(0, k * num_iters + 1, log_rate),
                 )
             else:
-                np.savez(os.path.join(ckpt_dir, "timing.npz"), time_per_it=time_per_it)
+                np.savez(os.path.join(ckpt_dir, "timing.npz"),
+                         epoch_times=epoch_times,
+                         time_per_it=time_per_it)
+
+            if end_opt:
+                break
 
         # Save hyperparameters.
         self.aug_lag_hps = aug_lag_hps
