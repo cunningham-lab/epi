@@ -33,7 +33,7 @@ rs = args.rs
 
 r = 2 # rank-2 networks
 
-num_epochs = 20
+num_epochs = 1
 
 # 1. Define model: dxd matrix
 D = int(N*r)
@@ -72,14 +72,14 @@ q_theta, opt_data, save_path, failed = M.epi(
     mu, 
     arch_type="coupling",
     lr=1e-3, 
-    N=100,
+    N=200,
     num_stages=3,
     num_layers=2,
     num_units=100,
     batch_norm=False,
     bn_momentum=0.,
     post_affine=True,
-    num_iters = 1000,
+    num_iters = 20,
     c0=c0,
     beta = 4.,
     nu=1.,

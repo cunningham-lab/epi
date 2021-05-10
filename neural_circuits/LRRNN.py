@@ -16,8 +16,6 @@ from sbi.inference import SNPE, prepare_for_sbi, simulate_for_sbi
 from sbi.utils.get_nn_models import posterior_nn
 
 # EPS = 1e-6
-
-
 def get_W_eigs_np(g, K, feed_noise=False):
     def W_eigs(U, V, noise=None):
         U, V = U[None, :, :], V[None, :, :]
@@ -232,9 +230,12 @@ def load_ME_EPI_LRRNN(
 
 
 def load_best_SNPE_LRRNN(
-    N, g, K, x0, num_sims=1000, num_batch=200, num_atoms=100, random_seeds=[1, 2, 3]
+    N, g, K, x0, num_sims=1000, num_batch=200, num_atoms=100, random_seeds=[1, 2, 3], gpu=False,
 ):
-    snpe_base_path = os.path.join("data", "snpe")
+    if gpu:
+        snpe_base_path = os.path.join("data", "snpe_gpu")
+    else:
+        snpe_base_path = os.path.join("data", "snpe")
     num_transforms = 3
     # Choose best SNPE
     best_val_prob = None
@@ -284,9 +285,12 @@ def get_simulator(N, g, K):
     return simulator, prior
 
 
-def get_epi_times(optim):
+def get_epi_times(init, optim):
+    init_time = init['init_time']
     iteration = optim["iteration"]
-    return iteration * optim["time_per_it"]
+    iteration = optim["iteration"]
+    times = iteration * optim["time_per_it"]
+    return init_time + times
 
 
 def get_snpe_times(optim, num_sims=None):
@@ -328,11 +332,15 @@ def get_SNPE_conv(N, g, K, x0, eps,
                         num_sims=1000, 
                         num_batch=200, 
                         num_atoms=100,
-                        random_seeds=None):
+                        random_seeds=None,
+                        gpu=False):
    
     conv_times = []
     conv_sims = []
-    snpe_base_path = os.path.join("data", "snpe")
+    if gpu:
+        snpe_base_path = os.path.join("data", "snpe_gpu")
+    else:
+        snpe_base_path = os.path.join("data", "snpe")
     num_transforms = 3
     # Choose best SNPE
     for _i, rs in enumerate(random_seeds):
@@ -368,6 +376,7 @@ def get_SNPE_conv(N, g, K, x0, eps,
         
         assert(num_rounds < args.max_rounds)
         conv_inds = np.nonzero(distances[1:]<eps)[0]
+        print(conv_inds[0])
         conv_time = np.nan if len(conv_inds) == 0 else round_times[conv_inds[0]+1]
         _conv_sims = np.nan if len(conv_inds) == 0 else round_sims[conv_inds[0]+1]
         conv_times.append(conv_time)
@@ -381,6 +390,7 @@ def get_EPI_conv(N, g, K, random_seeds, eps=None):
     model = LRRNN_setup(N, g, K)
     # Choose max entropy
     epi_df = model.get_epi_df()
+    print(epi_df['path'].unique())
     epi_df["arch_D"] = [row["arch"]["D"] for i, row in epi_df.iterrows()]
     epi_df["c0"] = [row["AL_hps"]["c0"] for i, row in epi_df.iterrows()]
     epi_df["rs"] = [row["arch"]["random_seed"] for i, row in epi_df.iterrows()]
@@ -392,9 +402,14 @@ def get_EPI_conv(N, g, K, random_seeds, eps=None):
     conv_times = []
     conv_sims = []
     for path in paths:
+        print(path)
         _epi_df = epi_df[epi_df['path']==path]
+        _row = _epi_df.iloc[0]
+        nf = model._df_row_to_nf(_row)
+        init_path = nf.get_init_path(_row['init']['mu'], _row['init']['Sigma'])
+        epi_init = np.load(os.path.join(init_path, "timing.npz"))
         epi_optim = get_epi_optim(model, None, _epi_df, path)
-        epi_times = get_epi_times(epi_optim)
+        epi_times = get_epi_times(epi_init, epi_optim)
         if eps is not None:
             R = np.stack((_epi_df['R1'].to_numpy(), _epi_df['R2'].to_numpy()), axis=1)
             distances = np.linalg.norm(R, axis=1)
@@ -410,6 +425,7 @@ def get_EPI_conv(N, g, K, random_seeds, eps=None):
         _conv_sims = np.nan if len(conv_inds) == 0 else epi_batch*iterations[conv_inds[0]]
         conv_times.append(conv_time)
         conv_sims.append(_conv_sims)
+        print(conv_times)
    
     return conv_times, conv_sims
 
