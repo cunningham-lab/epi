@@ -36,8 +36,10 @@ def test_linear2D_freq():
         ),
         axis=1,
     )
-
-    assert np.isclose(T_x, T_x_np, rtol=1e-3).all()
-    assert np.isclose(T_x_sq, T_x_np, rtol=1e-3).all()
+    assert np.isclose(T_x, T_x_np, atol=1e-3).all()
+    assert np.isclose(T_x_sq, T_x_np, atol=1e-3).all()
 
     return None
+
+if __name__ == "__main__":
+    test_linear2D_freq()
