@@ -43,14 +43,13 @@ class NormalizingFlow(tf.keras.Model):
     is one full autoregressive factorization (see :obj:`tfp.bijectors.MAF`).
 
     After each stage, which is succeeded by another coupling or autoregressive 
-    transform, the dimensions are permuted via a :obj:`tfp.bijectors.Permute` bijector 
-    followed by a :obj:`tfp.bijectors.BatchNormalization`
-    bijector.  This facilitates randomized conditioning (real NVP) and
+    transform, the dimensions are permuted via a Glow permutation.
+    This facilitates randomized conditioning (real NVP) and
     factorization orderings (MAF) at each stage.
 
     E.g. :obj:`arch_type='autoregressive', num_stages=2`
 
-    :math:`q_0` -> MAF -> permute -> batch norm -> MAF -> ...
+    :math:`q_0` -> MAF -> permute -> MAF -> ...
 
     We parameterize the final processing stages of the normalizing flow (a deep 
     generative model) via post_affine and bounds.
@@ -60,7 +59,7 @@ class NormalizingFlow(tf.keras.Model):
 
     E.g. :obj:`arch_type='autoregressive', num_stages=2, post_affine=True`
 
-    :math:`q_0` -> MAF -> permute -> batch norm -> MAF -> PA -> ...
+    :math:`q_0` -> MAF -> permute -> batch norm -> MAF -> affine -> ...
 
     By setting bounds to a tuple (lower_bound, upper_bound), the final step
     in the normalizing flow maps to the support of the distribution using an
@@ -71,6 +70,8 @@ class NormalizingFlow(tf.keras.Model):
     :math:`q_0` -> MAF -> permute -> batch norm -> MAF -> post affine -> interval flow
 
     The base distribution :math:`q_0` is chosen to be a standard isotoropic gaussian.
+    Transforms of coupling and autoregressive layers can be parameterized as
+    an 'affine' function or a 'spline' via parameter elemwise_fn.
 
     :param arch_type: :math:`\\in` `['autoregressive', 'coupling']`
     :type arch_type: str
@@ -82,6 +83,10 @@ class NormalizingFlow(tf.keras.Model):
     :type num_layers: int
     :param num_units: Number of units per layer.
     :type num_units: int
+    :type elemwise_fn: str, optional
+    :param elemwise_fn: Inter-stage bijector `\\in` :obj:`['affine', 'spline']`, defaults to 'affine'.
+    :param num_bins: Number of bins when elemwise_fn is spline.
+    :type num_bins: int, optional
     :param batch_norm: Use batch normalization between stages, defaults to True.
     :type batch_norm: bool, optional
     :param bn_momentum: Batch normalization momentum parameter, defaults to 0.99.
@@ -102,7 +107,7 @@ class NormalizingFlow(tf.keras.Model):
         num_layers,
         num_units,
         elemwise_fn="affine",
-        num_bins=32,
+        num_bins=4,
         batch_norm=True,
         bn_momentum=0.0,
         post_affine=True,
@@ -540,9 +545,7 @@ class NormalizingFlow(tf.keras.Model):
         init_time = time.time() - t1
         opt_df = pd.concat(opt_it_dfs, ignore_index=True)
         opt_df.to_csv(init_path + "opt_data.csv")
-        print("Saving timing...")
         np.savez(os.path.join(init_path, "timing.npz"), init_time=init_time)
-        print("saved!")
         checkpoint.save(file_prefix=init_file)
         return opt_df
 
@@ -596,7 +599,7 @@ class IntervalFlow(tfp.bijectors.Bijector):
     * no bound: :math:`y_i = x_i`
     * only lower bound: :math:`y_i = \\log(1 + \\exp(x_i)) + lb_i`
     * only upper bound: :math:`y_i = -\\log(1 + \\exp(x_i)) + ub_i`
-    * upper and lower bound: :math:`y_i = \\frac{ub_i - lb_i} \\sigmoid(x_i) + \\frac{ub_i + lb_i}{2}`
+    * upper and lower bound: :math:`y_i = (ub_i - lb_i) \\sigmoid(x_i) + \\frac{ub_i + lb_i}{2}`
 
     :param lb: Lower bound. N values are numeric including :obj:`float('-inf')`.
     :type lb: np.ndarray
