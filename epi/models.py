@@ -242,6 +242,8 @@ class Model(object):
         :type num_layers: int, optional
         :param num_units: Number of units per layer, defaults to max(2D, 15).
         :type num_units: int, optional
+        :type elemwise_fn: str, optional
+        :param elemwise_fn: Inter-stage bijector `\\in` :obj:`['affine', 'spline']`, defaults to 'affine'.
         :param batch_norm: Use batch normalization between stages, defaults to True.
         :type batch_norm: bool, optional
         :param bn_momentum: Batch normalization momentum parameter, defaults to 0.99.
@@ -280,8 +282,8 @@ class Model(object):
         :type verbose: bool, optional
         :param save_movie_data: Save data for making optimization movie, defaults to False.
         :type save_movie_data: bool, optional
-        :returns: q_theta, opt_df, save_path
-        :rtype: epi.models.Distribution, pandas.DataFrame, str
+        :returns: q_theta, opt_df, save_path, failed
+        :rtype: epi.models.Distribution, pandas.DataFrame, str, bool
         """
         if num_units is None:
             num_units = min(max(2 * self.D, 15), 100)
@@ -1038,12 +1040,7 @@ class Model(object):
         base_path = os.path.join("data", "epi")
 
         epi_path = os.path.join(
-            base_path,
-            self.name,
-            init_hash,
-            nf.to_string(),
-            ep_hash,
-            AL_hps.to_string(),
+            base_path, self.name, init_hash, nf.to_string(), ep_hash, AL_hps.to_string()
         )
 
         if not os.path.exists(epi_path):
@@ -1072,15 +1069,12 @@ class Model(object):
             "random_seed": nf.random_seed,
         }
         arch_index_file = os.path.join(
-            base_path, self.name, init_hash, nf.to_string(), "arch.pkl",
+            base_path, self.name, init_hash, nf.to_string(), "arch.pkl"
         )
 
-        ep_index = {
-            "name": _eps_name,
-            "mu": mu,
-        }
+        ep_index = {"name": _eps_name, "mu": mu}
         ep_index_file = os.path.join(
-            base_path, self.name, init_hash, nf.to_string(), ep_hash, "ep.pkl",
+            base_path, self.name, init_hash, nf.to_string(), ep_hash, "ep.pkl"
         )
 
         AL_hp_index = {
@@ -1345,7 +1339,7 @@ class Distribution(object):
     def log_prob(self, z):
         """Calculates log probability of samples from distribution.
 
-        :param z: Samples from distribution.
+        :param z: Parameter vector.
         :type z: np.ndarray
         :returns: Log probability of samples.
         :rtype: np.ndarray
@@ -1356,7 +1350,7 @@ class Distribution(object):
     def gradient(self, z):
         """Calculates the gradient :math:`\\nabla_z \\log p(z))`.
 
-        :param z: Samples from distribution.
+        :param z: Parameter vector.
         :type z: np.ndarray
         :returns: Gradient of log probability with respect to z.
         :rtype: np.ndarray
@@ -1375,7 +1369,7 @@ class Distribution(object):
     def hessian(self, z):
         """Calculates the Hessian :math:`\\frac{\\partial^2 \\log p(z)}{\\partial z \\partial z^\\top}`.
 
-        :param z: Samples from distribution.
+        :param z: Parameter vector.
         :type z: np.ndarray
         :returns: Hessian of log probability with respect to z.
         :rtype: np.ndarray
@@ -1403,6 +1397,17 @@ class Distribution(object):
     # def plot_dist(self, N=200, c=None, kde=True):
     #    z = self.sample(N)
     def plot_dist(self, z, c=None, kde=True):
+        """Generates pairplot of parameters.
+
+        :param z: Parameter vectors (N, D).
+        :type z: np.ndarray
+        :param c: Color value for parameters. (Defaults to log probability).
+        :type c: np.ndarray
+        :param kde: If True, bottom-left plots shows kde contours of c.
+        :type kde: bool
+        :returns: Hessian of log probability with respect to z.
+        :rtype: np.ndarray
+        """
         log_q_z = self.log_prob(z)
         df = pd.DataFrame(z)
         # iterate over parameters to create label_names
