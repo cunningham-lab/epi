@@ -1,6 +1,7 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  6 MAY 2021 13:19
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  20 MAY 2021 10:47
 entering extended mode
  restricted \write18 enabled.
+ file:line:error style messages enabled.
  %&-line parsing enabled.
 **Response.tex
 (./Response.tex
@@ -410,20 +411,16 @@ Overfull \hbox (4.2801pt too wide) in paragraph at lines 47--48
 ng fram-ework for max-i-mum entropy
  []
 
-(/usr/local/texlive/2016/texmf-dist/tex/latex/ucs/data/uni-32.def
-File: uni-32.def 2013/05/13 UCS: Unicode data U+2000..U+20FF
-)
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 57.
-
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 53.
 (/usr/local/texlive/2016/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 57.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 53.
  [1
 
 {/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Try loading font information for U+msa on input line 87.
+LaTeX Font Info:    Try loading font information for U+msa on input line 83.
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
@@ -431,7 +428,7 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 (/usr/local/texlive/2016/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 87.
+LaTeX Font Info:    Try loading font information for U+msb on input line 83.
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
@@ -439,47 +436,50 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 (/usr/local/texlive/2016/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 ) [2]
-[3] [4] [5] [6] [7] [8] [9]
-Underfull \hbox (badness 10000) in paragraph at lines 239--240
+[3] [4] [5] [6] [7]
+(/usr/local/texlive/2016/texmf-dist/tex/latex/ucs/data/uni-32.def
+File: uni-32.def 2013/05/13 UCS: Unicode data U+2000..U+20FF
+) [8] [9]
+Underfull \hbox (badness 10000) in paragraph at lines 232--233
 
  []
 
 [10] [11] [12]
-Underfull \hbox (badness 10000) in paragraph at lines 297--298
+Underfull \hbox (badness 10000) in paragraph at lines 290--291
 
  []
 
-[13] [14] [15] [16] [17]
+[13] [14] [15] [16] [17] [18]
 (/usr/local/texlive/2016/texmf-dist/tex/latex/ucs/data/uni-0.def
 File: uni-0.def 2013/05/13 UCS: Unicode data U+0000..U+00FF
-) [18] [19]
-[20] (./Response.aux) ) 
+) [19] [20]
+(./Response.aux) ) 
 Here is how much of TeX's memory you used:
- 7715 strings out of 493014
- 113117 string characters out of 6133351
+ 7717 strings out of 493014
+ 113139 string characters out of 6133351
  349805 words of memory out of 5000000
  10996 multiletter control sequences out of 15000+600000
- 20205 words of font info for 103 fonts, out of 8000000 for 9000
+ 20268 words of font info for 104 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  37i,5n,38p,1909b,507s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/cm-s
-uper/cm-super-t1.enc}</usr/local/texlive/2016/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmbx10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmbx8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmmi10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmmi8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmmib10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/
-cmextra/cmmib8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfo
-nts/cm/cmr10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmr8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/c
-m/cmsy10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/sy
-mbols/msbm10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-supe
-r/sfbx1095.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/
-sfbx1440.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sf
-rm0800.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfrm
-1095.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfti10
-95.pfb>
-Output written on Response.pdf (20 pages, 256220 bytes).
+{/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/cm-super/
+cm-super-t1.enc}</usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmbx10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmbx8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmmi10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmmi8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+mib10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cmext
+ra/cmmib8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmr10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmr8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cms
+y10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/symbols
+/msbm10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfb
+x1095.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfbx1
+440.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfrm080
+0.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfrm1095.
+pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfti1095.pf
+b>
+Output written on Response.pdf (20 pages, 257773 bytes).
 PDF statistics:
  130 PDF objects out of 1000 (max. 8388607)
  92 compressed objects within 1 object stream

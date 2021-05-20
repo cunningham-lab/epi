@@ -48,18 +48,14 @@
 
 \textbf{Reviewers were broadly enthusiastic about the potential usefulness of this methodology. However, the reviews and ensuing discussion revealed several points of concern about the manuscript and the approach. The full reviewer comments are included below.} 
 
-We thank the reviewers for the excellent and constructive feedback.
-
-We have made significant changes to our writing and explanation of emergent property inference (EPI), done extensive comparisons of EPI to other parameter inference methods, and have seriously increased the quality and depth of our scientific analyses, which now yield strong theoretical results.  Our model analyses now focus on analyzing the structure of parameter distributions, which EPI captures using flexible approximations enabled by deep learning.  Here, we provide a list of key manuscript updates, and below we explain how these changes address each of the reviewer’s concerns.
-
-List of key manuscript improvements:
+We thank the reviewers for the excellent and constructive feedback.  The reviews contained broad support for this work, but with significant calls for improvements, especially around clarity of exposition and the thoroughness of the evaluation (comparison to existing methods, more depth in scientific analyses, etc).  We strongly agreed and thus committed a significant period of time to improving these areas.  List of key manuscript improvements:
 \begin{itemize}
 \item We completely overhauled our presentation of the parameter inference technique emergent property inference (EPI). See response to main concern \#1, especially noted by R1 and R3.
 \item We added an entirely new results section to compare EPI to alternative parameter inference techniques (SMC-ABC and SNPE) as parameter count increases, which demonstrates the advantages of EPI in high dimensional parameter spaces. See response to main concern \#2, especially noted by R2 and R3.
-\item EPI is used to understand how noise across neuron type populations governs excitatory variability in a model of primary visual cortex.  
-Here, EPI yields visually striking, novel insight where the conventional analytic approach became infeasible with increasing neuron types.  See response to main concern \#4.
+\item EPI is used to understand how noise across neuron type populations governs excitatory variability in a model of primary visual cortex.  Our model analyses in general now focus on analyzing the structure of parameter distributions, which EPI captures using flexible approximations enabled by deep learning.  
+Here, EPI yields novel insight where the conventional analytic approach became infeasible with increasing neuron types.  See response to main concern \#4.
 \item EPI is used to discover multiple parametric regimes of rapid task switching in a model of superior colliculus.  
-These regimes are efficiently identified and mechanistically characterized using the probabilistic modeling tools afforded by EPI, and we relate the inferred connectivities to results from optogenetic silencing experiments in rats. See response to main concern \#4.
+These regimes are efficiently identified and characterized using the probabilistic modeling tools afforded by EPI, and we relate the inferred connectivities to results from optogenetic silencing experiments in rats. See response to main concern \#4.
 \end{itemize}
 
 \textbf{The main concerns are summarized as follows:}
@@ -68,7 +64,7 @@ These regimes are efficiently identified and mechanistically characterized using
 
 Agreed.
 In the introduction, we present our method by focusing on the key aspect of EPI that differentiates it from other approaches to inverse problems.
-Specifically, we explain how current methodology infers the parameters producing computation by conditioning on \textit{exemplar datasets} (real or simulated), whereas in EPI we condition directly on the \textit{emergent properties} that define the computation.
+Specifically, we explain how current methodology infers the parameters producing computation by conditioning on \textit{exemplar datasets} (real or simulated), whereas in EPI we condition directly on the \textit{emergent properties} that define the computation.  We also note (and have an appendix detailing) how EPI is in fact doing variational bayesian inference, but that the parameterization of the problem as we solve it is more natural given the goal of reproducing a computation.  In other words, the methodology is mathematically sound and directly connected to well-worn techniques, but the specific form we solve is the appropriate choice for the motivating problem.
 
 \begin{displayquote}
 Lines 46-54\\
@@ -83,9 +79,8 @@ Lines 55-65\\
 ``\quoting{intro_epi}''
 \end{displayquote}
 
-To improve clarity, we have overhauled the notation and presentation of emergent properties.
-Emergent properties are now denoted with $\mathcal{X}$ to signify an implicit dataset predicated by the emergent property.
-And rather than a vector of first- and second-moment constraints, we present the emergent property more readably (and equivalently) as mean and variance constraints on emergent property statistics:
+To improve clarity, we have overhauled and simplified the notation and presentation of emergent properties.
+Emergent properties are now denoted with $\mathcal{X}$: rather than a vector of first- and second-moment constraints, we present the emergent property more readably (and equivalently) as mean and variance constraints on emergent property statistics:
 
 \begin{displayquote}
 Line 759 \\
@@ -95,11 +90,10 @@ Line 759 \\
 \end{equation}''
 \end{displayquote}
 
-Emergent properties and EPI are introduced and explained with this revised formalism in Section \ref{results_dgm}, and we have completely redone the Methods Section \ref{methods_EPI} to improve clarity, precisely explain EPI optimization (Section \ref{methods_AL_opt}), and derive equivalence to established bayesian inference techniques (Section \ref{methods_VI}).
+Emergent properties and EPI are introduced and explained with this revised notation in Section \ref{results_dgm}, and we have completely redone the Methods Section \ref{methods_EPI} to improve clarity, precisely explain EPI optimization (Section \ref{methods_AL_opt}), and derive equivalence to established bayesian inference techniques (Section \ref{methods_VI}).
 
 In our revised writing, we deemphasize the role of maximum entropy in the EPI algorithm, because this has largely served as a distraction in our experience.
-We show in Section \ref{methods_VI} that EPI is a special case of variational inference, since maximum entropy is the same normative selection principle as variational bayesian methods.  
-Therefore, it makes sense to present EPI in the main text as a statistical inference technique that constrains the predictions of the inferred parameters to be an emergent property, and leave the details of the maximum entropy to the technically proficient in Section \ref{methods_EPI}.
+We show in Section \ref{methods_VI} that EPI is exactly variational inference (this was mentioned in the previous draft but not as a point of connection and focus, as it should be and now is).   Therefore, it makes sense to present EPI in the main text as a statistical inference technique that constrains the predictions of the inferred parameters to be an emergent property, and leave the details of the maximum entropy to the technically proficient in Section \ref{methods_EPI}.
 
 \begin{displayquote}
 Lines 156-158\\
@@ -126,13 +120,14 @@ Furthermore, we emphasize that SNPE does not constrain the properties of the inf
 
 \textbf{3. The extent to which this method is generally/straightforwardly applicable was in doubt. It seemed as though a significant amount of computation was required to do inference on one specified property and that the computation would need to be run afresh to query a new property. The methodology in the cosubmission (Macke) made clear that computation required for successive inferences is 'amortized' during training on random parameters. Moreover, EPI seemed less flexible than the cosubmission's approach in that it required a differentiable loss function. The complementarity and advantages of this approach as opposed to the cosubmission's approach are therefore unclear. } 
 
-The reviewers are right to point out these characteristics of EPI: it does not amortize across emergent properties, and it requires differentiability of the emergent properties of the model. 
-Indeed, SNPE is more suitable for inference with nondifferentiable mechanistic models and scientific problems requiring many inferred parameter distributions.  
-However, these relative drawbacks of EPI with respect to SNPE can be considered choices made in a trade-off between simulation-based inference approaches.  
+We respectfully disagree with this characterization, but we take responsibility here: we certainly needed to improve our exposition and comparisons to clarify the general applicability of EPI.  We have done so, and what results is a meaningful comparison with the cosubmission (SNPE, Macke et al, now published) and other methods.  Of course there is a tradeoff (no free lunch, as usual), and these new analyses clarify when EPI is preferable to SNPE, and vice versa.  
 
-Unlike SNPE, EPI leverages gradients of the emergent property throughout optimization, which may lead to better efficiency and scalability (Section 3.3).  
-The emergent properties of many models in neuroscience are tractably differentiable, four of which we analyze in this manuscript ranging across levels of biological realism, network size, and computational function.
-This trade-off is now explained in the Discussion (Section \ref{discussion}).
+First, unlike SNPE, EPI leverages gradients of the emergent property throughout optimization, which leads to better efficiency and scalability (Section 3.3).   This is the usual tradeoff of gradient-based vs sampling-based methods.  The emergent properties of many models in neuroscience are tractably differentiable, four of which we analyze in this manuscript ranging across levels of biological realism, network size, and computational function. This tradeoff is now explained in the Discussion (Section \ref{discussion}).
+
+Second, of course the reviewers are right to point out EPI does not amortize across emergent properties, and it requires differentiability of the emergent properties of the model.  SNPE is more suitable for inference with nondifferentiable mechanistic models and scientific problems requiring many inferred parameter distributions.  
+However, these relative drawbacks of EPI with respect to SNPE can be considered choices made in a tradeoff between simulation-based inference approaches.  
+
+On the balance, these two methods occupy different areas of use, and both are equivalently ``generally/straightforwardly applicable''; we believe the new analyses and discussion in the manuscript clarify that, as it is a key point for practitioners going forward.   
 
 \begin{displayquote}
 Lines 439-451\\
@@ -192,7 +187,7 @@ Lines 416-419 \\
 ``\quoting{sc_summary}''
 \end{displayquote}
  
-As the reviewers indicate, the STG model analyzed in our manuscript is not that of Prinz et al. 2004, and thus not the model analyzed by the cosubmission.  We found the Prinz et al. model prohibitive to infer with EPI, since the gradients of spiking frequency from its simulation are quite computationally intensive.  However, we found it critical to show that it’s very possible to do inference in such biophysically realistic Morris-Lecar models when gradients are tractable, which is the case of the 5-neuron STG model we analyzed from Gutierrez et al. 2013.  This 5-neuron model represents the IC neuron (hub) and its coupling to the pyloric (fast) or gastric mill (slow) subcircuit rhythms.  In the introductory text, we refer to this model as the “STG subcircuit” model (rather than “STG model”), and we better clarify what aspect of the STG is being modeled in Results Section 3.1. 
+As the reviewers indicate, the STG model analyzed in our manuscript is not that of Prinz et al. 2004, and thus not the model analyzed by the cosubmission (Macke et al).  We chose an alternative model, believing it important to demonstrate inference in biophysically realistic Morris-Lecar models when gradients are tractable, which is the case of the 5-neuron STG model we analyzed from Gutierrez et al. 2013.  This 5-neuron model represents the IC neuron (hub) and its coupling to the pyloric (fast) or gastric mill (slow) subcircuit rhythms.  In the introductory text, we refer to this model as the “STG subcircuit” model (rather than “STG model”), and we better clarify what aspect of the STG is being modeled in Results Section 3.1. 
 
 \begin{displayquote}
 Lines 100-105 \\
@@ -232,9 +227,7 @@ Lines 849-862 \\
 
 \textbf{6. One of the reviewers expressed concern that the work might have had significant input from a senior colleague during its early stages, and that that it might be worth discussing with the senior colleague whether their contribution was worthy of authorship. The authors may take this concern into account in revising the manuscript.}
 
-We have reached out to Woods Hole Course Project mentors where this work was discussed and explored in its early stages.
-James Fitzgerald and Dhruva Raman are happy with their acknowledgement, and do not insist on deeper involvement and authorship on this paper.
-Stephen Baccus has requested that we acknowledge the summer course, which we have agreed to do.
+Thank you for pointing this out.  We take authorship and scientific contribution very seriously (it is always part of our manuscript submission process, as it was here).  We have gone back and discussed every researcher who was in any way involved in this work, and to our best estimation, we think this comment references Woods Hole Course Project mentors where this work was discussed and explored in its early stages.   We have had explicit followup conversations with James Fitzgerald and Dhruva Raman and noted that of course we would be happy to have them involved at any level (great colleagues!).  They both reported they are happy with their acknowledgement in the paper and don't feel that there is a justification for authorship (again we were very welcoming of this possibility and maintain positive enthusiasm for both).  Furthermore, Stephen Baccus has requested that we acknowledge the summer course, which we have done.  If there is any other ``senior colleague'' the reviewer had in mind, please let us know and we will of course gladly pursue the matter. 
 
 \textbf{7. Finally, please also address specific points raised by the reviewers, included below. } \\
 
