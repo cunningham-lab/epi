@@ -301,7 +301,7 @@ RNNs  with $\text{real}(\lambda_1) = 0.5 \pm 0.5$ and $\lambda_1^s = 1.5 \pm 0.5
 
 For comparison, we infer the parameters $\mathbf{z}$ likely to produce stable amplification using two alternative simulation-based inference approaches.
 Sequential Monte Carlo approximate bayesian computation (SMC-ABC) \cite{sisson2007sequential} is a rejection sampling approach that uses SMC techniques to improve efficiency, and sequential neural posterior estimation (SNPE) \cite{gonccalves2019training} approximates posteriors with deep probability distributions (see Section \ref{methods_related}).
-Unlike EPI, these statistical inference techniques do not constrain the statistics of the predictive distribution, so they were run by conditioning on an exemplar dataset  $\mathbf{x}_0 = \bm{\mu}$, following standard practice with these methods \cite{sisson2007sequential, gonccalves2019training}.
+Unlike EPI, these statistical inference techniques do not constrain the predictions of the inferred distribution, so they were run by conditioning on an exemplar dataset  $\mathbf{x}_0 = \bm{\mu}$, following standard practice with these methods \cite{sisson2007sequential, gonccalves2019training}.
 To compare the efficiency of these different techniques, we measured the time and number of simulations necessary for the distance of the predictive mean to be less than 0.5 from $\bm{\mu} = \mathbf{x}_0$ (see Section \ref{methods_RNN}).
 
 \begin{figure}
@@ -386,7 +386,7 @@ The arrows show the most sensitive dimensions of the Hessian evaluated at these 
 \q{v1_ep_text1}{We quantify levels of E-population variability by studying two emergent properties}
 \begin{equation}\label{eq:EP_V1}
 \begin{split}
-\mathcal{X}(5\text{Hz}) ~~:~~  \mathbb{E}_{\mathbf{z}}\begin{bmatrix} s_E(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~ 5\text{Hz}~~~~~~~\mathcal{X}(10\text{ Hz}) ~~:~~  \mathbb{E}_{\mathbf{z}}\begin{bmatrix} s_E(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~ 10\text{Hz}  \\ 
+\mathcal{X}(5\text{Hz}) ~~:~~  \mathbb{E}_{\mathbf{z}}\begin{bmatrix} s_E(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~ 5\text{Hz}~~~~~~~\mathcal{X}(10\text{Hz}) ~~:~~  \mathbb{E}_{\mathbf{z}}\begin{bmatrix} s_E(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~ 10\text{Hz}  \\ 
  \text{Var}_{\mathbf{z}}\begin{bmatrix} s_E(\mathbf{x}; \mathbf{z}) \end{bmatrix}  &~~=~~  1 \text{Hz}^2~~~~~~~~~~~~~~~~~~~~~~~ \text{Var}_{\mathbf{z}}\begin{bmatrix} s_E(\mathbf{x}; \mathbf{z}) \end{bmatrix}  ~~=~~  1 \text{Hz}^2,
 \end{split}
 \end{equation}
@@ -446,7 +446,7 @@ Parameters: $sW$ - self, $hW$ - horizontal, $vW$ -vertical, $dW$ - diagonal weig
 Red/purple parameters indicate modes $\mathbf{z}^*(sW)$ colored by $sW$.
 Sensitivity vectors $\mathbf{v}_1(\mathbf{z}^*)$ are shown by arrows.
 (Bottom-left) EPI predictive distribution of task accuracies.
-\textbf{D}. Mean and standard error ($N_{\text{test}}$ = 25) of accuracy in Pro (top) and Anti (bottom) tasks after perturbing connectivity away from mode along $\mathbf{v}_1(\mathbf{z}^*)$ (left), $\mathbf{v}_{\text{task}}$ (middle), and $\mathbf{v}_{\text{diag}}$ (right).
+\textbf{D}. Mean and standard error ($N_{\text{test}}$ = 25, bars not visible) of accuracy in Pro (top) and Anti (bottom) tasks after perturbing connectivity away from mode along $\mathbf{v}_1(\mathbf{z}^*)$ (left), $\mathbf{v}_{\text{task}}$ (middle), and $\mathbf{v}_{\text{diag}}$ (right).
 }
 \label{fig:SC}
 \end{figure}
@@ -1378,7 +1378,7 @@ and
 \begin{bmatrix} 3.59 \\ 4.03 \\ 0 \\ 0 \end{bmatrix}.
 \end{equation} 
 
-Circuit responses are simulated using $T = 200$ time steps at $dt = 0.5\text{ms}$ from an initial condition drawn from $\mathbf{x}(0) \sim U\left[10\text{ Hz}, 25\text{ Hz}\right]$.
+Circuit responses are simulated using $T = 200$ time steps at $dt = 0.5\text{ms}$ from an initial condition drawn from $\mathbf{x}(0) \sim U\left[10\text{Hz}, 25\text{Hz}\right]$.
 Standard deviation of the E-population $s_E(\mathbf{x}; \mathbf{z})$ is calculated as the square root of the temporal variance from $t_{ss} = 75\text{ms}$ to $Tdt = 100\text{ms}$ averaged over 100 independent trials.
 \begin{equation}
 s_E(\mathbf{x}; \mathbf{z}) =\mathbb{E}_{x}\left[\sqrt{\mathbb{E}_{t > t_{ss}}\left[\left(x_E(t) -\mathbb{E}_{t > t_{ss}}\left[ x_E(t) \right]\right)^2 \right]}\right]
@@ -1393,7 +1393,7 @@ Optimization details are shown in Figure \ref{fig:V1_2}.
 The sums of squares of each pair of parameters are shown for each EPI distribution in Figure \ref{fig:V1_3}.
 
 \begin{figure}[h]
-\caption{EPI inferred distribution for $\mathcal{X}(10\text{ Hz})$.
+\caption{EPI inferred distribution for $\mathcal{X}(10\text{Hz})$.
  }
  \label{fig:V1_1}
 \begin{center}
@@ -1402,7 +1402,7 @@ The sums of squares of each pair of parameters are shown for each EPI distributi
 \end{figure}
 
 \begin{figure}[h]
-\caption{EPI optimization $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{ Hz}))$
+\caption{EPI optimization $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{Hz}))$
 \textbf{A}. Entropy throughout optimization. 
 \textbf{B}. The emergent property statistic means and variances converge to their constraints at 8,000 iterations following the fourth augmented lagrangian epoch.
  }
@@ -1583,8 +1583,8 @@ These hyperparameter values are motivated by modeling choices and results from \
 \includegraphics[scale=1.]{figures/figSC2/figSC2.pdf}
 \end{center}
 \caption{
-\textbf{A}. Simulations in network regime 1 ($hW_{\text{fixed}} = -1.5$).
-\textbf{B}. Simulations in network regime 2 ($hW_{\text{fixed}} = -1.5$) .
+\textbf{A}. Simulations in network regime 1: $\mathbf{z}^*(sW=-0.75)$.
+\textbf{B}. Simulations in network regime 2: $\mathbf{z}^*(sW=0.75)$.
 }
 \label{fig:SC2}
 \end{figure}
@@ -1707,7 +1707,7 @@ The optimization converged after ten epochs (Fig. \ref{fig:SC6}).
 \begin{center}
 \includegraphics[scale=0.5]{figures/figSC7/figSC7.pdf}
 \end{center}
-\caption{
+\caption{EPI optimization of the SC model producing rapid task switching.
 \textbf{A}. Entropy throughout optimization. 
 \textbf{B}. The emergent property statistic means and variances converge to their constraints at 20,000 iterations following the tenth augmented lagrangian epoch.
 }
@@ -1724,8 +1724,8 @@ The distribution was the greatest EPI distribution to converge across 5 random s
 \includegraphics[scale=0.8]{figures/figSC8/figSC8.pdf}
 \end{center}
 \caption{
-\textbf{A}. Entropy throughout optimization. 
-\textbf{B}. The emergent property statistic means and variances converge to their constraints at 20,000 iterations following the tenth augmented lagrangian epoch.
+\textbf{A}.Rapid task switching SC connectivities obtained from random sampling.
+\textbf{B}. Task accuracies of the inferred distributions from random sampling (top) and EPI (bottom).
 }
 \label{fig:SC8}
 \end{figure}
