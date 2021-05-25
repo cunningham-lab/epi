@@ -101,7 +101,7 @@ Lines 156-158\\
 \end{displayquote}
 
 Figure \ref{fig:STG} has been largely redone to reflect the modified presentation, and improve the pictorial representation of the method.
-In Section \ref{methods_RNN}, we now show that EPI is the only simulation-based inference method that controls the predictions of its inferred distribution (Fig. \ref{fig:RNN}C-D).
+In Section \ref{results_RNN}, we now show that EPI is the only simulation-based inference method that controls the predictions of its inferred distribution (Fig. \ref{fig:RNN}C-D).
 
 Finally, we emphasize the utility of this deep inference technique for scientific inquiry in a new paragraph at the end of Section \ref{results_dgm}.
 
@@ -217,13 +217,8 @@ https://doi.org/10.1098/rsfs.2011.0047 \\
 http://doi.org/10.1214/16-BA1017 \\
 https://doi.org/10.1039/C0MB00107D}
 
-Thank you for pointing us to these references on sensitivity analyses and applied dynamical systems.  
-We have incorporated many of them into the current manuscript and explain EPI’s relation to each class of techniques in Section 5.1.1 Related approaches.
-
-\begin{displayquote}
-Lines 849-862 \\
-``\quoting{structural_id}''
-\end{displayquote}
+Thank you for pointing us to these references on sensitivity analyses, MCMC inference, and applied dynamical systems.  
+We have incorporated most of them into the current manuscript and explain EPI’s relation to each class of these techniques throughout Section \ref{methods_related} Related approaches.
 
 \textbf{6. One of the reviewers expressed concern that the work might have had significant input from a senior colleague during its early stages, and that that it might be worth discussing with the senior colleague whether their contribution was worthy of authorship. The authors may take this concern into account in revising the manuscript.}
 
@@ -242,8 +237,7 @@ Sufficient mathematical detail is written in each results section, while full de
 All code for training EPI on these models and their analysis are available in well-documented scripts and notebooks in our github repository.
 
 We modify our writing to clarify that EPI is not a key to all of theoretical neuroscience, but rather a powerful solution to inverse problems in neural circuit modeling.
-Inverse problems are indeed a major part of theoretical neuroscience.
-Their solution is necessary for the scientific evaluation of mathematical representations of neural circuits, and ultimately for progress in the field.
+Inverse problems are indeed a major part of theoretical neuroscience, and their solutions are important for the evaluation  of neural circuit models.
 We clarify this point in the introduction:
 
 \begin{displayquote}
@@ -255,18 +249,15 @@ Lines 28-37 \\
 
 \textbf{(1) Maximizing the entropy of the distribution is not a reparameterization invariant exercise. That is, results depend on whether the model parameters contains rates or time constants, for example. I wonder if this approach is attempting to use a 'flat prior' in some sense which has the same reparameterization issue? Can the authors comment? }
 
-The reviewer is correct to point out that maximum entropy solutions are not reparameterization invariant, and indeed the units matter.  The reviewer’s suggestion that the method is in some sense using a flat prior is also correct.  To clarify, EPI does not execute posterior inference, because there is no explicit dataset or specified prior belief in the EPI framework.  However, we derive the relation of EPI to bayesian inference in Section 5.1.6, which shows EPI uses a uniform prior when framed as variational inference.
+The reviewer is correct to point out that maximum entropy solutions are not reparameterization invariant, and indeed the units matter.  The reviewer’s suggestion that the method is in some sense using a flat prior is also correct.  To clarify, EPI does not execute posterior inference, because there is no explicit dataset or specified prior belief in the EPI framework.  
+However, we derive the relation of EPI to bayesian variational inference in Section \ref{methods_VI}, which shows EPI uses a uniform prior when framed as variational inference.
 
 \begin{displayquote}
 Lines 1026-1029 \\
-``\quoting{ME_prior}''
+``\quoting{EPI_VI}''
 \end{displayquote}
  
 In our examples, we only infer distributions of parameters with the same units, so this issue should not draw concern over the validity of our model analyses.  As suggested, the EPI solution will differ according to relative scaling of parameter values under the maximum entropy selection principle. Thus, an important clarification is that sensitivity quantifications are made in the context of the chosen parameter scalings. 
-%A final concern here is numerical: if the inferred distribution is in a thin region of parameter space, that is not well represented by the precision of the numerical format, there can be issues in optimization.  
-%It makes most sense to make sure EPI is exploring through parameter space through an industry-recommended range of values, and that sensitivity measurements are interpretable.
-
-\textbf{SB: Should we add text about this in the paper?}
 
 \textbf{(2) I don't think this is a criticism of the work, but instead of the writing about it: I find the introductory paragraphs to give a rather limited overview of theory as finding parameters of models which contain the right phenomenology. }
 
@@ -283,7 +274,7 @@ Lines 175 -177 \\
  
 \textbf{(4) I don't follow the other examples. Ideally more details should be given so that readers like myself who don't already know these systems can understand what's been done. }
 
-Thank you for the feedback.  We have taken care to give more general context, and motivation for each neural circuit model.
+Thank you for the feedback.  We have taken care to give more general context and motivation for each neural circuit model.
 
 \textbf{(5) In figure 2C, the difference between the confidence interval between linear and nonlinear predictions is huge! How much of this is due to nonlinearities, and how much is due to differences in the way these models are being evaluated? }
 
@@ -295,12 +286,13 @@ In the current manuscript, we do not examine the difference between linear and n
 
 \textbf{This is a very interesting approach to an extremely important question in theoretical neuroscience, and the mathematics and algorithms appear to be very rigorous. The complexities in using this in practice make me wonder if it will find wide application though: setting up the objective to be differentiable, tweaking hyperparameters for training, and interpreting the results; all seem to require a lot from the user. On the other hand, the authors are to be congratulated on providing high quality open source code including clear tutorials on how to use it. }
 
+We thank the reviewer for their positive comments.  
+
 \textbf{Major points }
 
 \textbf{1. Training deep networks is hard. Indeed the authors devote a substantial amount of the manuscript to techniques for training them, and note that different hyperparameters were necessary for each of the different studies. Can the authors be confident that they have found the network which gives maximum entropy or close to it? If so, how. If not, how does that affect the conclusions? }
 
-We thank the reviewer for their positive comments.  
-To draw a parallel, training deep networks for visual processing used to be considered infeasible, but became easier through iterative improvements in architectural and hyperparameter choices that spread across the field.  
+We agree with the reviewer that hyperparameter sensitivity and global optima are important considerations of any optimization algorithm using deep neural networks.  To draw a parallel, training deep networks for visual processing used to be considered infeasible, but became easier through iterative improvements in architectural and hyperparameter choices that spread across the field.  
 Similarly, training deep networks via EPI to learn parameter distributions became easier throughout this research project as we learned through trial and error what works well.  
 In fact, there has been extraordinary progress in the field of deep probability distributions (specifically normalizing flows), that have allowed EPI to converge regularly while capturing complex structure (e.g. Dinh et al. 2017 and Kingma et al. 2018).  
 This manuscript's explanation of hyperparameter choices and the extensive set of examples in the online code will serve as valuable guidelines for future research using this method.
@@ -411,21 +403,55 @@ We now include substantial text in discussion devoted to this topic in addition 
 
 \begin{displayquote}
 Lines 431-438\\
-``\quoting{discussion_methods}''
+``\quoting{discussion_methods} \\ \quoting{discussion_gradients}''
 \end{displayquote}
 
-\textbf{5) Given that the paper is heavily a (very valuable!) methods paper for a general audience, the method should be better explained both in the main text and the supplement. Some specific ones are below, but the authors should more generally send the paper to naïve readers to check what is/is not well explained. 
--Figure 1 is somewhat opaque and also has notational issues (e.g. omega is the frequency but also appears to be the random input sample). 
--For the general audience of eLife, panels C and D are not well described individually or well connected to each other and don't illustrate or describe all of the relevant variables (including what q0 is and what x is). 
--In equation 2 (and also in the same equation in the supplement), it was not immediately obvious what the expectation was taken over. 
--The authors don't specific the distribution of w (it's referred to only as 'a simple random variable', which is not clear). 
--It was also sometimes hard to quickly find in the text basic, important quantities like what z was for a given simulation. 
--The augmented Lagrangian optimization was not well explained or motivated. There is a reference to m=absolute value(mu) but I didn't see m in the above equation. 
--Using mu to describe a vector that includes means and variances is confusing notation since mu often denotes means 
--It would be helpful to have a pseudo-code 'Algorithm' figure or section of the text }
+\textbf{5) Given that the paper is heavily a (very valuable!) methods paper for a general audience, the method should be better explained both in the main text and the supplement. Some specific ones are below, but the authors should more generally send the paper to naïve readers to check what is/is not well explained. }
 
 Thank you for this detailed list of improvements to be made when describing the method.
-We have taken care to address each item in this list.
+
+\begin{itemize}
+\item \textbf{Figure 1 is somewhat opaque and also has notational issues (e.g. omega is the frequency but also appears to be the random input sample).}
+
+Figure 1 has been completely revised.
+
+\item \textbf{For the general audience of eLife, panels C and D are not well described individually or well connected to each other and don't illustrate or describe all of the relevant variables (including what q0 is and what x is).}
+
+Agreed.  In the new figure, we clearly depict $\mathbf{z}$ as parameters and $\mathbf{x}$ as circuit activity.  
+We keep the vertical directionality of panel D exclusively for the deep generative process of the deep probability distribution (where $q_0$ is replaced and shown explicitly as an isotropic gaussian input to the deep network).
+The horizontal directionality shared between panels D and E reflect the procedure of theoretical neuroscience described in Section \ref{results_motivating}.
+
+\item \textbf{In equation 2 (and also in the same equation in the supplement), it was not immediately obvious what the expectation was taken over.}
+
+We take care to always indicate the variables over which expectations are taken in the updated manuscript.
+
+\item \textbf{The authors don't specific the distribution of w (it's referred to only as 'a simple random variable', which is not clear).} 
+
+It is clarified in the text that this simple initial distribution transformed by the deep neural network is an isotropic gaussian.
+
+\item \textbf{It was also sometimes hard to quickly find in the text basic, important quantities like what z was for a given simulation.} 
+
+We have made sure to make this explicit in each section of the paper.
+
+\item \textbf{The augmented Lagrangian optimization was not well explained or motivated. There is a reference to m=absolute value(mu) but I didn't see m in the above equation.}
+
+Lines X-Y \\
+\begin{displayquote}
+``\quoting{AL_standard}"
+\end{displayquote}
+ 
+\item \textbf{Using mu to describe a vector that includes means and variances is confusing notation since mu often denotes means }
+
+Agreed. Throughout the updated main text, we only describe emergent properties through explicit mean and variance constraints as in Equation 11.
+We reserve the mean parameterization $\bm{\mu}_{\text{opt}}$ of the maximum entropy solution of the EPI optimization for technical details in methods.
+The difference between $\bm{\mu}$ and $\bm{\mu}_{\text{opt}}$ is described in Section \ref{methods_ME_EF}.
+
+\item \textbf{It would be helpful to have a pseudo-code 'Algorithm' figure or section of the text}
+
+We provide pseudocode for the EPI optimization in Algorithm \ref{alg:epi}, which mirrors the pseudocode found in the paper describing the underlying algorithm for MEFN \cite{loaiza2017maximum}.
+
+\end{itemize}
+
 
 \textbf{Minor Comments: }
 
@@ -435,7 +461,7 @@ We do not use a Schur decomposition to analyze the SC model in the current manus
 
 \textbf{2) p. 31: usually one reserves the variable omega for angular frequencies: omega = 2*pi*f where f is frequency. }
 
-We have removed the variable $\omega$ as it was unnecessary, and avoided introducing another variable $f$ to be conflated with $f$'s use as emergent property statistic.
+We have removed the variable $\omega$ as it was unnecessary, and avoided introducing another variable $f$ to be conflated with $f$'s use as the emergent property statistics.
 
 \textbf{3) Some references for other approaches and work that might be worth listing for scholarship: Sloppy models and information geometry (including MCMC approaches, e.g. Mannakkee, Ragsdale, Transtrum, Gutenkunst); higher dimensional sloppy models in neuroscience (O'Leary, Sutton, \& Marder 2015, Fisher, Olasagasti, et al., 2013); Compensatory parameter combinations through the implicit function theorem (Olypher and Calabrese, J. Neurophys. 2007). }
 
