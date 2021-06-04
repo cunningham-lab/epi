@@ -92,7 +92,7 @@ Seminal examples of this gold standard include our field's understanding of memo
 Unfortunately, as circuit models include more biological realism, theory via analytical derivation becomes intractable.
 Absent this analysis, statistical inference offers a toolkit by which to solve the inverse problem by identifying, at least approximately, the distribution of parameters that produce computations in a biologically realistic model \cite{foster1993significance, prinz2004similar, achard2006complex, fisher2013modeling, o2014cell, alonso2019visualization}.
 
-\q{intro_data_ep}{Statistical inference, of course, requires quantification of the vague term \emph{computation}.  
+\q{intro_data_ep}{Statistical inference, of course, requires quantification of the sometimes vague term \emph{computation}.  
 In neuroscience, two perspectives are dominant.  
 First, often we directly use an \emph{exemplar dataset}: a collection of samples that express the computation of interest, this data being gathered either experimentally in the lab or from a computer simulation.  
 Though a natural choice given its connection to experiment \cite{paninski2018neural}, some drawbacks exist: these data are well known to have features irrelevant to the computation of interest \cite{niell2010modulation, saleem2013integration, musall2019single}, confounding inferences made on such data.  
@@ -105,7 +105,7 @@ An emergent property is of course a dataset by another name, but it suggests dif
 This statistical framework is not new: it is intimately connected to the literature on approximate bayesian computation \cite{beaumont2002approximate, marjoram2003markov, sisson2007sequential}, parameter sensitivity analyses \cite{raue2009structural, karlsson2012efficient, hines2014determination, raman2017delineating}, maximum entropy modeling \cite{elsayed2017structure, savin2017maximum, mlynarski2020statistical}, and approximate bayesian inference \cite{tran2017hierarchical, gonccalves2019training}; we detail these connections in Section \ref{methods_related}.}
 
 The parameter distributions producing a computation may be curved or multimodal along various parameter axes and combinations.
-It is by quantifying this complex structure that EPI offers scientific insight.
+It is by quantifying this complex structure that emergent property inference offers scientific insight.
 Traditional approximation families (e.g. mean-field or mixture of gaussians) are limited in the distributional structure they may learn.
 To address such restrictions on expressivity, advances in machine learning have used deep probability distributions as flexible approximating families for such complicated distributions \cite{rezende2015variational, papamakarios2019normalizing} (see Section \ref{methods_NF}).
 However, the adaptation of deep probability distributions to the problem of theoretical circuit analysis requires recent developments in deep learning for  constrained optimization \cite{loaiza2017maximum}, and architectural  choices for efficient and expressive deep generative modeling \cite{dinh2017density, kingma2018glow}.
@@ -113,7 +113,7 @@ We detail our method, which we call emergent property inference (EPI) in Section
 
 Equipped with this method, we demonstrate the capabilities of EPI and present novel theoretical findings from its analysis.
 \q{intro_results1}{First, we show EPI's ability to handle biologically realistic circuit models using a five-neuron model of the stomatogastric ganglion \cite{gutierrez2013multiple}: a neural circuit whose parametric degeneracy is closely studied \cite{goldman2001global}.
-Then, we show EPI's scalability to high dimensional parameter distributions by inferring connectivities of recurrent neural networks (RNNs) that exhibit stable, yet amplified responses -- a hallmark of neural responses throughout the brain \cite{murphy2009balanced, hennequin2014optimal, bondanelli2019population}.}
+Then, we show EPI's scalability to high dimensional parameter distributions by inferring connectivities of recurrent neural networks that exhibit stable, yet amplified responses -- a hallmark of neural responses throughout the brain \cite{murphy2009balanced, hennequin2014optimal, bondanelli2019population}.}
 \q{intro_results2}{In a model of primary visual cortex \cite{litwin2016inhibitory, palmigiano2020structure}, EPI reveals how the recurrent processing across different neuron-type populations shapes excitatory variability: a finding that we show is analytically intractable.
 Finally, we investigated the possible connectivities of a superior colliculus model that allow execution of different tasks on interleaved trials \cite{duan2019collicular}.
 EPI discovered a rich distribution containing two connectivity regimes with different solution classes.
@@ -145,13 +145,13 @@ Note that the behavior of this model will be critically dependent on its paramet
 \begin{center}
 \includegraphics[scale=0.8]{figures/fig1/fig1.pdf}
 \end{center}
-\caption{Emergent property inference (EPI) in the stomatogastric ganglion.  
+\caption{Emergent property inference in the stomatogastric ganglion.  
 \textbf{A}. Conductance-based subcircuit model of the STG.
 \textbf{B}. Spiking frequency $\omega(\mathbf{x}; \mathbf{z})$ is an emergent property statistic. 
 Simulated at $g_{\text{el}} = 4.5$nS and $g_{\text{synA}} = 3$nS.
 \textbf{C}. The emergent property of intermediate hub frequency.
 Simulated activity traces are colored by log probability of generating parameters in the EPI distribution (Panel E).
-\textbf{D}. For a choice of circuit model and emergent property, emergent property inference (EPI) learns a deep probability distribution of parameters $\mathbf{z}$.
+\textbf{D}. For a choice of circuit model and emergent property, EPI learns a deep probability distribution of parameters $\mathbf{z}$.
 \textbf{E}. The EPI distribution producing intermediate hub frequency.
 Samples are colored by log probability density.  
 Contours of hub neuron frequency error are shown at levels of $.525$, $.53$, ... $.575$ Hz (dark to light gray away from mean).
@@ -182,7 +182,7 @@ To be precise, we define intermediate hub frequency not strictly as 0.55Hz, but 
 %To infer the STG parameters of intermediate hub frequency with existing methodology, we need an exemplar dataset: experimentally recorded or synthesized.
 %In this last step lies the opportunity for a shift away from a dataset-oriented representation of model output towards that of an implicit dataset, where the only structure is the emergent property of interest.
 Third, the model parameters producing the emergent property are inferred.
-By precisely quantifying the emergent property of interest as a statistical feature of the model, we use EPI to condition directly on this emergent property.
+By precisely quantifying the emergent property of interest as a statistical feature of the model, we use emergent property inference (EPI) to condition directly on this emergent property.
 Before presenting technical details (in the following section), let us understand emergent property inference schematically.
 EPI (Fig. \ref{fig:STG}D) takes, as input, the model and the specified emergent property, and as its output, returns the parameter distribution (Fig. \ref{fig:STG}E).  
 This distribution -- represented for clarity as samples from the distribution -- is a parameter distribution constrained such that the circuit model produces the emergent property. 
@@ -191,7 +191,7 @@ Most importantly, the inferred distribution can be efficiently queried to quanti
 By quantifying the parametric structure governing the emergent property, EPI  informs the central question of this inverse problem: what aspects or combinations of model parameters have the desired emergent property?
 
 \subsection{Emergent property inference via deep generative models} \label{results_dgm}
-Emergent property inference (EPI) formalizes the three-step procedure of the previous section with deep probability distributions \cite{rezende2015variational, papamakarios2019normalizing}.
+EPI formalizes the three-step procedure of the previous section with deep probability distributions \cite{rezende2015variational, papamakarios2019normalizing}.
 First, as is typical, we consider the model as a coupled set of noisy differential equations.  
 In this STG example, the model activity (or state) $\mathbf{x} = \left[ x_{\text{f1}}, x_{\text{f2}}, x_{\text{hub}}, x_{\text{s1}}, x_{\text{s2}} \right]$ is the membrane potential for each neuron, which evolves according to the biophysical conductance-based equation:
 \begin{equation} \label{eq:STG_model1}
@@ -376,10 +376,10 @@ Additionally, each neural population receives a slow noisy input $\bm{\epsilon}$
 \textbf{C}. Mean (solid line) and standard deviation $s_E(\mathbf{x}; \mathbf{z})$ (shading)  across 100 trials.
 \textbf{D}. EPI distribution of noise parameters $\mathbf{z}$ conditioned on E-population variability.
 The EPI predictive distribution of $s_E(\mathbf{x}; \mathbf{z})$ is show on the bottom-left.
-\textbf{E}. (Top) Enlarged visualization of the $\sigma_E$-$\sigma_P$ marginal distribution of EPI $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{Hz})$ and $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(10\text{Hz})$.
+\textbf{E}. (Top) Enlarged visualization of the $\sigma_E$-$\sigma_P$ marginal distribution of EPI $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{Hz}))$ and $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(10\text{Hz}))$.
 Each black dot shows the mode at each $\sigma_P$.
 The arrows show the most sensitive dimensions of the Hessian evaluated at these modes.
-\textbf{F}. The predictive distributions of $\sigma_E^2 + \sigma_P^2$ of each inferred distribution $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{Hz})$ and $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(10\text{Hz})$.
+\textbf{F}. The predictive distributions of $\sigma_E^2 + \sigma_P^2$ of each inferred distribution $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(5\text{Hz}))$ and $q_{\bm{\theta}}(\mathbf{z} \mid \mathcal{X}(10\text{Hz}))$.
 }
  \label{fig:V1}
 \end{figure}
@@ -1000,14 +1000,13 @@ As we expect, the distribution results in samples of two-dimensional linear syst
 \end{figure}
 
 \subsubsection{EPI as variational inference}\label{methods_VI}
-%Now that we have fully described the EPI method, we  consider its broader contextualization as a statistical method and its relation to Bayesian inference. 
-In bayesian inference a prior belief about model parameters $\mathbf{z}$ is stated in a prior distribution $p(\mathbf{z})$, and the statistical model capturing the effect of $\mathbf{z}$ on observed data points $\mathbf{x}$ is formalized in the likelihood $p(\mathbf{x} \mid \mathbf{z})$.
-We obtain a posterior distribution $p(\mathbf{z} \mid \mathbf{x})$, which captures how the data inform our knowledge of model parameters using Bayes' rule:
-\begin{equation}
-p(\mathbf{z} \mid \mathbf{x}) = \frac{p(\mathbf{x} \mid \mathbf{z}) p(\mathbf{z})}{p(\mathbf{x})}.
-\end{equation}
-The posterior distribution is analytically available when the prior is conjugate with the likelihood.
-However, conjugacy is rare in practice, and alternative methods such as variational inference \cite{saul1998mean} are utilized.
+%In bayesian inference a prior belief about model parameters $\mathbf{z}$ is stated in a prior distribution $p(\mathbf{z})$, and the statistical model capturing the effect of $\mathbf{z}$ on observed data points $\mathbf{x}$ is formalized in the likelihood $p(\mathbf{x} \mid \mathbf{z})$.
+%We obtain a posterior distribution $p(\mathbf{z} \mid \mathbf{x})$, which captures how the data inform our knowledge of model parameters using Bayes' rule:
+%\begin{equation}
+%p(\mathbf{z} \mid \mathbf{x}) = \frac{p(\mathbf{x} \mid \mathbf{z}) p(\mathbf{z})}{p(\mathbf{x})}.
+%\end{equation}
+%The posterior distribution is analytically available when the prior is conjugate with the likelihood.
+%However, conjugacy is rare in practice, and alternative methods such as variational inference \cite{saul1998mean} are utilized.
 
 In variational inference, a posterior approximation $q_{\bm{\theta}}^*$ is chosen from within some variational family $\mathcal{Q}$ to be as close as possible to the posterior under the KL divergence criteria
 \begin{equation}
@@ -1030,11 +1029,11 @@ Now, we will show how the maximum entropy problem of EPI is equivalent to variat
 In general, a maximum entropy problem (as in Equation \ref{eq:max_ent}) has an equivalent lagrange dual form:
 \begin{equation}
 \begin{split}
-\argmax_{q \in \mathcal{Q}} H(q(\mathbf{z})) &\Longleftrightarrow \argmax_{q \in \mathcal{Q}} H(q(\mathbf{z})) + \bm{\eta}^{*\top} \mathbb{E}_{\mathbf{z} \sim q} \left[ T(\mathbf{z}) \right], \\
-  \text{s.t.  } \mathbb{E}_{\mathbf{z} \sim q}\left[T(\mathbf{z})\right] = \mathbf{0}~& \\
+\argmax_{q \in \mathcal{Q}} H(q(\mathbf{z})) ~~~~~&\Longleftrightarrow ~~~~~\argmax_{q \in \mathcal{Q}} H(q(\mathbf{z})) + \bm{\eta}^{*\top} \mathbb{E}_{\mathbf{z} \sim q} \left[ T(\mathbf{z}) \right], \\
+  \text{s.t.  } \mathbb{E}_{\mathbf{z} \sim q}\left[T(\mathbf{z})\right] = \mathbf{0}~~~~~& \\
  \end{split}
 \end{equation} 
-with sufficient statistics $T(\cdot)$ and lagrange multipliers $\bm{\eta}^*$.
+with lagrange multipliers $\bm{\eta}^*$.
 By moving the lagrange multipliers within the expectation
 \begin{equation}q^* = \argmax_{q \in \mathcal{Q}} H(q(\mathbf{z})) + \mathbb{E}_{\mathbf{z} \sim q} \left[\bm{\eta}^{*\top} T(\mathbf{z}) \right],
 \end{equation} 
@@ -1052,7 +1051,7 @@ Equation \ref{eq:epi_vi} implies that EPI uses an improper (or uniform) prior, w
 
 This derivation of the equivalence between EPI and variational inference emphasizes why defining a statistical inference program by its mean parameterization $\bm{\mu}_{\text{opt}}$ is so useful.
 With EPI, one can clearly define the emergent property $\mathcal{X}$ that the model of interest should produce through intuitive selection of $\bm{\mu}_{\text{opt}}$ for a given $T(\mathbf{z})$.
-Alternatively, figuring out the correct natural parameters $\bm{\eta}^*$ for the same $T(\mathbf{z})$ that produces $\mathcal{X}$ will be generally unclear.
+Alternatively, figuring out the correct natural parameters $\bm{\eta}^*$ for the same $T(\mathbf{z})$ that produces $\mathcal{X}$ is a formally hard problem.
 
 %Now, consider the setting where we have chosen a uniform prior, and stipulate a mean-field gaussian likelihood on a chosen statistic of the data $f(\mathbf{x}; \mathbf{z})$
 %\begin{equation}
