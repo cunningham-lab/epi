@@ -67,7 +67,7 @@ In the introduction, we present our method by focusing on the key aspect of EPI 
 Specifically, we explain how current methodology infers the parameters producing computation by conditioning on \textit{exemplar datasets} (real or simulated), whereas in EPI we condition directly on the \textit{emergent properties} that define the computation.  We also note (and have an appendix detailing) how EPI is in fact doing variational bayesian inference, but that the parameterization of the problem as we solve it is more natural given the goal of reproducing a computation.  In other words, the methodology is mathematically sound and directly connected to well-worn techniques, but the specific form we solve is the appropriate choice for the motivating problem.
 
 \begin{displayquote}
-Lines 46-54\\
+Lines 44-52\\
 ``\quoting{intro_data_ep}''
 \end{displayquote}
 
@@ -75,7 +75,7 @@ We now frame the method within the more general context of parameter inference t
 We have made concentrated efforts to simplify language and to relate to all relevant existing methodology.
 
 \begin{displayquote}
-Lines 55-65\\
+Lines 53-63\\
 ``\quoting{intro_epi}''
 \end{displayquote}
 
@@ -83,10 +83,10 @@ To improve clarity, we have overhauled and simplified the notation and presentat
 Emergent properties are now denoted with $\mathcal{X}$: rather than a vector of first- and second-moment constraints, we present the emergent property more readably (and equivalently) as mean and variance constraints on emergent property statistics:
 
 \begin{displayquote}
-Line 759 \\
+Line 739 \\
 ``
-\begin{equation} \tag{11}
-\mathcal{X}: \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\mu}, \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2.
+\begin{equation} \tag{12}
+\mathcal{X}:~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\mu},~~ \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2
 \end{equation}''
 \end{displayquote}
 
@@ -96,12 +96,12 @@ In our revised writing, we deemphasize the role of maximum entropy in the EPI al
 We show in Section \ref{methods_VI} that EPI is exactly variational inference (this was mentioned in the previous draft but not as a point of connection and focus, as it should be and now is).   Therefore, it makes sense to present EPI in the main text as a statistical inference technique that constrains the predictions of the inferred parameters to be an emergent property, and leave the details of the maximum entropy to the technically proficient in Section \ref{methods_EPI}.
 
 \begin{displayquote}
-Lines 156-158\\
+Lines 152-154\\
 ``\quoting{results_ME}''
 \end{displayquote}
 
 Figure \ref{fig:STG} has been largely redone to reflect the modified presentation, and improve the pictorial representation of the method.
-In Section \ref{methods_RNN}, we now show that EPI is the only simulation-based inference method that controls the predictions of its inferred distribution (Fig. \ref{fig:RNN}C-D).
+In Section \ref{results_RNN}, we now show that EPI is the only simulation-based inference method that controls the predictions of its inferred distribution (Fig. \ref{fig:RNN}C-D).
 
 Finally, we emphasize the utility of this deep inference technique for scientific inquiry in a new paragraph at the end of Section \ref{results_dgm}.
 
@@ -120,7 +120,7 @@ Furthermore, we emphasize that SNPE does not constrain the properties of the inf
 
 \textbf{3. The extent to which this method is generally/straightforwardly applicable was in doubt. It seemed as though a significant amount of computation was required to do inference on one specified property and that the computation would need to be run afresh to query a new property. The methodology in the cosubmission (Macke) made clear that computation required for successive inferences is 'amortized' during training on random parameters. Moreover, EPI seemed less flexible than the cosubmission's approach in that it required a differentiable loss function. The complementarity and advantages of this approach as opposed to the cosubmission's approach are therefore unclear. } 
 
-We respectfully disagree with this characterization, but we take responsibility here: we certainly needed to improve our exposition and comparisons to clarify the general applicability of EPI.  We have done so, and what results is a meaningful comparison with the cosubmission (SNPE, Macke et al, now published) and other methods.  Of course there is a tradeoff (no free lunch, as usual), and these new analyses clarify when EPI is preferable to SNPE, and vice versa.  
+We respectfully disagree with this characterization, but we take responsibility here: we certainly needed to improve our exposition and comparisons to clarify the general applicability of EPI.  We have done so, and what results is a meaningful comparison with the cosubmission (SNPE, Macke et al, now published) and other methods.  Of course, there is a tradeoff (no free lunch, as usual), and these new analyses clarify when EPI is preferable to SNPE, and vice versa.  
 
 First, unlike SNPE, EPI leverages gradients of the emergent property throughout optimization, which leads to better efficiency and scalability (Section 3.3).   This is the usual tradeoff of gradient-based vs sampling-based methods.  The emergent properties of many models in neuroscience are tractably differentiable, four of which we analyze in this manuscript ranging across levels of biological realism, network size, and computational function. This tradeoff is now explained in the Discussion (Section \ref{discussion}).
 
@@ -130,21 +130,21 @@ However, these relative drawbacks of EPI with respect to SNPE can be considered 
 On the balance, these two methods occupy different areas of use, and both are equivalently ``generally/straightforwardly applicable''; we believe the new analyses and discussion in the manuscript clarify that, as it is a key point for practitioners going forward.   
 
 \begin{displayquote}
-Lines 439-451\\
+Lines 432-444\\
 ``\quoting{discussion_gradients}''
 \end{displayquote}
 
 Furthermore, EPI focuses the entire expressivity of the approximating deep probability distribution on a single distribution, rather than spreading this expressivity to some uncharacterized degree across the chosen training distribution of amortized posteriors in SNPE (Section 5.1.1 Related Approaches).
 
 \begin{displayquote}
-Lines 828-833\\
+Lines 829-835\\
 ``\quoting{amortization}''
 \end{displayquote}
  
 Finally, we emphasize that EPI does something fundamental that SNPE and other inference techniques cannot.  EPI learns parameter distributions whose predictions are constrained to produce the emergent property.  We show in Figure 2 and Supplementary Figure RNN2 that SNPE does not control the statistical properties of its predictions, resulting in the inference of many parameters that are not consistent with the desired emergent property.
 
 \begin{displayquote}
-Lines 232-242\\
+Lines 227-237\\
 ``\quoting{rnn_constrained}''
 \end{displayquote}
 
@@ -159,14 +159,14 @@ analyses are made possible by EPI.
 \item  In the revised manuscript we clarify that novel theoretical insights are not being made into the STG subcircuit model or the recurrent neural network models.  The STG subcircuit serves as a motivational example to explain how EPI works, and we use RNNs exhibiting stable amplification as a substrate for scalability analyses.  
 
 \begin{displayquote}
-Lines 77-81 \\
+Lines 75-79 \\
 ``\quoting{intro_results1}''
 \end{displayquote}
 
 We do produce strong theoretical insights into a model of primary visual cortex (Section 3.4) and superior colliculus (Section 3.5).  These analyses have substantially more depth than the previous manuscript.
 
 \begin{displayquote}
-Lines 81-89 \\
+Lines 79-87 \\
 ``\quoting{intro_results2}''
 \end{displayquote}
 
@@ -178,19 +178,19 @@ Importantly, we do not claim that these theoretical insights were necessarily de
 One could have come to these conclusions via various combinations of techniques mentioned in Section 5.1.1 Related Methods.
 In the case of the V1 model inference, the main point is to indicate that such insight can be afforded by EPI and its related methods, in contrast to the analytic derivations emblematic of practice in theoretical neuroscience.
 \begin{displayquote}
-Lines 301-309 \\
+Lines 295-303 \\
 ``\quoting{v1_summary}''
 \end{displayquote}
 In the case of the SC model inference, random sampling would have taken prohibitively long, and it is unclear how the continuum between the two connectivity regimes would have been identified with alternative techniques:
 \begin{displayquote}
-Lines 416-419 \\
+Lines 409-412 \\
 ``\quoting{sc_summary}''
 \end{displayquote}
  
 As the reviewers indicate, the STG model analyzed in our manuscript is not that of Prinz et al. 2004, and thus not the model analyzed by the cosubmission (Macke et al).  We chose an alternative model, believing it important to demonstrate inference in biophysically realistic Morris-Lecar models when gradients are tractable, which is the case of the 5-neuron STG model we analyzed from Gutierrez et al. 2013.  This 5-neuron model represents the IC neuron (hub) and its coupling to the pyloric (fast) or gastric mill (slow) subcircuit rhythms.  In the introductory text, we refer to this model as the “STG subcircuit” model (rather than “STG model”), and we better clarify what aspect of the STG is being modeled in Results Section 3.1. 
 
 \begin{displayquote}
-Lines 100-105 \\
+Lines 98-103 \\
 ``\quoting{stg_subcircuit}''
 \end{displayquote}
 
@@ -198,9 +198,9 @@ The difference between this model and the STG model of the pyloric subnetwork is
 
 % Within another quote so need to copy.
 \begin{displayquote}
-Lines 444-447 \\
+Lines 437-440 \\
 ``However, conditioning on the pyloric rhythm \cite{marder1992dynamic} in a model of the pyloric subnetwork model \cite{prinz2004similar} proved to be prohibitive with EPI.
-The pyloric subnetwork requires many time steps for simulation and many key emergent property statistics (e.g. burst duration and phase gap) are not calculable or easily approximated with differentiable functions.\\
+The pyloric subnetwork requires many time steps for simulation and many key emergent property statistics (e.g. burst duration and phase gap) are not calculable or easily approximated with differentiable functions.
 ''
 \end{displayquote}
 
@@ -217,13 +217,8 @@ https://doi.org/10.1098/rsfs.2011.0047 \\
 http://doi.org/10.1214/16-BA1017 \\
 https://doi.org/10.1039/C0MB00107D}
 
-Thank you for pointing us to these references on sensitivity analyses and applied dynamical systems.  
-We have incorporated many of them into the current manuscript and explain EPI’s relation to each class of techniques in Section 5.1.1 Related approaches.
-
-\begin{displayquote}
-Lines 849-862 \\
-``\quoting{structural_id}''
-\end{displayquote}
+Thank you for pointing us to these references on sensitivity analyses, MCMC inference, and applied dynamical systems.  
+We have incorporated most of them into the current manuscript and explain EPI’s relation to each class of these techniques throughout Section \ref{methods_related} Related approaches.
 
 \textbf{6. One of the reviewers expressed concern that the work might have had significant input from a senior colleague during its early stages, and that that it might be worth discussing with the senior colleague whether their contribution was worthy of authorship. The authors may take this concern into account in revising the manuscript.}
 
@@ -240,14 +235,14 @@ We have made serious effort to improve our presentation and explanation of EPI (
 Furthermore, we have focused on clearly motivating and describing each neural circuit model studied in this manuscript.
 Sufficient mathematical detail is written in each results section, while full details are presented in Methods.
 All code for training EPI on these models and their analysis are available in well-documented scripts and notebooks in our github repository.
+\begin{verbatim} https://github.com/cunningham-lab/epi \end{verbatim}
 
 We modify our writing to clarify that EPI is not a key to all of theoretical neuroscience, but rather a powerful solution to inverse problems in neural circuit modeling.
-Inverse problems are indeed a major part of theoretical neuroscience.
-Their solution is necessary for the scientific evaluation of mathematical representations of neural circuits, and ultimately for progress in the field.
+Inverse problems are indeed a major part of theoretical neuroscience, and their solutions are important for the evaluation  of neural circuit models.
 We clarify this point in the introduction:
 
 \begin{displayquote}
-Lines 28-37 \\
+Lines 26-35 \\
 ``\quoting{intro_first}''
 \end{displayquote}
 
@@ -255,18 +250,15 @@ Lines 28-37 \\
 
 \textbf{(1) Maximizing the entropy of the distribution is not a reparameterization invariant exercise. That is, results depend on whether the model parameters contains rates or time constants, for example. I wonder if this approach is attempting to use a 'flat prior' in some sense which has the same reparameterization issue? Can the authors comment? }
 
-The reviewer is correct to point out that maximum entropy solutions are not reparameterization invariant, and indeed the units matter.  The reviewer’s suggestion that the method is in some sense using a flat prior is also correct.  To clarify, EPI does not execute posterior inference, because there is no explicit dataset or specified prior belief in the EPI framework.  However, we derive the relation of EPI to bayesian inference in Section 5.1.6, which shows EPI uses a uniform prior when framed as variational inference.
+The reviewer is correct to point out that maximum entropy solutions are not reparameterization invariant, and indeed the units matter.  The reviewer’s suggestion that the method is in some sense using a flat prior is also correct.  To clarify, EPI does not execute posterior inference, because there is no explicit dataset or specified prior belief in the EPI framework.  
+However, we derive the relation of EPI to bayesian variational inference in Section \ref{methods_VI}, which shows EPI uses a uniform prior when framed as variational inference.
 
 \begin{displayquote}
-Lines 1026-1029 \\
-``\quoting{ME_prior}''
+Lines 1021-1025 \\
+``\quoting{EPI_VI}''
 \end{displayquote}
  
 In our examples, we only infer distributions of parameters with the same units, so this issue should not draw concern over the validity of our model analyses.  As suggested, the EPI solution will differ according to relative scaling of parameter values under the maximum entropy selection principle. Thus, an important clarification is that sensitivity quantifications are made in the context of the chosen parameter scalings. 
-%A final concern here is numerical: if the inferred distribution is in a thin region of parameter space, that is not well represented by the precision of the numerical format, there can be issues in optimization.  
-%It makes most sense to make sure EPI is exploring through parameter space through an industry-recommended range of values, and that sensitivity measurements are interpretable.
-
-\textbf{SB: Should we add text about this in the paper?}
 
 \textbf{(2) I don't think this is a criticism of the work, but instead of the writing about it: I find the introductory paragraphs to give a rather limited overview of theory as finding parameters of models which contain the right phenomenology. }
 
@@ -277,13 +269,13 @@ We appreciate this feedback.  We have adapted the introduction to clarify that w
 We clarify in point 4 above that we are not claiming to produce novel, appreciable scientific insight about the STG subcircuit model, which is used as a motivation example. The takeaway is that the conductance parameters producing intermediate hub frequency belong to a complex 2-D distribution, which EPI captures accurately, and that EPI can tell us the parameter changes away from the prototypical configuration that change hub frequency the most or least.  For example, for increases in $g_{\text{el}}$ and $g_{\text{synA}}$ according to the proportions of the degenerate dimension of parameter space, intermediate hub neuron frequency will be preserved in this model.  This suggests that in the real STG neural circuit, the IC neuron will remain at an intermediate frequency between the pyloric and gastric mill rhythms if parameter changes are made along such a dimension.
 
 \begin{displayquote}
-Lines 175 -177 \\
+Lines 171 -173 \\
 ``The directionality of $\mathbf{v}_2$ suggests that changes in conductance along this parameter combination will most preserve hub neuron firing between the intrinsic rates of the pyloric and gastric mill rhythms.''
 \end{displayquote}
  
 \textbf{(4) I don't follow the other examples. Ideally more details should be given so that readers like myself who don't already know these systems can understand what's been done. }
 
-Thank you for the feedback.  We have taken care to give more general context, and motivation for each neural circuit model.
+Thank you for the feedback.  We have taken care to give more general context and motivation for each neural circuit model.
 
 \textbf{(5) In figure 2C, the difference between the confidence interval between linear and nonlinear predictions is huge! How much of this is due to nonlinearities, and how much is due to differences in the way these models are being evaluated? }
 
@@ -295,16 +287,17 @@ In the current manuscript, we do not examine the difference between linear and n
 
 \textbf{This is a very interesting approach to an extremely important question in theoretical neuroscience, and the mathematics and algorithms appear to be very rigorous. The complexities in using this in practice make me wonder if it will find wide application though: setting up the objective to be differentiable, tweaking hyperparameters for training, and interpreting the results; all seem to require a lot from the user. On the other hand, the authors are to be congratulated on providing high quality open source code including clear tutorials on how to use it. }
 
+We thank the reviewer for their positive comments.  
+
 \textbf{Major points }
 
 \textbf{1. Training deep networks is hard. Indeed the authors devote a substantial amount of the manuscript to techniques for training them, and note that different hyperparameters were necessary for each of the different studies. Can the authors be confident that they have found the network which gives maximum entropy or close to it? If so, how. If not, how does that affect the conclusions? }
 
-We thank the reviewer for their positive comments.  
-To draw a parallel, training deep networks for visual processing used to be considered infeasible, but became easier through iterative improvements in architectural and hyperparameter choices that spread across the field.  
+We agree with the reviewer that hyperparameter sensitivity and global optima are important considerations of any optimization algorithm using deep neural networks.  To draw a parallel, training deep networks for visual processing used to be considered infeasible, but became easier through iterative improvements in architectural and hyperparameter choices that spread across the field.  
 Similarly, training deep networks via EPI to learn parameter distributions became easier throughout this research project as we learned through trial and error what works well.  
 In fact, there has been extraordinary progress in the field of deep probability distributions (specifically normalizing flows), that have allowed EPI to converge regularly while capturing complex structure (e.g. Dinh et al. 2017 and Kingma et al. 2018).  
 This manuscript's explanation of hyperparameter choices and the extensive set of examples in the online code will serve as valuable guidelines for future research using this method.
-Every figure of this paper is reproducible with the jupyter notebooks, and there are several tutorials for understanding the most consequential hyperparameters: the augmented Lagrangian constant and deep probability distribution architecture.  
+Every figure of this paper is reproducible with the jupyter notebooks, and there are several tutorials for understanding the most consequential hyperparameters: the augmented lagrangian constant and deep probability distribution architecture.  
 
 In general, we cannot know if we have obtained the global maximum entropy distribution for a given emergent property.  
 The reviewer is correct to point out that multiple distributions may satisfy the emergent property and have different levels of entropy.  
@@ -335,22 +328,22 @@ Even in high dimensions, trained deep probability distributions offer tractable 
 In the current manuscript, we make sure to explain all choices of the emergent property constraints  Here, we show the description of each emergent property with equations omitted.
 
 \begin{displayquote}
-Section \ref{results_dgm}, Lines 139-143\\
+Section \ref{results_dgm}, Lines 136-140\\
 ``\quoting{stg_ep_text1}~\quoting{stg_ep_text2}.''
 \end{displayquote}
 
 \begin{displayquote}
-Section \ref{results_RNN}, Lines 204-210\\
+Section \ref{results_RNN}, Lines 200-206 \\
 ``\quoting{rnn_ep_text1}~... \quoting{rnn_ep_text2}~\quoting{rnn_ep_text3}''
 \end{displayquote}
 
 \begin{displayquote}
-Section \ref{results_V1}, Lines 280-283\\
+Section \ref{results_V1}, Lines 274-277\\
 ``\quoting{v1_ep_text1}~\quoting{v1_ep_text2}''
 \end{displayquote}
 
 \begin{displayquote}
-Section \ref{results_SC}, Lines 338-341\\
+Section \ref{results_SC}, Lines 329-332\\
 ``\quoting{sc_ep_text1}.~\quoting{sc_ep_text2}''
 \end{displayquote}
 \textbf{Minor points }
@@ -399,9 +392,8 @@ The STG subcircuit model of Gutierrez et al. 2013 is certainly less complex than
 We clarify why this model is analyzed in Section \ref{results_motivating} instead of more complex STG models when discussing the differences between EPI and SNPE in Discussion:
 
 \begin{displayquote}
-Lines 439-451\\
+Lines 432-444\\
 ``\quoting{discussion_gradients}''
-
 \end{displayquote}
 
 \textbf{4) The discussion should be expanded to be more specific about what problems the authors think the model is, or is not, appropriate for. Comparisons to the Goncalves article would also be helpful since users will want to know the comparative advantages/disadvantages of each method. (if the authors could coordinate running their methods on a common illustrative example, that would be cool, but not required). }
@@ -410,22 +402,56 @@ Thank you for this recommendation.
 We now include substantial text in discussion devoted to this topic in addition to that quoted in the previous response (R3 concern \#3).
 
 \begin{displayquote}
-Lines 431-438\\
-``\quoting{discussion_methods}''
+Lines 424-444\\
+``\quoting{discussion_methods} \\ \quoting{discussion_gradients}''
 \end{displayquote}
 
-\textbf{5) Given that the paper is heavily a (very valuable!) methods paper for a general audience, the method should be better explained both in the main text and the supplement. Some specific ones are below, but the authors should more generally send the paper to naïve readers to check what is/is not well explained. 
--Figure 1 is somewhat opaque and also has notational issues (e.g. omega is the frequency but also appears to be the random input sample). 
--For the general audience of eLife, panels C and D are not well described individually or well connected to each other and don't illustrate or describe all of the relevant variables (including what q0 is and what x is). 
--In equation 2 (and also in the same equation in the supplement), it was not immediately obvious what the expectation was taken over. 
--The authors don't specific the distribution of w (it's referred to only as 'a simple random variable', which is not clear). 
--It was also sometimes hard to quickly find in the text basic, important quantities like what z was for a given simulation. 
--The augmented Lagrangian optimization was not well explained or motivated. There is a reference to m=absolute value(mu) but I didn't see m in the above equation. 
--Using mu to describe a vector that includes means and variances is confusing notation since mu often denotes means 
--It would be helpful to have a pseudo-code 'Algorithm' figure or section of the text }
+\textbf{5) Given that the paper is heavily a (very valuable!) methods paper for a general audience, the method should be better explained both in the main text and the supplement. Some specific ones are below, but the authors should more generally send the paper to naïve readers to check what is/is not well explained. }
 
 Thank you for this detailed list of improvements to be made when describing the method.
-We have taken care to address each item in this list.
+
+\begin{itemize}
+\item \textbf{Figure 1 is somewhat opaque and also has notational issues (e.g. omega is the frequency but also appears to be the random input sample).}
+
+Figure 1 has been completely revised.
+
+\item \textbf{For the general audience of eLife, panels C and D are not well described individually or well connected to each other and don't illustrate or describe all of the relevant variables (including what q0 is and what x is).}
+
+Agreed.  In the new figure, we clearly depict $\mathbf{z}$ as parameters and $\mathbf{x}$ as circuit activity.  
+We keep the vertical directionality of panel D exclusively for the deep generative process of the deep probability distribution (where $q_0$ is replaced and shown explicitly as an isotropic gaussian input to the deep network).
+The horizontal directionality shared between panels D and E reflect the procedure of theoretical neuroscience described in Section \ref{results_motivating}.
+
+\item \textbf{In equation 2 (and also in the same equation in the supplement), it was not immediately obvious what the expectation was taken over.}
+
+We take care to always indicate the variables over which expectations are taken in the updated manuscript.
+
+\item \textbf{The authors don't specific the distribution of w (it's referred to only as 'a simple random variable', which is not clear).} 
+
+It is clarified in the text that this simple initial distribution transformed by the deep neural network is an isotropic gaussian.
+
+\item \textbf{It was also sometimes hard to quickly find in the text basic, important quantities like what z was for a given simulation.} 
+
+We have made sure to make this explicit in each section of the paper.
+
+\item \textbf{The augmented Lagrangian optimization was not well explained or motivated. There is a reference to m=absolute value(mu) but I didn't see m in the above equation.}
+
+Lines 764-766 \\
+\begin{displayquote}
+``\quoting{AL_standard}"
+\end{displayquote}
+ 
+\item \textbf{Using mu to describe a vector that includes means and variances is confusing notation since mu often denotes means }
+
+Agreed. Throughout the updated main text, we only describe emergent properties through explicit mean and variance constraints as in Equation 11.
+We reserve the mean parameterization $\bm{\mu}_{\text{opt}}$ of the maximum entropy solution of the EPI optimization for technical details in methods.
+The difference between $\bm{\mu}$ and $\bm{\mu}_{\text{opt}}$ is described in Section \ref{methods_ME_EF}.
+
+\item \textbf{It would be helpful to have a pseudo-code 'Algorithm' figure or section of the text}
+
+We provide pseudocode for the EPI optimization in Algorithm \ref{alg:epi}, which mirrors the pseudocode found in the paper describing the underlying algorithm for MEFN \cite{loaiza2017maximum}.
+
+\end{itemize}
+
 
 \textbf{Minor Comments: }
 
@@ -435,7 +461,7 @@ We do not use a Schur decomposition to analyze the SC model in the current manus
 
 \textbf{2) p. 31: usually one reserves the variable omega for angular frequencies: omega = 2*pi*f where f is frequency. }
 
-We have removed the variable $\omega$ as it was unnecessary, and avoided introducing another variable $f$ to be conflated with $f$'s use as emergent property statistic.
+We have removed the variable $\omega$ as it was unnecessary, and avoided introducing another variable $f$ to be conflated with $f$'s use as the emergent property statistics.
 
 \textbf{3) Some references for other approaches and work that might be worth listing for scholarship: Sloppy models and information geometry (including MCMC approaches, e.g. Mannakkee, Ragsdale, Transtrum, Gutenkunst); higher dimensional sloppy models in neuroscience (O'Leary, Sutton, \& Marder 2015, Fisher, Olasagasti, et al., 2013); Compensatory parameter combinations through the implicit function theorem (Olypher and Calabrese, J. Neurophys. 2007). }
 
@@ -446,5 +472,6 @@ Thank you for these references. We have incorporated most of them where appropri
 \textbf{Code should be made available in well-documented form if it isn't already. }
 
 Please see the github repository for this manuscript, which includes code for the EPI method and the analyses that went into each figure.
+\begin{verbatim} https://github.com/cunningham-lab/epi \end{verbatim}
 
 \end{document}
