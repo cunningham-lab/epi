@@ -217,7 +217,7 @@ def test_to_string():
         batch_norm=False,
         random_seed=20,
     )
-    assert nf.to_string() == "D100_C2_spline_L4_U200_bins=32_PA_rs20"
+    assert nf.to_string() == "D100_C2_spline_L4_U200_bins=4_PA_rs20"
 
     nf = NormalizingFlow("coupling", 4, 1, 2, 15, bn_momentum=0.999, post_affine=False)
     assert nf.to_string() == "D4_C1_affine_L2_U15_bnmom=9.99E-01_rs1"
@@ -407,4 +407,4 @@ def test_initialization():
 
 
 if __name__ == "__main__":
-    test_initialization()
+    test_to_string()
