@@ -83,7 +83,7 @@ To improve clarity, we have overhauled and simplified the notation and presentat
 Emergent properties are now denoted with $\mathcal{X}$: rather than a vector of first- and second-moment constraints, we present the emergent property more readably (and equivalently) as mean and variance constraints on emergent property statistics:
 
 \begin{displayquote}
-Line 739 \\
+Line 742 \\
 ``
 \begin{equation} \tag{12}
 \mathcal{X}:~ \mathbb{E}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\mu},~~ \text{Var}_{\mathbf{z},\mathbf{x}}\left[f(\mathbf{x}; \mathbf{z})\right] = \bm{\sigma}^2
@@ -101,22 +101,22 @@ Lines 152-154\\
 \end{displayquote}
 
 Figure \ref{fig:STG} has been largely redone to reflect the modified presentation, and improve the pictorial representation of the method.
-In Section \ref{results_RNN}, we now show that EPI is the only simulation-based inference method that controls the predictions of its inferred distribution (Fig. \ref{fig:RNN}C-D).
+In Section \ref{results_RNN}, we now show that EPI is the only simulation-based inference method that controls the predictions of its inferred distribution (Figure \ref{fig:RNN}C-D).
 
 Finally, we emphasize the utility of this deep inference technique for scientific inquiry in a new paragraph at the end of Section \ref{results_dgm}.
 
 \begin{displayquote}
-Lines 163-179\\
+Lines 159-175\\
 ``\quoting{results_hess}''
 \end{displayquote}
 
 \textbf{2. The computational resources required to use this method are not adequately benchmarked. For example, the cosubmission (Macke et al) reported wall clock time, required hardware and iterations required to produce results by directly comparing to existing methods (approximate bayesian computation, naive sampling, etc.) Without transparent benchmarks it is not possible to assess the advance offered by this method.} 
 
-We thank the reviewers for emphasizing the importance of this methodological comparison.  In Section 3.3, we provide a direct comparison of EPI to alternative simulation-based inference techniques SMC-ABC and SNPE by inferring RNN connectivities that exhibit stable amplification.  These comparisons evaluate both wall time (Fig. 2A) and simulation count (Fig. 2B), and we explain how each algorithm was run in its preferred hardware setting in Section 5.3.4.
+We thank the reviewers for emphasizing the importance of this methodological comparison.  In Section 3.3, we provide a direct comparison of EPI to alternative simulation-based inference techniques SMC-ABC and SNPE by inferring RNN connectivities that exhibit stable amplification.  These comparisons evaluate both wall time (Figure 2A) and simulation count (Figure 2B), and we explain how each algorithm was run in its preferred hardware setting in Section 5.3.4.
  
 In this analysis, we demonstrate the improved scalability of deep inference techniques (EPI and SNPE) with respect to the state-of-the-art approximate bayesian computation technique (SMC-ABC).
-While controlling for architecture size (Fig. RNN1), we push the limits of SNPE through targeted hyperparameter modifications (Fig. RNN3), and show that EPI scales to higher dimensional RNN connectivities producing stable amplification than SNPE.
-Furthermore, we emphasize that SNPE does not constrain the properties of the inferred parameters; many connectivities inferred by SNPE result in unstable or nonamplified models (Fig. 2C, Fig. RNN2).
+While controlling for architecture size (Figure 2-figure supplement 1), we push the limits of SNPE through targeted hyperparameter modifications (Figure 2-figure supplement 2), and show that EPI scales to higher dimensional RNN connectivities producing stable amplification than SNPE.
+Furthermore, we emphasize that SNPE does not constrain the properties of the inferred parameters; many connectivities inferred by SNPE result in unstable or nonamplified models (Figure 2C, Figure 2-figure supplement 3).
 
 \textbf{3. The extent to which this method is generally/straightforwardly applicable was in doubt. It seemed as though a significant amount of computation was required to do inference on one specified property and that the computation would need to be run afresh to query a new property. The methodology in the cosubmission (Macke) made clear that computation required for successive inferences is 'amortized' during training on random parameters. Moreover, EPI seemed less flexible than the cosubmission's approach in that it required a differentiable loss function. The complementarity and advantages of this approach as opposed to the cosubmission's approach are therefore unclear. } 
 
@@ -130,21 +130,21 @@ However, these relative drawbacks of EPI with respect to SNPE can be considered 
 On the balance, these two methods occupy different areas of use, and both are equivalently ``generally/straightforwardly applicable''; we believe the new analyses and discussion in the manuscript clarify that, as it is a key point for practitioners going forward.   
 
 \begin{displayquote}
-Lines 432-444\\
+Lines 435-447\\
 ``\quoting{discussion_gradients}''
 \end{displayquote}
 
 Furthermore, EPI focuses the entire expressivity of the approximating deep probability distribution on a single distribution, rather than spreading this expressivity to some uncharacterized degree across the chosen training distribution of amortized posteriors in SNPE (Section 5.1.1 Related Approaches).
 
 \begin{displayquote}
-Lines 829-835\\
+Lines 832-838\\
 ``\quoting{amortization}''
 \end{displayquote}
  
-Finally, we emphasize that EPI does something fundamental that SNPE and other inference techniques cannot.  EPI learns parameter distributions whose predictions are constrained to produce the emergent property.  We show in Figure 2 and Supplementary Figure RNN2 that SNPE does not control the statistical properties of its predictions, resulting in the inference of many parameters that are not consistent with the desired emergent property.
+Finally, we emphasize that EPI does something fundamental that SNPE and other inference techniques cannot.  EPI learns parameter distributions whose predictions are constrained to produce the emergent property.  We show in Figure 2 and Supplementary Figure 2-figure supplement 3 that SNPE does not control the statistical properties of its predictions, resulting in the inference of many parameters that are not consistent with the desired emergent property.
 
 \begin{displayquote}
-Lines 227-237\\
+Lines 228-238\\
 ``\quoting{rnn_constrained}''
 \end{displayquote}
 
@@ -170,7 +170,7 @@ Lines 79-87 \\
 ``\quoting{intro_results2}''
 \end{displayquote}
 
-\item The ability to infer a flexible approximation to a probability distribution constrained to produce an emergent property is novel in its own right (Figure 2).  The deep probability distribution fit by EPI facilitates the mode identification (via gradient ascent of the parameter log probability) and sensitivity measurement (via the measurement of the eigenvector of the Hessian at a parameter value). These mode identifications and sensitivity measurements are done in Sections 3.1 (Fig. 1E), 3.4 (Fig. 3E), and 3.5 (Fig. 4C).  By using this mode identification technique along the ridges of high parameter probability in the SC model, we identify the parameters transitioning between the two regimes.  Finally, the sensitivity dimensions of the SC model identified by EPI facilitated regime characterization through perturbation analyses (Fig. 4D).
+\item The ability to infer a flexible approximation to a probability distribution constrained to produce an emergent property is novel in its own right (Figure 2).  The deep probability distribution fit by EPI facilitates the mode identification (via gradient ascent of the parameter log probability) and sensitivity measurement (via the measurement of the eigenvector of the Hessian at a parameter value). These mode identifications and sensitivity measurements are done in Sections 3.1 (Figure 1E), 3.4 (Figure 3E), and 3.5 (Figure 4C).  By using this mode identification technique along the ridges of high parameter probability in the SC model, we identify the parameters transitioning between the two regimes.  Finally, the sensitivity dimensions of the SC model identified by EPI facilitated regime characterization through perturbation analyses (Figure 4D).
  
 \end{enumerate}
 
@@ -178,12 +178,12 @@ Importantly, we do not claim that these theoretical insights were necessarily de
 One could have come to these conclusions via various combinations of techniques mentioned in Section 5.1.1 Related Methods.
 In the case of the V1 model inference, the main point is to indicate that such insight can be afforded by EPI and its related methods, in contrast to the analytic derivations emblematic of practice in theoretical neuroscience.
 \begin{displayquote}
-Lines 295-303 \\
+Lines 297-305 \\
 ``\quoting{v1_summary}''
 \end{displayquote}
 In the case of the SC model inference, random sampling would have taken prohibitively long, and it is unclear how the continuum between the two connectivity regimes would have been identified with alternative techniques:
 \begin{displayquote}
-Lines 409-412 \\
+Lines 412-415 \\
 ``\quoting{sc_summary}''
 \end{displayquote}
  
@@ -198,7 +198,7 @@ The difference between this model and the STG model of the pyloric subnetwork is
 
 % Within another quote so need to copy.
 \begin{displayquote}
-Lines 437-440 \\
+Lines 440-443 \\
 ``However, conditioning on the pyloric rhythm \cite{marder1992dynamic} in a model of the pyloric subnetwork model \cite{prinz2004similar} proved to be prohibitive with EPI.
 The pyloric subnetwork requires many time steps for simulation and many key emergent property statistics (e.g. burst duration and phase gap) are not calculable or easily approximated with differentiable functions.
 ''
@@ -254,7 +254,7 @@ The reviewer is correct to point out that maximum entropy solutions are not repa
 However, we derive the relation of EPI to bayesian variational inference in Section \ref{methods_VI}, which shows EPI uses a uniform prior when framed as variational inference.
 
 \begin{displayquote}
-Lines 1021-1025 \\
+Lines 1027-1031 \\
 ``\quoting{EPI_VI}''
 \end{displayquote}
  
@@ -338,12 +338,12 @@ Section \ref{results_RNN}, Lines 200-206 \\
 \end{displayquote}
 
 \begin{displayquote}
-Section \ref{results_V1}, Lines 274-277\\
+Section \ref{results_V1}, Lines 275-278\\
 ``\quoting{v1_ep_text1}~\quoting{v1_ep_text2}''
 \end{displayquote}
 
 \begin{displayquote}
-Section \ref{results_SC}, Lines 329-332\\
+Section \ref{results_SC}, Lines 331-334\\
 ``\quoting{sc_ep_text1}.~\quoting{sc_ep_text2}''
 \end{displayquote}
 \textbf{Minor points }
@@ -367,7 +367,7 @@ We thank the reviewer for pointing out the importance of ground truth comparison
 In this revision, we make ground truth comparisons via analytic derivations, empirical error contours, and brute-force sampling.
 
 \textit{Analytic comparisons}:
-The 2x2 linear dynamical system is chosen as a worked example because it has multi-modal non-elliptical structure (Fig. \ref{fig:LDS1}), and its contours can be derived analytically (Fig. \ref{fig:LDS2}).
+The 2x2 linear dynamical system is chosen as a worked example because it has multi-modal non-elliptical structure (Figure 1-figure supplement 1), and its contours can be derived analytically (Figure 1-figure supplement 2).
 Similarly, in Section \ref{methods_V1_complexity}, we derive the quadratic relationship between excitatory variability and input noise variability (in a simplified model) suggesting that the quadratic relationship uncovered by EPI (see Section \ref{results_V1}) is correct.
 
 \textit{Error contours}:
@@ -375,8 +375,8 @@ In the motivation example, we compare the EPI inferred distribution of STG condu
 This general region of parameter space was labeled following grid search analyses in a previous study (Gutierrez et al. 2013, Figure 2, parameter regime G).
 
 \textit{Brute-force}:
-The EPI inferred distribution for rapid task switching in the SC model is sharply bent (Fig. \ref{fig:SC}), and matches the parameter set returned from random sampling (Figure \ref{fig:SC8}A).  
-We note that the brute-force parameter set is actually not the ground-truth solution, because it does not obey the constraints of the emergent property as the EPI distribution does (Figure \ref{fig:SC8}B).
+The EPI inferred distribution for rapid task switching in the SC model is sharply bent (Figure \ref{fig:SC}), and matches the parameter set returned from random sampling (Figure 4-figure supplement 5A).  
+We note that the brute-force parameter set is actually not the ground-truth solution, because it does not obey the constraints of the emergent property as the EPI distribution does (Figure 4-figure supplement 5B).
 This can explain the spurious samples in the brute-force set that are not in the EPI inferred distribution.
 
 All EPI distributions shown in this manuscript are “validated” in the sense that they pass a hypothesis testing criteria for emergent property convergence; all EPI distributions produce their emergent properties.
@@ -392,7 +392,7 @@ The STG subcircuit model of Gutierrez et al. 2013 is certainly less complex than
 We clarify why this model is analyzed in Section \ref{results_motivating} instead of more complex STG models when discussing the differences between EPI and SNPE in Discussion:
 
 \begin{displayquote}
-Lines 432-444\\
+Lines 435-447\\
 ``\quoting{discussion_gradients}''
 \end{displayquote}
 
@@ -402,7 +402,7 @@ Thank you for this recommendation.
 We now include substantial text in discussion devoted to this topic in addition to that quoted in the previous response (R3 concern \#3).
 
 \begin{displayquote}
-Lines 424-444\\
+Lines 427-447\\
 ``\quoting{discussion_methods} \\ \quoting{discussion_gradients}''
 \end{displayquote}
 
@@ -435,7 +435,7 @@ We have made sure to make this explicit in each section of the paper.
 
 \item \textbf{The augmented Lagrangian optimization was not well explained or motivated. There is a reference to m=absolute value(mu) but I didn't see m in the above equation.}
 
-Lines 764-766 \\
+Lines 767-769 \\
 \begin{displayquote}
 ``\quoting{AL_standard}"
 \end{displayquote}

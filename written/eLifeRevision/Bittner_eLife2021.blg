@@ -6,43 +6,43 @@ Database file #1: eLife2021.bib
 Warning--empty journal in hastings1970monte
 You've used 96 entries,
             1791 wiz_defined-function locations,
-            973 strings with 22218 characters,
-and the built_in function-call counts, 24859 in all, are:
-= -- 2219
+            973 strings with 22217 characters,
+and the built_in function-call counts, 24831 in all, are:
+= -- 2215
 > -- 1235
 < -- 13
 + -- 447
 - -- 351
-* -- 1860
-:= -- 3916
+* -- 1865
+:= -- 3918
 add.period$ -- 291
 call.type$ -- 96
 change.case$ -- 93
 chr.to.int$ -- 0
 cite$ -- 97
-duplicate$ -- 1031
-empty$ -- 2293
+duplicate$ -- 1023
+empty$ -- 2294
 format.name$ -- 351
-if$ -- 5458
+if$ -- 5445
 int.to.chr$ -- 0
 int.to.str$ -- 96
 missing$ -- 98
 newline$ -- 482
 num.names$ -- 96
-pop$ -- 219
+pop$ -- 218
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 506
+skip$ -- 495
 stack$ -- 0
-substring$ -- 1964
-swap$ -- 251
+substring$ -- 1971
+swap$ -- 243
 text.length$ -- 13
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 1
-while$ -- 244
+while$ -- 246
 width$ -- 98
 write$ -- 1039
 (There was 1 warning)
