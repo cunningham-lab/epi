@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  7 JUN 2021 14:16
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  8 JUN 2021 08:16
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -836,10 +836,10 @@ ion: found PDF version <1.6>, but at most version <1.5> allowed
 <fig1supp1.pdf, id=570, 597.50829pt x 542.88019pt>
 File: fig1supp1.pdf Graphic file (type pdf)
  <use fig1supp1.pdf>
-Package pdftex.def Info: fig1supp1.pdf used on input line 941.
+Package pdftex.def Info: fig1supp1.pdf used on input line 942.
 (pdftex.def)             Requested size: 478.00728pt x 434.30473pt.
 
-Overfull \hbox (8.53682pt too wide) in paragraph at lines 941--942
+Overfull \hbox (8.53682pt too wide) in paragraph at lines 942--943
  [] 
  []
 
@@ -850,7 +850,7 @@ ion: found PDF version <1.6>, but at most version <1.5> allowed
 <fig1supp2.pdf, id=628, 445.86374pt x 212.9536pt>
 File: fig1supp2.pdf Graphic file (type pdf)
  <use fig1supp2.pdf>
-Package pdftex.def Info: fig1supp2.pdf used on input line 986.
+Package pdftex.def Info: fig1supp2.pdf used on input line 987.
 (pdftex.def)             Requested size: 356.69147pt x 170.3631pt.
 
 
@@ -859,7 +859,7 @@ ion: found PDF version <1.6>, but at most version <1.5> allowed
 <fig1supp3.pdf, id=629, 489.69249pt x 195.19525pt>
 File: fig1supp3.pdf Graphic file (type pdf)
  <use fig1supp3.pdf>
-Package pdftex.def Info: fig1supp3.pdf used on input line 995.
+Package pdftex.def Info: fig1supp3.pdf used on input line 996.
 (pdftex.def)             Requested size: 391.75452pt x 156.1564pt.
  [44]
 [45 <./fig1supp2.pdf> <./fig1supp3.pdf
@@ -870,7 +870,7 @@ ion: multiple pdfs with page group included in a single page
 File: fig1supp4.pdf Graphic file (type pdf)
 
 <use fig1supp4.pdf>
-Package pdftex.def Info: fig1supp4.pdf used on input line 1189.
+Package pdftex.def Info: fig1supp4.pdf used on input line 1190.
 (pdftex.def)             Requested size: 361.56168pt x 128.70981pt.
  [50 <./fig1supp4.pdf>] [51] [52]
 
@@ -879,7 +879,7 @@ ion: found PDF version <1.6>, but at most version <1.5> allowed
 <fig2supp1.pdf, id=756, 334.98851pt x 228.45752pt>
 File: fig2supp1.pdf Graphic file (type pdf)
  <use fig2supp1.pdf>
-Package pdftex.def Info: fig2supp1.pdf used on input line 1285.
+Package pdftex.def Info: fig2supp1.pdf used on input line 1286.
 (pdftex.def)             Requested size: 234.49036pt x 159.91916pt.
 
 
@@ -888,7 +888,7 @@ ion: found PDF version <1.6>, but at most version <1.5> allowed
 <fig2supp2.pdf, id=757, 296.79784pt x 375.802pt>
 File: fig2supp2.pdf Graphic file (type pdf)
  <use fig2supp2.pdf>
-Package pdftex.def Info: fig2supp2.pdf used on input line 1299.
+Package pdftex.def Info: fig2supp2.pdf used on input line 1300.
 (pdftex.def)             Requested size: 296.7971pt x 375.80107pt.
  [53]
 [54 <./fig2supp1.pdf>] [55 <./fig2supp2.pdf>]
@@ -898,10 +898,10 @@ ion: found PDF version <1.6>, but at most version <1.5> allowed
 <fig2supp3.pdf, id=814, 597.50829pt x 532.15616pt>
 File: fig2supp3.pdf Graphic file (type pdf)
  <use fig2supp3.pdf>
-Package pdftex.def Info: fig2supp3.pdf used on input line 1336.
+Package pdftex.def Info: fig2supp3.pdf used on input line 1337.
 (pdftex.def)             Requested size: 478.00728pt x 425.7255pt.
 
-Overfull \hbox (8.53682pt too wide) in paragraph at lines 1336--1337
+Overfull \hbox (8.53682pt too wide) in paragraph at lines 1337--1338
  [] 
  []
 
@@ -912,7 +912,7 @@ ion: found PDF version <1.6>, but at most version <1.5> allowed
 <fig3supp1.pdf, id=875, 363.7038pt x 330.51079pt>
 File: fig3supp1.pdf Graphic file (type pdf)
  <use fig3supp1.pdf>
-Package pdftex.def Info: fig3supp1.pdf used on input line 1450.
+Package pdftex.def Info: fig3supp1.pdf used on input line 1451.
 (pdftex.def)             Requested size: 290.96342pt x 264.40897pt.
 
 
@@ -921,7 +921,7 @@ ion: found PDF version <1.6>, but at most version <1.5> allowed
 <fig3supp2.pdf, id=876, 439.6194pt x 185.227pt>
 File: fig3supp2.pdf Graphic file (type pdf)
  <use fig3supp2.pdf>
-Package pdftex.def Info: fig3supp2.pdf used on input line 1461.
+Package pdftex.def Info: fig3supp2.pdf used on input line 1462.
 (pdftex.def)             Requested size: 351.69598pt x 148.1818pt.
 
 
@@ -934,7 +934,7 @@ ion: found PDF version <1.6>, but at most version <1.5> allowed
 <fig3supp3.pdf, id=877, 552.35963pt x 252.73622pt>
 File: fig3supp3.pdf Graphic file (type pdf)
  <use fig3supp3.pdf>
-Package pdftex.def Info: fig3supp3.pdf used on input line 1470.
+Package pdftex.def Info: fig3supp3.pdf used on input line 1471.
 (pdftex.def)             Requested size: 441.8883pt x 202.18924pt.
  [60 <./fig3supp1.pdf>]
 
@@ -943,7 +943,7 @@ ion: found PDF version <1.6>, but at most version <1.5> allowed
 <fig3supp4.pdf, id=907, 423.74812pt x 687.16827pt>
 File: fig3supp4.pdf Graphic file (type pdf)
  <use fig3supp4.pdf>
-Package pdftex.def Info: fig3supp4.pdf used on input line 1487.
+Package pdftex.def Info: fig3supp4.pdf used on input line 1488.
 (pdftex.def)             Requested size: 338.99895pt x 549.73537pt.
  [61 <./fig3supp2.pdf>] [62 <./fig3supp3.pdf>] [63 <./fig3supp4.pdf>] [64]
 
@@ -952,7 +952,7 @@ ion: found PDF version <1.6>, but at most version <1.5> allowed
 <fig4supp1.pdf, id=1038, 503.56631pt x 476.23419pt>
 File: fig4supp1.pdf Graphic file (type pdf)
  <use fig4supp1.pdf>
-Package pdftex.def Info: fig4supp1.pdf used on input line 1615.
+Package pdftex.def Info: fig4supp1.pdf used on input line 1616.
 (pdftex.def)             Requested size: 453.20549pt x 428.6068pt.
 
 
@@ -961,7 +961,7 @@ ion: found PDF version <1.6>, but at most version <1.5> allowed
 <fig4supp2.pdf, id=1039, 441.74937pt x 151.94064pt>
 File: fig4supp2.pdf Graphic file (type pdf)
  <use fig4supp2.pdf>
-Package pdftex.def Info: fig4supp2.pdf used on input line 1626.
+Package pdftex.def Info: fig4supp2.pdf used on input line 1627.
 (pdftex.def)             Requested size: 441.74829pt x 151.94026pt.
 
 [65] [66 <./fig4supp1.pdf>]
@@ -971,14 +971,14 @@ ion: found PDF version <1.6>, but at most version <1.5> allowed
 <fig4supp3.pdf, id=1074, 322.73975pt x 352.78903pt>
 File: fig4supp3.pdf Graphic file (type pdf)
  <use fig4supp3.pdf>
-Package pdftex.def Info: fig4supp3.pdf used on input line 1680.
+Package pdftex.def Info: fig4supp3.pdf used on input line 1681.
 (pdftex.def)             Requested size: 290.46307pt x 317.50719pt.
 
 [67 <./fig4supp2.pdf>] [68 <./fig4supp3.pdf>]
 <fig4supp4.pdf, id=1190, 756.75925pt x 257.17479pt>
 File: fig4supp4.pdf Graphic file (type pdf)
  <use fig4supp4.pdf>
-Package pdftex.def Info: fig4supp4.pdf used on input line 1746.
+Package pdftex.def Info: fig4supp4.pdf used on input line 1747.
 (pdftex.def)             Requested size: 378.3787pt x 128.58707pt.
 
 
@@ -987,10 +987,10 @@ ion: found PDF version <1.6>, but at most version <1.5> allowed
 <fig4supp5.pdf, id=1191, 597.50829pt x 264.1007pt>
 File: fig4supp5.pdf Graphic file (type pdf)
  <use fig4supp5.pdf>
-Package pdftex.def Info: fig4supp5.pdf used on input line 1762.
+Package pdftex.def Info: fig4supp5.pdf used on input line 1763.
 (pdftex.def)             Requested size: 478.00728pt x 211.28082pt.
 
-Overfull \hbox (8.53682pt too wide) in paragraph at lines 1762--1763
+Overfull \hbox (8.53682pt too wide) in paragraph at lines 1763--1764
  [] 
  []
 
@@ -1005,7 +1005,7 @@ ion: found PDF version <1.6>, but at most version <1.5> allowed
 <fig5supp1.pdf, id=1272, 314.14465pt x 114.63829pt>
 File: fig5supp1.pdf Graphic file (type pdf)
  <use fig5supp1.pdf>
-Package pdftex.def Info: fig5supp1.pdf used on input line 1788.
+Package pdftex.def Info: fig5supp1.pdf used on input line 1789.
 (pdftex.def)             Requested size: 376.97168pt x 137.56525pt.
 
 [71 <./fig5supp1.pdf>]
@@ -1015,7 +1015,7 @@ ion: found PDF version <1.6>, but at most version <1.5> allowed
 <fig5supp2.pdf, id=1313, 334.3993pt x 119.58978pt>
 File: fig5supp2.pdf Graphic file (type pdf)
  <use fig5supp2.pdf>
-Package pdftex.def Info: fig5supp2.pdf used on input line 1811.
+Package pdftex.def Info: fig5supp2.pdf used on input line 1812.
 (pdftex.def)             Requested size: 401.27715pt x 143.507pt.
  [72 <./fig5supp2.pdf>] [73] (./Bittner_eLife2021.aux) )
 (\end occurred inside a group at level 1)
@@ -1053,7 +1053,7 @@ local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/lo
 cal/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/loc
 al/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr
 /local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Bittner_eLife2021.pdf (73 pages, 12563790 bytes).
+Output written on Bittner_eLife2021.pdf (73 pages, 12563787 bytes).
 PDF statistics:
  1444 PDF objects out of 1728 (max. 8388607)
  588 compressed objects within 6 object streams
